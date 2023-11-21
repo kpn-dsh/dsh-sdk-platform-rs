@@ -101,34 +101,6 @@ impl Cert {
         self.public_key.clone()
     }
 
-    /// write the certificates & key to files in PEM format to given path.
-    /// Equivalent to ca.crt, client.pem, client.key, client.pub.
-    ///
-    /// ### NOTE: It will overwrite existing files!
-    pub fn write_to_files(&self, path: &std::path::Path) -> std::io::Result<()> {
-        std::fs::create_dir_all(path)?;
-
-        let files = [
-            ("ca.crt", self.dsh_ca_certificate_pem()),
-            ("client.pem", self.dsh_kafka_certificate_pem()),
-            ("client.key", self.private_key_pem()),
-            ("client.pub", self.public_key_pem()),
-        ];
-
-        for (filename, content) in &files {
-            let file_path = path.join(filename);
-            Cert::create_file(&file_path, content.as_bytes())?;
-        }
-        Ok(())
-    }
-
-    fn create_file(path: &std::path::Path, content: &[u8]) -> std::io::Result<()> {
-        use std::fs::File;
-        use std::io::Write;
-        let mut file = File::create(path)?;
-        file.write_all(content)
-    }
-
     /// Generate the certificate signing request.
     ///
     /// Implementation via Picky library.
@@ -390,27 +362,6 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(response, dn);
-    }
-
-    #[test]
-    fn test_cert_write_to_files() {
-        let cert = Cert {
-            dsh_ca_certificate: "test_ca_certificate".to_string(),
-            dsh_kafka_certificate: "test_kafka_certificate".to_string(),
-            private_key: "test_private_key".to_string(),
-            public_key: "test_public_key".to_string(),
-        };
-        let path = std::path::Path::new("./tmp");
-        cert.write_to_files(&path).unwrap();
-        let dsh_ca_certificate_path = path.join("ca.crt");
-        let dsh_kafka_certificate_path = path.join("client.pem");
-        let private_key_path = path.join("client.key");
-        let public_key_path = path.join("client.pub");
-        assert!(dsh_ca_certificate_path.exists());
-        assert!(dsh_kafka_certificate_path.exists());
-        assert!(private_key_path.exists());
-        assert!(public_key_path.exists());
-        std::fs::remove_dir_all(path).unwrap();
     }
 
     #[tokio::test]
