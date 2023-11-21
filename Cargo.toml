@@ -1,0 +1,39 @@
+[package]
+authors = [
+    "KPN",
+    "Frank Hol <frank.hol@kpn.com>",
+]
+description = "SDK for KPN Data Services Hub"
+edition = "2021"
+exclude = ["/tmp"]
+homepage = "https://www.kpn.com/zakelijk/internet-of-things/data-services-hub.htm"
+keywords = ["kpn", "dsh", "sdk"]
+license = "Apache License 2.0" # TBD
+name = "dsh_sdk"
+readme = "README.md"
+repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
+version = "0.1.0"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tokio-util = {version = "0.7", features = ["compat"] }
+rdkafka =  { version = "0.36", features =  ["cmake-build"]}
+rustls = "0.21"
+serde = { version = "1.0", features = ["derive"]}
+serde_json = {version = "1.0", features = ["preserve_order"]}
+picky = { version =  "7.0.0-rc.8", default-features = false, features = ["x509"]}
+reqwest = { version = "0.11" , default-features = false, features = ["rustls-tls", "tokio-rustls"] }
+async-trait = "0.1.73"
+log =  "0.4"
+thiserror = "1.0"
+
+[features]
+default = ["graceful_shutdown", "local", "dlq", "rdkafka-ssl"]
+local = []
+dlq = []
+graceful_shutdown = []
+rdkafka-ssl-vendored = ["rdkafka/ssl-vendored"]
+rdkafka-ssl = ["rdkafka/ssl"]
+
+[dev-dependencies]
+mockito = "1.1.1"
