@@ -28,7 +28,7 @@ log =  "0.4"
 thiserror = "1.0"
 
 [features]
-default = ["graceful_shutdown", "local", "dlq", "rdkafka-ssl"]
+default = ["graceful_shutdown", "local", "rdkafka-ssl"]
 local = []
 dlq = []
 graceful_shutdown = []

@@ -42,9 +42,9 @@
 
 pub mod bootstrap;
 
-//#[cfg(feature = "dlq")]
+#[cfg(feature = "dlq")]
 pub mod dlq;
 
 mod error;
-//#[cfg(feature = "graceful_shutdown")]
+#[cfg(feature = "graceful_shutdown")]
 pub mod graceful_shutdown;

@@ -16,7 +16,7 @@ pub mod local;
 /// ```no_run
 /// use dsh_sdk::bootstrap::Bootstrap;
 /// use dsh_sdk::bootstrap::GroupType;
-/// 
+///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let bootstrap = Bootstrap::new().await.expect("Bootstrap failed");

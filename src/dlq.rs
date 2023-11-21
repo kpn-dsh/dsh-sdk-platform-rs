@@ -84,7 +84,7 @@
 //!     while let Some(message) = consumer.recv().await {
 //!         match message {
 //!             Err(e) => {}
-//!             Ok(m) => { 
+//!             Ok(m) => {
 //!                 match deserialize(m) {
 //!                     Err(e) => e.to_dlq(msg.detach()).send(&mut dlq_tx).await,
 //!                     Ok(payload) => {println!("Payload: {}", payload)}
