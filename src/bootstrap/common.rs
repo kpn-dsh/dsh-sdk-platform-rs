@@ -28,7 +28,7 @@ impl Bootstrap {
     /// Example of local_datastreams.json.
     /// (important that read and write has correct topic names that are configured in your local kafka cluster)
     ///
-    /// ```ignore
+    /// ```text
     /// {
     ///     "brokers": ["localhost:9092"],
     ///     "streams": {
