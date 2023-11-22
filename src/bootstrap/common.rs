@@ -278,7 +278,9 @@ impl KafkaProperties {
         access: ReadWriteAccess,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let read_topics = self
-            .streams.values().map(|datastream| match access {
+            .streams
+            .values()
+            .map(|datastream| match access {
                 ReadWriteAccess::Read => datastream
                     .read
                     .split('.')
