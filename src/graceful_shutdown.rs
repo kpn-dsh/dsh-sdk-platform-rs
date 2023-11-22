@@ -67,6 +67,12 @@ pub struct Shutdown {
     shutdown_complete_rx: Option<mpsc::Receiver<()>>,
 }
 
+impl Default for Shutdown {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Shutdown {
     /// Create new shutdown handle.
     /// Returns shutdown handle and shutdown complete receiver.

@@ -122,7 +122,7 @@ impl Cert {
         let mut ident = private_key.to_vec();
         ident.extend_from_slice(b"\n");
         ident.extend_from_slice(cert);
-        Ok(Identity::from_pem(&ident)?)
+        Identity::from_pem(&ident)
     }
 }
 
@@ -144,8 +144,8 @@ impl DshConfig {
         let dsh_ca_certificate = env::var("DSH_CA_CERTIFICATE")?;
         let tenant_name = DshConfig::tenant_name(app_id);
         Ok(DshConfig {
-            config_host: config_host,
-            task_id: task_id,
+            config_host,
+            task_id,
             tenant_name,
             dsh_secret_token,
             dsh_ca_certificate,
@@ -154,7 +154,7 @@ impl DshConfig {
 
     /// Derive the tenant name from the app id.
     fn tenant_name(app_id: String) -> String {
-        let tenant_name = app_id.split("/").nth(1);
+        let tenant_name = app_id.split('/').nth(1);
         match tenant_name {
             Some(tenant_name) => tenant_name.to_string(),
             None => {
@@ -219,7 +219,7 @@ impl DshCall<'_> {
         let response = self.request_builder(&url, client).send().await?;
         if !response.status().is_success() {
             return Err(DshError::DshCallError {
-                url: url,
+                url,
                 status_code: response.status(),
                 error_body: response.text().await?,
             });

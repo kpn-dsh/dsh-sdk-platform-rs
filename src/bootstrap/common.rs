@@ -231,7 +231,7 @@ impl Bootstrap {
 
     /// Get the client id based on the task id.
     pub fn get_client_id(&self) -> &str {
-        &self.client_id.as_str()
+        self.client_id.as_str()
     }
 
     pub fn kafka_properties(&self) -> &KafkaProperties {
@@ -278,29 +278,27 @@ impl KafkaProperties {
         access: ReadWriteAccess,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let read_topics = self
-            .streams
-            .iter()
-            .map(|(_, datastream)| match access {
+            .streams.values().map(|datastream| match access {
                 ReadWriteAccess::Read => datastream
                     .read
-                    .split(".")
+                    .split('.')
                     .take(2)
                     .collect::<Vec<&str>>()
                     .join(".")
-                    .replace("\\", ""),
+                    .replace('\\', ""),
                 ReadWriteAccess::Write => datastream
                     .write
-                    .split(".")
+                    .split('.')
                     .take(2)
                     .collect::<Vec<&str>>()
                     .join(".")
-                    .replace("\\", ""),
+                    .replace('\\', ""),
             })
             .collect::<Vec<String>>();
         for topic in topics {
             let topic_name = topic
                 .to_string()
-                .split(".")
+                .split('.')
                 .take(2)
                 .collect::<Vec<&str>>()
                 .join(".");
@@ -322,8 +320,8 @@ impl GroupType {
     pub fn get_from_env() -> Self {
         let group_type = env::var("KAFKA_CONSUMER_GROUP_TYPE");
         match group_type {
-            Ok(s) if s == "private".to_string() => GroupType::Private(0),
-            Ok(s) if s == "shared".to_string() => GroupType::Shared(0),
+            Ok(s) if s == *"private" => GroupType::Private(0),
+            Ok(s) if s == *"shared" => GroupType::Shared(0),
             _ => {
                 warn!("KAFKA_CONSUMER_GROUP_TYPE is not set correctly, defaulting to private");
                 GroupType::Private(0)
@@ -343,7 +341,7 @@ pub fn get_configured_topics() -> Vec<String> {
         }
     };
     kafka_topic_string
-        .split(",")
+        .split(',')
         .map(str::trim)
         .map(String::from)
         .collect()
