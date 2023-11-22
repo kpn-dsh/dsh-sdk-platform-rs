@@ -23,7 +23,7 @@ serde = { version = "1.0", features = ["derive"]}
 serde_json = {version = "1.0", features = ["preserve_order"]}
 picky = { version =  "7.0.0-rc.8", default-features = false, features = ["x509"]}
 reqwest = { version = "0.11" , default-features = false, features = ["rustls-tls", "tokio-rustls"] }
-async-trait = "0.1.73"
+async-trait = "0.1.74"
 log =  "0.4"
 thiserror = "1.0"
 
