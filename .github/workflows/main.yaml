@@ -1,0 +1,137 @@
+name: Main
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        version:
+          - nightly
+          - beta
+          - stable
+        target:
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.version }}
+          override: true
+          components: rustfmt
+      - name: clean
+        run: cargo clean
+      - name: build
+        run: cargo build --features full
+        env:
+          RUST_BACKTRACE: 1
+      - name: test
+        run: cargo test --features full --  --test-threads=1
+        env:
+          RUST_BACKTRACE: 1
+      - name: ignored test
+        run: cargo test --features full -- --ignored || true
+        env:
+          RUST_BACKTRACE: 1
+        if: matrix.version == 'nightly'
+      - name: check formatting
+        run: cargo fmt -- --check
+      - name: install audit
+        run: cargo install cargo-audit
+      - name: audit check
+        run: cargo audit
+  windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        version:
+          # - nightly
+          # - beta
+          - stable
+        target:
+          - x86_64-pc-windows-gnu
+            # - x86_64-pc-windows-msvc
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.version }}
+          override: true
+      - name: install
+        run: |
+          git clone https://github.com/Microsoft/vcpkg.git
+          ./vcpkg/bootstrap-vcpkg.sh
+          vcpkg integrate install
+          vcpkg install openssl:x64-windows-static-md
+      - name: build
+        run: cargo build --features full
+      - name: test
+        run: cargo test --features full -- --test-threads=1 || true
+        env:
+          RUST_BACKTRACE: 1
+      - name: install audit
+        run: cargo install cargo-audit
+      - name: audit check
+        run: cargo audit
+ 
+  mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        version:
+          - stable
+          # - beta
+          # - nightly
+        target:
+          - x86_64-apple-darwin	
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:   
+          toolchain: ${{ matrix.version }}
+          override: true
+      - name: build
+        run: cargo build --features full
+      - name: test
+        run: cargo test --features full -- --test-threads=1 || true
+        env:
+          RUST_BACKTRACE: 1
+      - name: install audit
+        run: cargo install cargo-audit
+      - name: audit check
+        run: cargo audit
+  coverage:
+    runs-on: ubuntu-latest
+    name: ubuntu / stable / coverage
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      - name: cargo install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+      - name: cargo generate-lockfile
+        if: hashFiles('Cargo.lock') == ''
+        run: cargo generate-lockfile
+      - name: cargo llvm-cov
+        run: cargo llvm-cov --locked --all-features --lcov --output-path lcov.info
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true

@@ -1,0 +1,51 @@
+name: Branch
+
+on:
+  push:
+    branches: [ "*", "!main" ]
+  pull_request:
+    branches: [ "*", "!main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        version:
+          - stable
+          - beta
+          - nightly
+        target:
+          - x86_64-unknown-linux-gnu
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.version }}
+          override: true
+          components: rustfmt
+      - name: clean
+        run: cargo clean
+      - name: build
+        run: cargo build --features full
+        env:
+          RUST_BACKTRACE: 1
+      - name: test
+        run: cargo test --features full
+        env:
+          RUST_BACKTRACE: 1
+      - name: ignored test
+        run: cargo test --features full -- --ignored || true
+        env:
+          RUST_BACKTRACE: 1
+        if: matrix.version == 'nightly'
+      - name: check formatting
+        run: cargo fmt -- --check
+      - name: install audit
+        run: cargo install cargo-audit
+      - name: audit check
+        run: cargo audit
