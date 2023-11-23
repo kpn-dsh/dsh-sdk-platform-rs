@@ -1,6 +1,5 @@
 use dsh_sdk::bootstrap::{Bootstrap, GroupType};
-use rdkafka::consumer::Consumer;
-use rdkafka::consumer::StreamConsumer;
+use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::producer::FutureProducer;
 use rdkafka::Message;
 
