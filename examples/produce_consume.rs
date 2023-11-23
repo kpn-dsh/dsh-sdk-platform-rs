@@ -8,11 +8,11 @@ const TOTAL_MESSAGES: usize = 10;
 
 async fn produce(producer: &mut FutureProducer, topic: &str) {
     for key in 0..TOTAL_MESSAGES {
-        let payload = b"hello world";
+        let payload = format!("hello world {}", key);
         let msg = producer
             .send(
                 rdkafka::producer::FutureRecord::to(topic)
-                    .payload(payload)
+                    .payload(payload.as_bytes())
                     .key(&key.to_be_bytes()),
                 std::time::Duration::from_secs(0),
             )
