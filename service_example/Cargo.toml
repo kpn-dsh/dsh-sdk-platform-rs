@@ -1,0 +1,11 @@
+[package]
+name = "dsh-rs-example"
+version = "0.1.0"
+description = "An example of DSH service using the dsh-sdk crate" 
+edition = "2021"
+
+[dependencies]
+# path needs to be changed to the path of the dsh_sdks crate
+dsh_sdk = { git = "https://github.com/kpn-dsh/dsh-sdk-platform-rs.git" , features = ["rdkafka-ssl-vendored"] }
+rdkafka =  { version = "0.36", features =  ["ssl-vendored", "cmake-build"] }
+tokio = { version = "1", features = ["full"] }
