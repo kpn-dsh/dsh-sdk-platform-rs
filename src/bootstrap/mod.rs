@@ -72,7 +72,17 @@ pub enum ReadWriteAccess {
     Write,
 }
 
+#[derive(Debug, PartialEq)]
 pub enum GroupType {
     Private(usize),
     Shared(usize),
+}
+
+impl std::fmt::Display for GroupType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GroupType::Private(i) => write!(f, "private; index: {}", i),
+            GroupType::Shared(i) => write!(f, "shared; index: {}", i),
+        }
+    }
 }

@@ -22,4 +22,6 @@ pub enum DshError {
     CsrError(#[from] picky::x509::csr::CsrError),
     #[error("Error parsing Distinguished Name: {0}")]
     ParseDnError(String),
+    #[error("Error getting group id, index out of bounds for {0}")]
+    IndexGroupIdError(crate::bootstrap::GroupType),
 }

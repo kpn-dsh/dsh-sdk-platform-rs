@@ -3,9 +3,9 @@
 //! This module contains public functions to bootstrap to DSH and get infomaion from the datastreams
 
 use log::{info, warn};
-use std::env;
+use std::{collections::HashMap, env};
 
-use super::{dsh::Cert, Bootstrap, GroupType, KafkaProperties, ReadWriteAccess};
+use super::{dsh::Cert, Bootstrap, Datastream, GroupType, KafkaProperties, ReadWriteAccess};
 use crate::error::DshError;
 
 impl Bootstrap {
@@ -138,7 +138,8 @@ impl Bootstrap {
             .set(
                 "group.id",
                 self.kafka_properties()
-                    .get_group_id(GroupType::get_from_env()),
+                    .get_group_id(GroupType::get_from_env())
+                    .expect("Group type not found"),
             )
             .set("client.id", self.get_client_id())
             .set("enable.auto.commit", "false")
@@ -234,6 +235,7 @@ impl Bootstrap {
         self.client_id.as_str()
     }
 
+    /// Get the kafka properties provided by DSH (datastreams.json)
     pub fn kafka_properties(&self) -> &KafkaProperties {
         &self.kafka_properties
     }
@@ -245,23 +247,24 @@ impl KafkaProperties {
         self.brokers.clone().join(", ")
     }
 
-    /// Get the group id from the datastreams based on environment variable KAFKA_CONSUMER_GROUP_TYPE
+    /// Get the group id from the datastreams based on GroupType
     ///
-    /// If KAFKA_CONSUMER_GROUP_TYPE is not (properly) set, it defaults to private
-    /// It always returns the first group id from the list
-    pub fn get_group_id(&self, group_type: GroupType) -> String {
+    /// # Error
+    /// If the group type is not found in the datastreams
+    /// (index out of bounds)
+    pub fn get_group_id(&self, group_type: GroupType) -> Result<String, DshError> {
         let group_id = match group_type {
-            GroupType::Private(i) => self
-                .private_consumer_groups
-                .get(i)
-                .expect("No private group id found"),
-            GroupType::Shared(i) => self
-                .shared_consumer_groups
-                .get(i)
-                .expect("No shared group id found"),
+            GroupType::Private(i) => self.private_consumer_groups.get(i),
+
+            GroupType::Shared(i) => self.shared_consumer_groups.get(i),
         };
-        info!("Kafka group id: {}", group_id);
-        group_id.clone()
+        info!("Kafka group id: {:?}", group_id);
+        match group_id {
+            Some(id) => Ok(id.to_string()),
+            None => Err(DshError::IndexGroupIdError(
+                group_type,
+            )),
+        }
     }
 
     /// Get schema host from datastreams info.
@@ -271,6 +274,24 @@ impl KafkaProperties {
         env::var("SCHEMA_REGISTRY_HOST").unwrap_or(self.schema_store.clone())
     }
 
+    /// Get all available datastreams
+    pub fn get_datastreams(&self) -> &HashMap<String, Datastream> {
+        &self.streams
+    }
+
+    /// Get a specific datastream based on the topic name
+    /// If the topic is not found, it will return None
+    pub fn get_datastream(&self, topic: &str) -> Option<&Datastream> {
+        // if topic name contains 2 dots, get the first 2 parts of the topic name
+        // this is needed because the topic name in datastreams.json is only the first 2 parts
+        let topic_name = topic
+                .split('.')
+                .take(2)
+                .collect::<Vec<&str>>()
+                .join(".");
+        self.get_datastreams().get(&topic_name)
+    }
+
     /// Check if a list of topics is present in the read topics of datastreams
     pub fn verify_list_of_topics<T: std::fmt::Display>(
         &self,
@@ -278,7 +299,7 @@ impl KafkaProperties {
         access: ReadWriteAccess,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let read_topics = self
-            .streams
+            .get_datastreams()
             .values()
             .map(|datastream| match access {
                 ReadWriteAccess::Read => datastream
@@ -313,6 +334,26 @@ impl KafkaProperties {
             }
         }
         Ok(())
+    }
+}
+
+impl Datastream {
+    /// Check read access on topic bases on datastream
+    pub fn check_read_access(&self) -> bool {
+        if self.read == "" {
+            false
+        } else {
+            true
+        }
+    }
+
+    /// Check write access on topic bases on datastream
+    pub fn check_write_access(&self) -> bool {
+        if self.write == "" {
+            false
+        } else {
+            true
+        }
     }
 }
 
@@ -360,6 +401,7 @@ mod tests {
         kafka_properties
     }
 
+    // maybe replace with local_datastreams.json?
     fn datastreams_json() -> String {
         serde_json::json!({
           "brokers": [
@@ -383,7 +425,7 @@ mod tests {
               "name": "stream.test",
               "cluster": "/tt",
               "read": "stream\\.test\\.[^.]*",
-              "write": "stream.test.test-tenant",
+              "write": "",
               "partitions": 1,
               "replication": 1,
               "partitioner": "default-partitioner",
@@ -437,33 +479,88 @@ mod tests {
     }
 
     #[test]
-    fn test_kafka_prop_get_group_id() {
+    fn test_kafka_prop_get_group_type_from_env() {
         // Set the KAFKA_CONSUMER_GROUP_TYPE environment variable to "private"
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "private");
         assert_eq!(
-            kafka_props().get_group_id(GroupType::get_from_env()),
-            "test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1",
-            "KAFKA_CONSUMER_GROUP_TYPE is set to private, but did not return test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1"
+            GroupType::get_from_env(),
+            GroupType::Private(0),
         );
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "shared");
         assert_eq!(
-            kafka_props().get_group_id(GroupType::get_from_env()),
-            "test-app_1",
-            "KAFKA_CONSUMER_GROUP_TYPE is set to shared, but did not return test-app_1"
+            GroupType::get_from_env(),
+            GroupType::Shared(0),
         );
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "invalid-type");
         assert_eq!(
-            kafka_props().get_group_id(GroupType::get_from_env()),
-            "test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1",
-            "KAFKA_CONSUMER_GROUP_TYPE is set to an invalid-type (not shared or private), but did not return test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1"
+            GroupType::get_from_env(),
+            GroupType::Private(0),
         );
         env::remove_var("KAFKA_CONSUMER_GROUP_TYPE");
         assert_eq!(
-            kafka_props().get_group_id(GroupType::get_from_env()),
-            "test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1",
-            "KAFKA_CONSUMER_GROUP_TYPE is not set, but did not return test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1"
+            GroupType::get_from_env(),
+            GroupType::Private(0),
         );
     }
+
+    #[test]
+    fn test_kafka_prop_get_group_id() {
+        assert_eq!(
+            kafka_props().get_group_id(GroupType::Private(0)).unwrap(),
+            "test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1",
+            "KAFKA_CONSUMER_GROUP_TYPE is set to private, but did not return test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1"
+        );
+        assert_eq!(
+            kafka_props().get_group_id(GroupType::Shared(0)).unwrap(),
+            "test-app_1",
+            "KAFKA_CONSUMER_GROUP_TYPE is set to shared, but did not return test-app_1"
+        );
+        assert_eq!(
+            kafka_props().get_group_id(GroupType::Shared(3)).unwrap(),
+            "test-app_4",
+            "KAFKA_CONSUMER_GROUP_TYPE is set to shared, but did not return test-app_1"
+        );
+        assert!(
+            kafka_props().get_group_id(GroupType::Private(1000)).is_err(),
+        );
+    }
+
+    #[test]
+    fn test_check_access_read_topic() {
+        assert_eq!(
+            kafka_props()
+                .get_datastream("scratch.test.test-tenant")
+                .unwrap()
+                .check_read_access(),
+            true
+        );
+        assert_eq!(
+            kafka_props()
+                .get_datastream("stream.test.test-tenant")
+                .unwrap()
+                .check_read_access(),
+            true
+        );
+    }
+
+    #[test]
+    fn test_check_access_write_topic() {
+        assert_eq!(
+            kafka_props()
+                .get_datastream("scratch.test.test-tenant")
+                .unwrap()
+                .check_write_access(),
+            true
+        );
+        assert_eq!(
+            kafka_props()
+                .get_datastream("stream.test.test-tenant")
+                .unwrap()
+                .check_write_access(),
+            false
+        );
+    }
+
 
     #[test]
     fn test_get_configured_topics() {
