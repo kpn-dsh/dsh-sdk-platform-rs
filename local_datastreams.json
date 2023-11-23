@@ -12,11 +12,22 @@
         "partitioningDepth": 0,
         "canRetain": false
       },
-      "stream.test": {
-        "name": "scratch.dlq.local-tenant",
+      "scratch.dlq-dead": {
+        "name": "scratch.dlq-dead.local-tenant",
         "cluster": "/tt",
-        "read": "scratch\\.dlq.\\[^.]*",
-        "write": "scratch.dlq.local-tenant",
+        "read": "scratch\\.dlq-dead.\\[^.]*",
+        "write": "scratch.dlq-dead.local-tenant",
+        "partitions": 1,
+        "replication": 1,
+        "partitioner": "default-partitioner",
+        "partitioningDepth": 0,
+        "canRetain": false
+      }      ,
+      "scratch.dlq-retry": {
+        "name": "scratch.dlq-retry.local-tenant",
+        "cluster": "/tt",
+        "read": "scratch\\.dlq-retry.\\[^.]*",
+        "write": "scratch.dlq-retry.local-tenant",
         "partitions": 1,
         "replication": 1,
         "partitioner": "default-partitioner",
