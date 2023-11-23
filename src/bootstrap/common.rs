@@ -261,9 +261,7 @@ impl KafkaProperties {
         info!("Kafka group id: {:?}", group_id);
         match group_id {
             Some(id) => Ok(id.to_string()),
-            None => Err(DshError::IndexGroupIdError(
-                group_type,
-            )),
+            None => Err(DshError::IndexGroupIdError(group_type)),
         }
     }
 
@@ -284,11 +282,7 @@ impl KafkaProperties {
     pub fn get_datastream(&self, topic: &str) -> Option<&Datastream> {
         // if topic name contains 2 dots, get the first 2 parts of the topic name
         // this is needed because the topic name in datastreams.json is only the first 2 parts
-        let topic_name = topic
-                .split('.')
-                .take(2)
-                .collect::<Vec<&str>>()
-                .join(".");
+        let topic_name = topic.split('.').take(2).collect::<Vec<&str>>().join(".");
         self.get_datastreams().get(&topic_name)
     }
 
@@ -340,20 +334,12 @@ impl KafkaProperties {
 impl Datastream {
     /// Check read access on topic bases on datastream
     pub fn check_read_access(&self) -> bool {
-        if self.read == "" {
-            false
-        } else {
-            true
-        }
+        !self.read.is_empty()
     }
 
     /// Check write access on topic bases on datastream
     pub fn check_write_access(&self) -> bool {
-        if self.write == "" {
-            false
-        } else {
-            true
-        }
+        !self.write.is_empty()
     }
 }
 
@@ -482,25 +468,13 @@ mod tests {
     fn test_kafka_prop_get_group_type_from_env() {
         // Set the KAFKA_CONSUMER_GROUP_TYPE environment variable to "private"
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "private");
-        assert_eq!(
-            GroupType::get_from_env(),
-            GroupType::Private(0),
-        );
+        assert_eq!(GroupType::get_from_env(), GroupType::Private(0),);
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "shared");
-        assert_eq!(
-            GroupType::get_from_env(),
-            GroupType::Shared(0),
-        );
+        assert_eq!(GroupType::get_from_env(), GroupType::Shared(0),);
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "invalid-type");
-        assert_eq!(
-            GroupType::get_from_env(),
-            GroupType::Private(0),
-        );
+        assert_eq!(GroupType::get_from_env(), GroupType::Private(0),);
         env::remove_var("KAFKA_CONSUMER_GROUP_TYPE");
-        assert_eq!(
-            GroupType::get_from_env(),
-            GroupType::Private(0),
-        );
+        assert_eq!(GroupType::get_from_env(), GroupType::Private(0),);
     }
 
     #[test]
@@ -520,9 +494,9 @@ mod tests {
             "test-app_4",
             "KAFKA_CONSUMER_GROUP_TYPE is set to shared, but did not return test-app_1"
         );
-        assert!(
-            kafka_props().get_group_id(GroupType::Private(1000)).is_err(),
-        );
+        assert!(kafka_props()
+            .get_group_id(GroupType::Private(1000))
+            .is_err(),);
     }
 
     #[test]
@@ -560,7 +534,6 @@ mod tests {
             false
         );
     }
-
 
     #[test]
     fn test_get_configured_topics() {
