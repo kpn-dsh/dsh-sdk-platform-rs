@@ -12,12 +12,10 @@ help:
 	@echo "login		- login to the relevant repository"
 	@echo "fix		- run dos2unix on every file"
 	@echo "build		- build the image"
-	@echo "build-m1	- build the image"
 	@echo "rebuild		- build the image with the --no-cache flag"
 	@echo "no-docker-build	- Cargo build on local machine"
 	@echo "all		- shorthand for fix, build, push, show"
 	@echo "run		- run the image in local docker"
-	@echo "run-m1		- run the image in local docker (m1)"
 	@echo "push		- push the  image to jfrog"
 	@echo "show		- show the current make variables"
 login:
