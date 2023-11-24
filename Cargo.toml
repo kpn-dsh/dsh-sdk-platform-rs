@@ -15,15 +15,14 @@ repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
 version = "0.1.0"
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
-tokio-util = {version = "0.7", features = ["compat"] }
-rdkafka =  { version = "0.36", features =  ["cmake-build"]}
+tokio = { version = "1", features = ["signal", "sync", "time", "macros"], optional = true}
+tokio-util = {version = "0.7", optional = true}
+rdkafka =  { version = "0.36", features =  ["cmake-build"], optional = true}
 rustls = "0.21"
 serde = { version = "1.0", features = ["derive"]}
-serde_json = {version = "1.0", features = ["preserve_order"]}
+serde_json = {version = "1.0"}
 picky = { version =  "7.0.0-rc.8", default-features = false, features = ["x509"]}
 reqwest = { version = "0.11" , default-features = false, features = ["rustls-tls", "tokio-rustls"] }
-async-trait = "0.1.74"
 log =  "0.4"
 thiserror = "1.0"
 
@@ -32,9 +31,10 @@ default = ["graceful_shutdown", "local", "rdkafka-ssl"]
 full = ["graceful_shutdown", "local", "rdkafka-ssl", "dlq"]
 local = []
 dlq = []
-graceful_shutdown = []
-rdkafka-ssl-vendored = ["rdkafka/ssl-vendored"]
-rdkafka-ssl = ["rdkafka/ssl"]
+graceful_shutdown = ["tokio", "tokio-util"]
+rdkafka-ssl-vendored = ["rdkafka" ,"rdkafka/ssl-vendored"]
+rdkafka-ssl = ["rdkafka", "rdkafka/ssl"]
 
 [dev-dependencies]
 mockito = "1.1.1"
+tokio = "1"
