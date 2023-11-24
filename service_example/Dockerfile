@@ -40,4 +40,4 @@ COPY --from=builder /usr/local/cargo/bin/dsh-rs-example /home/dsh/bin/dsh-rs-exa
 EXPOSE 9090
 
 # Set the entry point or command to run the Rust application
-ENTRYPOINT [ "/home/dsh/bin/ingester-db-kafka-service" ]
+ENTRYPOINT [ "/home/dsh/bin/dsh-rs-example" ]
