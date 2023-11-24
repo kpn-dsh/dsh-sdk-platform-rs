@@ -23,7 +23,7 @@ The following features are available in this library and can be enabled/disabled
 | `graceful_shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
 | `dlq` | &cross; | Dead Letter Queue implementation (experimental) |
 | `rdkafka-ssl` | &check; | Dynamically link to librdkafka to a locally installed OpenSSL |
-| `rdkafka-ssl-vendored` | &cross; | Build OpenSSL during compile and statically link librdkafka<br>(No initial install required in environment, does compile time) |
+| `rdkafka-ssl-vendored` | &cross; | Build OpenSSL during compile and statically link librdkafka<br>(No initial install required in environment, slower compile time) |
 
 See api documentation for more information on how to use these features including.
 
