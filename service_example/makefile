@@ -21,7 +21,7 @@ help:
 	@echo "push		- push the  image to jfrog"
 	@echo "show		- show the current make variables"
 login:
-	docker login $(DOCKER_REPO_URL) -u $(TENANT)
+	docker login $(DOCKER_REPO_URL) 
 fix: 
 	find . -type f -print0 | xargs -0 dos2unix
 build:
