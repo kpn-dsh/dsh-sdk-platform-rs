@@ -289,7 +289,7 @@ impl KafkaProperties {
     /// Check if a list of topics is present in the read topics of datastreams
     pub fn verify_list_of_topics<T: std::fmt::Display>(
         &self,
-        topics: Vec<T>,
+        topics: &Vec<T>,
         access: ReadWriteAccess,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let read_topics = self
@@ -360,7 +360,7 @@ impl GroupType {
 }
 
 /// Get the configured topics from the environment variable TOPICS
-/// The set topics can be delimited by a comma
+/// Topics can be delimited by a comma
 pub fn get_configured_topics() -> Vec<String> {
     let kafka_topic_string = match env::var("TOPICS") {
         Ok(s) => s,
@@ -452,7 +452,7 @@ mod tests {
             "stream.test.test-tenant".to_string(),
         ];
         kafka_props()
-            .verify_list_of_topics(topics, ReadWriteAccess::Read)
+            .verify_list_of_topics(&topics, ReadWriteAccess::Read)
             .unwrap()
     }
 
