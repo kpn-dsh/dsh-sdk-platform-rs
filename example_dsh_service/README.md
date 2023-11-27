@@ -41,7 +41,7 @@ If you need an extra depency during compile/build time, you can add it to the do
 
 ## Run the service on dsh
 
-To run the service on dsh, you can use the following command (replace tenant_name and topic_name with your own values):
+To run the service on dsh, you can use the following command (replace tenant_name, uid/gid, and topic_name with your own values):
 
 ```
 {
@@ -55,6 +55,6 @@ To run the service on dsh, you can use the following command (replace tenant_nam
   "instances": 0,
   "singleInstance": false,
   "needsToken": true,
-  "user": "1903:1903"
+  "user": "{uid}:{gid}"
 }
 ```
