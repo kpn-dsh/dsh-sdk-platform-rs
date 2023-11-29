@@ -1,4 +1,4 @@
-use dsh_sdk::bootstrap::Bootstrap;
+use dsh_sdk::kafka_properties::KafkaProperties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 
 use rdkafka::consumer::CommitMode;
@@ -49,8 +49,8 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
 
 #[tokio::main]
 async fn main() {
-    // Create a new bootstrap instance (connects to the DSH server and fetches the kafka properties)
-    let bootstrap = match Bootstrap::new().await {
+    // Create a new kafka_properties instance (connects to the DSH server and fetches the datastream)
+    let kafka_properties = match KafkaProperties::new().await {
         Ok(b) => b,
         Err(e) => {
             println!("Error bootstrap to DSH: {:?}", e);
@@ -63,9 +63,9 @@ async fn main() {
     let topics = topis_string.split(",").map(|s| s).collect::<Vec<&str>>();
 
     // Validate your configured topic if it has read access (optional)
-    match bootstrap
-        .kafka_properties()
-        .verify_list_of_topics(&topics, dsh_sdk::bootstrap::ReadWriteAccess::Read)
+    match kafka_properties
+        .datastream()
+        .verify_list_of_topics(&topics, dsh_sdk::kafka_properties::datastream::ReadWriteAccess::Read)
     {
         Ok(_) => {}
         Err(e) => {
@@ -78,7 +78,7 @@ async fn main() {
     let shutdown = Shutdown::new();
 
     // Get the consumer config from the bootstrap instance
-    let mut consumer_client_config = bootstrap.consumer_rdkafka_config();
+    let mut consumer_client_config = kafka_properties.consumer_rdkafka_config();
 
     // Override some default values (optional)
     consumer_client_config.set("auto.offset.reset", "latest");

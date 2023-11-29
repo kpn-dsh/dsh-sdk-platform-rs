@@ -1,5 +1,5 @@
-TENANT=
-TENANTUID=
+TENANT=greenbox-dev
+TENANTUID=1903
 
 DOCKER_REPO_URL=registry.cp.kpn-dsh.com/$(TENANT)
 VERSION=example
