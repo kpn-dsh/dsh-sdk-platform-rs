@@ -1,4 +1,4 @@
-use dsh_sdk::bootstrap::{Bootstrap, GroupType};
+use dsh_sdk::kafka_properties::KafkaProperties;
 use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::producer::FutureProducer;
 use rdkafka::Message;
@@ -38,29 +38,20 @@ async fn consume(consumer: &mut StreamConsumer, topic: &str) {
 #[tokio::main]
 async fn main() {
     // Create a new bootstrap instance (requires local_datastreams.json in root of project, as it runs in local mode)
-    let bootstrap = Bootstrap::new().await.unwrap();
+    let kafka_properties = KafkaProperties::new().await.unwrap();
 
     // Define your topic
     let topic = "scratch.local.local-tenant";
 
     // Create a new producer based on the bootstrap default config
-    let mut producer: FutureProducer = bootstrap.producer_rdkafka_config().create().unwrap();
+    let mut producer: FutureProducer = kafka_properties.producer_rdkafka_config().create().unwrap();
 
     // Produce messages towards topic
     produce(&mut producer, topic).await;
 
     // Create a new consumer based on the bootstrap default config
-    let mut consumer: StreamConsumer = bootstrap
+    let mut consumer: StreamConsumer = kafka_properties
         .consumer_rdkafka_config()
-        // make optional adjustments to default config
-        // e.g. get specific group id from the kafka properties
-        .set(
-            "group.id",
-            bootstrap
-                .kafka_properties()
-                .get_group_id(GroupType::Shared(1))
-                .unwrap(),
-        )
         .create()
         .unwrap();
 

@@ -40,7 +40,7 @@
 //! The DLQ is implemented by running the `Dlq` struct to push messages towards the DLQ topics.
 //! The `ErrorToDlq` trait can be implemented on your defined errors, to be able to send messages towards the DLQ Struct.
 
-pub mod bootstrap;
+pub mod kafka_properties;
 
 #[cfg(feature = "dlq")]
 pub mod dlq;

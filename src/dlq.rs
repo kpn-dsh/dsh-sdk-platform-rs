@@ -37,7 +37,7 @@ use rdkafka::producer::{FutureProducer, FutureRecord};
 
 use tokio::sync::mpsc;
 
-use crate::bootstrap::Bootstrap;
+use crate::kafka_properties::KafkaProperties;
 use crate::graceful_shutdown::Shutdown;
 
 /// Trait to convert an error to a dlq message
@@ -57,8 +57,7 @@ use crate::graceful_shutdown::Shutdown;
 ///
 /// impl dlq::ErrorToDlq for ConsumerError {
 ///     fn to_dlq(&self, kafka_message: rdkafka::message::OwnedMessage) ->  dlq::SendToDlq {
-///         let backtrace = Backtrace::force_capture();
-///         dlq::SendToDlq::new(kafka_message, self.retryable(), self.to_string(), backtrace.to_string())
+///         dlq::SendToDlq::new(kafka_message, self.retryable(), self.to_string(), None)
 ///     }
 ///     fn retryable(&self) -> dlq::Retryable {
 ///         match self {
@@ -142,15 +141,15 @@ pub struct Dlq {
 impl Dlq {
     /// Create new Dlq struct
     pub fn new(
-        bootstrap: &Bootstrap,
+        kafka_prop: &KafkaProperties,
         shutdown: Shutdown,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        use super::bootstrap::ReadWriteAccess;
+        use crate::kafka_properties::datastream::ReadWriteAccess;
         let (dlq_tx, dlq_rx) = mpsc::channel(200);
-        let dlq_producer = Self::build_producer(bootstrap)?;
+        let dlq_producer = Self::build_producer(kafka_prop)?;
         let dlq_dead_topic = env::var("DLQ_DEAD_TOPIC")?;
         let dlq_retry_topic = env::var("DLQ_RETRY_TOPIC")?;
-        bootstrap.kafka_properties().verify_list_of_topics(
+        kafka_prop.datastream().verify_list_of_topics(
             &vec![&dlq_dead_topic, &dlq_retry_topic],
             ReadWriteAccess::Write,
         )?;
@@ -243,8 +242,8 @@ impl Dlq {
         }
     }
 
-    fn build_producer(bootstrap: &Bootstrap) -> Result<FutureProducer, rdkafka::error::KafkaError> {
-        let producer_config = bootstrap.producer_rdkafka_config();
+    fn build_producer(kafka_prop: &KafkaProperties) -> Result<FutureProducer, rdkafka::error::KafkaError> {
+        let producer_config = kafka_prop.producer_rdkafka_config();
         Ok(producer_config.create()?)
     }
 }

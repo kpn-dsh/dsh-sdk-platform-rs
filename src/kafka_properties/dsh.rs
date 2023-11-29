@@ -1,47 +1,30 @@
 use log::warn;
-use reqwest::{Client, ClientBuilder, Identity};
-
-use picky::key::PrivateKey;
-use picky::x509::csr::Csr;
-use picky::x509::name::{DirectoryName, NameAttr};
-use picky::{hash::HashAlgorithm, signature::SignatureAlgorithm};
+use reqwest::Client;
 
 use std::env;
 
 use crate::error::DshError;
 
-use super::{Bootstrap, KafkaProperties};
+use super::{KafkaProperties, datastream::Datastream, certificates::Cert};
 
-impl Bootstrap {
+impl KafkaProperties {
     /// Create a new bootstrap struct to connect to DSH
     /// This function will call the DSH API to retrieve the certificates and datastreams.json
     pub(crate) async fn new_dsh() -> Result<Self, DshError> {
         let dsh_config = DshConfig::new()?;
-        let client = Bootstrap::reqwest_client(dsh_config.dsh_ca_certificate.as_bytes())?;
+        let client = KafkaProperties::reqwest_client(dsh_config.dsh_ca_certificate.as_bytes())?;
         let dn = DshCall::Dn(&dsh_config).perform_call(&client).await?;
         let dn = Dn::parse_string(&dn)?;
-        let private_key = PrivateKey::generate_rsa(4096)?;
-        let csr = Cert::generate_csr(&private_key, dn).await?;
-        let dsh_kafka_certificate = DshCall::CertificateSignRequest {
-            config: &dsh_config,
-            csr: csr.to_pem()?,
-        }
-        .perform_call(&client)
-        .await?;
-        let certificates = Cert {
-            dsh_ca_certificate: dsh_config.dsh_ca_certificate.to_string(),
-            dsh_kafka_certificate,
-            private_key: private_key.to_pem_str()?,
-            public_key: private_key.to_public_key()?.to_pem_str()?,
-        };
+        let certificates = Cert::new(dn, &dsh_config, &client).await?;
         let client_with_cert = certificates.reqwest_client_config()?.build()?;
         let datastreams_string = DshCall::Datastream(&dsh_config)
             .perform_call(&client_with_cert)
             .await?;
-        let kafka_properties: KafkaProperties = serde_json::from_str(&datastreams_string)?;
-        Ok(Bootstrap {
-            kafka_properties,
+        let datastream: Datastream = serde_json::from_str(&datastreams_string)?;
+        Ok(Self {
             client_id: dsh_config.task_id.to_string(),
+            tenant_name: dsh_config.tenant_name.to_string(),
+            datastream,
             certificates: Some(certificates),
         })
     }
@@ -56,77 +39,7 @@ impl Bootstrap {
     }
 }
 
-/// Hold all relevant certificates and keys to connect to DSH.
-#[derive(Debug, Clone)]
-pub struct Cert {
-    dsh_ca_certificate: String,
-    dsh_kafka_certificate: String,
-    private_key: String,
-    public_key: String,
-}
-
-impl Cert {
-    /// Build a reqwest client with the DSH Kafka certificate included.
-    /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
-    pub fn reqwest_client_config(&self) -> Result<ClientBuilder, reqwest::Error> {
-        let pem_identity = Cert::create_identity(
-            self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem().as_bytes(),
-        )?;
-        let reqwest_cert =
-            reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
-        Ok(Client::builder()
-            .add_root_certificate(reqwest_cert)
-            .identity(pem_identity)
-            .use_rustls_tls())
-    }
-
-    /// Get the root certificate as PEM string. Equivalent to ca.crt.
-    pub fn dsh_ca_certificate_pem(&self) -> String {
-        self.dsh_ca_certificate.clone()
-    }
-
-    /// Get the kafka certificate as PEM string. Equivalent to client.pem.
-    pub fn dsh_kafka_certificate_pem(&self) -> String {
-        self.dsh_kafka_certificate.clone()
-    }
-
-    /// Get the private key as PEM string. Equivalent to client.key.
-    pub fn private_key_pem(&self) -> String {
-        self.private_key.clone()
-    }
-
-    /// Get the public key as PEM string.
-    pub fn public_key_pem(&self) -> String {
-        self.public_key.clone()
-    }
-
-    /// Generate the certificate signing request.
-    ///
-    /// Implementation via Picky library.
-    async fn generate_csr(
-        private_key: &PrivateKey,
-        dn: Dn,
-    ) -> Result<Csr, picky::x509::csr::CsrError> {
-        let mut subject = DirectoryName::new_common_name(dn.cn);
-        subject.add_attr(NameAttr::OrganizationalUnitName, dn.ou);
-        subject.add_attr(NameAttr::OrganizationName, dn.o);
-        Csr::generate(
-            subject,
-            private_key,
-            SignatureAlgorithm::RsaPkcs1v15(HashAlgorithm::SHA2_512),
-        )
-    }
-
-    fn create_identity(cert: &[u8], private_key: &[u8]) -> Result<Identity, reqwest::Error> {
-        let mut ident = private_key.to_vec();
-        ident.extend_from_slice(b"\n");
-        ident.extend_from_slice(cert);
-        Identity::from_pem(&ident)
-    }
-}
-
-struct DshConfig {
+pub(crate) struct DshConfig {
     config_host: String,
     tenant_name: String,
     task_id: String,
@@ -152,6 +65,10 @@ impl DshConfig {
         })
     }
 
+    pub(crate) fn dsh_ca_certificate(&self) -> &str {
+        &self.dsh_ca_certificate
+    }
+
     /// Derive the tenant name from the app id.
     fn tenant_name(app_id: String) -> String {
         let tenant_name = app_id.split('/').nth(1);
@@ -168,7 +85,7 @@ impl DshConfig {
     }
 }
 
-enum DshCall<'a> {
+pub(crate) enum DshCall<'a> {
     /// Call to retreive distinguished name.
     Dn(&'a DshConfig),
     /// Call to retreive datastreams.json.
@@ -214,7 +131,7 @@ impl DshCall<'_> {
         }
     }
 
-    async fn perform_call(&self, client: &Client) -> Result<String, DshError> {
+    pub(crate) async fn perform_call(&self, client: &Client) -> Result<String, DshError> {
         let url = self.url_for_call();
         let response = self.request_builder(&url, client).send().await?;
         if !response.status().is_success() {
@@ -231,7 +148,7 @@ impl DshCall<'_> {
 /// Struct to parse DN string into separate fields.
 /// Needed for Picky solution.
 #[derive(Debug)]
-struct Dn {
+pub(crate) struct Dn {
     cn: String,
     ou: String,
     o: String,
@@ -239,7 +156,7 @@ struct Dn {
 
 impl Dn {
     /// Parse the DN string into Dn struct.
-    fn parse_string(dn_string: &str) -> Result<Self, DshError> {
+    pub (crate) fn parse_string(dn_string: &str) -> Result<Self, DshError> {
         let mut cn = None;
         let mut ou = None;
         let mut o = None;
@@ -267,6 +184,17 @@ impl Dn {
                 "O is missing in DN string".to_string(),
             ))?,
         })
+    }
+    pub(crate) fn cn(&self) -> &str {
+        &self.cn
+    }
+
+    pub(crate) fn ou(&self) -> &str {
+        &self.ou
+    }
+
+    pub(crate) fn o(&self) -> &str {
+        &self.o
     }
 }
 
@@ -364,26 +292,7 @@ mod tests {
         assert_eq!(response, dn);
     }
 
-    #[tokio::test]
-    #[ignore] // This is ignored because it takes a long time to generate the private key in debug mode.
-    async fn test_dsh_certificate_sign_request() {
-        let private_key = PrivateKey::generate_rsa(4096).unwrap();
-        let dn = Dn {
-            cn: "Test CN".to_string(),
-            ou: "Test OU".to_string(),
-            o: "Test Org".to_string(),
-        };
-        let csr = Cert::generate_csr(&private_key, dn).await.unwrap();
-        let (directory_name, pub_key) = csr.into_subject_infos();
-        assert_eq!(
-            directory_name.to_string(),
-            "CN=Test CN,OU=Test OU,O=Test Org"
-        );
-        assert_eq!(
-            pub_key.to_pem_str().unwrap(),
-            private_key.to_public_key().unwrap().to_pem_str().unwrap()
-        );
-    }
+
 
     #[test]
     fn test_dsh_parse_dn() {
