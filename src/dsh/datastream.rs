@@ -266,9 +266,9 @@ mod tests {
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "shared");
         assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "invalid-type");
-        assert_eq!(GroupType::from_env(), GroupType::Private(0),);
+        assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
         env::remove_var("KAFKA_CONSUMER_GROUP_TYPE");
-        assert_eq!(GroupType::from_env(), GroupType::Private(0),);
+        assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
     }
 
     #[test]
