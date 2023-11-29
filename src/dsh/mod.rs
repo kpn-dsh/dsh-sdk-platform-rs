@@ -9,14 +9,14 @@
 //!
 //! # Example
 //! ```
-//! use dsh_sdk::kafka_properties::KafkaProperties;
+//! use dsh_sdk::dsh::Properties;
 //! use rdkafka::consumer::{Consumer, StreamConsumer};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let kafka_properties = KafkaProperties::new().await?;
+//!     let dsh_properties = Properties::new().await?;
 //!     
-//!     let consumer_config = kafka_properties.consumer_rdkafka_config();
+//!     let consumer_config = dsh_properties.consumer_rdkafka_config();
 //!     let consumer: StreamConsumer = consumer_config.create()?;
 //!
 //!     Ok(())
@@ -28,7 +28,7 @@ use std::env;
 
 pub mod certificates;
 pub mod datastream;
-pub mod dsh;
+pub mod bootstrap;
 #[cfg(feature = "local")]
 pub mod local;
 
@@ -50,14 +50,14 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
 ///
 /// # Example
 /// ```
-/// use dsh_sdk::kafka_properties::KafkaProperties;
+/// use dsh_sdk::dsh::Properties;
 /// use rdkafka::consumer::{Consumer, StreamConsumer};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let kafka_properties = KafkaProperties::new().await?;
+///     let dsh_properties = Properties::new().await?;
 ///     
-///     let consumer_config = kafka_properties.consumer_rdkafka_config();
+///     let consumer_config = dsh_properties.consumer_rdkafka_config();
 ///     let consumer: StreamConsumer = consumer_config.create()?;
 ///
 ///     Ok(())
@@ -65,15 +65,15 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
 /// ```
 
 #[derive(Debug, Clone)]
-pub struct KafkaProperties {
+pub struct Properties {
     client_id: String,
     tenant_name: String,
     datastream: datastream::Datastream,
     certificates: Option<certificates::Cert>,
 }
 
-impl KafkaProperties {
-    /// Create a new KafkaProperties struct that contains all information and certificates.
+impl Properties {
+    /// Create a new Properties struct that contains all information and certificates.
     /// needed to connect to Kafka and DSH.
     ///
     ///  - Contains a struct equal to datastreams.json
@@ -81,7 +81,7 @@ impl KafkaProperties {
     ///  - Certificates for Kafka and DSH
     ///
     /// If running locally, it will try to load the local_datastreams.json file
-    /// and base the Bootstrap struct on this file
+    /// and crate the properties struct based on this file
     ///
     /// # Error
     /// If running locally and local_datastreams.json file is not present in the root of the project
@@ -161,12 +161,12 @@ impl KafkaProperties {
     /// ```
     /// use rdkafka::config::RDKafkaLogLevel;
     /// use rdkafka::consumer::stream_consumer::StreamConsumer;
-    /// use dsh_sdk::kafka_properties::KafkaProperties;
+    /// use dsh_sdk::dsh::Properties;
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let bootstrap = KafkaProperties::new().await?;
-    ///     let mut consumer_config = bootstrap.consumer_rdkafka_config();
+    ///     let dsh_properties = Properties::new().await?;
+    ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config();
     ///     let consumer: StreamConsumer =  consumer_config.create().expect("Consumer creation failed");
     ///     Ok(())
     /// }
@@ -197,7 +197,7 @@ impl KafkaProperties {
             .set(
                 "group.id",
                 self.datastream()
-                    .get_group_id(datastream::GroupType::get_from_env())
+                    .get_group_id(datastream::GroupType::from_env())
                     .expect("Group type not found"),
             )
             .set("client.id", self.client_id())
@@ -232,12 +232,12 @@ impl KafkaProperties {
     /// ```
     /// use rdkafka::config::RDKafkaLogLevel;
     /// use rdkafka::producer::FutureProducer;
-    /// use dsh_sdk::kafka_properties::KafkaProperties;
+    /// use dsh_sdk::dsh::Properties;
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>>{
-    ///     let kafka_properties = KafkaProperties::new().await?;
-    ///     let mut producer_config = kafka_properties.producer_rdkafka_config();
+    ///     let dsh_properties = Properties::new().await?;
+    ///     let mut producer_config = dsh_properties.producer_rdkafka_config();
     ///     let producer: FutureProducer =  producer_config.create().expect("Producer creation failed");
     ///     Ok(())
     /// }
@@ -287,12 +287,12 @@ impl KafkaProperties {
     ///
     /// # Example
     /// ```
-    /// # use dsh_sdk::kafka_properties::KafkaProperties;
+    /// # use dsh_sdk::dsh::Properties;
     /// # use reqwest::Client;
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let kafka_properties = KafkaProperties::new().await?;
-    ///     let client = kafka_properties.reqwest_client_config()?.build()?;
+    ///     let dsh_properties = Properties::new().await?;
+    ///     let client = dsh_properties.reqwest_client_config()?.build()?;
     ///
     /// #    Ok(())
     /// # }

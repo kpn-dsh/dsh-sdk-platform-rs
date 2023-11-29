@@ -1,18 +1,18 @@
-//! Local bootstrap for development
+//! Create a properties struct for local development
 //!
-//! This module contains logic to load the local_datastreams.json file and parse it into a Bootstrap struct
+//! This module contains logic to load the local_datastreams.json file and parse it into a datastream struct inside the properties struct.
 //! This struct can be used to create a connection to your local Kafka cluster
 
 use std::fs::File;
 use std::io::Read;
 
 use super::datastream::Datastream;
-use super::KafkaProperties;
+use super::Properties;
 use crate::error::DshError;
 
-impl KafkaProperties {
-    /// Create a new KafkaProperties struct for local development
-    /// This function reads the local_datastreams.json file and parses it into a Bootstrap struct
+impl Properties {
+    /// Create a new Properties struct for local development
+    /// This function reads the local_datastreams.json file and parses it into a datastream struct
     ///
     /// local_datastreams.json should be placed in the root of the project
     ///
@@ -24,7 +24,7 @@ impl KafkaProperties {
         let client_id = String::from("local");
         let tenant_name = String::from("local");
         let certificates = None;
-        Ok(KafkaProperties {
+        Ok(Self {
             client_id,
             tenant_name,
             datastream,
@@ -38,7 +38,7 @@ impl Datastream {
         let mut file = File::open("local_datastreams.json")?;
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
-        let kafka_properties: Datastream = serde_json::from_str(&contents)?;
-        Ok(kafka_properties)
+        let datastream: Datastream = serde_json::from_str(&contents)?;
+        Ok(datastream)
     }
 }

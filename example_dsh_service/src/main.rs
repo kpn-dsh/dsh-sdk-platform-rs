@@ -1,4 +1,4 @@
-use dsh_sdk::kafka_properties::KafkaProperties;
+use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 
 use rdkafka::consumer::CommitMode;
@@ -49,11 +49,11 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
 
 #[tokio::main]
 async fn main() {
-    // Create a new kafka_properties instance (connects to the DSH server and fetches the datastream)
-    let kafka_properties = match KafkaProperties::new().await {
+    // Create a new properties instance (connects to the DSH server and fetches the datastream)
+    let dsh_properties = match Properties::new().await {
         Ok(b) => b,
         Err(e) => {
-            println!("Error bootstrap to DSH: {:?}", e);
+            println!("Error getting DSH properties: {:?}", e);
             return;
         }
     };
@@ -63,9 +63,9 @@ async fn main() {
     let topics = topis_string.split(",").map(|s| s).collect::<Vec<&str>>();
 
     // Validate your configured topic if it has read access (optional)
-    match kafka_properties
+    match dsh_properties
         .datastream()
-        .verify_list_of_topics(&topics, dsh_sdk::kafka_properties::datastream::ReadWriteAccess::Read)
+        .verify_list_of_topics(&topics, dsh_sdk::dsh::datastream::ReadWriteAccess::Read)
     {
         Ok(_) => {}
         Err(e) => {
@@ -77,8 +77,8 @@ async fn main() {
     // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals and you can act on them)
     let shutdown = Shutdown::new();
 
-    // Get the consumer config from the bootstrap instance
-    let mut consumer_client_config = kafka_properties.consumer_rdkafka_config();
+    // Get the consumer config from the Properties instance
+    let mut consumer_client_config = dsh_properties.consumer_rdkafka_config();
 
     // Override some default values (optional)
     consumer_client_config.set("auto.offset.reset", "latest");

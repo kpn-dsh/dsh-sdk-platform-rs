@@ -149,7 +149,7 @@ pub enum GroupType {
 impl GroupType {
     /// Get the group type from the environment variable KAFKA_CONSUMER_GROUP_TYPE
     /// If KAFKA_CONSUMER_GROUP_TYPE is not (properly) set, it defaults to shared
-    pub fn get_from_env() -> Self {
+    pub fn from_env() -> Self {
         let group_type = env::var("KAFKA_CONSUMER_GROUP_TYPE");
         match group_type {
             Ok(s) if s == *"private" => GroupType::Private(0),
@@ -175,7 +175,7 @@ impl std::fmt::Display for GroupType {
 mod tests {
     use super::*;
 
-    // Define a reusable KafkaProperties instance
+    // Define a reusable Properties instance
     fn datastream() -> Datastream {
         let data_stream: Datastream = serde_json::from_str(datastreams_json().as_str()).unwrap();
         data_stream
@@ -262,13 +262,13 @@ mod tests {
     fn test_datastream_get_group_type_from_env() {
         // Set the KAFKA_CONSUMER_GROUP_TYPE environment variable to "private"
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "private");
-        assert_eq!(GroupType::get_from_env(), GroupType::Private(0),);
+        assert_eq!(GroupType::from_env(), GroupType::Private(0),);
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "shared");
-        assert_eq!(GroupType::get_from_env(), GroupType::Shared(0),);
+        assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
         env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "invalid-type");
-        assert_eq!(GroupType::get_from_env(), GroupType::Private(0),);
+        assert_eq!(GroupType::from_env(), GroupType::Private(0),);
         env::remove_var("KAFKA_CONSUMER_GROUP_TYPE");
-        assert_eq!(GroupType::get_from_env(), GroupType::Private(0),);
+        assert_eq!(GroupType::from_env(), GroupType::Private(0),);
     }
 
     #[test]

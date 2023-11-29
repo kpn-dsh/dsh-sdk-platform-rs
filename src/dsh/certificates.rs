@@ -6,7 +6,7 @@ use picky::x509::name::{DirectoryName, NameAttr};
 
 use reqwest::{Client, ClientBuilder, Identity};
 
-use super::dsh::{Dn, DshCall, DshConfig};
+use super::bootstrap::{Dn, DshCall, DshConfig};
 
 use crate::error::DshError;
 
@@ -29,10 +29,10 @@ impl Cert {
         let private_key = PrivateKey::generate_rsa(4096)?;
         let csr = Self::generate_csr(&private_key, dn).await?;
         let dsh_kafka_certificate = DshCall::CertificateSignRequest {
-            config: &dsh_config,
+            config: dsh_config,
             csr: csr.to_pem()?,
         }
-        .perform_call(&client)
+        .perform_call(client)
         .await?;
         Ok(Self {
             dsh_ca_certificate: dsh_config.dsh_ca_certificate().to_string(),

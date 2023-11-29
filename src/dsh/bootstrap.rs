@@ -5,14 +5,13 @@ use std::env;
 
 use crate::error::DshError;
 
-use super::{certificates::Cert, datastream::Datastream, KafkaProperties};
+use super::{certificates::Cert, datastream::Datastream, Properties};
 
-impl KafkaProperties {
-    /// Create a new bootstrap struct to connect to DSH
-    /// This function will call the DSH API to retrieve the certificates and datastreams.json
+impl Properties {
+    /// Connect to DSH and retrieve the certificates and datastreams.json to create the properties struct
     pub(crate) async fn new_dsh() -> Result<Self, DshError> {
         let dsh_config = DshConfig::new()?;
-        let client = KafkaProperties::reqwest_client(dsh_config.dsh_ca_certificate.as_bytes())?;
+        let client = Properties::reqwest_client(dsh_config.dsh_ca_certificate.as_bytes())?;
         let dn = DshCall::Dn(&dsh_config).perform_call(&client).await?;
         let dn = Dn::parse_string(&dn)?;
         let certificates = Cert::new(dn, &dsh_config, &client).await?;

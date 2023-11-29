@@ -38,7 +38,7 @@ use rdkafka::producer::{FutureProducer, FutureRecord};
 use tokio::sync::mpsc;
 
 use crate::graceful_shutdown::Shutdown;
-use crate::kafka_properties::KafkaProperties;
+use crate::dsh::Properties;
 
 /// Trait to convert an error to a dlq message
 /// This trait is implemented for all errors that can and should be converted to a dlq message
@@ -141,15 +141,15 @@ pub struct Dlq {
 impl Dlq {
     /// Create new Dlq struct
     pub fn new(
-        kafka_prop: &KafkaProperties,
+        dsh_prop: &Properties,
         shutdown: Shutdown,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        use crate::kafka_properties::datastream::ReadWriteAccess;
+        use crate::dsh::datastream::ReadWriteAccess;
         let (dlq_tx, dlq_rx) = mpsc::channel(200);
-        let dlq_producer = Self::build_producer(kafka_prop)?;
+        let dlq_producer = Self::build_producer(dsh_prop)?;
         let dlq_dead_topic = env::var("DLQ_DEAD_TOPIC")?;
         let dlq_retry_topic = env::var("DLQ_RETRY_TOPIC")?;
-        kafka_prop.datastream().verify_list_of_topics(
+        dsh_prop.datastream().verify_list_of_topics(
             &vec![&dlq_dead_topic, &dlq_retry_topic],
             ReadWriteAccess::Write,
         )?;
@@ -243,10 +243,10 @@ impl Dlq {
     }
 
     fn build_producer(
-        kafka_prop: &KafkaProperties,
+        dsh_prop: &Properties,
     ) -> Result<FutureProducer, rdkafka::error::KafkaError> {
-        let producer_config = kafka_prop.producer_rdkafka_config();
-        Ok(producer_config.create()?)
+        let producer_config = dsh_prop.producer_rdkafka_config();
+        producer_config.create()
     }
 }
 

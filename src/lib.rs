@@ -1,26 +1,26 @@
-//! # Bootstrap
+//! # DSH
 //!
-//! Bootstrap struct. Create new to initialize all related components to connect to the DSH kafka clusters
+//! Dsh properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
 //! - Contains a struct similar to datastreams.json
 //! - Metadata of running container/task
 //! - Certificates for Kafka and DSH
-//! - Option to save Certificates, keys and datastreams.json to disk
 //!
 //!
 //! ## Local
 //!
-//! It is possible to connect to local kafka cluster by using the `new_local` function.
-//! This function reads the local_datastreams.json file from root folder and parses it into a Bootstrap struct.
+//! It is possible to connect to local kafka cluster by enabling the `local` feature.
+//! This enables to read in the local_datastreams.json file from root folder and parses it into the datastream struct inside the properties struct.
 //!
 //! See [local](local/index.html) for more information.
 //!
-//!
 //! # Graceful shutdown
 //!
-//! Graceful shutdown is implemented using the `Shutdown` struct.
+//! To implement a graceful shutdown in your service, you can use the `Shutdown` struct. This struct has an implementation based on the best practice example of Tokio.
 //!
 //! This gives you the option to properly handle shutdown in your components/tasks.
 //! It listens for SIGTERM requests and sends out shutdown requests to all shutdown handles.
+//! 
+//! See [graceful_shutdown](graceful_shutdown/index.html) for more information.
 //!
 //! # DLQ (Dead Letter Queue)
 //!
@@ -40,7 +40,7 @@
 //! The DLQ is implemented by running the `Dlq` struct to push messages towards the DLQ topics.
 //! The `ErrorToDlq` trait can be implemented on your defined errors, to be able to send messages towards the DLQ Struct.
 
-pub mod kafka_properties;
+pub mod dsh;
 
 #[cfg(feature = "dlq")]
 pub mod dlq;
