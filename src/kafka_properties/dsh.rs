@@ -5,7 +5,7 @@ use std::env;
 
 use crate::error::DshError;
 
-use super::{KafkaProperties, datastream::Datastream, certificates::Cert};
+use super::{certificates::Cert, datastream::Datastream, KafkaProperties};
 
 impl KafkaProperties {
     /// Create a new bootstrap struct to connect to DSH
@@ -156,7 +156,7 @@ pub(crate) struct Dn {
 
 impl Dn {
     /// Parse the DN string into Dn struct.
-    pub (crate) fn parse_string(dn_string: &str) -> Result<Self, DshError> {
+    pub(crate) fn parse_string(dn_string: &str) -> Result<Self, DshError> {
         let mut cn = None;
         let mut ou = None;
         let mut o = None;
@@ -291,8 +291,6 @@ mod tests {
             .unwrap();
         assert_eq!(response, dn);
     }
-
-
 
     #[test]
     fn test_dsh_parse_dn() {

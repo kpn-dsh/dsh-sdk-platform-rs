@@ -3,8 +3,8 @@
 use std::collections::HashMap;
 use std::env;
 
-use serde::{Deserialize, Serialize};
 use log::{info, warn};
+use serde::{Deserialize, Serialize};
 
 use crate::error::DshError;
 
@@ -19,7 +19,6 @@ pub struct Datastream {
     non_enveloped_streams: Vec<String>,
     schema_store: String,
 }
-
 
 impl Datastream {
     /// Get the brokers as comma seperated string from the datastreams
@@ -172,20 +171,18 @@ impl std::fmt::Display for GroupType {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     // Define a reusable KafkaProperties instance
     fn datastream() -> Datastream {
-        let data_stream: Datastream =
-            serde_json::from_str(datastreams_json().as_str()).unwrap();
-            data_stream
+        let data_stream: Datastream = serde_json::from_str(datastreams_json().as_str()).unwrap();
+        data_stream
     }
 
-       // maybe replace with local_datastreams.json?
-       fn datastreams_json() -> String {
+    // maybe replace with local_datastreams.json?
+    fn datastreams_json() -> String {
         serde_json::json!({
           "brokers": [
             "broker-0.tt.kafka.mesos:9091",
@@ -274,7 +271,6 @@ mod tests {
         assert_eq!(GroupType::get_from_env(), GroupType::Private(0),);
     }
 
-    
     #[test]
     fn test_datastream_get_group_id() {
         assert_eq!(
@@ -292,12 +288,9 @@ mod tests {
             "test-app_4",
             "KAFKA_CONSUMER_GROUP_TYPE is set to shared, but did not return test-app_1"
         );
-        assert!(datastream()
-            .get_group_id(GroupType::Private(1000))
-            .is_err(),);
+        assert!(datastream().get_group_id(GroupType::Private(1000)).is_err(),);
     }
 
-    
     #[test]
     fn test_datastream_check_access_read_topic() {
         assert_eq!(
@@ -316,7 +309,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn test_datastream_check_access_write_topic() {
         assert_eq!(
@@ -334,5 +326,4 @@ mod tests {
             false
         );
     }
-
 }

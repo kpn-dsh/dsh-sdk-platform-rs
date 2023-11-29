@@ -24,6 +24,6 @@ pub enum DshError {
     ParseDnError(String),
     #[error("Error getting group id, index out of bounds for {0}")]
     IndexGroupIdError(crate::kafka_properties::datastream::GroupType),
-    #[error("Error getting topic name {0}, Topic not found in datastreams." )]
+    #[error("Error getting topic name {0}, Topic not found in datastreams.")]
     NotFoundTopicError(String),
 }

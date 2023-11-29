@@ -1,12 +1,12 @@
 //! # Kafka Properties
-//! 
+//!
 //! This module contains logic to connect to Kafka on DSH and get properties of your tenant. For example all available streams and topics.
-//! 
+//!
 //! The implementation contains some high level functions to get the correct config to connect to Kafka and schema store.
-//! For more low level functions, see 
+//! For more low level functions, see
 //!     - [datastream](datastream/index.html) module.
 //!     - [certificates](certificates/index.html) module.
-//! 
+//!
 //! # Example
 //! ```
 //! use dsh_sdk::kafka_properties::KafkaProperties;
@@ -18,20 +18,19 @@
 //!     
 //!     let consumer_config = kafka_properties.consumer_rdkafka_config();
 //!     let consumer: StreamConsumer = consumer_config.create()?;
-//! 
+//!
 //!     Ok(())
 //! }
 //! ```
 
-use std::env;
 use crate::error::DshError;
+use std::env;
 
+pub mod certificates;
 pub mod datastream;
 pub mod dsh;
-pub mod certificates;
 #[cfg(feature = "local")]
 pub mod local;
-
 
 /// Get the configured topics from the environment variable TOPICS
 /// Topics can be delimited by a comma
@@ -41,10 +40,8 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
         .split(',')
         .map(str::trim)
         .map(String::from)
-        .collect()
-    )
+        .collect())
 }
-
 
 /// Kafka properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
 ///  - Contains a struct similar to datastreams.json
@@ -62,7 +59,7 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
 ///     
 ///     let consumer_config = kafka_properties.consumer_rdkafka_config();
 ///     let consumer: StreamConsumer = consumer_config.create()?;
-/// 
+///
 ///     Ok(())
 /// }
 /// ```
@@ -74,7 +71,6 @@ pub struct KafkaProperties {
     datastream: datastream::Datastream,
     certificates: Option<certificates::Cert>,
 }
-
 
 impl KafkaProperties {
     /// Create a new KafkaProperties struct that contains all information and certificates.
@@ -225,7 +221,6 @@ impl KafkaProperties {
         config
     }
 
-    
     /// Get default RDKafka Producer config to connect to Kafka on DSH.
     /// If certificates are present, it will use SSL to connect to Kafka.
     /// If not, it will use plaintext so it can connect to local as well.
@@ -287,9 +282,9 @@ impl KafkaProperties {
 
     /// Get reqwest client config to connect to DSH Schema Registry.
     /// If certificates are present, it will use SSL to connect to Schema Registry.
-    /// 
+    ///
     /// Use <https://crates.io/crates/schema_registry_converter> to connect to Schema Registry.
-    /// 
+    ///
     /// # Example
     /// ```
     /// # use dsh_sdk::kafka_properties::KafkaProperties;
@@ -298,7 +293,7 @@ impl KafkaProperties {
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let kafka_properties = KafkaProperties::new().await?;
     ///     let client = kafka_properties.reqwest_client_config()?.build()?;
-    /// 
+    ///
     /// #    Ok(())
     /// # }
     /// ```
@@ -324,16 +319,12 @@ impl KafkaProperties {
     pub fn tenant_name(&self) -> &str {
         self.tenant_name.as_str()
     }
-    
+
     /// Get the kafka properties provided by DSH (datastreams.json)
     pub fn datastream(&self) -> &datastream::Datastream {
         &self.datastream
     }
-
 }
-
-
-
 
 #[cfg(test)]
 mod tests {

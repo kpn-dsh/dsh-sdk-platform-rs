@@ -1,13 +1,12 @@
-
+use picky::hash::HashAlgorithm;
 use picky::key::PrivateKey;
+use picky::signature::SignatureAlgorithm;
 use picky::x509::csr::Csr;
 use picky::x509::name::{DirectoryName, NameAttr};
-use picky::hash::HashAlgorithm;
-use picky::signature::SignatureAlgorithm;
 
 use reqwest::{Client, ClientBuilder, Identity};
 
-use super::dsh::{Dn, DshConfig, DshCall};
+use super::dsh::{Dn, DshCall, DshConfig};
 
 use crate::error::DshError;
 
@@ -22,7 +21,11 @@ pub struct Cert {
 
 impl Cert {
     /// Create a new certificate struct.
-    pub(crate) async fn new(dn: Dn, dsh_config: &DshConfig, client: &Client) -> Result<Self, DshError> {
+    pub(crate) async fn new(
+        dn: Dn,
+        dsh_config: &DshConfig,
+        client: &Client,
+    ) -> Result<Self, DshError> {
         let private_key = PrivateKey::generate_rsa(4096)?;
         let csr = Self::generate_csr(&private_key, dn).await?;
         let dsh_kafka_certificate = DshCall::CertificateSignRequest {
@@ -36,8 +39,7 @@ impl Cert {
             dsh_kafka_certificate,
             private_key: private_key.to_pem_str()?,
             public_key: private_key.to_public_key()?.to_pem_str()?,
-        }
-    )
+        })
     }
 
     /// Build a reqwest client with the DSH Kafka certificate included.
@@ -99,7 +101,6 @@ impl Cert {
         Identity::from_pem(&ident)
     }
 }
-
 
 #[cfg(test)]
 mod tests {

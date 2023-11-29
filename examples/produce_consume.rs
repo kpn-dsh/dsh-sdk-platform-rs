@@ -50,10 +50,7 @@ async fn main() {
     produce(&mut producer, topic).await;
 
     // Create a new consumer based on the bootstrap default config
-    let mut consumer: StreamConsumer = kafka_properties
-        .consumer_rdkafka_config()
-        .create()
-        .unwrap();
+    let mut consumer: StreamConsumer = kafka_properties.consumer_rdkafka_config().create().unwrap();
 
     consume(&mut consumer, topic).await;
 }

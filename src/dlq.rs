@@ -37,8 +37,8 @@ use rdkafka::producer::{FutureProducer, FutureRecord};
 
 use tokio::sync::mpsc;
 
-use crate::kafka_properties::KafkaProperties;
 use crate::graceful_shutdown::Shutdown;
+use crate::kafka_properties::KafkaProperties;
 
 /// Trait to convert an error to a dlq message
 /// This trait is implemented for all errors that can and should be converted to a dlq message
@@ -242,7 +242,9 @@ impl Dlq {
         }
     }
 
-    fn build_producer(kafka_prop: &KafkaProperties) -> Result<FutureProducer, rdkafka::error::KafkaError> {
+    fn build_producer(
+        kafka_prop: &KafkaProperties,
+    ) -> Result<FutureProducer, rdkafka::error::KafkaError> {
         let producer_config = kafka_prop.producer_rdkafka_config();
         Ok(producer_config.create()?)
     }
