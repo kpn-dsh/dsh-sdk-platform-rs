@@ -4,12 +4,16 @@
 [![codecov](https://codecov.io/gh/kpn-dsh/dsh-sdk-platform-rs/branch/main/graph/badge.svg)](https://codecov.io/gh/kpn-dsh/dsh-sdk-platform-rs)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+## Maturity
+This library is still in it's early phases. Keep in mind that breaking changes are expected in the near future. The goal is to have a stable version before 15th of december.
+
 ## Description
 This library is a Rust implementation of the DSH SDK Platform. It is intended to be used as a base for services that will be used to interact with DSH. It is not intended to be used directly. Features include:
-- Bootstrap to DSH
+- Connect to DSH 
 - Fetch Kafka Properties (datastream)
 - Common functions 
   - Preconfigured RDKafka client config
+  - Preconfigured Reqwest client config (for schema store)
 - Graceful shutdown
 - Dead Letter Queue (experimental)
 
