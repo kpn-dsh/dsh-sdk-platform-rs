@@ -48,7 +48,8 @@ See dockerfile in [example_dsh_service](/example_dsh_service/Dockerfile) for an 
 ## Examples
 See folder [examples](/examples/) for simple examples on how to use the SDK.
 
-See folder [example_dsh_service](/example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](service_example/README.md) for more information.
+### Full service example
+See folder [example_dsh_service](/example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](example_dsh_service/README.md) for more information.
 
 ## Feauture flags
 
