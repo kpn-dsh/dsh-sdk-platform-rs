@@ -15,12 +15,12 @@
 //! use dsh_sdk::dsh::Properties;
 //! use rdkafka::consumer::stream_consumer::StreamConsumer;
 //! 
-//! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//!     let dsh_properties = Properties::new().await?;
-//!     let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
-//!     Ok(())
-//! }
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
+//! let dsh_properties = Properties::new().await?;
+//! let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
+//! # Ok(())
+//! # }
 //! ```
 //! 
 //! ### Low level API
@@ -28,18 +28,17 @@
 //! 
 //! ### Example:
 //! ```	
-//! use dsh_sdk::dsh::Properties;
-//! use rdkafka::consumer::stream_consumer::StreamConsumer;
-//! 
-//! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//!     let dsh_properties = Properties::new().await?;
-//!     // check for write access to topic
-//!     let write_access: bool = dsh_properties.datastream().get_stream("scratch.local.local-tenant").expect("Topic not found").write_access();
-//!     // get the certificates, for example DSH_KAFKA_CERTIFICATE
-//!     let dsh_kafka_certificate = dsh_properties.certificates().map(|certs| certs.dsh_kafka_certificate_pem());
-//!     Ok(())
-//! }
+//! # use dsh_sdk::dsh::Properties;
+//! # use rdkafka::consumer::stream_consumer::StreamConsumer;
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
+//! #    let dsh_properties = Properties::new().await?;
+//! // check for write access to topic
+//! let write_access = dsh_properties.datastream().get_stream("scratch.local.local-tenant").expect("Topic not found").write_access();
+//! // get the certificates, for example DSH_KAFKA_CERTIFICATE
+//! let dsh_kafka_certificate = dsh_properties.certificates().map(|certs| certs.dsh_kafka_certificate_pem());
+//! #     Ok(())
+//! # }
 //! ```
 //! //! ## Local
 //!
