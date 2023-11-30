@@ -1,6 +1,7 @@
 //! Graceful shutdown for tokio tasks.
 //!
-//! This module provides a shutdown handle for graceful shutdown of tokio tasks within DSH.
+//! This module provides a shutdown handle for graceful shutdown of (tokio tasks within) your service.
+//! It listens for SIGTERM requests and sends out shutdown requests to all shutdown handles.
 //!
 //! It creates a clonable object which can be used to send shutdown request to all tasks.
 //! Based on this request you are able to handle your shutdown procedure.
@@ -8,7 +9,8 @@
 //! This appproach is based on Tokio's graceful shutdown example:
 //! <https://tokio.rs/tokio/topics/shutdown>
 //!
-//! # Full implementation example:
+//! # Example:
+//! 
 //! ```no_run
 //! use dsh_sdk::graceful_shutdown::Shutdown;
 //!
