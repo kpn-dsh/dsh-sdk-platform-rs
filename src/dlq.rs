@@ -196,7 +196,7 @@ impl Dlq {
     /// Get the dlq channel sender. To be used in your service to send messages to the dlq in case of errors.
     ///
     /// This channel can be used to send messages to the dlq from different threads.
-    pub fn get_dlq_tx(&self) -> mpsc::Sender<SendToDlq> {
+    pub fn dlq_records_tx(&self) -> mpsc::Sender<SendToDlq> {
         self.dlq_tx.clone()
     }
 
