@@ -38,6 +38,9 @@ async fn main() {
 }
 ```
 
+## Api doc
+See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
+
 ### Local development
 Add a [local_datastream.json](local_datastream.json) to your project root.
 
