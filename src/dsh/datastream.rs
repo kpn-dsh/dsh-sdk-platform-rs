@@ -123,13 +123,13 @@ pub struct Stream {
 }
 
 impl Stream {
-    /// Check read access on topic bases on datastream
-    pub fn check_read_access(&self) -> bool {
+    /// Check read access on topic based on datastream
+    pub fn read_access(&self) -> bool {
         !self.read.is_empty()
     }
 
-    /// Check write access on topic bases on datastream
-    pub fn check_write_access(&self) -> bool {
+    /// Check write access on topic based on datastream
+    pub fn write_access(&self) -> bool {
         !self.write.is_empty()
     }
 }
@@ -298,14 +298,14 @@ mod tests {
             datastream()
                 .get_stream("scratch.test.test-tenant")
                 .unwrap()
-                .check_read_access(),
+                .read_access(),
             true
         );
         assert_eq!(
             datastream()
                 .get_stream("stream.test.test-tenant")
                 .unwrap()
-                .check_read_access(),
+                .read_access(),
             true
         );
     }
@@ -316,14 +316,14 @@ mod tests {
             datastream()
                 .get_stream("scratch.test.test-tenant")
                 .unwrap()
-                .check_write_access(),
+                .write_access(),
             true
         );
         assert_eq!(
             datastream()
                 .get_stream("stream.test.test-tenant")
                 .unwrap()
-                .check_write_access(),
+                .write_access(),
             false
         );
     }
