@@ -57,7 +57,7 @@
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
-/// Shutdown handle for a graceful shutdown.
+/// Shutdown handle to interact on SIGTERM of DSH for a graceful shutdown.
 ///
 /// Use original to wait for shutdown complete.
 /// Use clone to send shutdown request to all shutdown handles.
@@ -67,12 +67,6 @@ pub struct Shutdown {
     cancel_token: CancellationToken,
     shutdown_complete_tx: mpsc::Sender<()>,
     shutdown_complete_rx: Option<mpsc::Receiver<()>>,
-}
-
-impl Default for Shutdown {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl Shutdown {
@@ -89,17 +83,6 @@ impl Shutdown {
             cancel_token,
             shutdown_complete_tx,
             shutdown_complete_rx: Some(shutdown_complete_rx),
-        }
-    }
-
-    /// Clone shutdown handle.
-    ///
-    /// Use this handle in your components/tasks.
-    pub fn clone(&self) -> Self {
-        Self {
-            cancel_token: self.cancel_token.clone(),
-            shutdown_complete_tx: self.shutdown_complete_tx.clone(),
-            shutdown_complete_rx: None,
         }
     }
 
@@ -142,6 +125,26 @@ impl Shutdown {
         drop(self.shutdown_complete_tx);
         self.shutdown_complete_rx.unwrap().recv().await;
         println!("Shutdown complete!")
+    }
+}
+
+impl Default for Shutdown {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+
+impl std::clone::Clone for Shutdown {
+    /// Clone shutdown handle.
+    ///
+    /// Use this handle in your components/tasks.
+    fn clone(&self) -> Self {
+        Self {
+            cancel_token: self.cancel_token.clone(),
+            shutdown_complete_tx: self.shutdown_complete_tx.clone(),
+            shutdown_complete_rx: None,
+        }
     }
 }
 
