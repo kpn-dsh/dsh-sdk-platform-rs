@@ -4,17 +4,17 @@
 //! - Avaiablable datastreams info
 //! - Metadata of running container/task
 //! - Certificates for Kafka and DSH
-//! 
+//!
 //! ## High level API
-//! 
+//!
 //! The properties struct contains a high level API to interact with the DSH.
 //! This includes generating RDKafka config for creating a consumer/producer and Reqwest config builder for Schema Registry.
-//! 
+//!
 //! ### Example:
 //! ```
 //! use dsh_sdk::dsh::Properties;
 //! use rdkafka::consumer::stream_consumer::StreamConsumer;
-//! 
+//!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
 //! let dsh_properties = Properties::new().await?;
@@ -22,12 +22,12 @@
 //! # Ok(())
 //! # }
 //! ```
-//! 
+//!
 //! ### Low level API
 //! It is also possible to get avaiable metadata or the certificates from the properties struct.
-//! 
+//!
 //! ### Example:
-//! ```	
+//! ```
 //! # use dsh_sdk::dsh::Properties;
 //! # use rdkafka::consumer::stream_consumer::StreamConsumer;
 //! # #[tokio::main]
@@ -53,7 +53,7 @@
 //!
 //! This gives you the option to properly handle shutdown in your components/tasks.
 //! It listens for SIGTERM requests and sends out shutdown requests to all shutdown handles.
-//! 
+//!
 //! See [graceful_shutdown](graceful_shutdown/index.html) for more information.
 //!
 //! # DLQ (Dead Letter Queue)
@@ -82,4 +82,3 @@ pub mod dlq;
 mod error;
 #[cfg(feature = "graceful_shutdown")]
 pub mod graceful_shutdown;
-

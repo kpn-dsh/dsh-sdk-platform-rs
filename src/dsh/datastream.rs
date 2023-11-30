@@ -99,12 +99,11 @@ impl Datastream {
     }
 
     /// Get schema_store from datastreams info.
-    /// 
+    ///
     /// Reused in dsh_sdk::dsh::Properties
     pub fn schema_store(&self) -> &str {
         &self.schema_store
     }
-
 }
 
 /// Struct containing all topic information which also is provided in datastreams.json

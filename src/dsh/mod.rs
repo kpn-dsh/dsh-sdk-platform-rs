@@ -26,9 +26,9 @@
 use crate::error::DshError;
 use std::env;
 
+pub mod bootstrap;
 pub mod certificates;
 pub mod datastream;
-pub mod bootstrap;
 #[cfg(feature = "local")]
 pub mod local;
 
@@ -331,7 +331,6 @@ impl Properties {
     pub fn schema_registry_host(&self) -> &str {
         self.datastream().schema_store()
     }
-
 }
 
 #[cfg(test)]

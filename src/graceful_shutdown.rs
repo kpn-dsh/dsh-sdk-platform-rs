@@ -10,7 +10,7 @@
 //! <https://tokio.rs/tokio/topics/shutdown>
 //!
 //! # Example:
-//! 
+//!
 //! ```no_run
 //! use dsh_sdk::graceful_shutdown::Shutdown;
 //!
@@ -133,7 +133,6 @@ impl Default for Shutdown {
         Self::new()
     }
 }
-
 
 impl std::clone::Clone for Shutdown {
     /// Clone shutdown handle.
