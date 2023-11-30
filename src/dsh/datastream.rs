@@ -44,13 +44,6 @@ impl Datastream {
         }
     }
 
-    /// Get schema host from datastreams info.
-    ///
-    /// Overwritable with environment variable SCHEMA_REGISTRY_HOST, if set
-    pub fn schema_registry_host(&self) -> String {
-        env::var("SCHEMA_REGISTRY_HOST").unwrap_or(self.schema_store.clone())
-    }
-
     /// Get all available datastreams
     pub fn streams(&self) -> &HashMap<String, Stream> {
         &self.streams
@@ -104,6 +97,14 @@ impl Datastream {
         }
         Ok(())
     }
+
+    /// Get schema_store from datastreams info.
+    /// 
+    /// Reused in dsh_sdk::dsh::Properties
+    pub fn schema_store(&self) -> &str {
+        &self.schema_store
+    }
+
 }
 
 /// Struct containing all topic information which also is provided in datastreams.json
@@ -251,10 +252,10 @@ mod tests {
     }
 
     #[test]
-    fn test_datastream_get_schema_registry_host() {
+    fn test_datastream_get_schema_store() {
         assert_eq!(
-            datastream().schema_registry_host(),
-            String::from("http://schema-registry.tt.kafka.mesos:8081")
+            datastream().schema_store(),
+            "http://schema-registry.tt.kafka.mesos:8081"
         );
     }
 

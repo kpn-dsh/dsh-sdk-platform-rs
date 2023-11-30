@@ -312,18 +312,26 @@ impl Properties {
 
     /// Get the client id based on the task id.
     pub fn client_id(&self) -> &str {
-        self.client_id.as_str()
+        &self.client_id
     }
 
     /// Get the tenant name.
     pub fn tenant_name(&self) -> &str {
-        self.tenant_name.as_str()
+        &self.tenant_name
     }
 
     /// Get the kafka properties provided by DSH (datastreams.json)
     pub fn datastream(&self) -> &datastream::Datastream {
         &self.datastream
     }
+
+    /// Get schema host of DSH.
+    ///
+    /// Overwritable with environment variable SCHEMA_REGISTRY_HOST, if set
+    pub fn schema_registry_host(&self) -> &str {
+        self.datastream().schema_store()
+    }
+
 }
 
 #[cfg(test)]
