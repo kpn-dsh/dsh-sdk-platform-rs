@@ -10,6 +10,8 @@ use super::datastream::Datastream;
 use super::Properties;
 use crate::error::DshError;
 
+const FILE_NAME: &str = "local_datastreams.json";
+
 impl Properties {
     /// Create a new Properties struct for local development
     /// This function reads the local_datastreams.json file and parses it into a datastream struct
@@ -35,7 +37,15 @@ impl Properties {
 
 impl Datastream {
     fn load_local_datastreams() -> Result<Self, DshError> {
-        let mut file = File::open("local_datastreams.json")?;
+        let path_buf: std::path::PathBuf = std::env::current_dir().unwrap().join(FILE_NAME);
+        let file_result = File::open(&path_buf);
+        let mut file = match file_result {
+            Ok(file) => file,
+            Err(e) => {
+                println!("Error opening {}: {}", path_buf.display(), e);
+                return Err(DshError::IoError(FILE_NAME, e));
+            }
+        };
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
         let datastream: Datastream = serde_json::from_str(&contents)?;

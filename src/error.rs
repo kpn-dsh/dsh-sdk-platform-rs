@@ -30,6 +30,6 @@ pub enum DshError {
 
 impl From<(&'static str, std::io::Error)> for DshError {
     fn from(error: (&'static str, std::io::Error)) -> Self {
-        DshError::IoError(error.0, error.1 )
+        DshError::IoError(error.0, error.1)
     }
 }

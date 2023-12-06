@@ -142,10 +142,8 @@ impl Properties {
         match Self::new_dsh().await {
             Ok(b) => Ok(b),
             Err(e) => {
-                eprintln!(
-                    "Could not connect to DSH due to error: {}\nStart loading local settings",
-                    e
-                );
+                println!("App does not seem to be running on DSH, due to: {}", e);
+                println!("Trying to run locally");
                 Self::new_local()
             }
         }

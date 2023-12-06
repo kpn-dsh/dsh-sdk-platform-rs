@@ -79,6 +79,6 @@ pub mod dsh;
 #[cfg(feature = "dlq")]
 pub mod dlq;
 
-mod error;
+pub mod error;
 #[cfg(feature = "graceful_shutdown")]
 pub mod graceful_shutdown;
