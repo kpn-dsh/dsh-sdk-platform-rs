@@ -61,6 +61,7 @@ The following features are available in this library and can be enabled/disabled
 | **feature** | **default** | **Description** |
 |---|---|---|
 | `local` | &check; | Use the SDK in your local environment* |
+| `metrics` | &check; | Enable (custom) metrics for your service |
 | `graceful_shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
 | `dlq` | &cross; | Dead Letter Queue implementation (experimental) |
 | `rdkafka-ssl` | &check; | Dynamically link to librdkafka to a locally installed OpenSSL |

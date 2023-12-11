@@ -26,6 +26,11 @@ pub enum DshError {
     IndexGroupIdError(crate::dsh::datastream::GroupType),
     #[error("Error getting topic name {0}, Topic not found in datastreams.")]
     NotFoundTopicError(String),
+    #[cfg(feature = "metrics")]
+    #[error("Prometheus error: {0}")]
+    Prometheus(#[from] prometheus::Error),
+    #[error("Convert bytes to utf8 error: {0}")]
+    Utf8(#[from] std::string::FromUtf8Error),
 }
 
 impl From<(&'static str, std::io::Error)> for DshError {

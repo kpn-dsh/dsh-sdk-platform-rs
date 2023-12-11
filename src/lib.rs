@@ -74,11 +74,11 @@
 //! The DLQ is implemented by running the `Dlq` struct to push messages towards the DLQ topics.
 //! The `ErrorToDlq` trait can be implemented on your defined errors, to be able to send messages towards the DLQ Struct.
 
-pub mod dsh;
-
 #[cfg(feature = "dlq")]
 pub mod dlq;
-
+pub mod dsh;
 pub mod error;
 #[cfg(feature = "graceful_shutdown")]
 pub mod graceful_shutdown;
+#[cfg(feature = "metrics")]
+pub mod metrics;
