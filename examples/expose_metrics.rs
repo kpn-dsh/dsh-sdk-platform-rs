@@ -5,7 +5,6 @@ lazy_static! {
         register_int_counter!("highfives", "Number of high fives recieved").unwrap();
 }
 
-
 #[tokio::main]
 async fn main() {
     // start the http server on seperate thread
@@ -16,7 +15,7 @@ async fn main() {
 
     // increment the high five counter every second for 20 times
     for i in 0..20 {
-        println!("High five number: {}", i+1);
+        println!("High five number: {}", i + 1);
         HIGH_FIVE_COUNTER.inc();
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     }

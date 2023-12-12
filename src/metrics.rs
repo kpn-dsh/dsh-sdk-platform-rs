@@ -84,9 +84,9 @@ pub fn metrics_to_string() -> Result<String, DshError> {
 /// The exposed endpoint is /metrics and port number needs to be defined
 ///
 /// # Note!
-/// 
+///
 /// Don't forget to expose the port in your dockerfile and add the port number to the DSH service configuration.
-/// 
+///
 /// # Example
 /// ```
 /// use dsh_sdk::metrics::start_http_server;
@@ -119,8 +119,8 @@ async fn http_metric_response() -> Result<impl Reply, Rejection> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use warp::test::request;
     use warp::http::Response;
+    use warp::test::request;
 
     lazy_static! {
         pub static ref HIGH_FIVE_COUNTER: IntCounter =
@@ -139,8 +139,11 @@ mod tests {
         assert!(res.is_ok());
 
         // Check if the result is not an empty string
-        let statys_code= res.unwrap().into_response().status();
-        assert_eq!(statys_code, Response::builder().status(200).body(()).unwrap().status());
+        let status_code = res.unwrap().into_response().status();
+        assert_eq!(
+            status_code,
+            Response::builder().status(200).body(()).unwrap().status()
+        );
     }
 
     #[tokio::test]
