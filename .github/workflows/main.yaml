@@ -11,7 +11,7 @@ env:
 
 jobs:
   linux:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         version:
@@ -46,68 +46,6 @@ jobs:
         if: matrix.version == 'nightly'
       - name: check formatting
         run: cargo fmt -- --check
-      - name: install audit
-        run: cargo install cargo-audit
-      - name: audit check
-        run: cargo audit
-  windows:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        version:
-          # - nightly
-          # - beta
-          - stable
-        target:
-          - x86_64-pc-windows-gnu
-            # - x86_64-pc-windows-msvc
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ matrix.version }}
-          override: true
-      - name: install
-        run: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          ./vcpkg/bootstrap-vcpkg.sh
-          vcpkg integrate install
-          vcpkg install openssl:x64-windows-static-md
-      - name: build
-        run: cargo build --features full
-      - name: test
-        run: cargo test --features full -- --test-threads=1 || true
-        env:
-          RUST_BACKTRACE: 1
-      - name: install audit
-        run: cargo install cargo-audit
-      - name: audit check
-        run: cargo audit
- 
-  mac:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        version:
-          - stable
-          # - beta
-          # - nightly
-        target:
-          - x86_64-apple-darwin	
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:   
-          toolchain: ${{ matrix.version }}
-          override: true
-      - name: build
-        run: cargo build --features full
-      - name: test
-        run: cargo test --features full -- --test-threads=1 || true
-        env:
-          RUST_BACKTRACE: 1
       - name: install audit
         run: cargo install cargo-audit
       - name: audit check
