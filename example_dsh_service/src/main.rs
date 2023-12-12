@@ -57,7 +57,7 @@ async fn main() {
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
     tokio::spawn(async move {
         metrics::start_http_server(8080).await;
-    }
+    });
 
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
     let dsh_properties = match Properties::new().await {
