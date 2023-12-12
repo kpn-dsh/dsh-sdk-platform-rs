@@ -6,6 +6,8 @@ use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::message::BorrowedMessage;
 use rdkafka::message::Message;
 
+mod metrics;
+
 fn deserialize_and_print(msg: &BorrowedMessage) {
     let payload = match msg.payload() {
         Some(p) => std::string::String::from_utf8_lossy(p),
@@ -30,6 +32,9 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
     loop {
         tokio::select! {
             Ok(msg) = consumer.recv() => {
+                    // Increment the counter that is defined in src/metrics.rs
+                    metrics::CONSUMED_MESSAGES.inc();
+                    // Deserialize and print the message
                     deserialize_and_print(&msg);
                     // Commit the message
                     match consumer.commit_message(&msg, CommitMode::Sync)
@@ -49,6 +54,11 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
 
 #[tokio::main]
 async fn main() {
+    // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
+    tokio::spawn(async move {
+        metrics::start_http_server(8080).await;
+    }
+
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
     let dsh_properties = match Properties::new().await {
         Ok(b) => b,

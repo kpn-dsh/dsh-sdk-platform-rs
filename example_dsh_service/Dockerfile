@@ -37,7 +37,7 @@ RUN useradd -ms /bin/bash --uid ${UID} --gid ${GID} ${USER}
 COPY --from=builder /usr/local/cargo/bin/dsh-rs-example /home/dsh/bin/dsh-rs-example
 
 # Expose port for metrics
-EXPOSE 9090
+EXPOSE 8080
 
 # Set the entry point or command to run the Rust application
 ENTRYPOINT [ "/home/dsh/bin/dsh-rs-example" ]
