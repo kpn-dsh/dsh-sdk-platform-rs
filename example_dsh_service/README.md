@@ -9,6 +9,8 @@ This example shows you how to setup:
 - Graceful shutdown
 - Build and publish to Harbor
 
+It also gives you an example of how to build the project and publish it to Harbor as a docker image.
+
 ## Build image
 
 To build (and push) the docker image, open the makefile and update the following variables with your tenant information:
