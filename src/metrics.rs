@@ -56,7 +56,6 @@ use log::error;
 use warp::{Filter, Rejection, Reply};
 
 pub use lazy_static::lazy_static;
-pub extern crate lazy_static;
 
 pub use prometheus::*;
 
