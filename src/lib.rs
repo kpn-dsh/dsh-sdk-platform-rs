@@ -82,3 +82,5 @@ pub mod error;
 pub mod graceful_shutdown;
 #[cfg(feature = "metrics")]
 pub mod metrics;
+#[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
+pub use rdkafka;
