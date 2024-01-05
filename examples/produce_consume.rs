@@ -36,21 +36,22 @@ async fn consume(consumer: &mut StreamConsumer, topic: &str) {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create a new DSH Properties instance (requires local_datastreams.json in root of project, as it runs in local mode)
-    let dsh_properties = Properties::new().await.unwrap();
+    let dsh_properties = Properties::new().await?;
 
     // Define your topic
     let topic = "scratch.local.local-tenant";
 
     // Create a new producer based on the properties default config
-    let mut producer: FutureProducer = dsh_properties.producer_rdkafka_config().create().unwrap();
+    let mut producer: FutureProducer = dsh_properties.producer_rdkafka_config().create()?;
 
     // Produce messages towards topic
     produce(&mut producer, topic).await;
 
     // Create a new consumer based on the properties default config
-    let mut consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create().unwrap();
+    let mut consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
 
     consume(&mut consumer, topic).await;
+    Ok(())
 }

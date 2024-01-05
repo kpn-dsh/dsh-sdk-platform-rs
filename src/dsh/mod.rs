@@ -16,7 +16,7 @@
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let dsh_properties = Properties::new().await?;
 //!     
-//!     let consumer_config = dsh_properties.consumer_rdkafka_config();
+//!     let consumer_config = dsh_properties.consumer_rdkafka_config()?;
 //!     let consumer: StreamConsumer = consumer_config.create()?;
 //!
 //!     Ok(())
@@ -57,7 +57,7 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let dsh_properties = Properties::new().await?;
 ///     
-///     let consumer_config = dsh_properties.consumer_rdkafka_config();
+///     let consumer_config = dsh_properties.consumer_rdkafka_config()?;
 ///     let consumer: StreamConsumer = consumer_config.create()?;
 ///
 ///     Ok(())
@@ -164,7 +164,7 @@ impl Properties {
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let dsh_properties = Properties::new().await?;
-    ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config();
+    ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config()?;
     ///     let consumer: StreamConsumer =  consumer_config.create().expect("Consumer creation failed");
     ///     Ok(())
     /// }
@@ -188,15 +188,14 @@ impl Properties {
     /// | `ssl.ca.pem`              | CA certifacte                          | Root certificate, provided by DSH.                                                                                                                                   |
     /// | `log_level`               | Info                                   | Log level of rdkafka                                                                                                                                                 |
     #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
-    pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
+    pub fn consumer_rdkafka_config(&self) -> Result<rdkafka::config::ClientConfig, DshError> {
         let mut config = rdkafka::config::ClientConfig::new();
         config
             .set("bootstrap.servers", self.datastream().get_brokers())
             .set(
                 "group.id",
                 self.datastream()
-                    .get_group_id(datastream::GroupType::from_env())
-                    .expect("Group type not found"),
+                    .get_group_id(datastream::GroupType::from_env())?,
             )
             .set("client.id", self.client_id())
             .set("enable.auto.commit", "false")
@@ -216,7 +215,7 @@ impl Properties {
         } else {
             config.set("security.protocol", "plaintext");
         }
-        config
+        Ok(config)
     }
 
     /// Get default RDKafka Producer config to connect to Kafka on DSH.
