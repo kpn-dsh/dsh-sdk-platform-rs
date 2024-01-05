@@ -1,10 +1,10 @@
 use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 
-use rdkafka::consumer::CommitMode;
-use rdkafka::consumer::{Consumer, StreamConsumer};
-use rdkafka::message::BorrowedMessage;
-use rdkafka::message::Message;
+use dsh_sdk::rdkafka::consumer::CommitMode;
+use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+use dsh_sdk::rdkafka::message::BorrowedMessage;
+use dsh_sdk::rdkafka::message::Message;
 
 mod metrics;
 

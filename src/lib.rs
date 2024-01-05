@@ -13,7 +13,7 @@
 //! ### Example:
 //! ```
 //! use dsh_sdk::dsh::Properties;
-//! use rdkafka::consumer::stream_consumer::StreamConsumer;
+//! use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
@@ -29,7 +29,7 @@
 //! ### Example:
 //! ```
 //! # use dsh_sdk::dsh::Properties;
-//! # use rdkafka::consumer::stream_consumer::StreamConsumer;
+//! # use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
 //! #    let dsh_properties = Properties::new().await?;

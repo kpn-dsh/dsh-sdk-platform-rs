@@ -1,7 +1,7 @@
 use dsh_sdk::dsh::Properties;
-use rdkafka::consumer::{Consumer, StreamConsumer};
-use rdkafka::producer::FutureProducer;
-use rdkafka::Message;
+use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+use dsh_sdk::rdkafka::producer::{FutureProducer, FutureRecord};
+use dsh_sdk::rdkafka::Message;
 
 const TOTAL_MESSAGES: usize = 10;
 
@@ -10,7 +10,7 @@ async fn produce(producer: &mut FutureProducer, topic: &str) {
         let payload = format!("hello world {}", key);
         let msg = producer
             .send(
-                rdkafka::producer::FutureRecord::to(topic)
+                FutureRecord::to(topic)
                     .payload(payload.as_bytes())
                     .key(&key.to_be_bytes()),
                 std::time::Duration::from_secs(0),

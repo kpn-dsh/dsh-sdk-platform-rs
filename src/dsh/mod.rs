@@ -10,7 +10,7 @@
 //! # Example
 //! ```
 //! use dsh_sdk::dsh::Properties;
-//! use rdkafka::consumer::{Consumer, StreamConsumer};
+//! use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -51,7 +51,7 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
 /// # Example
 /// ```
 /// use dsh_sdk::dsh::Properties;
-/// use rdkafka::consumer::{Consumer, StreamConsumer};
+/// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -157,8 +157,8 @@ impl Properties {
     ///
     /// # Example
     /// ```
-    /// use rdkafka::config::RDKafkaLogLevel;
-    /// use rdkafka::consumer::stream_consumer::StreamConsumer;
+    /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
+    /// use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
     /// use dsh_sdk::dsh::Properties;
     ///
     /// #[tokio::main]
@@ -228,8 +228,8 @@ impl Properties {
     ///
     /// # Example
     /// ```
-    /// use rdkafka::config::RDKafkaLogLevel;
-    /// use rdkafka::producer::FutureProducer;
+    /// use dsh_sdk::dkafka::config::RDKafkaLogLevel;
+    /// use dsh_sdk::dkafka::producer::FutureProducer;
     /// use dsh_sdk::dsh::Properties;
     ///
     /// #[tokio::main]
