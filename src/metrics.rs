@@ -57,20 +57,13 @@ use warp::{Filter, Rejection, Reply};
 
 pub use lazy_static::lazy_static;
 pub extern crate lazy_static;
-pub extern crate prometheus;
 
-pub use prometheus::{HistogramOpts, HistogramVec, IntCounter, IntCounterVec, IntGaugeVec, Opts};
-
-pub use prometheus::{
-    histogram_opts, register_gauge, register_gauge_vec, register_histogram, register_histogram_vec,
-    register_int_counter, register_int_counter_vec, register_int_gauge, register_int_gauge_vec,
-};
+pub use prometheus::*;
 
 use crate::error::DshError;
 
 /// Encode metrics to a string (UTF8)
-pub fn metrics_to_string() -> Result<String, DshError> {
-    use prometheus::Encoder;
+pub fn metrics_to_string() -> std::result::Result<String, DshError> {
     let encoder = prometheus::TextEncoder::new();
 
     let mut buffer = Vec::new();
@@ -105,7 +98,7 @@ pub async fn start_http_server(port: u16) {
 /// Function for warp to handle http request.
 ///
 /// Calls the metrics_to_string function to get the metrics as string and returns them as a reply
-async fn http_metric_response() -> Result<impl Reply, Rejection> {
+async fn http_metric_response() -> std::result::Result<impl Reply, Rejection> {
     let res = match metrics_to_string() {
         Ok(v) => v,
         Err(e) => {
