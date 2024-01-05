@@ -228,8 +228,8 @@ impl Properties {
     ///
     /// # Example
     /// ```
-    /// use dsh_sdk::dkafka::config::RDKafkaLogLevel;
-    /// use dsh_sdk::dkafka::producer::FutureProducer;
+    /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
+    /// use dsh_sdk::rdkafka::producer::FutureProducer;
     /// use dsh_sdk::dsh::Properties;
     ///
     /// #[tokio::main]
