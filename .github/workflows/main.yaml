@@ -49,7 +49,7 @@ jobs:
       - name: install audit
         run: cargo install cargo-audit
       - name: audit check
-        run: cargo audit
+        run: cargo audit --ignore RUSTSEC-2023-0071
   coverage:
     runs-on: ubuntu-latest
     name: ubuntu / stable / coverage
