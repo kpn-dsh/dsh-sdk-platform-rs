@@ -4,9 +4,6 @@
 [![codecov](https://codecov.io/gh/kpn-dsh/dsh-sdk-platform-rs/branch/main/graph/badge.svg)](https://codecov.io/gh/kpn-dsh/dsh-sdk-platform-rs)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## Maturity
-This library is still in it's early phases. Keep in mind that breaking changes are expected in the near future. The goal is to have a stable version before 15th of december.
-
 ## Description
 This library is a can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. It is not intended to be used directly. Features include:
 - Connect to DSH 
