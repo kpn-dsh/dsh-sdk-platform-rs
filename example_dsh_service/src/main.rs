@@ -1,12 +1,10 @@
 use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 
-use dsh_sdk::rdkafka::consumer::CommitMode;
-use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
-use dsh_sdk::rdkafka::message::BorrowedMessage;
-use dsh_sdk::rdkafka::message::Message;
+use dsh_sdk::rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
+use dsh_sdk::rdkafka::message::{Message, BorrowedMessage};
 
-mod metrics;
+mod custom_metrics;
 
 fn deserialize_and_print(msg: &BorrowedMessage) {
     let payload = std::string::String::from_utf8_lossy(msg.payload().unwrap_or(b""));
@@ -27,7 +25,7 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
         tokio::select! {
             Ok(msg) = consumer.recv() => {
                     // Increment the counter that is defined in src/metrics.rs
-                    metrics::CONSUMED_MESSAGES.inc();
+                    custom_metrics::CONSUMED_MESSAGES.inc();
                     // Deserialize and print the message
                     deserialize_and_print(&msg);
                     // Commit the message
@@ -84,7 +82,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .subscribe(&topics)
         .expect("Can't subscribe to specified topics");
 
-    // Create a future for consuming messages,
+    // Create handle for consuming messages,
     let shutdown_clone = shutdown.clone();
     let consumer_handle = tokio::spawn(async move {
         consume(consumer, shutdown_clone).await;
