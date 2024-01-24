@@ -1,22 +1,14 @@
 use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 
-use dsh_sdk::rdkafka::consumer::CommitMode;
-use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
-use dsh_sdk::rdkafka::message::BorrowedMessage;
-use dsh_sdk::rdkafka::message::Message;
+use dsh_sdk::rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
+use dsh_sdk::rdkafka::message::{Message, BorrowedMessage};
 
-mod metrics;
+mod custom_metrics;
 
 fn deserialize_and_print(msg: &BorrowedMessage) {
-    let payload = match msg.payload() {
-        Some(p) => std::string::String::from_utf8_lossy(p),
-        None => std::borrow::Cow::Borrowed(""),
-    };
-    let key = match msg.key() {
-        Some(p) => std::string::String::from_utf8_lossy(p),
-        None => std::borrow::Cow::Borrowed(""),
-    };
+    let payload = std::string::String::from_utf8_lossy(msg.payload().unwrap_or(b""));
+    let key = std::string::String::from_utf8_lossy(msg.key().unwrap_or(b""));
 
     println!(
         "Received message from topic {} partition {} offset {} with key {:?} and payload {}",
@@ -33,7 +25,7 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
         tokio::select! {
             Ok(msg) = consumer.recv() => {
                     // Increment the counter that is defined in src/metrics.rs
-                    metrics::CONSUMED_MESSAGES.inc();
+                    custom_metrics::CONSUMED_MESSAGES.inc();
                     // Deserialize and print the message
                     deserialize_and_print(&msg);
                     // Commit the message
@@ -53,42 +45,29 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
     tokio::spawn(async move {
-        metrics::start_http_server(8080).await;
+        dsh_sdk::metrics::start_http_server(8080).await;
     });
 
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
-    let dsh_properties = match Properties::new().await {
-        Ok(b) => b,
-        Err(e) => {
-            println!("Error getting DSH properties: {:?}", e);
-            return;
-        }
-    };
+    let dsh_properties = Properties::new().await?;
 
     // Get the configured topics from env variable TOPICS (comma separated)
     let topis_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
     let topics = topis_string.split(",").map(|s| s).collect::<Vec<&str>>();
 
     // Validate your configured topic if it has read access (optional)
-    match dsh_properties
+    dsh_properties
         .datastream()
-        .verify_list_of_topics(&topics, dsh_sdk::dsh::datastream::ReadWriteAccess::Read)
-    {
-        Ok(_) => {}
-        Err(e) => {
-            println!("Error validating topics: {:?}", e);
-            return;
-        }
-    };
+        .verify_list_of_topics(&topics, dsh_sdk::dsh::datastream::ReadWriteAccess::Read)?;
 
     // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals and you can act on them)
     let shutdown = Shutdown::new();
 
     // Get the consumer config from the Properties instance
-    let mut consumer_client_config = dsh_properties.consumer_rdkafka_config();
+    let mut consumer_client_config = dsh_properties.consumer_rdkafka_config()?;
 
     // Override some default values (optional)
     consumer_client_config.set("auto.offset.reset", "latest");
@@ -103,10 +82,10 @@ async fn main() {
         .subscribe(&topics)
         .expect("Can't subscribe to specified topics");
 
-    // Create a future for consuming messages,
-    let consume_future = consume(consumer, shutdown.clone());
+    // Create handle for consuming messages,
+    let shutdown_clone = shutdown.clone();
     let consumer_handle = tokio::spawn(async move {
-        consume_future.await;
+        consume(consumer, shutdown_clone).await;
     });
 
     // Wait for shutdown signal or that the consumer has stopped
@@ -116,10 +95,11 @@ async fn main() {
         }
         _ = consumer_handle => {
             println!("Consumer stopped");
-            shutdown.start(); // Start the shutdown process (this will stop other potential running tasks, if you create them)
+            shutdown.start(); // Start the shutdown process (this will stop other potential running tasks that implemented the shutdown listener)
         }
     }
 
     // Wait till the shutdown is complete
     shutdown.complete().await;
+    Ok(())
 }
