@@ -43,4 +43,4 @@ rdkafka-ssl = ["rdkafka", "rdkafka/ssl"]
 
 [dev-dependencies]
 mockito = "1.1.1"
-tokio = "1"
+tokio = "^1.35"
