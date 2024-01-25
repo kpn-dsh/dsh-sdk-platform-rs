@@ -4,6 +4,7 @@ This document outlines security procedures and general policies for the `dsh-sdk
 
 - [Security Policy](#security-policy)
   - [Supported Versions](#supported-versions)
+  - [Known dependency vulnerabilities](#known-dependency-vulnerabilities)
   - [Reporting a Vulnerability](#reporting-a-vulnerability)
     - [Reporting Process](#reporting-process)
     - [Handling and Resolution](#handling-and-resolution)
@@ -15,6 +16,11 @@ The following versions of this project are currently being supported with securi
 | Version | Supported          |
 | ------- | ------------------ |
 | 0.1.x   | :white_check_mark: |
+
+## Known dependency vulnerabilities
+
+[![dependency status](https://deps.rs/repo/github/kpn-dsh/dsh-sdk-platform-rs/status.svg)](https://deps.rs/repo/github/kpn-dsh/dsh-sdk-platform-rs).
+
 
 
 ## Reporting a Vulnerability

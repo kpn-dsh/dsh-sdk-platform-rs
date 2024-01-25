@@ -6,7 +6,7 @@ authors = [
 description = "SDK for KPN Data Services Hub"
 edition = "2021"
 exclude = ["/tmp"]
-homepage = "https://www.kpn.com/zakelijk/internet-of-things/data-services-hub.htm"
+homepage = "https://www.kpn.com/dsh"
 keywords = ["kpn", "dsh", "sdk"]
 license = "Apache License 2.0"
 name = "dsh_sdk"
@@ -26,7 +26,7 @@ reqwest = { version = "0.11" , default-features = false, features = ["rustls-tls
 log =  "0.4"
 thiserror = "1.0"
 prometheus = { version = "0.13", features = ["process"], optional = true }
-warp = { version = "0.3", optional = true}
+warp = { version = "^0.3.4", optional = true}
 lazy_static  = { version = "1.4", optional = true}
 
 [features]

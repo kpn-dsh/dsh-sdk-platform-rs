@@ -48,4 +48,4 @@ jobs:
       - name: install audit
         run: cargo install cargo-audit
       - name: audit check
-        run: cargo audit --ignore RUSTSEC-2023-0071
+        run: cargo audit
