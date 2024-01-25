@@ -89,4 +89,4 @@ See [LICENSE](LICENSE) for more information on the license for this project.
 See [SECURITY.md](SECURITY.md) for more information on the security policy for this project.
 
 ---
-Copyright (c) Koninklijke KPN N.V.
+_Copyright (c) Koninklijke KPN N.V._ 
