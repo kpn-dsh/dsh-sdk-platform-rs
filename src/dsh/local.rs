@@ -3,6 +3,7 @@
 //! This module contains logic to load the local_datastreams.json file and parse it into a datastream struct inside the properties struct.
 //! This struct can be used to create a connection to your local Kafka cluster
 
+use log::error;
 use std::fs::File;
 use std::io::Read;
 
@@ -42,7 +43,7 @@ impl Datastream {
         let mut file = match file_result {
             Ok(file) => file,
             Err(e) => {
-                println!("Error opening {}: {}", path_buf.display(), e);
+                error!("Error opening {}: {}", path_buf.display(), e);
                 return Err(DshError::IoError(FILE_NAME, e));
             }
         };
