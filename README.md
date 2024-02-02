@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Description
-This library is a can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. It is not intended to be used directly. Features include:
+This library can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. It is not intended to be used directly. Features include:
 - Connect to DSH 
 - Fetch Kafka Properties (datastream)
 - Common functions 
@@ -67,7 +67,7 @@ The following features are available in this library and can be enabled/disabled
 
 | **feature** | **default** | **Description** |
 |---|---|---|
-| `bootstrap` | &check; | Generate signed certificate and fetch datastreams info <br> Also makes certificates avaiable, to be used as lowlevel API |
+| `bootstrap` | &check; | Generate signed certificate and fetch datastreams info <br> Also makes certificates available, to be used as lowlevel API |
 | `local` | &check; | Use the SDK in your local environment* |
 | `metrics` | &check; | Enable (custom) metrics for your service |
 | `graceful_shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |

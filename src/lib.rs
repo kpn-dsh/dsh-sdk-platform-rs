@@ -1,7 +1,7 @@
 //! # DSH
 //!
 //! Dsh properties struct. Create new to initialize all related components to connect to the DSH kafka clusters and get metadata of your tenant.
-//! - Avaiablable datastreams info
+//! - Availablable datastreams info
 //! - Metadata of running container/task
 //! - Certificates for Kafka and DSH
 //!
