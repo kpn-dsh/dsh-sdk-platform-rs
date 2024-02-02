@@ -1,3 +1,5 @@
+use log::info;
+
 use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 
@@ -46,6 +48,10 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Start logger to Stdout
+    env_logger::builder()
+        .target(env_logger::Target::Stdout)
+        .init();
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
     tokio::spawn(async move {
         dsh_sdk::metrics::start_http_server(8080).await;
@@ -53,9 +59,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
     let dsh_properties = Properties::new().await?;
+    info!("Connected to DSH server");
 
     // Get the configured topics from env variable TOPICS (comma separated)
-    let topis_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
+    let topis_string = std::env::var("TOPICS")?;
     let topics = topis_string.split(",").map(|s| s).collect::<Vec<&str>>();
 
     // Validate your configured topic if it has read access (optional)
