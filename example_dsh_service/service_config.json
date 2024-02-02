@@ -1,0 +1,13 @@
+{
+    "name": "dsh-sdk-example",
+    "image": "registry.cp.kpn-dsh.com/{tenant_name}/dsh-sdk-example:example",
+    "cpus": 0.1,
+    "mem": 64,
+    "env": {
+      "TOPICS": "{topic_name}"
+    },
+    "instances": 1,
+    "singleInstance": false,
+    "needsToken": true,
+    "user": "{uid}:{gid}"
+  }
