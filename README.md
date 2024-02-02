@@ -21,14 +21,14 @@ To use this SDK with the default features in your project, add the following to 
   
 ```toml
 [dependencies]
-dsh_sdk = "0.1.0"
+dsh_sdk = "0.1"
 ```
 
 However, if you would like to use only specific features, you can specify them in your Cargo.toml file. For example, if you would like to use only the bootstrap feature, add the following to your Cargo.toml file:
   
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.1.0", default-features = false, features = ["bootstrap"] }
+dsh_sdk = { version = "0.1", default-features = false, features = ["bootstrap"] }
 ```
 
 See [feature flags](#feature-flags) for more information on the available features.

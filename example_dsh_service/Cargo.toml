@@ -6,5 +6,5 @@ edition = "2021"
 
 [dependencies]
 # path needs to be changed to the path of the dsh_sdks crate
-dsh_sdk = { version = "0.1.0", features = ["rdkafka-ssl-vendored"] }
+dsh_sdk = { version = "0.1", features = ["rdkafka-ssl-vendored"] }
 tokio = { version = "1", features = ["full"] }

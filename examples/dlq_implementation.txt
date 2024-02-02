@@ -1,5 +1,5 @@
 // make sure to use the dlq feature in your Cargo.toml
-// dsh_sdk = { version = "0.1.0", features = ["dlq"] }
+// dsh_sdk = { version = "0.1", features = ["dlq"] }
 //
 // To run this example, run the following command:
 // cargo run --features dlq --example dlq_implementation
