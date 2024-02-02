@@ -28,13 +28,14 @@ Please use GitHub issues to report bugs or suggest new features. Before submitti
 
 We appreciate your interest in contributing to the DSH SDK. To contribute, follow these steps:
 
-1. Fork the repository.
-2. Create a new branch for your contribution: `git checkout -b feature/my-feature` or `git checkout -b bugfix/my-bugfix`.
-3. Make your changes.
-4. Test your changes to ensure they work as expected.
-5. Commit your changes: `git commit -m "Description of your changes"`.
-6. Push your changes to your fork: `git push origin feature/my-feature`.
-7. Open a pull request (PR) against the `main` branch of the main repository.
+1. Create a new issue in [github issues](https://github.com/kpn-dsh/dsh-sdk-platform-rs/issues)
+2. Fork the repository.
+3. Create a new branch for your contribution: `git checkout -b feature/my-feature` or `git checkout -b bugfix/my-bugfix`.
+4. Make your changes.
+5. Test your changes to ensure they work as expected.
+6. Commit your changes: `git commit -m "Description of your changes"`.
+7. Push your changes to your fork: `git push origin feature/my-feature`.
+8. Open a pull request (PR) against the `main` branch of the main repository and link your created issue.
 
 
 ## License
