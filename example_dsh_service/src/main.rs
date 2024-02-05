@@ -50,6 +50,7 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Start logger to Stdout
     env_logger::builder()
+        .filter_level(log::LevelFilter::Info)
         .target(env_logger::Target::Stdout)
         .init();
 
@@ -71,7 +72,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
      }?;
 
     // Get the configured topics from env variable TOPICS (comma separated)
-    let topis_string = std::env::var("TOPICS")?;
+    let topis_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
     let topics = topis_string.split(",").map(|s| s).collect::<Vec<&str>>();
 
     // Validate your configured topic if it has read access (optional)
