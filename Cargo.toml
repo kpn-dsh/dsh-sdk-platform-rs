@@ -14,6 +14,9 @@ readme = "README.md"
 repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
 version = "0.1.2"
 
+[package.metadata.docs.rs]
+features = ["full"]
+
 [dependencies]
 tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], optional = true}
 tokio-util = {version = "0.7", optional = true}
