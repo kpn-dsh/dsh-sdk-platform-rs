@@ -1,8 +1,10 @@
+use log::{error, info};
+
 use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 
 use dsh_sdk::rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
-use dsh_sdk::rdkafka::message::{Message, BorrowedMessage};
+use dsh_sdk::rdkafka::message::{BorrowedMessage, Message};
 
 mod custom_metrics;
 
@@ -46,13 +48,28 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Start logger to Stdout
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Info)
+        .target(env_logger::Target::Stdout)
+        .init();
+
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
     tokio::spawn(async move {
         dsh_sdk::metrics::start_http_server(8080).await;
     });
 
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
-    let dsh_properties = Properties::new().await?;
+     let dsh_properties = match Properties::new().await {
+         Ok(properties) => {
+             info!("Successfully initiated SDK properties");
+             Ok(properties)
+         }
+         Err(e) => {
+             error!("Error while initiating SDK properties: {:?}", e);
+             Err(e)
+         }
+     }?;
 
     // Get the configured topics from env variable TOPICS (comma separated)
     let topis_string = std::env::var("TOPICS").expect("TOPICS env variable not set");

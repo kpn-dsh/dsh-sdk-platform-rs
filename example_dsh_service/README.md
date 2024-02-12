@@ -14,7 +14,7 @@ It also gives you an example of how to build the project and publish it to Harbo
 ## Build image
 
 To build (and push) the docker image, open the makefile and update the following variables with your tenant information:
-```
+```makefile
 TENANT=
 TENANTUID=
 ```
@@ -24,7 +24,7 @@ If not already done, login to Harbor (password is your Harbor client secret):
 make login
 ```
 
-Run the following command, to build and push the image to Harbor:
+Run the following command, to build and push the image to Harbor and optionally start on DSH:
 
 ```bash
 make all
@@ -43,9 +43,15 @@ If you need an extra depency during compile/build time, you can add it to the do
 
 ## Run the service on dsh
 
-To run the service on dsh, you can use the following command (replace tenant_name, uid/gid, and topic_name with your own values):
+To start the serice on DSH from command line/makefile, you can use the following command. This does require Rest API credentials.
 
+```bash
+make deploy
 ```
+
+To run the service on dsh from console, you can use the following config (replace tenant_name, uid/gid, and topic_name with your own values):
+
+```json
 {
   "name": "dsh-sdk-example",
   "image": "registry.cp.kpn-dsh.com/{tenant_name}/dsh-sdk-example:example",

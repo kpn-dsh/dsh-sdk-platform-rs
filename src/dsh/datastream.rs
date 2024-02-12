@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::env;
 
-use log::{info, warn};
+use log::{info, warn, error};
 use serde::{Deserialize, Serialize};
 
 use crate::error::DshError;
@@ -152,10 +152,14 @@ impl GroupType {
     pub fn from_env() -> Self {
         let group_type = env::var("KAFKA_CONSUMER_GROUP_TYPE");
         match group_type {
-            Ok(s) if s == *"private" => GroupType::Private(0),
-            Ok(s) if s == *"shared" => GroupType::Shared(0),
-            _ => {
-                warn!("KAFKA_CONSUMER_GROUP_TYPE is not set correctly, defaulting to private");
+            Ok(s) if s.to_lowercase() == *"private" => GroupType::Private(0),
+            Ok(s) if s.to_lowercase()  == *"shared" => GroupType::Shared(0),
+            Ok(_) => {
+                error!("KAFKA_CONSUMER_GROUP_TYPE is not set with \"shared\" or \"private\", defaulting to shared group type.");
+                GroupType::Shared(0)
+            }
+            Err(_) => {
+                warn!("KAFKA_CONSUMER_GROUP_TYPE is not set, defaulting to shared group type.");
                 GroupType::Shared(0)
             }
         }

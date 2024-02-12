@@ -54,6 +54,7 @@
 //! }
 //! ```
 
+use log::{info, warn};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
@@ -107,12 +108,13 @@ impl Shutdown {
             tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()).unwrap();
         #[cfg(unix)]
         tokio::select! {
-            _ = ctrl_c_signal => println!("Ctrl-C received"),
-            _ = sigterm_signal.recv() => println!("SIGTERM received"),
+            _ = ctrl_c_signal => {},
+            _ = sigterm_signal.recv() => {}
         }
         #[cfg(windows)]
         let _ = ctrl_c_signal.await;
 
+        warn!("Shutdown signal received!");
         self.start();
     }
 
@@ -124,7 +126,7 @@ impl Shutdown {
         // drop original shutdown_complete_tx, else it would await forever
         drop(self.shutdown_complete_tx);
         self.shutdown_complete_rx.unwrap().recv().await;
-        println!("Shutdown complete!")
+        info!("Shutdown complete!")
     }
 }
 

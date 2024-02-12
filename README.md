@@ -13,6 +13,7 @@ This library can be used to interact with the DSH Platform. It is intended to be
   - Preconfigured RDKafka client config
   - Preconfigured Reqwest client config (for schema store)
 - Graceful shutdown
+- Prometheus Metrics (web server and re-export of metrics crate)
 - Dead Letter Queue (experimental)
 
 ## Usage
@@ -49,7 +50,7 @@ async fn main() {
 See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
 
 ### Local development
-Add a [local_datastream.json](local_datastream.json) to your project root.
+Add a [local_datastreams.json](local_datastreams.json) to your project root.
 
 ### Note
 Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installed in your environment and/or Dockerfile where you are compiling.
@@ -77,7 +78,7 @@ The following features are available in this library and can be enabled/disabled
 
 See api documentation for more information on how to use these features including.
 
-\* Requires a [local_datastream.json](local_datastream.json) in your project root.
+\* Requires a [local_datastreams.json](local_datastreams.json) in your project root.
 
 
 ## Contributing

@@ -22,6 +22,7 @@
 //!     Ok(())
 //! }
 //! ```
+use log::warn;
 
 use crate::error::DshError;
 use std::env;
@@ -142,8 +143,8 @@ impl Properties {
         match Self::new_dsh().await {
             Ok(b) => Ok(b),
             Err(e) => {
-                println!("App does not seem to be running on DSH, due to: {}", e);
-                println!("Trying to run locally");
+                warn!("App does not seem to be running on DSH, due to: {}", e);
+                warn!("Starting with local settings");
                 Self::new_local()
             }
         }
