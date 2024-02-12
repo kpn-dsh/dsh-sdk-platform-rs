@@ -5,18 +5,20 @@ This is an example service that uses the DSH SDK Platform and will demonstrate a
 ## Description
 
 This example shows you how to setup:
-- Consumer
+- initiate DSH SDK
+- Create consumer
 - Graceful shutdown
+- Create custom metrics
 - Build and publish to Harbor
 
 It also gives you an example of how to build the project and publish it to Harbor as a docker image.
 
 ## Build image
 
-To build (and push) the docker image, open the makefile and update the following variables with your tenant information:
-```makefile
-TENANT=
-TENANTUID=
+To build (and push) the docker image, set the following environment variables with your tenant information:
+```bash
+export DSH_TENANT_NAME=TENANT_NAME
+export DSH_TENANT_UID=1234
 ```
 
 If not already done, login to Harbor (password is your Harbor client secret):
@@ -39,7 +41,7 @@ make help
 
 The dockerfile is setup in such a way that it will build the service in a seperate stage and then copy the binary to a scratch image. This will result in a very small image. With this setup, there are no depencies on which environment the application is built.
 
-If you need an extra depency during compile/build time, you can add it to the dockerfile in the build stage. If you need an extra dependency during runtime, you can add it to the dockerfile in the runner stage.
+If you need an extra depedenncy during compile/build time, you can add it to the dockerfile in the build stage. If you need an extra dependency during runtime, you can add it to the dockerfile in the runner stage.
 
 ## Run the service on dsh
 

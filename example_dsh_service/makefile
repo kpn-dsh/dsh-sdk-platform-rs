@@ -1,7 +1,14 @@
 # Please edit the following variables to match your project
-TENANT=
-TENANTUID=
-
+ifdef DSH_TENANT_NAME
+    TENANT:=$(DSH_TENANT_NAME) # grab from environment variable
+else
+    TENANT:=
+endif
+ifdef DSH_TENANT_UID
+    UID:=$(DSH_TENANT_UID) # grab from environment variable
+else
+    UID:=
+endif
 # You can change the following variables, but it is not necessary as it will ask during runtime
 # NOTE: it's not recommended to store CLIENT_SECRET in the makefile!
 PLATFORM ?= $(shell bash -c 'read -p "Platform (dsh-dev or poc-dsh): " PLATFORM; echo $$PLATFORM')
@@ -10,14 +17,14 @@ CLIENT_ID ?= $(shell bash -c 'read -p "Rest API client ID: " CLIENT_ID; echo $$C
 CLIENT_SECRET ?= $(shell bash -c 'read -s -p "Rest API client secret: " CLIENT_SECRET; echo $$CLIENT_SECRET')
 
 # DO NOT EDIT BELOW THIS LINE
-DOCKER_REPO_URL=registry.cp.kpn-dsh.com/$(TENANT)
+DOCKER_REPO_URL=registry.cp.kpn-dsh.com/$(strip $(TENANT))
 VERSION=example
 TAGNAME=dsh-sdk-example
 IMAGE=$(DOCKER_REPO_URL)/$(TAGNAME):$(VERSION)
 
 verify_var:
-	@if [ -z "$(TENANT)" ]; then echo "TENANT is not set in make file. Please edit the makefile."; exit 1; fi
-	@if [ -z "$(TENANTUID)" ]; then echo "TENANTUID is not set in make file. Please edit the makefile."; exit 1; fi
+	@if [ -z "$(TENANT)" ]; then echo "DSH_TENANT_NAME is not set in environment variable. Please set this as variable or add it to the makefile."; exit 1; fi
+	@if [ -z "$(UID)" ]; then echo "DSH_TENANT_UID is not set in environment variable. Please set this as variable or add it to the makefile."; exit 1; fi
 help:
 	@echo "login		- login to the relevant repository"
 	@echo "fix		- run dos2unix on every file"
@@ -37,17 +44,17 @@ login:
 fix: 
 	find . -type f -print0 | xargs -0 dos2unix
 build: verify_var 
-	docker build -t $(TAGNAME) -f Dockerfile --build-arg UID=$(TENANTUID) --build-arg GID=$(TENANTUID) --platform linux/amd64 .
+	docker build -t $(TAGNAME) -f Dockerfile --build-arg UID=$(UID) --build-arg GID=$(UID) --platform linux/amd64 .
 	docker tag  $(TAGNAME) $(IMAGE)
 rebuild: verify_var
-	docker build --no-cache -t $(tagname) -f Dockerfile  --build-arg UID=$(TENANTUID) --build-arg GID=$(TENANTUID) --platform linux/amd64 .
+	docker build --no-cache -t $(tagname) -f Dockerfile  --build-arg UID=$(UID) --build-arg GID=$(UID) --platform linux/amd64 .
 	docker tag  $(TAGNAME) $(IMAGE)
 no-docker-build:
 	cargo b
 deploy: verify_var
 	@echo
 	@echo "To start the service on DSH from the command line, you need to have the Rest Credentials."
-	@echo "See https://console.dsh-dev.dsh.np.aws.kpn.com/#/profiles/$(TENANT)/rest-api"
+	@echo "See https://console.dsh-dev.dsh.np.aws.kpn.com/#/profiles/$(strip $(TENANT))/rest-api"
 	@echo
 	@echo "Else start the service from console."
 	@echo 
@@ -60,14 +67,14 @@ deploy: verify_var
     fi
 exec_deploy: 
 	@clear
-	@bash -c 'bash deployer.sh "$(IMAGE)" "$(PLATFORM)" "$(TENANT)" "$(TENANTUID)" "$(TOPIC)" "$(CLIENT_ID)" "$(CLIENT_SECRET)"'
+	@bash -c 'bash deployer.sh "$(IMAGE)" "$(PLATFORM)" "$(strip $(TENANT))" "$(strip $(UID))" "$(TOPIC)" "$(CLIENT_ID)" "$(CLIENT_SECRET)"'
 all: verify_var
 	make build
 	make push
 	make show
 	make deploy
 run:
-	docker run -u $(TENANTUID):$(TENANTUID) -it --entrypoint "/bin/sh" $(IMAGE)
+	docker run -u $(UID):$(UID) -it --entrypoint "/bin/sh" $(IMAGE)
 fun:
 	@curl -s -H "Accept: application/json" https://icanhazdadjoke.com/ 
 push:
@@ -77,7 +84,7 @@ show:
 	@echo "#make file configuration"
 	@echo "#URL          :" $(DOCKER_REPO_URL)
 	@echo "#TENANT       :" $(TENANT)
-	@echo "#TENANTUID    :" $(TENANTUID)
+	@echo "#TENANT_UID   :" $(UID)
 	@echo "#TAG          :" $(TAGNAME)
 	@echo "#version      :" $(VERSION)
 	@echo "#image        :" $(IMAGE)
