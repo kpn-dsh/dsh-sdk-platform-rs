@@ -67,7 +67,7 @@ deploy: verify_var
     fi
 exec_deploy: 
 	@clear
-	@bash -c 'bash deployer.sh "$(IMAGE)" "$(PLATFORM)" "$(TENANT)" "$(UID)" "$(TOPIC)" "$(CLIENT_ID)" "$(CLIENT_SECRET)"'
+	@bash -c 'bash deployer.sh "$(IMAGE)" "$(PLATFORM)" "$(strip $(TENANT))" "$(strip $(UID))" "$(TOPIC)" "$(CLIENT_ID)" "$(CLIENT_SECRET)"'
 all: verify_var
 	make build
 	make push
