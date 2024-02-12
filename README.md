@@ -80,6 +80,8 @@ See api documentation for more information on how to use these features includin
 
 \* Requires a [local_datastreams.json](local_datastreams.json) in your project root.
 
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md) for all changes per version.
 
 ## Contributing
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more information on how to contribute to this project.
