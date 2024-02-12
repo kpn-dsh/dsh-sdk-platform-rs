@@ -17,7 +17,7 @@ CLIENT_ID ?= $(shell bash -c 'read -p "Rest API client ID: " CLIENT_ID; echo $$C
 CLIENT_SECRET ?= $(shell bash -c 'read -s -p "Rest API client secret: " CLIENT_SECRET; echo $$CLIENT_SECRET')
 
 # DO NOT EDIT BELOW THIS LINE
-DOCKER_REPO_URL=registry.cp.kpn-dsh.com/$(TENANT)
+DOCKER_REPO_URL=registry.cp.kpn-dsh.com/$(strip $(TENANT))
 VERSION=example
 TAGNAME=dsh-sdk-example
 IMAGE=$(DOCKER_REPO_URL)/$(TAGNAME):$(VERSION)
@@ -54,7 +54,7 @@ no-docker-build:
 deploy: verify_var
 	@echo
 	@echo "To start the service on DSH from the command line, you need to have the Rest Credentials."
-	@echo "See https://console.dsh-dev.dsh.np.aws.kpn.com/#/profiles/$(TENANT)/rest-api"
+	@echo "See https://console.dsh-dev.dsh.np.aws.kpn.com/#/profiles/$(strip $(TENANT))/rest-api"
 	@echo
 	@echo "Else start the service from console."
 	@echo 
