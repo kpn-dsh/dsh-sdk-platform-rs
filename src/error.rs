@@ -11,7 +11,9 @@ pub enum DshError {
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
     #[error("IO error for file {0}: {1}")]
-    IoError(&'static str, std::io::Error),
+    IoErrorFile(&'static str, std::io::Error),
+    #[error("IO Error: {0}")]
+    IoError(#[from] std::io::Error),
     #[error("Serde_json error: {0}")]
     JsonError(#[from] serde_json::Error),
     #[error("Env var error: {0}")]
@@ -35,6 +37,6 @@ pub enum DshError {
 
 impl From<(&'static str, std::io::Error)> for DshError {
     fn from(error: (&'static str, std::io::Error)) -> Self {
-        DshError::IoError(error.0, error.1)
+        DshError::IoErrorFile(error.0, error.1)
     }
 }
