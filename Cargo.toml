@@ -35,7 +35,7 @@ lazy_static  = { version = "1.4", optional = true}
 [features]
 default = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl"]
 full = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl", "dlq"]
-bootstrap = ["rustls", "picky", "serde_json", "reqwest"]
+bootstrap = ["rustls", "picky", "serde_json", "reqwest", "tokio"]
 local = ["bootstrap"]
 metrics =  ["prometheus", "warp", "lazy_static"]
 dlq = ["tokio"]

@@ -149,6 +149,14 @@ impl Properties {
             }
         }
     }
+
+    pub fn new_blocking() -> Result<Self, DshError> {
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()?
+            .block_on(Self::new())
+    }
+
     /// Get default RDKafka Consumer config to connect to Kafka on DSH.
     /// If certificates are present, it will use SSL to connect to Kafka.
     /// If not, it will use plaintext so it can connect to local as well.
@@ -183,7 +191,7 @@ impl Properties {
     /// | `enable.auto.commit`      | false                                  | Autocommmit                                                                                                                                                          |
     /// | `enable.auto.offset.store`| false                                  | Store autocommit of last message provided                                                                                                                            |
     /// | `auto.offset.reset`       | earliest                               | Start consuming from the beginning.                                                                                                                                  |
-    /// | `security.protocol`       | ssl (DSH))<br>plaintext (local)        | Security protocol                                                                                                                                                    |
+    /// | `security.protocol`       | ssl (DSH)<br>plaintext (local)        | Security protocol                                                                                                                                                    |
     /// | `ssl.key.pem`             | private key                            | Generated when bootstrap is initiated                                                                                                                                |
     /// | `ssl.certificate.pem`     | dsh kafka certificate                  | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated)                                                                              |
     /// | `ssl.ca.pem`              | CA certifacte                          | Root certificate, provided by DSH.                                                                                                                                   |
