@@ -44,7 +44,7 @@ impl Datastream {
             Ok(file) => file,
             Err(e) => {
                 error!("Error opening {}: {}", path_buf.display(), e);
-                return Err(DshError::IoError(FILE_NAME, e));
+                return Err(DshError::IoErrorFile(FILE_NAME, e));
             }
         };
         let mut contents = String::new();

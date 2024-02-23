@@ -4,11 +4,12 @@ Thank you for considering contributing to the DSH SDK! We welcome bug reports, f
 
 ## Table of Contents
 
-- [Security Vulnerabilities](#security-vulnerabilities)
-- [Bug Reports and Feature Requests](#bug-reports-and-feature-requests)
-- [How to Contribute](#how-to-contribute)
-- [Code of Conduct](#code-of-conduct)
-- [License](#license)
+- [Contributing to DSH SDK](#contributing-to-dsh-sdk)
+  - [Table of Contents](#table-of-contents)
+  - [Security Vulnerabilities](#security-vulnerabilities)
+  - [Bug Reports and Feature Requests](#bug-reports-and-feature-requests)
+  - [How to Contribute](#how-to-contribute)
+  - [License](#license)
 
 ## Security Vulnerabilities
 

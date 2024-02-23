@@ -25,7 +25,7 @@ The following versions of this project are currently being supported with securi
 
 ## Reporting a Vulnerability
 
-If you have found a vulnerability or bug, you can report it via posting an issue on the [ GitHub repo ]( https://github.com/kpn-dsh/dsh-sdk-platform-rs/issues).
+If you have found a vulnerability or bug, you can report it to unibox@kpn.com.
 
 ### Reporting Process
 

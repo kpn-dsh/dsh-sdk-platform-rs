@@ -149,6 +149,76 @@ impl Properties {
             }
         }
     }
+
+    /// Create a new Properties on a blocking struct that contains all information and certificates.
+    /// needed to connect to Kafka and DSH.
+    ///
+    ///  - Contains a struct equal to datastreams.json
+    ///  - Metadata of running container/task
+    ///  - Certificates for Kafka and DSH
+    ///
+    /// If running locally, it will try to load the local_datastreams.json file
+    /// and crate the properties struct based on this file
+    ///
+    /// # Error
+    /// If running locally and local_datastreams.json file is not present in the root of the project
+    ///
+    /// # local_datastreams.json
+    /// local_datastreams.json should be placed in the root of the project
+    ///
+    /// Example of local_datastreams.json.
+    /// (important that read and write has correct topic names that are configured in your local kafka cluster)
+    ///
+    /// ```text
+    /// {
+    ///     "brokers": ["localhost:9092"],
+    ///     "streams": {
+    ///       "scratch.local": {
+    ///         "name": "scratch.local",
+    ///         "cluster": "/tt",
+    ///         "read": "scratch.local.local-tenant",
+    ///         "write": "scratch.local.local-tenant",
+    ///         "partitions": 3,
+    ///         "replication": 1,
+    ///         "partitioner": "default-partitioner",
+    ///         "partitioningDepth": 0,
+    ///         "canRetain": false
+    ///       },
+    ///       "stream.test": {
+    ///         "name": "scratch.dlq.local-tenant",
+    ///         "cluster": "/tt",
+    ///         "read": "scratch\\.dlq.\\[^.]*",
+    ///         "write": "scratch.dlq.local-tenant",
+    ///         "partitions": 1,
+    ///         "replication": 1,
+    ///         "partitioner": "default-partitioner",
+    ///         "partitioningDepth": 0,
+    ///         "canRetain": false
+    ///       }
+    ///     },
+    ///     "private_consumer_groups": [
+    ///       "local-app.7e93a513-6556-11eb-841e-f6ab8576620c_1",
+    ///       "local-app.7e93a513-6556-11eb-841e-f6ab8576620c_2",
+    ///       "local-app.7e93a513-6556-11eb-841e-f6ab8576620c_3",
+    ///       "local-app.7e93a513-6556-11eb-841e-f6ab8576620c_4"
+    ///     ],
+    ///     "shared_consumer_groups": [
+    ///       "local-app_1",
+    ///       "local-app_2",
+    ///       "local-app_3",
+    ///       "local-app_4"
+    ///     ],
+    ///     "non_enveloped_streams": [],
+    ///     "schema_store": "http://localhost:8081/apis/ccompat/v7"
+    ///   }
+    /// ```
+    pub fn new_blocking() -> Result<Self, DshError> {
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()?
+            .block_on(Self::new())
+    }
+
     /// Get default RDKafka Consumer config to connect to Kafka on DSH.
     /// If certificates are present, it will use SSL to connect to Kafka.
     /// If not, it will use plaintext so it can connect to local as well.
@@ -183,7 +253,7 @@ impl Properties {
     /// | `enable.auto.commit`      | false                                  | Autocommmit                                                                                                                                                          |
     /// | `enable.auto.offset.store`| false                                  | Store autocommit of last message provided                                                                                                                            |
     /// | `auto.offset.reset`       | earliest                               | Start consuming from the beginning.                                                                                                                                  |
-    /// | `security.protocol`       | ssl (DSH))<br>plaintext (local)        | Security protocol                                                                                                                                                    |
+    /// | `security.protocol`       | ssl (DSH)<br>plaintext (local)        | Security protocol                                                                                                                                                    |
     /// | `ssl.key.pem`             | private key                            | Generated when bootstrap is initiated                                                                                                                                |
     /// | `ssl.certificate.pem`     | dsh kafka certificate                  | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated)                                                                              |
     /// | `ssl.ca.pem`              | CA certifacte                          | Root certificate, provided by DSH.                                                                                                                                   |
@@ -350,5 +420,17 @@ mod tests {
 
         let topics = get_configured_topics();
         assert!(topics.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_new() {
+        let properties = Properties::new().await;
+        assert!(properties.is_ok());
+    }
+
+    #[test]
+    fn test_new_blocking() {
+        let properties = Properties::new_blocking();
+        assert!(properties.is_ok());
     }
 }
