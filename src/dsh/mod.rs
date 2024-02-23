@@ -359,4 +359,16 @@ mod tests {
         let topics = get_configured_topics();
         assert!(topics.is_err());
     }
+
+    #[tokio::test]
+    async fn test_new() {
+        let properties = Properties::new().await;
+        assert!(properties.is_ok());
+    }
+
+    #[test]
+    fn test_new_blocking() {
+        let properties = Properties::new_blocking();
+        assert!(properties.is_ok());
+    }
 }
