@@ -92,7 +92,7 @@ impl DshConfig {
                 // if DSH_SECRET_TOKEN is not set, try to read it from a file (for system space applications)
                 info!("trying to read DSH_SECRET_TOKEN from file");
                 let secret_token_path = Self::get_env_var("DSH_SECRET_TOKEN_PATH")?;
-                let path  = std::path::PathBuf::from(secret_token_path);
+                let path = std::path::PathBuf::from(secret_token_path);
                 std::fs::read_to_string(path)?
             }
         };

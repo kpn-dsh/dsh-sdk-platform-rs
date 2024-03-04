@@ -315,7 +315,7 @@ impl Properties {
     /// | ssl.ca.pem          | CA certifacte                          | Root certificate, provided by DSH.                                                      |
     /// | log_level           | Info                                   | Log level of rdkafka                                                                    |
     #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
-    pub fn producer_rdkafka_config(&self) -> Result<rdkafka::config::ClientConfig, DshError>{
+    pub fn producer_rdkafka_config(&self) -> Result<rdkafka::config::ClientConfig, DshError> {
         let mut config = rdkafka::config::ClientConfig::new();
         config
             .set("bootstrap.servers", self.datastream().get_brokers())
