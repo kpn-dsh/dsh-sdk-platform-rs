@@ -1,4 +1,27 @@
-use log::warn;
+//! Module for bootstrapping the DSH client.
+//!
+//! This module contains the logic to connect to DSH and retrieve the certificates and datastreams.json
+//! to create the properties struct. It follows the certificate signing request pattern as normally
+//! used in the get_signed_certificates_json.sh script.
+//!
+//! ## Note
+//!
+//! This module is not intended to be used directly, but through the `Properties` struct. It will
+//! ayways be used when creating a new `Properties` struct. If this module returns an error, it defaults
+//! to the local_datastreams.json file, so it can be used in a local environment. (when feature `local`
+//! is enabled)
+//!
+//! ## Example
+//! ```
+//! use dsh_sdk::dsh::Properties;
+//! #
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let dsh_properties = Properties::new().await?;
+//! # Ok(())
+//! # }
+
+use log::{debug, info, warn};
 use reqwest::Client;
 
 use std::env;
@@ -38,6 +61,7 @@ impl Properties {
     }
 }
 
+#[derive(Debug)]
 pub(crate) struct DshConfig {
     config_host: String,
     tenant_name: String,
@@ -48,17 +72,36 @@ pub(crate) struct DshConfig {
 
 /// Helper struct to store the config needed for bootstrapping to DSH
 impl DshConfig {
-    fn new() -> Result<Self, env::VarError> {
-        let config_host = format!("{}{}", "https://", env::var("KAFKA_CONFIG_HOST")?);
-        let task_id = env::var("MESOS_TASK_ID")?;
-        let app_id = env::var("MARATHON_APP_ID")?;
-        let dsh_secret_token = env::var("DSH_SECRET_TOKEN")?;
-        let dsh_ca_certificate = env::var("DSH_CA_CERTIFICATE")?;
-        let tenant_name = DshConfig::tenant_name(app_id);
+    fn new() -> Result<Self, DshError> {
+        let config_host = Self::get_env_var("KAFKA_CONFIG_HOST")
+            .map(|host| format!("https://{}", host))
+            .unwrap_or_else(|_| {
+                let default = "https://pikachu.dsh.marathon.mesos:4443".to_string();
+                warn!(
+                    "KAFKA_CONFIG_HOST is not set, using default value {}",
+                    default
+                );
+                default
+            });
+
+        let task_id = Self::get_env_var("MESOS_TASK_ID")?;
+        let app_id = Self::get_env_var("MARATHON_APP_ID")?;
+        let dsh_secret_token = match Self::get_env_var("DSH_SECRET_TOKEN") {
+            Ok(token) => token,
+            Err(_) => {
+                // if DSH_SECRET_TOKEN is not set, try to read it from a file (for system space applications)
+                info!("trying to read DSH_SECRET_TOKEN from file");
+                let secret_token_path = Self::get_env_var("DSH_SECRET_TOKEN_PATH")?;
+                let path  = std::path::PathBuf::from(secret_token_path);
+                std::fs::read_to_string(path)?
+            }
+        };
+        let dsh_ca_certificate = Self::get_env_var("DSH_CA_CERTIFICATE")?;
+        let tenant_name = DshConfig::tenant_name(&app_id);
         Ok(DshConfig {
             config_host,
             task_id,
-            tenant_name,
+            tenant_name: tenant_name.to_string(),
             dsh_secret_token,
             dsh_ca_certificate,
         })
@@ -69,16 +112,27 @@ impl DshConfig {
     }
 
     /// Derive the tenant name from the app id.
-    fn tenant_name(app_id: String) -> String {
+    fn tenant_name(app_id: &str) -> &str {
         let tenant_name = app_id.split('/').nth(1);
         match tenant_name {
-            Some(tenant_name) => tenant_name.to_string(),
+            Some(tenant_name) => tenant_name,
             None => {
                 warn!(
                     "MARATHON_APP_ID is not as expected, missing expected slashes, using \"{}\" as tenant name",
                     app_id
                 );
                 app_id
+            }
+        }
+    }
+
+    fn get_env_var(var_name: &str) -> Result<String, DshError> {
+        debug!("Reading {} from environment variable", var_name);
+        match env::var(var_name) {
+            Ok(value) => Ok(value),
+            Err(e) => {
+                println!("{} is not set", var_name);
+                Err(e.into())
             }
         }
     }
@@ -205,16 +259,16 @@ mod tests {
 
     #[test]
     fn test_dsh_config_tenant_name() {
-        let app_id = "/greenbox-dev/app-name".to_string();
-        let result = DshConfig::tenant_name(app_id.clone());
+        let app_id = "/greenbox-dev/app-name";
+        let result = DshConfig::tenant_name(app_id);
         assert_eq!(
             result,
             "greenbox-dev".to_string(),
             "{} is not parsed correctly",
             app_id
         );
-        let app_id = "greenbox-dev".to_string();
-        let result = DshConfig::tenant_name(app_id.clone());
+        let app_id = "greenbox-dev";
+        let result = DshConfig::tenant_name(app_id);
         assert_eq!(
             result, app_id,
             "{} is not parsed correctly, should be the same",
@@ -298,5 +352,47 @@ mod tests {
         assert_eq!(dn.cn, "test_cn");
         assert_eq!(dn.ou, "test_ou");
         assert_eq!(dn.o, "test_o");
+    }
+
+    #[test]
+    fn test_get_env_var() {
+        env::set_var("TEST_ENV_VAR", "test_value");
+        let result = DshConfig::get_env_var("TEST_ENV_VAR").unwrap();
+        assert_eq!(result, "test_value");
+    }
+
+    #[test]
+    fn test_dsh_config_new() {
+        // normal situation where DSH variables are set
+        env::set_var("KAFKA_CONFIG_HOST", "test_host");
+        env::set_var("MESOS_TASK_ID", "test_task_id");
+        env::set_var("MARATHON_APP_ID", "/test_tenant/test_app");
+        env::set_var("DSH_SECRET_TOKEN", "test_token");
+        env::set_var("DSH_CA_CERTIFICATE", "test_ca_certificate");
+        let dsh_config = DshConfig::new().unwrap();
+        assert_eq!(dsh_config.config_host, "https://test_host");
+        assert_eq!(dsh_config.task_id, "test_task_id");
+        assert_eq!(dsh_config.tenant_name, "test_tenant");
+        assert_eq!(dsh_config.dsh_secret_token, "test_token");
+        assert_eq!(dsh_config.dsh_ca_certificate, "test_ca_certificate");
+        // DSH_SECRET_TOKEN is not set, but DSH_SECRET_TOKEN_PATH is set
+        env::remove_var("DSH_SECRET_TOKEN");
+        let test_token_dir = "test_files";
+        std::fs::create_dir_all(test_token_dir).unwrap();
+        let test_token_dir = format!("{}/test_token", test_token_dir);
+        let _ = std::fs::remove_file(&test_token_dir);
+        env::set_var("DSH_SECRET_TOKEN_PATH", &test_token_dir);
+        let result = DshConfig::new().unwrap_err();
+        assert_eq!(
+            result.to_string(),
+            "IO Error: The system cannot find the file specified. (os error 2)".to_string()
+        );
+        std::fs::write(test_token_dir.as_str(), "test_token_from_file").unwrap();
+        let dsh_config = DshConfig::new().unwrap();
+        assert_eq!(dsh_config.dsh_secret_token, "test_token_from_file");
+        // fail if DSH_CA_CERTIFICATE is not set
+        env::remove_var("DSH_CA_CERTIFICATE");
+        let result = DshConfig::new();
+        assert!(result.is_err());
     }
 }
