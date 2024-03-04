@@ -264,7 +264,7 @@ impl Properties {
             .set("auto.offset.reset", "earliest")
             .set_log_level(rdkafka::config::RDKafkaLogLevel::Info);
         // Set SSL if certificates are present
-        if let Some(certificates) = &self.certificates() {
+        if let Ok(certificates) = &self.certificates() {
             config
                 .set("security.protocol", "ssl")
                 .set("ssl.key.pem", certificates.private_key_pem()?)
@@ -295,7 +295,7 @@ impl Properties {
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>>{
     ///     let dsh_properties = Properties::new().await?;
-    ///     let mut producer_config = dsh_properties.producer_rdkafka_config();
+    ///     let mut producer_config = dsh_properties.producer_rdkafka_config().expect("Producer config creation failed");
     ///     let producer: FutureProducer =  producer_config.create().expect("Producer creation failed");
     ///     Ok(())
     /// }
@@ -323,7 +323,7 @@ impl Properties {
             .set_log_level(rdkafka::config::RDKafkaLogLevel::Info);
 
         // Set SSL if certificates are present
-        if let Some(certificates) = &self.certificates() {
+        if let Ok(certificates) = self.certificates() {
             config
                 .set("security.protocol", "ssl")
                 .set("ssl.key.pem", certificates.private_key_pem()?)
@@ -357,15 +357,19 @@ impl Properties {
     /// ```
     pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
         let mut client_builder = reqwest::Client::builder();
-        if let Some(certificates) = &self.certificates() {
+        if let Ok(certificates) = &self.certificates() {
             client_builder = certificates.reqwest_client_config()?;
         }
         Ok(client_builder)
     }
 
     /// Get the certificates. If running local it returns None
-    pub fn certificates(&self) -> Option<certificates::Cert> {
-        self.certificates.clone()
+    pub fn certificates(&self) -> Result<&certificates::Cert, DshError> {
+        if let Some(cert) = &self.certificates {
+            Ok(cert)
+        } else {
+            Err(DshError::NoCertificates)
+        }
     }
 
     /// Get the client id based on the task id.
