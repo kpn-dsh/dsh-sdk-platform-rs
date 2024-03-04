@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2024-03-04
+  
+### Added
+
+- Added low level certificate functions to the SDK
+  - Return keys and certificates as DER format
+  - Create client.key, client.crt and ca.crt in a folder
+- Added logging when reading required env variables
+
+### Changed
+- **Breaking change:**  Pem formatted certificates and keys returns a Result< String > instead of a string
+- **Breaking change:**  Return certificates in a Result < Cert > instead of a Option< Cert >
+- **Breaking change:**  Return producer config in a Result < ClientConfig > instead of a ClientConfig
+- Fix dsh::Properties::new() when feature 'local' is disabled
+
+### Removed
+- Removed unused dependency in Cargo.toml
+  
+
 ## [0.1.3] - 2024-02-23
 
 ### Added
