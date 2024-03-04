@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let topic = "scratch.local.local-tenant";
 
     // Create a new producer based on the properties default config
-    let mut producer: FutureProducer = dsh_properties.producer_rdkafka_config().create()?;
+    let mut producer: FutureProducer = dsh_properties.producer_rdkafka_config()?.create()?;
 
     // Produce messages towards topic
     produce(&mut producer, topic).await;
