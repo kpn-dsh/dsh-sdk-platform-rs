@@ -27,7 +27,7 @@
 //! It is also possible to get avaiable metadata or the certificates from the properties struct.
 //!
 //! ### Example:
-//! ```
+//! ```no_run
 //! # use dsh_sdk::dsh::Properties;
 //! # use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
 //! # #[tokio::main]
@@ -36,7 +36,7 @@
 //! // check for write access to topic
 //! let write_access = dsh_properties.datastream().get_stream("scratch.local.local-tenant").expect("Topic not found").write_access();
 //! // get the certificates, for example DSH_KAFKA_CERTIFICATE
-//! let dsh_kafka_certificate = dsh_properties.certificates().map(|certs| certs.dsh_kafka_certificate_pem());
+//! let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();
 //! #     Ok(())
 //! # }
 //! ```
