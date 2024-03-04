@@ -33,17 +33,6 @@ pub mod datastream;
 #[cfg(feature = "local")]
 pub mod local;
 
-/// Get the configured topics from the environment variable TOPICS
-/// Topics can be delimited by a comma
-pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
-    let kafka_topic_string = env::var("TOPICS")?;
-    Ok(kafka_topic_string
-        .split(',')
-        .map(str::trim)
-        .map(String::from)
-        .collect())
-}
-
 /// Kafka properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
 ///  - Contains a struct similar to datastreams.json
 ///  - Metadata of running container/task
@@ -278,7 +267,7 @@ impl Properties {
         if let Some(certificates) = &self.certificates() {
             config
                 .set("security.protocol", "ssl")
-                .set("ssl.key.pem", certificates.private_key_pem())
+                .set("ssl.key.pem", certificates.private_key_pem()?)
                 .set(
                     "ssl.certificate.pem",
                     certificates.dsh_kafka_certificate_pem(),
@@ -326,7 +315,7 @@ impl Properties {
     /// | ssl.ca.pem          | CA certifacte                          | Root certificate, provided by DSH.                                                      |
     /// | log_level           | Info                                   | Log level of rdkafka                                                                    |
     #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
-    pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
+    pub fn producer_rdkafka_config(&self) -> Result<rdkafka::config::ClientConfig, DshError>{
         let mut config = rdkafka::config::ClientConfig::new();
         config
             .set("bootstrap.servers", self.datastream().get_brokers())
@@ -337,7 +326,7 @@ impl Properties {
         if let Some(certificates) = &self.certificates() {
             config
                 .set("security.protocol", "ssl")
-                .set("ssl.key.pem", certificates.private_key_pem())
+                .set("ssl.key.pem", certificates.private_key_pem()?)
                 .set(
                     "ssl.certificate.pem",
                     certificates.dsh_kafka_certificate_pem(),
@@ -346,7 +335,7 @@ impl Properties {
         } else {
             config.set("security.protocol", "plaintext");
         }
-        config
+        Ok(config)
     }
 
     /// Get reqwest client config to connect to DSH Schema Registry.
@@ -400,6 +389,17 @@ impl Properties {
     pub fn schema_registry_host(&self) -> &str {
         self.datastream().schema_store()
     }
+}
+
+/// Get the configured topics from the environment variable TOPICS
+/// Topics can be delimited by a comma
+pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
+    let kafka_topic_string = env::var("TOPICS")?;
+    Ok(kafka_topic_string
+        .split(',')
+        .map(str::trim)
+        .map(String::from)
+        .collect())
 }
 
 #[cfg(test)]
