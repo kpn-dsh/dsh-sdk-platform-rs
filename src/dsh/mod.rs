@@ -138,16 +138,17 @@ impl Properties {
     /// ```
     pub async fn new() -> Result<Self, DshError> {
         #[cfg(not(feature = "local"))]
-        Self::new_dsh().await;
+        let result = Self::new_dsh().await;
         #[cfg(feature = "local")]
-        match Self::new_dsh().await {
+        let result = match Self::new_dsh().await {
             Ok(b) => Ok(b),
             Err(e) => {
                 warn!("App does not seem to be running on DSH, due to: {}", e);
                 warn!("Starting with local settings");
                 Self::new_local()
             }
-        }
+        };
+        result
     }
 
     /// Create a new Properties on a blocking struct that contains all information and certificates.
