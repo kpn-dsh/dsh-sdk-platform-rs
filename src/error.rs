@@ -8,6 +8,8 @@ pub enum DshError {
         status_code: reqwest::StatusCode,
         error_body: String,
     },
+    #[error("Certificates are not set")]
+    NoCertificates,
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
     #[error("IO error for file {0}: {1}")]
