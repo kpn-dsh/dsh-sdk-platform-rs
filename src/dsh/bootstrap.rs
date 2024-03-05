@@ -39,9 +39,8 @@ impl Properties {
         let dn = Dn::parse_string(&dn)?;
         let certificates = Cert::new(dn, &dsh_config, &client)?;
         let client_with_cert = certificates.reqwest_blocking_client_config()?.build()?;
-        let datastreams_string = DshCall::Datastream(&dsh_config)
-            .perform_call(&client_with_cert)
-            ?;
+        let datastreams_string =
+            DshCall::Datastream(&dsh_config).perform_call(&client_with_cert)?;
         let datastream: Datastream = serde_json::from_str(&datastreams_string)?;
         Ok(Self {
             client_id: dsh_config.task_id.to_string(),
@@ -290,8 +289,8 @@ mod tests {
             DshCall::Dn(&dsh_config).request_builder("https://test_host", &Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
-        let builder: reqwest::blocking::RequestBuilder = DshCall::Datastream(&dsh_config)
-            .request_builder("https://test_host", &Client::new());
+        let builder: reqwest::blocking::RequestBuilder =
+            DshCall::Datastream(&dsh_config).request_builder("https://test_host", &Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
         let pem = picky::pem::Pem::new("test_type", "test".as_bytes());
@@ -336,9 +335,7 @@ mod tests {
             dsh_ca_certificate: "test_ca_certificate".to_string(),
         };
         // call the function
-        let response = DshCall::Dn(&dsh_config)
-            .perform_call(&client)
-            .unwrap();
+        let response = DshCall::Dn(&dsh_config).perform_call(&client).unwrap();
         assert_eq!(response, dn);
     }
 

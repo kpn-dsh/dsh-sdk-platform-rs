@@ -22,7 +22,7 @@
 //!     Ok(())
 //! }
 //! ```
-use log::warn;
+use log::{info, warn};
 use std::env;
 use std::sync::OnceLock;
 
@@ -80,8 +80,8 @@ impl Properties {
     /// If running locally, it will try to load the local_datastreams.json file
     /// and crate the properties struct based on this file
     ///
-    /// # Error
-    /// If running locally and local_datastreams.json file is not present in the root of the project
+    /// # Panic
+    /// If initilization fails, it will panic per definition
     ///
     /// # local_datastreams.json
     /// local_datastreams.json should be placed in the root of the project
@@ -136,6 +136,7 @@ impl Properties {
         Ok(PROPERTIES.get_or_init(Self::init))
     }
 
+    /// Initialize the properties and bootstrap to DSH
     fn init() -> Self {
         #[cfg(not(feature = "local"))]
         let result = Self::new_dsh();
@@ -148,7 +149,13 @@ impl Properties {
                 Self::new_local()
             }
         };
-        result.expect("Initialization of DSH SDK failed!")
+        match result {
+            Ok(prop) => {
+                info!("DSH SDK initialized");
+                prop
+            }
+            Err(e) => panic!("Failed to initialize: {e}"),
+        }
     }
     /// Create a new Properties struct that contains all information and certificates.
     /// needed to connect to Kafka and DSH.

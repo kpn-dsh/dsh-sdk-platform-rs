@@ -165,10 +165,7 @@ impl Cert {
     /// Generate the certificate signing request.
     ///
     /// Implementation via Picky library.
-    fn generate_csr(
-        private_key: &PrivateKey,
-        dn: Dn,
-    ) -> Result<Csr, picky::x509::csr::CsrError> {
+    fn generate_csr(private_key: &PrivateKey, dn: Dn) -> Result<Csr, picky::x509::csr::CsrError> {
         let mut subject = DirectoryName::new_common_name(dn.cn());
         subject.add_attr(NameAttr::OrganizationalUnitName, dn.ou());
         subject.add_attr(NameAttr::OrganizationName, dn.o());

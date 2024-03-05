@@ -110,9 +110,9 @@ impl Datastream {
     }
 
     /// Write datastreams.json to a file in a directory
-    /// 
+    ///
     /// Directory
-    pub fn to_file(&self, directory: &std::path::PathBuf) -> Result<(), DshError>{
+    pub fn to_file(&self, directory: &std::path::PathBuf) -> Result<(), DshError> {
         let json_string = serde_json::to_string_pretty(self)?;
         std::fs::write(directory.join("datastreams.json"), json_string)?;
         Ok(())
@@ -373,6 +373,6 @@ mod tests {
     fn test_to_file() {
         let test_path = std::path::PathBuf::from("test_files");
         let result = datastream().to_file(&test_path);
-        assert!(result.is_ok())       
+        assert!(result.is_ok())
     }
 }
