@@ -21,9 +21,14 @@ pub struct Datastream {
 }
 
 impl Datastream {
-    /// Get the brokers as comma seperated string from the datastreams
-    pub fn get_brokers(&self) -> String {
-        self.brokers.clone().join(", ")
+    /// Get the kafka brokers from the datastreams
+    pub fn get_brokers(&self) -> Vec<&str> {
+        self.brokers.iter().map(|s| s.as_str()).collect()
+    }
+
+    /// Get the kafka brokers as comma seperated string from the datastreams
+    pub fn get_brokers_string(&self) -> String {
+        self.brokers.join(", ")
     }
 
     /// Get the group id from the datastreams based on GroupType
@@ -31,7 +36,7 @@ impl Datastream {
     /// # Error
     /// If the group type is not found in the datastreams
     /// (index out of bounds)
-    pub fn get_group_id(&self, group_type: GroupType) -> Result<String, DshError> {
+    pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DshError> {
         let group_id = match group_type {
             GroupType::Private(i) => self.private_consumer_groups.get(i),
 
@@ -39,7 +44,7 @@ impl Datastream {
         };
         info!("Kafka group id: {:?}", group_id);
         match group_id {
-            Some(id) => Ok(id.to_string()),
+            Some(id) => Ok(id),
             None => Err(DshError::IndexGroupIdError(group_type)),
         }
     }
@@ -103,6 +108,19 @@ impl Datastream {
     /// Reused in dsh_sdk::dsh::Properties
     pub fn schema_store(&self) -> &str {
         &self.schema_store
+    }
+}
+
+impl Default for Datastream {
+    fn default() -> Self {
+        Datastream {
+            brokers: vec![],
+            streams: HashMap::new(),
+            private_consumer_groups: vec![],
+            shared_consumer_groups: vec![],
+            non_enveloped_streams: vec![],
+            schema_store: String::new(),
+        }
     }
 }
 
@@ -239,7 +257,19 @@ mod tests {
     fn test_datastream_get_brokers() {
         assert_eq!(
             datastream().get_brokers(),
-            String::from("broker-0.tt.kafka.mesos:9091, broker-1.tt.kafka.mesos:9091, broker-2.tt.kafka.mesos:9091")
+            vec![
+                "broker-0.tt.kafka.mesos:9091",
+                "broker-1.tt.kafka.mesos:9091",
+                "broker-2.tt.kafka.mesos:9091"
+            ]
+        );
+    }
+
+    #[test]
+    fn test_datastream_get_brokers_string() {
+        assert_eq!(
+            datastream().get_brokers_string(),
+            "broker-0.tt.kafka.mesos:9091, broker-1.tt.kafka.mesos:9091, broker-2.tt.kafka.mesos:9091"
         );
     }
 
