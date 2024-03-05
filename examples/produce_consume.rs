@@ -38,7 +38,7 @@ async fn consume(consumer: &mut StreamConsumer, topic: &str) {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create a new DSH Properties instance (requires local_datastreams.json in root of project, as it runs in local mode)
-    let dsh_properties = Properties::new().await?;
+    let dsh_properties = Properties::get().await?;
 
     // Define your topic
     let topic = "scratch.local.local-tenant";
