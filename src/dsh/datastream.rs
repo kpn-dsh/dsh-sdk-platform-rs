@@ -39,7 +39,6 @@ impl Datastream {
     pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DshError> {
         let group_id = match group_type {
             GroupType::Private(i) => self.private_consumer_groups.get(i),
-
             GroupType::Shared(i) => self.shared_consumer_groups.get(i),
         };
         info!("Kafka group id: {:?}", group_id);
@@ -108,6 +107,15 @@ impl Datastream {
     /// Reused in dsh_sdk::dsh::Properties
     pub fn schema_store(&self) -> &str {
         &self.schema_store
+    }
+
+    /// Write datastreams.json to a file in a directory
+    /// 
+    /// Directory
+    pub fn to_file(&self, directory: &std::path::PathBuf) -> Result<(), DshError>{
+        let json_string = serde_json::to_string_pretty(self)?;
+        std::fs::write(directory.join("datastreams.json"), json_string)?;
+        Ok(())
     }
 }
 
@@ -359,5 +367,12 @@ mod tests {
                 .write_access(),
             false
         );
+    }
+
+    #[test]
+    fn test_to_file() {
+        let test_path = std::path::PathBuf::from("test_files");
+        let result = datastream().to_file(&test_path);
+        assert!(result.is_ok())       
     }
 }
