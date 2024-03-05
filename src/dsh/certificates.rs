@@ -26,15 +26,15 @@
 //! ## Reqwest Client
 //!
 //! With this request client we can retrieve datastreams.json and connect to Schema Registry.
-//!
+
+use log::info;
 use picky::hash::HashAlgorithm;
 use picky::key::PrivateKey;
 use picky::signature::SignatureAlgorithm;
 use picky::x509::csr::Csr;
 use picky::x509::name::{DirectoryName, NameAttr};
-use std::path::PathBuf;
-
 use reqwest::{Client, ClientBuilder, Identity};
+use std::path::PathBuf;
 
 use super::bootstrap::{Dn, DshCall, DshConfig};
 
@@ -145,9 +145,9 @@ impl Cert {
     /// ```
     pub fn to_files(&self, dir: &PathBuf) -> Result<(), DshError> {
         std::fs::create_dir_all(dir)?;
-        std::fs::write(dir.join("ca.crt"), self.dsh_ca_certificate_pem())?;
-        std::fs::write(dir.join("client.pem"), self.dsh_kafka_certificate_pem())?;
-        std::fs::write(dir.join("client.key"), self.private_key_pkcs8()?)?;
+        Self::create_file(dir.join("ca.crt"), self.dsh_ca_certificate_pem())?;
+        Self::create_file(dir.join("client.pem"), self.dsh_kafka_certificate_pem())?;
+        Self::create_file(dir.join("client.key"), self.private_key_pkcs8()?)?;
         Ok(())
     }
 
@@ -166,6 +166,12 @@ impl Cert {
             private_key,
             SignatureAlgorithm::RsaPkcs1v15(HashAlgorithm::SHA2_512),
         )
+    }
+
+    fn create_file<C: AsRef<[u8]>>(path: PathBuf, contents: C) -> Result<(), DshError> {
+        std::fs::write(&path, contents)?;
+        info!("File created ({})", path.display());
+        Ok(())
     }
 
     fn create_identity(cert: &[u8], private_key: &[u8]) -> Result<Identity, reqwest::Error> {
