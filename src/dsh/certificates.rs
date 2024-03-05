@@ -68,7 +68,7 @@ impl Cert {
         Ok(Self {
             dsh_ca_certificate_pem: dsh_config.dsh_ca_certificate().to_string(),
             dsh_kafka_certificate_pem,
-            private_key: private_key,
+            private_key,
         })
     }
 
