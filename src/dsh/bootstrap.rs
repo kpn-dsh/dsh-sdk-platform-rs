@@ -46,6 +46,7 @@ impl Properties {
         Ok(Self {
             client_id: dsh_config.task_id.to_string(),
             tenant_name: dsh_config.tenant_name.to_string(),
+            task_id: dsh_config.task_id.to_string(),
             datastream,
             certificates: Some(certificates),
         })
