@@ -119,7 +119,7 @@ impl Default for Datastream {
             private_consumer_groups: vec![],
             shared_consumer_groups: vec![],
             non_enveloped_streams: vec![],
-            schema_store: String::new(),
+            schema_store: String::from("http://localhost:8081/apis/ccompat/v7"),
         }
     }
 }
