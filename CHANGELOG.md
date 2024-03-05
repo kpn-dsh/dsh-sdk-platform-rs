@@ -9,16 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   
 ### Added
 
-- Added low level certificate functions to the SDK
+- Make dsh::Properties lazily available dsh::Properties::get() 
+- New low level certificate functions to the SDK
   - Return keys and certificates as DER format
   - Create client.key, client.crt and ca.crt in a folder
-- Added logging when reading required env variables
+- Logging when reading required env variables
+- Task_id to Properties
+- Some missing unit tests
 
 ### Changed
+Most breaking changes are related to the new low level API and do not impact normal use of the SDK.
+- Add deprecation warning to dsh::Properties::new() and dsh::Properties::new_blocking() to use dsh::Properties::get() instead
+- **Breaking change:**  Return producer config in a Result < ClientConfig > instead of a ClientConfig
 - **Breaking change:**  Pem formatted certificates and keys returns a Result< String > instead of a string
 - **Breaking change:**  Return certificates in a Result < Cert > instead of a Option< Cert >
-- **Breaking change:**  Return producer config in a Result < ClientConfig > instead of a ClientConfig
+- **Breaking change:**  Return borrowed references from Datastream struct instead of owned values.
 - Fix dsh::Properties::new() when feature 'local' is disabled
+- Make initialization true blocking
+- Improved logging
 
 ### Removed
 - Removed unused dependency in Cargo.toml
