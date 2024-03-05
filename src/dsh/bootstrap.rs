@@ -22,7 +22,7 @@
 //! # }
 
 use log::{debug, info, warn};
-use reqwest::Client;
+use reqwest::blocking::Client;
 
 use std::env;
 
@@ -32,16 +32,16 @@ use super::{certificates::Cert, datastream::Datastream, Properties};
 
 impl Properties {
     /// Connect to DSH and retrieve the certificates and datastreams.json to create the properties struct
-    pub(crate) async fn new_dsh() -> Result<Self, DshError> {
+    pub(crate) fn new_dsh() -> Result<Self, DshError> {
         let dsh_config = DshConfig::new()?;
         let client = Properties::reqwest_client(dsh_config.dsh_ca_certificate.as_bytes())?;
-        let dn = DshCall::Dn(&dsh_config).perform_call(&client).await?;
+        let dn = DshCall::Dn(&dsh_config).perform_call(&client)?;
         let dn = Dn::parse_string(&dn)?;
-        let certificates = Cert::new(dn, &dsh_config, &client).await?;
-        let client_with_cert = certificates.reqwest_client_config()?.build()?;
+        let certificates = Cert::new(dn, &dsh_config, &client)?;
+        let client_with_cert = certificates.reqwest_blocking_client_config()?.build()?;
         let datastreams_string = DshCall::Datastream(&dsh_config)
             .perform_call(&client_with_cert)
-            .await?;
+            ?;
         let datastream: Datastream = serde_json::from_str(&datastreams_string)?;
         Ok(Self {
             client_id: dsh_config.task_id.to_string(),
@@ -132,7 +132,7 @@ impl DshConfig {
         match env::var(var_name) {
             Ok(value) => Ok(value),
             Err(e) => {
-                println!("{} is not set", var_name);
+                warn!("{} is not set", var_name);
                 Err(e.into())
             }
         }
@@ -175,7 +175,7 @@ impl DshCall<'_> {
         }
     }
 
-    fn request_builder(&self, url: &str, client: &Client) -> reqwest::RequestBuilder {
+    fn request_builder(&self, url: &str, client: &Client) -> reqwest::blocking::RequestBuilder {
         match self {
             DshCall::Dn(..) | DshCall::Datastream(..) => client.get(url),
             DshCall::CertificateSignRequest { config, csr, .. } => client
@@ -185,17 +185,17 @@ impl DshCall<'_> {
         }
     }
 
-    pub(crate) async fn perform_call(&self, client: &Client) -> Result<String, DshError> {
+    pub(crate) fn perform_call(&self, client: &Client) -> Result<String, DshError> {
         let url = self.url_for_call();
-        let response = self.request_builder(&url, client).send().await?;
+        let response = self.request_builder(&url, client).send()?;
         if !response.status().is_success() {
             return Err(DshError::DshCallError {
                 url,
                 status_code: response.status(),
-                error_body: response.text().await?,
+                error_body: response.text()?,
             });
         }
-        Ok(response.text().await?)
+        Ok(response.text()?)
     }
 }
 
@@ -286,24 +286,21 @@ mod tests {
             dsh_secret_token: "test_token".to_string(),
             dsh_ca_certificate: "test_ca_certificate".to_string(),
         };
-        let builder: reqwest::RequestBuilder =
-            DshCall::Dn(&dsh_config).request_builder("https://test_host", &reqwest::Client::new());
-        let (_, request) = builder.build_split();
-        let request = request.unwrap();
+        let builder: reqwest::blocking::RequestBuilder =
+            DshCall::Dn(&dsh_config).request_builder("https://test_host", &Client::new());
+        let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
-        let builder: reqwest::RequestBuilder = DshCall::Datastream(&dsh_config)
-            .request_builder("https://test_host", &reqwest::Client::new());
-        let (_, request) = builder.build_split();
-        let request = request.unwrap();
+        let builder: reqwest::blocking::RequestBuilder = DshCall::Datastream(&dsh_config)
+            .request_builder("https://test_host", &Client::new());
+        let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
         let pem = picky::pem::Pem::new("test_type", "test".as_bytes());
-        let builder: reqwest::RequestBuilder = DshCall::CertificateSignRequest {
+        let builder: reqwest::blocking::RequestBuilder = DshCall::CertificateSignRequest {
             config: &dsh_config,
             csr: pem,
         }
-        .request_builder("https://test_host", &reqwest::Client::new());
-        let (_, request) = builder.build_split();
-        let request = request.unwrap();
+        .request_builder("https://test_host", &Client::new());
+        let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "POST");
         assert_eq!(
             request
@@ -318,8 +315,8 @@ mod tests {
         assert!(body.contains("-----BEGIN test_type-----"));
     }
 
-    #[tokio::test]
-    async fn test_dsh_call_perform() {
+    #[test]
+    fn test_dsh_call_perform() {
         // Create a mock for the expected HTTP request
         let mut dsh = mockito::Server::new();
         let dn = "CN=test_cn,OU=test_ou,O=test_o";
@@ -329,7 +326,7 @@ mod tests {
             .with_body(dn)
             .create();
         // simple reqwest client
-        let client = reqwest::Client::new();
+        let client = Client::new();
         // create a DshConfig struct
         let dsh_config = DshConfig {
             config_host: dsh.url(),
@@ -341,7 +338,6 @@ mod tests {
         // call the function
         let response = DshCall::Dn(&dsh_config)
             .perform_call(&client)
-            .await
             .unwrap();
         assert_eq!(response, dn);
     }

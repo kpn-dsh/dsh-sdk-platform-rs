@@ -14,7 +14,7 @@
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let dsh_properties = Properties::new().await?;
+//!     let dsh_properties = Properties::get()?;
 //!     
 //!     let consumer_config = dsh_properties.consumer_rdkafka_config()?;
 //!     let consumer: StreamConsumer = consumer_config.create()?;
@@ -22,7 +22,7 @@
 //!     Ok(())
 //! }
 //! ```
-use log::{debug, info, warn};
+use log::warn;
 use std::env;
 use std::sync::OnceLock;
 
@@ -48,7 +48,7 @@ static PROPERTIES: OnceLock<Properties> = OnceLock::new();
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let dsh_properties = Properties::new().await?;
+///     let dsh_properties = Properties::get()?;
 ///     
 ///     let consumer_config = dsh_properties.consumer_rdkafka_config()?;
 ///     let consumer: StreamConsumer = consumer_config.create()?;
@@ -132,25 +132,15 @@ impl Properties {
     ///     "schema_store": "http://localhost:8081/apis/ccompat/v7"
     ///   }
     /// ```
-    pub async fn get() -> Result<&'static Self, DshError> {
-        //let properties = PROPERTIES.get_or_init(Self::init)
-        if let Some(properties) = PROPERTIES.get() {
-            debug!("Properties already initialized");
-            Ok(properties)
-        } else {
-            let properties: Properties = Self::init().await?;
-            match PROPERTIES.set(properties) {
-                Ok(_) => info!("Properties initialized"),
-                Err(_) => warn!("Properties already initialized by different thread. Ignoring."),
-            }
-            Ok(PROPERTIES.get().unwrap())
-        }
+    pub fn get() -> Result<&'static Self, DshError> {
+        Ok(PROPERTIES.get_or_init(Self::init))
     }
-    async fn init() -> Result<Self, DshError> {
+
+    fn init() -> Self {
         #[cfg(not(feature = "local"))]
-        let result = Self::new_dsh().await;
+        let result = Self::new_dsh();
         #[cfg(feature = "local")]
-        let result = match Self::new_dsh().await {
+        let result = match Self::new_dsh() {
             Ok(b) => Ok(b),
             Err(e) => {
                 warn!("App does not seem to be running on DSH, due to: {}", e);
@@ -158,7 +148,7 @@ impl Properties {
                 Self::new_local()
             }
         };
-        result
+        result.expect("Initialization of DSH SDK failed!")
     }
     /// Create a new Properties struct that contains all information and certificates.
     /// needed to connect to Kafka and DSH.
@@ -228,9 +218,9 @@ impl Properties {
     )]
     pub async fn new() -> Result<Self, DshError> {
         #[cfg(not(feature = "local"))]
-        let result = Self::new_dsh().await;
+        let result = Self::new_dsh();
         #[cfg(feature = "local")]
-        let result = match Self::new_dsh().await {
+        let result = match Self::new_dsh() {
             Ok(b) => Ok(b),
             Err(e) => {
                 warn!("App does not seem to be running on DSH, due to: {}", e);
@@ -307,10 +297,7 @@ impl Properties {
         note = "Use get_blocking() instead to avoid multiple bootstraps to DSH. Function to be removed in 0.3.0"
     )]
     pub fn new_blocking() -> Result<Self, DshError> {
-        let properties = tokio::runtime::Builder::new_multi_thread()
-            .enable_all()
-            .build()?
-            .block_on(Self::get());
+        let properties = Self::get();
         properties.map(|p| p.clone())
     }
 
@@ -329,7 +316,7 @@ impl Properties {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let dsh_properties = Properties::new().await?;
+    ///     let dsh_properties = Properties::get()?;
     ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config()?;
     ///     let consumer: StreamConsumer =  consumer_config.create().expect("Consumer creation failed");
     ///     Ok(())
@@ -399,7 +386,7 @@ impl Properties {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>>{
-    ///     let dsh_properties = Properties::new().await?;
+    ///     let dsh_properties = Properties::get()?;
     ///     let mut producer_config = dsh_properties.producer_rdkafka_config().expect("Producer config creation failed");
     ///     let producer: FutureProducer =  producer_config.create().expect("Producer creation failed");
     ///     Ok(())
@@ -443,7 +430,7 @@ impl Properties {
         Ok(config)
     }
 
-    /// Get reqwest client config to connect to DSH Schema Registry.
+    /// Get reqwest async client config to connect to DSH Schema Registry.
     /// If certificates are present, it will use SSL to connect to Schema Registry.
     ///
     /// Use <https://crates.io/crates/schema_registry_converter> to connect to Schema Registry.
@@ -454,7 +441,7 @@ impl Properties {
     /// # use reqwest::Client;
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let dsh_properties = Properties::new().await?;
+    ///     let dsh_properties = Properties::get()?;
     ///     let client = dsh_properties.reqwest_client_config()?.build()?;
     ///
     /// #    Ok(())
@@ -535,7 +522,6 @@ mod tests {
         std::env::set_var("TOPICS", "topic1, topic2, topic3");
 
         let topics = get_configured_topics().unwrap();
-
         assert_eq!(topics.len(), 3);
         assert_eq!(topics[0], "topic1");
         assert_eq!(topics[1], "topic2");
@@ -549,14 +535,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_if_set() {
-
-        PROPERTIES.set(test_properties()).unwrap();
-        let properties = Properties::get().await;
+        let properties = Properties::get();
         assert!(properties.is_ok());
         let properties = properties.unwrap();
-        assert_eq!(properties.client_id(), "test_client_id");
-        assert_eq!(properties.task_id(), "test_task_id");
-        assert_eq!(properties.tenant_name(), "test");
+        assert_eq!(properties.client_id(), "local_client_id");
+        assert_eq!(properties.task_id(), "local_task_id");
+        assert_eq!(properties.tenant_name(), "local");
     }
 
     #[allow(deprecated)]
@@ -575,7 +559,7 @@ mod tests {
 
     #[test]
     fn test_consumer_rdkafka_config() {
-        let properties = &test_properties();
+        let properties = Properties::new_local().unwrap();
         let config = properties.consumer_rdkafka_config();
         assert!(config.is_ok());
         let config = config.unwrap();
@@ -596,9 +580,9 @@ mod tests {
         assert_eq!(config.get("auto.offset.reset").unwrap(), "earliest");
     }
 
-    #[tokio::test]
-    async fn test_producer_rdkafka_config() {
-        let properties = &test_properties();
+    #[test]
+    fn test_producer_rdkafka_config() {
+        let properties = Properties::new_local().unwrap();
         let config = properties.producer_rdkafka_config();
         assert!(config.is_ok());
         let config = config.unwrap();
@@ -619,19 +603,19 @@ mod tests {
     #[test]
     fn test_client_id() {
         let properties = &test_properties();
-        assert_eq!(properties.client_id(), "local_client_id");
+        assert_eq!(properties.client_id(), "test_client_id");
     }
 
     #[test]
     fn test_tenant_name() {
         let properties = &test_properties();
-        assert_eq!(properties.tenant_name(), "local");
+        assert_eq!(properties.tenant_name(), "test");
     }
 
     #[test]
     fn test_task_id() {
         let properties = &test_properties();
-        assert_eq!(properties.task_id(), "local_task_id");
+        assert_eq!(properties.task_id(), "test_task_id");
     }
 
     #[test]

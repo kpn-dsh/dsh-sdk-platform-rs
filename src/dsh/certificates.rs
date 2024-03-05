@@ -33,7 +33,8 @@ use picky::key::PrivateKey;
 use picky::signature::SignatureAlgorithm;
 use picky::x509::csr::Csr;
 use picky::x509::name::{DirectoryName, NameAttr};
-use reqwest::{Client, ClientBuilder, Identity};
+use reqwest::blocking::{Client, ClientBuilder};
+use reqwest::Identity;
 use std::path::PathBuf;
 
 use super::bootstrap::{Dn, DshCall, DshConfig};
@@ -52,19 +53,14 @@ pub struct Cert {
 
 impl Cert {
     /// Create a new certificate struct.
-    pub(crate) async fn new(
-        dn: Dn,
-        dsh_config: &DshConfig,
-        client: &Client,
-    ) -> Result<Self, DshError> {
+    pub(crate) fn new(dn: Dn, dsh_config: &DshConfig, client: &Client) -> Result<Self, DshError> {
         let private_key = PrivateKey::generate_rsa(4096)?;
-        let csr = Self::generate_csr(&private_key, dn).await?;
+        let csr = Self::generate_csr(&private_key, dn)?;
         let dsh_kafka_certificate_pem = DshCall::CertificateSignRequest {
             config: dsh_config,
             csr: csr.to_pem()?,
         }
-        .perform_call(client)
-        .await?;
+        .perform_call(client)?;
         Ok(Self {
             dsh_ca_certificate_pem: dsh_config.dsh_ca_certificate().to_string(),
             dsh_kafka_certificate_pem,
@@ -72,9 +68,24 @@ impl Cert {
         })
     }
 
+    /// Build an async reqwest client with the DSH Kafka certificate included.
+    /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
+    pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
+        let pem_identity = Cert::create_identity(
+            self.dsh_kafka_certificate_pem().as_bytes(),
+            self.private_key_pem()?.as_bytes(),
+        )?;
+        let reqwest_cert =
+            reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
+        Ok(reqwest::Client::builder()
+            .add_root_certificate(reqwest_cert)
+            .identity(pem_identity)
+            .use_rustls_tls())
+    }
+
     /// Build a reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
-    pub fn reqwest_client_config(&self) -> Result<ClientBuilder, DshError> {
+    pub fn reqwest_blocking_client_config(&self) -> Result<ClientBuilder, DshError> {
         let pem_identity = Cert::create_identity(
             self.dsh_kafka_certificate_pem().as_bytes(),
             self.private_key_pem()?.as_bytes(),
@@ -154,7 +165,7 @@ impl Cert {
     /// Generate the certificate signing request.
     ///
     /// Implementation via Picky library.
-    async fn generate_csr(
+    fn generate_csr(
         private_key: &PrivateKey,
         dn: Dn,
     ) -> Result<Csr, picky::x509::csr::CsrError> {
@@ -261,11 +272,11 @@ mod tests {
         assert!(std::path::Path::new(&format!("{}/client.key", dir)).exists());
     }
 
-    #[tokio::test]
-    async fn test_dsh_certificate_sign_request() {
+    #[test]
+    fn test_dsh_certificate_sign_request() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
-        let csr = Cert::generate_csr(&cert.private_key(), dn).await.unwrap();
+        let csr = Cert::generate_csr(&cert.private_key(), dn).unwrap();
         let (directory_name, pub_key) = csr.into_subject_infos();
         assert_eq!(
             directory_name.to_string(),
