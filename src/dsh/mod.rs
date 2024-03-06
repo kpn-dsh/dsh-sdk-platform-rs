@@ -151,7 +151,7 @@ impl Properties {
         };
         match result {
             Ok(prop) => {
-                info!("DSH SDK initialized");
+                info!("DSH SDK successfully initialized");
                 prop
             }
             Err(e) => panic!("Could not bootstrap to DSH: {e}"),
