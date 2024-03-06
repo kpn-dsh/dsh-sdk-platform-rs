@@ -111,12 +111,12 @@ impl Datastream {
     ///
     /// # Example
     /// ```no_run
-    /// # use dsh_sdk::dsh::Datastream;
+    /// # use dsh_sdk::dsh::datastream::Datastream;
     /// # let datastream = Datastream::default();
     /// let path = std::path::PathBuf::from("/home/user");
-    /// datastream.to_file(&test_path).unwrap();
+    /// datastream.to_file(&path).unwrap();
     /// ```
-    pub fn to_file(&self, path: &std::path::PathBuf) -> Result<(), DshError> {
+    pub fn to_file(&self, path: &std::path::Path) -> Result<(), DshError> {
         let json_string = serde_json::to_string_pretty(self)?;
         std::fs::write(path.join("datastreams.json"), json_string)?;
         info!("File created ({})", path.display());
