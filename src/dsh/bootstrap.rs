@@ -7,9 +7,9 @@
 //! ## Note
 //!
 //! This module is not intended to be used directly, but through the `Properties` struct. It will
-//! always be used when getting a `Properties` struct vja dsh::Properties::get(). 
-//! 
-//! If this module returns an error, it defaults to the local_datastreams.json file, so it can be used 
+//! always be used when getting a `Properties` struct vja dsh::Properties::get().
+//!
+//! If this module returns an error, it defaults to the local_datastreams.json file, so it can be used
 //! in a local environment. (when feature `local` is enabled)
 //!
 //! ## Example

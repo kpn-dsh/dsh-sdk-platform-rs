@@ -84,17 +84,17 @@ impl Properties {
     /// If initilization fails, it will panic
     ///
     /// # Required environment variables
-    /// The following environment variables are required to be set. If not set, it will default to local (or Panic! 
+    /// The following environment variables are required to be set. If not set, it will default to local (or Panic!
     /// when 'local' is disabled). When starting a container in DSH, these variable are automatically set.
-    /// 
+    ///
     /// - `MESOS_TASK_ID` - The task id of the running container
     /// - `MARATHON_APP_ID` - Includes the tenant name of the running container
     /// - `DSH_SECRET_TOKEN` - The secret token to authenticate to DSH
     /// - `DSH_CA_CERTIFICATE` - The CA certificate of DSH
-    /// 
+    ///
     /// ### Optional
     /// - `DSH_SECRET_TOKEN_PATH` - The path to the secret token file. (useful when running in system space)
-    /// 
+    ///
     /// # local_datastreams.json
     /// local_datastreams.json should be placed in the root of the project
     ///
