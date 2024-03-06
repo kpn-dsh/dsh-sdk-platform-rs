@@ -37,7 +37,7 @@ opt-level = 3
 [features]
 default = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl"]
 full = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl", "dlq"]
-bootstrap = ["picky", "serde_json", "reqwest", "tokio"]
+bootstrap = ["picky", "serde_json", "reqwest"]
 local = ["bootstrap"]
 metrics =  ["prometheus", "warp", "lazy_static"]
 dlq = ["tokio"]
