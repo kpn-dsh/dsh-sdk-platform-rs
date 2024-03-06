@@ -247,7 +247,10 @@ impl Dlq {
             Ok(config) => config,
             Err(e) => {
                 error!("Error creating producer config");
-                return Err(rdkafka::error::KafkaError::ClientCreation(format!("Error creating producer config: {}", e)));
+                return Err(rdkafka::error::KafkaError::ClientCreation(format!(
+                    "Error creating producer config: {}",
+                    e
+                )));
             }
         };
         producer_config.create()

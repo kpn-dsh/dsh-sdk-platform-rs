@@ -108,7 +108,7 @@ impl Datastream {
     }
 
     /// Write datastreams.json in a directory
-    /// 
+    ///
     /// # Example
     /// ```no_run
     /// # use dsh_sdk::dsh::Datastream;
