@@ -1,5 +1,3 @@
-use log::{error, info};
-
 use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 
@@ -60,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
-     let dsh_properties = Properties::get();
+     let dsh_properties = Properties::get()?;
 
     // Get the configured topics from env variable TOPICS (comma separated)
     let topis_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
