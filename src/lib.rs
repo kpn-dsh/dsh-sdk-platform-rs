@@ -14,7 +14,7 @@
 //! ```
 //! use dsh_sdk::dsh::Properties;
 //! use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
-//! 
+//!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
 //! let dsh_properties = Properties::get();

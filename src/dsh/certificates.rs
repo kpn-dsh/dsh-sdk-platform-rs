@@ -13,7 +13,7 @@
 //! ```no_run
 //! use dsh_sdk::dsh::Properties;
 //! use std::path::PathBuf;
-//! 
+//!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let dsh_properties = Properties::get();
 //! let directory = PathBuf::from("dir");
@@ -144,7 +144,7 @@ impl Cert {
     /// ```no_run
     /// use dsh_sdk::dsh::Properties;
     /// use std::path::PathBuf;
-    /// 
+    ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh_properties = Properties::get();
     /// let directory = PathBuf::from("dir");
