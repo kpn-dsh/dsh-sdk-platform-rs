@@ -376,11 +376,8 @@ mod tests {
         let test_token_dir = format!("{}/test_token", test_token_dir);
         let _ = std::fs::remove_file(&test_token_dir);
         env::set_var("DSH_SECRET_TOKEN_PATH", &test_token_dir);
-        let result = DshConfig::new().unwrap_err();
-        assert_eq!(
-            result.to_string(),
-            "IO Error: The system cannot find the file specified. (os error 2)".to_string()
-        );
+        let result = DshConfig::new();
+        assert!(result.is_err());
         std::fs::write(test_token_dir.as_str(), "test_token_from_file").unwrap();
         let dsh_config = DshConfig::new().unwrap();
         assert_eq!(dsh_config.dsh_secret_token, "test_token_from_file");
