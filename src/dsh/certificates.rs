@@ -158,7 +158,7 @@ impl Cert {
         std::fs::create_dir_all(dir)?;
         Self::create_file(dir.join("ca.crt"), self.dsh_ca_certificate_pem())?;
         Self::create_file(dir.join("client.pem"), self.dsh_kafka_certificate_pem())?;
-        Self::create_file(dir.join("client.key"), self.private_key_pkcs8()?)?;
+        Self::create_file(dir.join("client.key"), self.private_key_pem()?)?;
         Ok(())
     }
 
