@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Return keys and certificates as DER format
   - Create client.key, client.crt and ca.crt in a folder
 - Write datastreams.json as file to a folder
+- Read DSH_SECRET_TOKEN_PATH from environment and read secret token from file as fallback for DSH_SECRET_TOKEN
+  - Required for running in system space
 - Logging when reading required env variables
 - Task_id to Properties
 - Some missing unit tests
