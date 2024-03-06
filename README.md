@@ -8,7 +8,7 @@
 ## Description
 This library can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. It is not intended to be used directly. Features include:
 - Connect to DSH 
-- Fetch Kafka Properties (datastream)
+- Fetch Kafka Properties and certificates
 - Common functions 
   - Preconfigured RDKafka client config
   - Preconfigured Reqwest client config (for schema store)
@@ -37,12 +37,12 @@ See [feature flags](#feature-flags) for more information on the available featur
 To use this SDK in your project
 ```rust
 use dsh_sdk::dsh::Properties;
+use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 
-#[tokio::main]
-async fn main() {
-    let dsh_properties = Properties::new().await.unwrap();
+fn main() -> Result<(), Box<dyn std::error::Error>>{
+    let dsh_properties = Properties::get();
     // get a rdkafka consumer config for example
-    let consumer_config = dsh_properties.consumer_rdkafka_config().create().unwrap();
+    let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
 }
 ```
 
