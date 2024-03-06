@@ -76,6 +76,7 @@
 
 #[cfg(feature = "dlq")]
 pub mod dlq;
+#[cfg(feature = "bootstrap")]
 pub mod dsh;
 pub mod error;
 #[cfg(feature = "graceful_shutdown")]
