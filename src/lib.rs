@@ -14,10 +14,10 @@
 //! ```
 //! use dsh_sdk::dsh::Properties;
 //! use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
-//!
+//! 
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! let dsh_properties = Properties::new().await?;
+//! let dsh_properties = Properties::get();
 //! let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
 //! # Ok(())
 //! # }
@@ -30,9 +30,9 @@
 //! ```no_run
 //! # use dsh_sdk::dsh::Properties;
 //! # use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
-//! # #[tokio::main]
-//! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! #    let dsh_properties = Properties::new().await?;
+
+//! # fn main() -> Result<(), Box<dyn std::error::Error>>{
+//! #    let dsh_properties = Properties::get();
 //! // check for write access to topic
 //! let write_access = dsh_properties.datastream().get_stream("scratch.local.local-tenant").expect("Topic not found").write_access();
 //! // get the certificates, for example DSH_KAFKA_CERTIFICATE

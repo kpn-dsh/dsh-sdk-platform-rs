@@ -13,10 +13,9 @@
 //! ```no_run
 //! use dsh_sdk::dsh::Properties;
 //! use std::path::PathBuf;
-//! #
-//! # #[tokio::main]
-//! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! let dsh_properties = Properties::new().await?;
+//! 
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let dsh_properties = Properties::get();
 //! let directory = PathBuf::from("dir");
 //! dsh_properties.certificates()?.to_files(&directory)?;
 //! # Ok(())
@@ -145,10 +144,9 @@ impl Cert {
     /// ```no_run
     /// use dsh_sdk::dsh::Properties;
     /// use std::path::PathBuf;
-    /// #
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>>{
-    /// let dsh_properties = Properties::new().await?;
+    /// 
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let dsh_properties = Properties::get();
     /// let directory = PathBuf::from("dir");
     /// dsh_properties.certificates()?.to_files(&directory)?;
     /// # Ok(())
