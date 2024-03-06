@@ -21,7 +21,7 @@ pub struct Datastream {
 }
 
 impl Datastream {
-    /// Get the kafka brokers from the datastreams
+    /// Get the kafka brokers from the datastreams as a vector of strings
     pub fn get_brokers(&self) -> Vec<&str> {
         self.brokers.iter().map(|s| s.as_str()).collect()
     }
@@ -34,7 +34,7 @@ impl Datastream {
     /// Get the group id from the datastreams based on GroupType
     ///
     /// # Error
-    /// If the group type is not found in the datastreams
+    /// If the index is greater then amount of groups in the datastreams
     /// (index out of bounds)
     pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DshError> {
         let group_id = match group_type {
@@ -48,7 +48,7 @@ impl Datastream {
         }
     }
 
-    /// Get all available datastreams
+    /// Get all available datastreams (scratch topics, internal topics and stream topics)
     pub fn streams(&self) -> &HashMap<String, Stream> {
         &self.streams
     }
@@ -103,18 +103,23 @@ impl Datastream {
     }
 
     /// Get schema_store from datastreams info.
-    ///
-    /// Reused in dsh_sdk::dsh::Properties
     pub fn schema_store(&self) -> &str {
         &self.schema_store
     }
 
-    /// Write datastreams.json to a file in a directory
-    ///
-    /// Directory
-    pub fn to_file(&self, directory: &std::path::PathBuf) -> Result<(), DshError> {
+    /// Write datastreams.json in a directory
+    /// 
+    /// # Example
+    /// ```no_run
+    /// # use dsh_sdk::dsh::Datastream;
+    /// # let datastream = Datastream::default();
+    /// let path = std::path::PathBuf::from("/home/user");
+    /// datastream.to_file(&test_path).unwrap();
+    /// ```
+    pub fn to_file(&self, path: &std::path::PathBuf) -> Result<(), DshError> {
         let json_string = serde_json::to_string_pretty(self)?;
-        std::fs::write(directory.join("datastreams.json"), json_string)?;
+        std::fs::write(path.join("datastreams.json"), json_string)?;
+        info!("File created ({})", path.display());
         Ok(())
     }
 }
