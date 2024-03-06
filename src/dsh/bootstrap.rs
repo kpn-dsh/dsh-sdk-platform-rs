@@ -15,12 +15,9 @@
 //! ## Example
 //! ```
 //! use dsh_sdk::dsh::Properties;
-//! #
-//! # #[tokio::main]
-//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! let dsh_properties = Properties::new().await?;
-//! # Ok(())
-//! # }
+//!
+//! let dsh_properties = Properties::get();
+//! ```
 
 use log::{debug, info, warn};
 use reqwest::blocking::Client;

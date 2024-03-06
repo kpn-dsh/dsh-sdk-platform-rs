@@ -12,15 +12,14 @@
 //! use dsh_sdk::dsh::Properties;
 //! use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 //!
-//! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let dsh_properties = Properties::get();
-//!     
-//!     let consumer_config = dsh_properties.consumer_rdkafka_config()?;
-//!     let consumer: StreamConsumer = consumer_config.create()?;
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let dsh_properties = Properties::get();
+//! let consumer_config = dsh_properties.consumer_rdkafka_config()?;
+//! let consumer: StreamConsumer = consumer_config.create()?;
 //!
-//!     Ok(())
-//! }
+//! # Ok(())
+//! # }
 //! ```
 use log::{info, warn};
 use std::env;
@@ -482,8 +481,8 @@ mod tests {
         assert!(topics.is_err());
     }
 
-    #[tokio::test]
-    async fn test_get_or_init() {
+    #[test]
+    fn test_get_or_init() {
         let properties = Properties::get();
         assert_eq!(properties.client_id(), "local_client_id");
         assert_eq!(properties.task_id(), "local_task_id");
