@@ -21,30 +21,34 @@ pub struct Datastream {
 }
 
 impl Datastream {
-    /// Get the brokers as comma seperated string from the datastreams
-    pub fn get_brokers(&self) -> String {
-        self.brokers.clone().join(", ")
+    /// Get the kafka brokers from the datastreams as a vector of strings
+    pub fn get_brokers(&self) -> Vec<&str> {
+        self.brokers.iter().map(|s| s.as_str()).collect()
+    }
+
+    /// Get the kafka brokers as comma seperated string from the datastreams
+    pub fn get_brokers_string(&self) -> String {
+        self.brokers.join(", ")
     }
 
     /// Get the group id from the datastreams based on GroupType
     ///
     /// # Error
-    /// If the group type is not found in the datastreams
+    /// If the index is greater then amount of groups in the datastreams
     /// (index out of bounds)
-    pub fn get_group_id(&self, group_type: GroupType) -> Result<String, DshError> {
+    pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DshError> {
         let group_id = match group_type {
             GroupType::Private(i) => self.private_consumer_groups.get(i),
-
             GroupType::Shared(i) => self.shared_consumer_groups.get(i),
         };
         info!("Kafka group id: {:?}", group_id);
         match group_id {
-            Some(id) => Ok(id.to_string()),
+            Some(id) => Ok(id),
             None => Err(DshError::IndexGroupIdError(group_type)),
         }
     }
 
-    /// Get all available datastreams
+    /// Get all available datastreams (scratch topics, internal topics and stream topics)
     pub fn streams(&self) -> &HashMap<String, Stream> {
         &self.streams
     }
@@ -99,10 +103,37 @@ impl Datastream {
     }
 
     /// Get schema_store from datastreams info.
-    ///
-    /// Reused in dsh_sdk::dsh::Properties
     pub fn schema_store(&self) -> &str {
         &self.schema_store
+    }
+
+    /// Write datastreams.json in a directory
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use dsh_sdk::dsh::datastream::Datastream;
+    /// # let datastream = Datastream::default();
+    /// let path = std::path::PathBuf::from("/home/user");
+    /// datastream.to_file(&path).unwrap();
+    /// ```
+    pub fn to_file(&self, path: &std::path::Path) -> Result<(), DshError> {
+        let json_string = serde_json::to_string_pretty(self)?;
+        std::fs::write(path.join("datastreams.json"), json_string)?;
+        info!("File created ({})", path.display());
+        Ok(())
+    }
+}
+
+impl Default for Datastream {
+    fn default() -> Self {
+        Datastream {
+            brokers: vec![],
+            streams: HashMap::new(),
+            private_consumer_groups: vec![],
+            shared_consumer_groups: vec![],
+            non_enveloped_streams: vec![],
+            schema_store: String::from("http://localhost:8081/apis/ccompat/v7"),
+        }
     }
 }
 
@@ -239,7 +270,19 @@ mod tests {
     fn test_datastream_get_brokers() {
         assert_eq!(
             datastream().get_brokers(),
-            String::from("broker-0.tt.kafka.mesos:9091, broker-1.tt.kafka.mesos:9091, broker-2.tt.kafka.mesos:9091")
+            vec![
+                "broker-0.tt.kafka.mesos:9091",
+                "broker-1.tt.kafka.mesos:9091",
+                "broker-2.tt.kafka.mesos:9091"
+            ]
+        );
+    }
+
+    #[test]
+    fn test_datastream_get_brokers_string() {
+        assert_eq!(
+            datastream().get_brokers_string(),
+            "broker-0.tt.kafka.mesos:9091, broker-1.tt.kafka.mesos:9091, broker-2.tt.kafka.mesos:9091"
         );
     }
 
@@ -329,5 +372,12 @@ mod tests {
                 .write_access(),
             false
         );
+    }
+
+    #[test]
+    fn test_to_file() {
+        let test_path = std::path::PathBuf::from("test_files");
+        let result = datastream().to_file(&test_path);
+        assert!(result.is_ok())
     }
 }

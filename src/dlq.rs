@@ -243,7 +243,16 @@ impl Dlq {
     }
 
     fn build_producer(dsh_prop: &Properties) -> Result<FutureProducer, rdkafka::error::KafkaError> {
-        let producer_config = dsh_prop.producer_rdkafka_config();
+        let producer_config = match dsh_prop.producer_rdkafka_config() {
+            Ok(config) => config,
+            Err(e) => {
+                error!("Error creating producer config");
+                return Err(rdkafka::error::KafkaError::ClientCreation(format!(
+                    "Error creating producer config: {}",
+                    e
+                )));
+            }
+        };
         producer_config.create()
     }
 }

@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2024-03-06
+  
+### Added
+
+- Make dsh::Properties lazily available dsh::Properties::get() 
+- New low level certificate functions to the SDK
+  - Return keys and certificates as DER format
+  - Create client.key, client.crt and ca.crt in a folder
+- Write datastreams.json as file to a folder
+- Read DSH_SECRET_TOKEN_PATH from environment and read secret token from file as fallback for DSH_SECRET_TOKEN
+  - Required for running in system space
+- Logging when reading required env variables
+- Task_id to Properties
+- Some missing unit tests
+
+### Changed
+Most breaking changes are related to the new low level API and do not impact normal use of the SDK.
+- Add deprecation warning to dsh::Properties::new() to use dsh::Properties::get() instead
+- **Breaking change:**  Return producer config in a Result < ClientConfig > instead of a ClientConfig
+- **Breaking change:**  Pem formatted certificates and keys returns a Result< String > instead of a string
+- **Breaking change:**  Return certificates in a Result < Cert > instead of a Option< Cert >
+- **Breaking change:**  Return borrowed references from Datastream struct instead of owned values.
+- Fix dsh::Properties::new() when feature 'local' is disabled
+- Make initialization blocking
+- Improved logging
+
+### Removed
+- Removed unused dependency in Cargo.toml
+  
+
 ## [0.1.3] - 2024-02-23
 
 ### Added

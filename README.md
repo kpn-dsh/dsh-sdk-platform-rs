@@ -8,7 +8,7 @@
 ## Description
 This library can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. It is not intended to be used directly. Features include:
 - Connect to DSH 
-- Fetch Kafka Properties (datastream)
+- Fetch Kafka Properties and certificates
 - Common functions 
   - Preconfigured RDKafka client config
   - Preconfigured Reqwest client config (for schema store)
@@ -22,14 +22,14 @@ To use this SDK with the default features in your project, add the following to 
   
 ```toml
 [dependencies]
-dsh_sdk = "0.1"
+dsh_sdk = "0.2"
 ```
 
 However, if you would like to use only specific features, you can specify them in your Cargo.toml file. For example, if you would like to use only the bootstrap feature, add the following to your Cargo.toml file:
   
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.1", default-features = false, features = ["bootstrap"] }
+dsh_sdk = { version = "0.2", default-features = false, features = ["bootstrap"] }
 ```
 
 See [feature flags](#feature-flags) for more information on the available features.
@@ -37,12 +37,12 @@ See [feature flags](#feature-flags) for more information on the available featur
 To use this SDK in your project
 ```rust
 use dsh_sdk::dsh::Properties;
+use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 
-#[tokio::main]
-async fn main() {
-    let dsh_properties = Properties::new().await.unwrap();
+fn main() -> Result<(), Box<dyn std::error::Error>>{
+    let dsh_properties = Properties::get();
     // get a rdkafka consumer config for example
-    let consumer_config = dsh_properties.consumer_rdkafka_config().create().unwrap();
+    let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
 }
 ```
 
