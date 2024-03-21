@@ -289,7 +289,7 @@ mod tests {
         let buf = response.collect().await.unwrap().to_bytes();
         let res = String::from_utf8(buf.to_vec()).unwrap();
 
-        assert_eq!(res,"Not Found");
+        assert_eq!(res, "Not Found");
 
         // Terminate the server
         server.abort();
