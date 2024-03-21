@@ -10,7 +10,7 @@ async fn main() {
     // start the http server on seperate thread
     tokio::spawn(async move {
         println!("Starting metrics server on http://localhost:8080/metrics");
-        start_http_server(8080).await;
+        start_http_server(8080).await.unwrap();
     });
 
     // increment the high five counter every second for 20 times

@@ -18,3 +18,10 @@ Cargo.lock
 
 # Generated test files during test runs
 test_files/
+
+.idea
+*.iws
+*.iml
+*.ipr
+
+.vscode/
