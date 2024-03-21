@@ -1,14 +1,13 @@
 use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
-
 use dsh_sdk::rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::message::{BorrowedMessage, Message};
 
 mod custom_metrics;
 
 fn deserialize_and_print(msg: &BorrowedMessage) {
-    let payload = std::string::String::from_utf8_lossy(msg.payload().unwrap_or(b""));
-    let key = std::string::String::from_utf8_lossy(msg.key().unwrap_or(b""));
+    let payload = String::from_utf8_lossy(msg.payload().unwrap_or(b""));
+    let key = String::from_utf8_lossy(msg.key().unwrap_or(b""));
 
     println!(
         "Received message from topic {} partition {} offset {} with key {:?} and payload {}",
@@ -53,23 +52,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
-    tokio::spawn(async move {
-        dsh_sdk::metrics::start_http_server(8080).await;
-    });
+    let metrics_server = dsh_sdk::metrics::start_http_server(8080);
 
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
-     let dsh_properties = Properties::get();
+    let dsh_properties = Properties::get();
 
     // Get the configured topics from env variable TOPICS (comma separated)
-    let topis_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
-    let topics = topis_string.split(",").map(|s| s).collect::<Vec<&str>>();
+    let topics_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
+    let topics = topics_string.split(",").map(|s| s).collect::<Vec<&str>>();
 
     // Validate your configured topic if it has read access (optional)
     dsh_properties
         .datastream()
         .verify_list_of_topics(&topics, dsh_sdk::dsh::datastream::ReadWriteAccess::Read)?;
 
-    // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals and you can act on them)
+    // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals, and you can act on them)
     let shutdown = Shutdown::new();
 
     // Get the consumer config from the Properties instance
@@ -102,6 +99,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ = consumer_handle => {
             println!("Consumer stopped");
             shutdown.start(); // Start the shutdown process (this will stop other potential running tasks that implemented the shutdown listener)
+        }
+        // Optional: Handling metrics server results.You may ignore this.
+        result = metrics_server => {
+            match result   {
+                Ok(res) => match res {
+                    Err(err) => println!("Http server error: {}", err),
+                    Ok(_) => println!("Metrics server operation was successful."),
+                },
+                Err(_) => println!("Http server stopped!"),
+            }
         }
     }
 

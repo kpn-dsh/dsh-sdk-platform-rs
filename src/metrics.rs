@@ -29,13 +29,10 @@
 //! ### Example:
 //! ```
 //! use dsh_sdk::metrics::start_http_server;
-//!
-//! #[tokio::main]
-//! async fn main() {
-//!     tokio::spawn(async move {
-//!         start_http_server(9090).await.unwrap();
-//!    });
-//! }
+//!#[tokio::main]
+//!async fn main() {
+//!    start_http_server(9090);
+//!}
 //! ```
 //! After starting the http server, the metrics can be found at http://localhost:8080/metrics.
 //! To expose the metrics to DSH, the port number needs to be defined in the DSH service configuration.
@@ -54,26 +51,27 @@
 
 use std::net::SocketAddr;
 
-use crate::error::DshError;
 use bytes::Bytes;
 use http_body_util::{BodyExt, Full};
+use hyper::{header, Method, Request, Response, StatusCode};
 use hyper::body::Incoming;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
-use hyper::{header, Method, Request, Response, StatusCode};
-use hyper_util::rt::TokioIo;
+pub use hyper_util::rt::TokioIo;
 pub use lazy_static::lazy_static;
 use log::error;
-pub use prometheus::register_int_counter;
-use prometheus::Encoder;
+pub use prometheus::Encoder;
 pub use prometheus::IntCounter;
+pub use prometheus::register_int_counter;
 use tokio::net::TcpListener;
+use tokio::task::JoinHandle;
 
-type GenericError = Box<dyn std::error::Error + Send + Sync>;
-type Result<T> = std::result::Result<T, GenericError>;
+use crate::error::DshError;
+
+type Result<T> = std::result::Result<T, DshError>;
 type BoxBody = http_body_util::combinators::BoxBody<Bytes, hyper::Error>;
 
-static NOTFOUND: &[u8] = b"Not Found";
+static NOTFOUND: &[u8] = b"404 Not Found";
 
 /// Start a http server to expose prometheus metrics.
 ///
@@ -86,29 +84,41 @@ static NOTFOUND: &[u8] = b"Not Found";
 /// # Example
 /// ```
 /// use dsh_sdk::metrics::start_http_server;
-/// #[tokio::main]
-/// async fn main() {
-///    tokio::spawn(async move {
-///       start_http_server(8080).await.unwrap();
-///   });
-/// }
+///#[tokio::main]
+///async fn main() {
+///    start_http_server(9090);
+///}
 /// ```
-///
-pub async fn start_http_server(port: u16) -> Result<()> {
-    let addr: SocketAddr = ([0, 0, 0, 0], port).into();
+pub fn start_http_server(port: u16) -> JoinHandle<Result<()>> {
+    tokio::spawn(async move { run_server(port).await })
+}
+
+/// Encode metrics to a string (UTF8)
+pub fn metrics_to_string() -> std::result::Result<String, DshError> {
+    let encoder = prometheus::TextEncoder::new();
+
+    let mut buffer = Vec::new();
+    encoder.encode(&prometheus::gather(), &mut buffer)?;
+    let res = String::from_utf8(buffer)?;
+    Ok(res)
+}
+
+async fn run_server(port: u16) -> Result<()> {
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = TcpListener::bind(addr).await?;
 
     loop {
         let (stream, _) = listener.accept().await?;
-        let io = TokioIo::new(stream);
+        tokio::spawn(handle_connection(stream));
+    }
+}
 
-        tokio::task::spawn(async move {
-            let service = service_fn(move |req| routes(req));
+async fn handle_connection(stream: tokio::net::TcpStream) {
+    let io = TokioIo::new(stream);
+    let service = service_fn(move |req| routes(req));
 
-            if let Err(err) = http1::Builder::new().serve_connection(io, service).await {
-                error!("Failed to serve connection: {:?}", err);
-            }
-        });
+    if let Err(err) = http1::Builder::new().serve_connection(io, service).await {
+        error!("Failed to serve connection: {:?}", err);
     }
 }
 
@@ -125,16 +135,6 @@ fn get_metrics() -> Result<Response<BoxBody>> {
         .header(header::CONTENT_TYPE, prometheus::TEXT_FORMAT)
         .body(full(metrics_to_string().unwrap_or_default()))
         .unwrap())
-}
-
-/// Encode metrics to a string (UTF8)
-pub fn metrics_to_string() -> std::result::Result<String, DshError> {
-    let encoder = prometheus::TextEncoder::new();
-
-    let mut buffer = Vec::new();
-    encoder.encode(&prometheus::gather(), &mut buffer)?;
-    let res = String::from_utf8(buffer)?;
-    Ok(res)
 }
 
 fn not_found() -> Result<Response<BoxBody>> {
@@ -217,10 +217,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_start_http_server() {
-        // Spawn the server in a separate task
-        let server = tokio::spawn(async {
-            start_http_server(8080).await.unwrap();
-        });
+        // Start HTTP server
+        let server = start_http_server(8080);
 
         // increment the counter
         HIGH_FIVE_COUNTER.inc();
@@ -261,10 +259,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_unknown_path() {
-        // Spawn the server in a separate task
-        let server = tokio::spawn(async {
-            start_http_server(9900).await.unwrap();
-        });
+        // Start HTTP server
+        let server = start_http_server(9900);
 
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
@@ -289,7 +285,7 @@ mod tests {
         let buf = response.collect().await.unwrap().to_bytes();
         let res = String::from_utf8(buf.to_vec()).unwrap();
 
-        assert_eq!(res, "Not Found");
+        assert_eq!(res, "404 Not Found");
 
         // Terminate the server
         server.abort();

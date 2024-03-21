@@ -12,7 +12,7 @@ license = "Apache-2.0"
 name = "dsh_sdk"
 readme = "README.md"
 repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
-version = "0.2.0"
+version = "0.3.0"
 
 [package.metadata.docs.rs]
 features = ["full"]
@@ -29,9 +29,9 @@ log = "0.4"
 thiserror = "1.0"
 prometheus = { version = "0.13", features = ["process"], optional = true }
 lazy_static = { version = "1.4", optional = true }
-hyper = { version = "1.2.0", features = ["full"], optional = true }
+hyper = { version = "1.2.0", features = ["server"], optional = true }
 http-body-util = { version = "0.1", optional = true }
-hyper-util = { version = "0.1", features = ["full"], optional = true }
+hyper-util = { version = "0.1", features = ["tokio"], optional = true }
 bytes = { version = "1", optional = true }
 
 [profile.dev.package.num-bigint-dig]
@@ -52,3 +52,4 @@ rdkafka-ssl = ["rdkafka", "rdkafka/ssl"]
 [dev-dependencies]
 mockito = "1.1.1"
 tokio = "^1.35"
+hyper = { version = "1.2.0", features = ["full"]}
