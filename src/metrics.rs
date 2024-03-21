@@ -183,6 +183,15 @@ mod tests {
         conn::http1::handshake(io).await.unwrap()
     }
 
+    fn to_get_req(url: &Uri) -> Request<Empty<Bytes>> {
+        Request::builder()
+            .uri(url)
+            .method(Method::GET)
+            .header(header::HOST, url.authority().unwrap().clone().as_str())
+            .body(Empty::<Bytes>::new())
+            .unwrap()
+    }
+
     #[tokio::test]
     async fn test_http_metric_response() {
         // Increment the counter
@@ -228,12 +237,7 @@ mod tests {
         });
 
         // Send a request to the server
-        let request = Request::builder()
-            .uri(&url)
-            .method(Method::GET)
-            .header(header::HOST, url.authority().unwrap().clone().as_str())
-            .body(Empty::<Bytes>::new())
-            .unwrap();
+        let request = to_get_req(&url);
 
         let response = request_sender.send_request(request).await.unwrap();
 
@@ -250,6 +254,42 @@ mod tests {
 
         println!("{}", res);
         assert!(!res.is_empty());
+
+        // Terminate the server
+        server.abort();
+    }
+
+    #[tokio::test]
+    async fn test_unknown_path() {
+        // Spawn the server in a separate task
+        let server = tokio::spawn(async {
+            start_http_server(9900).await.unwrap();
+        });
+
+        // Give the server a moment to start
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
+        let url: Uri = "http://0.0.0.0:9900".parse().unwrap();
+        let (mut request_sender, connection) = create_client(&url).await;
+        tokio::task::spawn(async move {
+            if let Err(err) = connection.await {
+                error!("Connection failed: {:?}", err);
+            }
+        });
+
+        // Send a request to the server
+        let request = to_get_req(&url);
+
+        let response = request_sender.send_request(request).await.unwrap();
+
+        // Check if the server returns a 200 status
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+        // Check if the response body is not empty
+        let buf = response.collect().await.unwrap().to_bytes();
+        let res = String::from_utf8(buf.to_vec()).unwrap();
+
+        assert_eq!(res,"Not Found");
 
         // Terminate the server
         server.abort();
