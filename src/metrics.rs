@@ -228,7 +228,7 @@ mod tests {
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-        let url: Uri = "http://0.0.0.0:8080/metrics".parse().unwrap();
+        let url: Uri = "http://localhost:8080/metrics".parse().unwrap();
         let (mut request_sender, connection) = create_client(&url).await;
         tokio::task::spawn(async move {
             if let Err(err) = connection.await {
@@ -269,7 +269,7 @@ mod tests {
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-        let url: Uri = "http://0.0.0.0:9900".parse().unwrap();
+        let url: Uri = "http://localhost:9900".parse().unwrap();
         let (mut request_sender, connection) = create_client(&url).await;
         tokio::task::spawn(async move {
             if let Err(err) = connection.await {
