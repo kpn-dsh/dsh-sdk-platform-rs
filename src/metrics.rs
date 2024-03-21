@@ -53,16 +53,16 @@ use std::net::SocketAddr;
 
 use bytes::Bytes;
 use http_body_util::{BodyExt, Full};
-use hyper::{header, Method, Request, Response, StatusCode};
 use hyper::body::Incoming;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
+use hyper::{header, Method, Request, Response, StatusCode};
 pub use hyper_util::rt::TokioIo;
 pub use lazy_static::lazy_static;
 use log::error;
+pub use prometheus::register_int_counter;
 pub use prometheus::Encoder;
 pub use prometheus::IntCounter;
-pub use prometheus::register_int_counter;
 use tokio::net::TcpListener;
 use tokio::task::JoinHandle;
 
