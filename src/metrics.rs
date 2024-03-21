@@ -282,7 +282,7 @@ mod tests {
 
         let response = request_sender.send_request(request).await.unwrap();
 
-        // Check if the server returns a 200 status
+        // Check if the server returns a 404 status
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
         // Check if the response body is not empty
