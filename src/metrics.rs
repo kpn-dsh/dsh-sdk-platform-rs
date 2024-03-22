@@ -59,7 +59,7 @@ use hyper::service::service_fn;
 use hyper::{header, Method, Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
 pub use lazy_static::lazy_static;
-use log::error;
+use log::{error, warn};
 pub use prometheus::register_int_counter;
 use prometheus::Encoder;
 pub use prometheus::IntCounter;
@@ -71,7 +71,7 @@ use crate::error::DshError;
 type Result<T> = std::result::Result<T, DshError>;
 type BoxBody = http_body_util::combinators::BoxBody<Bytes, hyper::Error>;
 
-static NOTFOUND: &[u8] = b"404 Not Found";
+static NOTFOUND: &[u8] = b"404: Not Found";
 
 /// Start a http server to expose prometheus metrics.
 ///
@@ -84,13 +84,17 @@ static NOTFOUND: &[u8] = b"404 Not Found";
 /// # Example
 /// ```
 /// use dsh_sdk::metrics::start_http_server;
-///#[tokio::main]
-///async fn main() {
-///    start_http_server(9090);
-///}
+/// #[tokio::main]
+/// async fn main() {
+///     start_http_server(9090);
+/// }
 /// ```
 pub fn start_http_server(port: u16) -> JoinHandle<Result<()>> {
-    tokio::spawn(async move { run_server(port).await })
+    tokio::spawn(async move {
+        let result = run_server(port).await;
+        warn!("HTTP server stopped: {:?}", result);
+        result
+    })
 }
 
 /// Encode metrics to a string (UTF8)
@@ -282,7 +286,7 @@ mod tests {
         let buf = response.collect().await.unwrap().to_bytes();
         let res = String::from_utf8(buf.to_vec()).unwrap();
 
-        assert_eq!(res, "404 Not Found");
+        assert_eq!(res, String::from_utf8_lossy(NOTFOUND));
 
         // Terminate the server
         server.abort();
