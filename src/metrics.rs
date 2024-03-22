@@ -57,11 +57,11 @@ use hyper::body::Incoming;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::{header, Method, Request, Response, StatusCode};
-pub use hyper_util::rt::TokioIo;
+use hyper_util::rt::TokioIo;
 pub use lazy_static::lazy_static;
 use log::error;
 pub use prometheus::register_int_counter;
-pub use prometheus::Encoder;
+use prometheus::Encoder;
 pub use prometheus::IntCounter;
 use tokio::net::TcpListener;
 use tokio::task::JoinHandle;
@@ -133,15 +133,13 @@ fn get_metrics() -> Result<Response<BoxBody>> {
     Ok(Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, prometheus::TEXT_FORMAT)
-        .body(full(metrics_to_string().unwrap_or_default()))
-        .unwrap())
+        .body(full(metrics_to_string().unwrap_or_default()))?)
 }
 
 fn not_found() -> Result<Response<BoxBody>> {
     Ok(Response::builder()
         .status(StatusCode::NOT_FOUND)
-        .body(full(NOTFOUND))
-        .unwrap())
+        .body(full(NOTFOUND))?)
 }
 
 fn full<T: Into<Bytes>>(chunk: T) -> BoxBody {
@@ -236,7 +234,6 @@ mod tests {
 
         // Send a request to the server
         let request = to_get_req(&url);
-
         let response = request_sender.send_request(request).await.unwrap();
 
         // Check if the server returns a 200 status

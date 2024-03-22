@@ -35,6 +35,9 @@ pub enum DshError {
     Prometheus(#[from] prometheus::Error),
     #[error("Convert bytes to utf8 error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
+    #[cfg(feature = "metrics")]
+    #[error("Hyper error: {0}")]
+    HyperError(#[from] hyper::http::Error),
 }
 
 impl From<(&'static str, std::io::Error)> for DshError {
