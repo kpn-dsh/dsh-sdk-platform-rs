@@ -7,11 +7,8 @@ lazy_static! {
 
 #[tokio::main]
 async fn main() {
-    // start the http server on seperate thread
-    tokio::spawn(async move {
-        println!("Starting metrics server on http://localhost:8080/metrics");
-        start_http_server(8080).await;
-    });
+    println!("Starting metrics server on http://localhost:8080/metrics");
+    start_http_server(8080);
 
     // increment the high five counter every second for 20 times
     for i in 0..20 {
