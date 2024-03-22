@@ -18,7 +18,7 @@ version = "0.3.0"
 features = ["full"]
 
 [dependencies]
-tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros", "rt-multi-thread"], optional = true }
+tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], optional = true }
 tokio-util = { version = "0.7", optional = true }
 rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
