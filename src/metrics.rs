@@ -60,15 +60,13 @@ use hyper::{header, Method, Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
 pub use lazy_static::lazy_static;
 use log::{error, warn};
-pub use prometheus::register_int_counter;
-use prometheus::Encoder;
-pub use prometheus::IntCounter;
+pub use prometheus::*;
 use tokio::net::TcpListener;
 use tokio::task::JoinHandle;
 
 use crate::error::DshError;
 
-type Result<T> = std::result::Result<T, DshError>;
+type DshResult<T> = std::result::Result<T, DshError>;
 type BoxBody = http_body_util::combinators::BoxBody<Bytes, hyper::Error>;
 
 static NOTFOUND: &[u8] = b"404: Not Found";
@@ -121,7 +119,7 @@ static NOTFOUND: &[u8] = b"404: Not Found";
 ///    }
 /// }
 /// ```
-pub fn start_http_server(port: u16) -> JoinHandle<Result<()>> {
+pub fn start_http_server(port: u16) -> JoinHandle<DshResult<()>> {
     tokio::spawn(async move {
         let result = run_server(port).await;
         warn!("HTTP server stopped: {:?}", result);
@@ -130,7 +128,7 @@ pub fn start_http_server(port: u16) -> JoinHandle<Result<()>> {
 }
 
 /// Encode metrics to a string (UTF8)
-pub fn metrics_to_string() -> Result<String> {
+pub fn metrics_to_string() -> DshResult<String> {
     let encoder = prometheus::TextEncoder::new();
 
     let mut buffer = Vec::new();
@@ -138,7 +136,7 @@ pub fn metrics_to_string() -> Result<String> {
     Ok(String::from_utf8(buffer)?)
 }
 
-async fn run_server(port: u16) -> Result<()> {
+async fn run_server(port: u16) -> DshResult<()> {
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = TcpListener::bind(addr).await?;
 
@@ -157,21 +155,21 @@ async fn handle_connection(stream: tokio::net::TcpStream) {
     }
 }
 
-async fn routes(req: Request<Incoming>) -> Result<Response<BoxBody>> {
+async fn routes(req: Request<Incoming>) -> DshResult<Response<BoxBody>> {
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/metrics") => get_metrics(),
         (_, _) => not_found(),
     }
 }
 
-fn get_metrics() -> Result<Response<BoxBody>> {
+fn get_metrics() -> DshResult<Response<BoxBody>> {
     Ok(Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, prometheus::TEXT_FORMAT)
         .body(full(metrics_to_string().unwrap_or_default()))?)
 }
 
-fn not_found() -> Result<Response<BoxBody>> {
+fn not_found() -> DshResult<Response<BoxBody>> {
     Ok(Response::builder()
         .status(StatusCode::NOT_FOUND)
         .body(full(NOTFOUND))?)
