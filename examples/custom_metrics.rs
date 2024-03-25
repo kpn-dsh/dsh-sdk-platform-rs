@@ -1,5 +1,4 @@
 use dsh_sdk::metrics::*;
-use prometheus::{register_int_gauge_vec, IntGaugeVec};
 
 lazy_static! {
     pub static ref HIGH_FIVE_COUNTER: IntCounter =
