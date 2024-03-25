@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
-    let metrics_server = dsh_sdk::metrics::start_http_server(8080);
+    dsh_sdk::metrics::start_http_server(8080);
 
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
     let dsh_properties = Properties::get();
@@ -99,16 +99,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ = consumer_handle => {
             println!("Consumer stopped");
             shutdown.start(); // Start the shutdown process (this will stop other potential running tasks that implemented the shutdown listener)
-        }
-        // Optional: Handling metrics server results.You may ignore this.
-        result = metrics_server => {
-            match result   {
-                Ok(res) => match res {
-                    Err(err) => println!("Http server error: {}", err),
-                    Ok(_) => println!("Metrics server operation was successful."),
-                },
-                Err(_) => println!("Http server stopped!"),
-            }
         }
     }
 
