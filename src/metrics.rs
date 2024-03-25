@@ -59,7 +59,7 @@ use hyper::service::service_fn;
 use hyper::{header, Method, Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
 pub use lazy_static::lazy_static;
-use log::error;
+use log::{error, warn};
 pub use prometheus::register_int_counter;
 use prometheus::Encoder;
 pub use prometheus::IntCounter;
@@ -71,36 +71,71 @@ use crate::error::DshError;
 type Result<T> = std::result::Result<T, DshError>;
 type BoxBody = http_body_util::combinators::BoxBody<Bytes, hyper::Error>;
 
-static NOTFOUND: &[u8] = b"404 Not Found";
+static NOTFOUND: &[u8] = b"404: Not Found";
 
 /// Start a http server to expose prometheus metrics.
 ///
-/// The exposed endpoint is /metrics and port number needs to be defined
+/// The exposed endpoint is /metrics and port number needs to be defined. The server will run on a separate thread
+/// and this function will return a JoinHandle of the thread. It is optional to handle the thread status. If left unhandled,
+/// the server will run until the main thread is stopped.
 ///
 /// # Note!
-///
 /// Don't forget to expose the port in your dockerfile and add the port number to the DSH service configuration.
+///```Dockerfile
+/// EXPOSE 9090
+/// ```
 ///
 /// # Example
-/// ```
+/// This starts a http server on port 9090 on a separate thread. The server will run until the main thread is stopped.
+/// ```rust
 /// use dsh_sdk::metrics::start_http_server;
-///#[tokio::main]
-///async fn main() {
-///    start_http_server(9090);
-///}
+///
+/// #[tokio::main]
+/// async fn main() {
+///     start_http_server(9090);
+/// }
+/// ```
+///
+/// # Optional: Check http server thread status
+/// Await the JoinHandle in a a tokio select besides your application logic to check if the server is still running.
+/// ```rust
+/// use dsh_sdk::metrics::start_http_server;
+/// # use tokio::time::sleep;
+/// # use std::time::Duration;
+///
+/// #[tokio::main]
+/// async fn main() {
+///    let server = start_http_server(9090);
+///     tokio::select! {
+///         // Replace sleep with your application logic
+///         _ = sleep(Duration::from_secs(1)) => {println!("Application is stoped!")},
+///         // Check if the server is still running
+///         tokio_result = server => {
+///             match tokio_result   {
+///                 Ok(server_result) => if let Err(e) = server_result {
+///                     eprintln!("Metrics server operation failed: {}", e);
+///                 },
+///                 Err(e) => println!("Server thread stopped unexpectedly: {}", e),
+///             }
+///         }
+///    }
+/// }
 /// ```
 pub fn start_http_server(port: u16) -> JoinHandle<Result<()>> {
-    tokio::spawn(async move { run_server(port).await })
+    tokio::spawn(async move {
+        let result = run_server(port).await;
+        warn!("HTTP server stopped: {:?}", result);
+        result
+    })
 }
 
 /// Encode metrics to a string (UTF8)
-pub fn metrics_to_string() -> std::result::Result<String, DshError> {
+pub fn metrics_to_string() -> Result<String> {
     let encoder = prometheus::TextEncoder::new();
 
     let mut buffer = Vec::new();
     encoder.encode(&prometheus::gather(), &mut buffer)?;
-    let res = String::from_utf8(buffer)?;
-    Ok(res)
+    Ok(String::from_utf8(buffer)?)
 }
 
 async fn run_server(port: u16) -> Result<()> {
@@ -282,7 +317,7 @@ mod tests {
         let buf = response.collect().await.unwrap().to_bytes();
         let res = String::from_utf8(buf.to_vec()).unwrap();
 
-        assert_eq!(res, "404 Not Found");
+        assert_eq!(res, String::from_utf8_lossy(NOTFOUND));
 
         // Terminate the server
         server.abort();

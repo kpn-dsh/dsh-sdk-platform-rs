@@ -5,7 +5,8 @@ description = "An example of DSH service using the dsh-sdk crate"
 edition = "2021"
 
 [dependencies]
-dsh_sdk = { version = "0.3", features = ["rdkafka-ssl-vendored"] }
+# dsh_sdk = { version = "0.3", features = ["rdkafka-ssl-vendored"] }
+dsh_sdk = { git = "https://github.com/kpn-dsh/dsh-sdk-platform-rs.git", branch = "main", features = ["rdkafka-ssl-vendored"]}
 log = "0.4"
 env_logger = "0.11"
 tokio = { version = "^1.35", features = ["full"] }

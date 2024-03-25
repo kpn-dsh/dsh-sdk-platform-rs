@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - unreleased
+  
+### Changed
+- Metrics http server based on Hyper instead of Warp
+  - **Breaking change:**  start_metrics_server() now returns a tokio::JoinHandle<Result<()>>
+  - Runs per default on a separate thread
+- Fixed documentation for dsh::Properties::get()
+
+### Removed
+- Deprecated Dsh::Properties::new() removed
+- Removed unused dependencies in Cargo.toml
+
 ## [0.2.0] - 2024-03-06
   
 ### Added
@@ -23,9 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 Most breaking changes are related to the new low level API and do not impact normal use of the SDK.
 - Add deprecation warning to dsh::Properties::new() to use dsh::Properties::get() instead
-- **Breaking change:**  Return producer config in a Result < ClientConfig > instead of a ClientConfig
-- **Breaking change:**  Pem formatted certificates and keys returns a Result< String > instead of a string
-- **Breaking change:**  Return certificates in a Result < Cert > instead of a Option< Cert >
+- **Breaking change:**  Return producer config in a `Result<ClientConfig>` instead of a `ClientConfig`
+- **Breaking change:**  Pem formatted certificates and keys returns a `Result<String>` instead of a string
+- **Breaking change:**  Return certificates in a `Result<Cert>` instead of a `Option<Cert>`
 - **Breaking change:**  Return borrowed references from Datastream struct instead of owned values.
 - Fix dsh::Properties::new() when feature 'local' is disabled
 - Make initialization blocking
