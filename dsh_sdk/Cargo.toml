@@ -1,0 +1,55 @@
+[package]
+authors = [
+    "KPN",
+    "Frank Hol <frank.hol@kpn.com>",
+]
+description = "SDK for KPN Data Services Hub"
+edition.workspace = true
+exclude.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+name = "dsh_sdk"
+readme.workspace = true
+repository.workspace = true
+version = "0.3.1"
+
+[package.metadata.docs.rs]
+features = ["full"]
+
+[dependencies]
+tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], optional = true }
+tokio-util = { version = "0.7", optional = true }
+rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", optional = true }
+picky = { version = "7.0.0-rc.8", default-features = false, features = ["x509"], optional = true }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "blocking"], optional = true }
+log = "0.4"
+thiserror = "1.0"
+prometheus = { version = "0.13", features = ["process"], optional = true }
+lazy_static = { version = "1.4", optional = true }
+hyper = { version = "1.2.0", features = ["server"], optional = true }
+http-body-util = { version = "0.1", optional = true }
+hyper-util = { version = "0.1", features = ["tokio"], optional = true }
+bytes = { version = "1", optional = true }
+
+[profile.dev.package.num-bigint-dig]
+opt-level = 3
+
+[features]
+default = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl"]
+full = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl", "dlq"]
+bootstrap = ["picky", "serde_json", "reqwest"]
+local = ["bootstrap"]
+metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes", ]
+dlq = ["tokio"]
+graceful_shutdown = ["tokio", "tokio-util"]
+rdkafka-ssl-vendored = ["rdkafka", "rdkafka/ssl-vendored"]
+rdkafka-ssl = ["rdkafka", "rdkafka/ssl"]
+
+
+[dev-dependencies]
+mockito = "1.1.1"
+tokio = "^1.35"
+hyper = { version = "1.2.0", features = ["full"]}

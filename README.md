@@ -76,10 +76,10 @@ Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installe
 See dockerfile in [example_dsh_service](/example_dsh_service/Dockerfile) for an example.
 
 ## Examples
-See folder [examples](/examples/) for simple examples on how to use the SDK.
+See folder [dsh_sdk/examples](/dsh_sdk/examples/) for simple examples on how to use the SDK.
 
 ### Full service example
-See folder [example_dsh_service](/example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](example_dsh_service/README.md) for more information.
+See folder [example_dsh_service](/example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](/example_dsh_service/README.md) for more information.
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md) for all changes per version.
