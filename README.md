@@ -46,7 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
 }
 ```
 
-## Feauture flags
+## Feature flags
 
 The following features are available in this library and can be enabled/disabled in your Cargo.toml file.:
 
