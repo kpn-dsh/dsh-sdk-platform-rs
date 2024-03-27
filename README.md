@@ -62,14 +62,14 @@ The following features are available in this library and can be enabled/disabled
 
 See api documentation for more information on how to use these features including.
 
-\* Requires a [local_datastreams.json](local_datastreams.json) in your project root.
+\* Requires a [local_datastreams.json](/dsh_sdk/local_datastreams.json) in your project root.
 
 
 ## Api doc
 See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
 
 ### Local development
-Add a [local_datastreams.json](local_datastreams.json) to your project root.
+Add a [local_datastreams.json](/dsh_sdk/local_datastreams.json) to your project root.
 
 ### Note
 Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installed in your environment and/or Dockerfile where you are compiling.
