@@ -189,18 +189,18 @@ impl Stream {
     }
 
     /// Get the Read whitelist for a Stream
-    pub fn read(&self) -> Option<&str> {
+    pub fn read(&self) -> Option<String> {
         if self.read_access() {
-            Some(&self.read)
+            Some(self.read.clone())
         } else {
             None
         }
     }
     
     /// Get the Read whitelist for a Stream
-    pub fn write(&self) -> Option<&str> {
+    pub fn write(&self) -> Option<String> {
         if self.write_access() {
-            Some(&self.write)
+            Some(self.write.clone())
         } else {
             None
         }
