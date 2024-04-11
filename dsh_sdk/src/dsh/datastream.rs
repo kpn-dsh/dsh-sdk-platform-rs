@@ -187,6 +187,24 @@ impl Stream {
     pub fn write_access(&self) -> bool {
         !self.write.is_empty()
     }
+
+    /// Get the Read whitelist for a Stream
+    pub fn read(&self) -> Option<&str> {
+        if self.read_access() {
+            Some(&self.read)
+        } else {
+            None
+        }
+    }
+    
+    /// Get the Read whitelist for a Stream
+    pub fn write(&self) -> Option<&str> {
+        if self.write_access() {
+            Some(&self.write)
+        } else {
+            None
+        }
+    }
 }
 
 /// Enum to indicate if we want to check the read or write topics
@@ -396,6 +414,42 @@ mod tests {
                 .unwrap()
                 .write_access(),
             false
+        );
+    }
+
+    #[test]
+    fn test_datastream_check_read_topic() {
+        assert_eq!(
+            datastream()
+            .get_stream("scratch.test.test-tenant")
+            .unwrap()
+            .read(),
+            Some("scratch.test.test-tenant")
+        );
+        assert_eq!(
+            datastream()
+            .get_stream("stream.test.test-tenant")
+            .unwrap()
+            .read(),
+            Some("stream\\.test\\.[^.]*")
+        );
+    }
+
+    #[test]
+    fn test_datastream_check_write_topic() {
+        assert_eq!(
+            datastream()
+            .get_stream("scratch.test.test-tenant")
+            .unwrap()
+            .write(),
+            Some("scratch.test.test-tenant")
+        );
+        assert_eq!(
+            datastream()
+            .get_stream("stream.test.test-tenant")
+            .unwrap()
+            .write(),
+            None
         );
     }
 
