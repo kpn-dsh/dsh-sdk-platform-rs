@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::dsh::datastream::ReadWriteAccess;
+
 #[derive(Error, Debug)]
 pub enum DshError {
     #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]
@@ -30,6 +32,8 @@ pub enum DshError {
     IndexGroupIdError(crate::dsh::datastream::GroupType),
     #[error("Error getting topic name {0}, Topic not found in datastreams.")]
     NotFoundTopicError(String),
+    #[error("Error in topic permissions: {0} does not have {1:?} permissions.")]
+    TopicPermissionsError(String, ReadWriteAccess),
     #[cfg(feature = "metrics")]
     #[error("Prometheus error: {0}")]
     Prometheus(#[from] prometheus::Error),

@@ -188,21 +188,27 @@ impl Stream {
         !self.write.is_empty()
     }
 
-    /// Get the Read whitelist for a Stream
-    pub fn read(&self) -> Option<String> {
+    /// Get the Stream's Read whitelist pattern
+    pub fn read_pattern(&self) -> Result<&str, DshError> {
         if self.read_access() {
-            Some(self.read.clone())
+            Ok(&self.read)
         } else {
-            None
+            Err(DshError::TopicPermissionsError(
+                self.name.clone(),
+                ReadWriteAccess::Read,
+            ))
         }
     }
-    
-    /// Get the Read whitelist for a Stream
-    pub fn write(&self) -> Option<String> {
+
+    /// Get the Stream's Write pattern
+    pub fn write_pattern(&self) -> Result<&str, DshError> {
         if self.write_access() {
-            Some(self.write.clone())
+            Ok(&self.write)
         } else {
-            None
+            Err(DshError::TopicPermissionsError(
+                self.name.clone(),
+                ReadWriteAccess::Write,
+            ))
         }
     }
 }
@@ -421,17 +427,19 @@ mod tests {
     fn test_datastream_check_read_topic() {
         assert_eq!(
             datastream()
-            .get_stream("scratch.test.test-tenant")
-            .unwrap()
-            .read(),
-            Some("scratch.test.test-tenant")
+                .get_stream("scratch.test.test-tenant")
+                .unwrap()
+                .read_pattern()
+                .unwrap(),
+            "scratch.test.test-tenant"
         );
         assert_eq!(
             datastream()
-            .get_stream("stream.test.test-tenant")
-            .unwrap()
-            .read(),
-            Some("stream\\.test\\.[^.]*")
+                .get_stream("stream.test.test-tenant")
+                .unwrap()
+                .read_pattern()
+                .unwrap(),
+            "stream\\.test\\.[^.]*"
         );
     }
 
@@ -439,18 +447,22 @@ mod tests {
     fn test_datastream_check_write_topic() {
         assert_eq!(
             datastream()
-            .get_stream("scratch.test.test-tenant")
-            .unwrap()
-            .write(),
-            Some("scratch.test.test-tenant")
+                .get_stream("scratch.test.test-tenant")
+                .unwrap()
+                .write_pattern()
+                .unwrap(),
+            "scratch.test.test-tenant"
         );
-        assert_eq!(
-            datastream()
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_datastream_check_write_topic_panic() {
+        datastream()
             .get_stream("stream.test.test-tenant")
             .unwrap()
-            .write(),
-            None
-        );
+            .write_pattern()
+            .unwrap();
     }
 
     #[test]
