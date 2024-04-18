@@ -355,7 +355,7 @@ mod tests {
         let properties = Properties::get();
         assert_eq!(properties.client_id(), "local");
         assert_eq!(properties.task_id(), "local_task_id");
-        assert_eq!(properties.tenant_name(), "local");
+        assert_eq!(properties.tenant_name(), "local_tenant");
     }
 
     #[test]
@@ -416,7 +416,7 @@ mod tests {
     #[test]
     fn test_task_id() {
         let properties = Properties::default();
-        assert_eq!(properties.task_id(), "local_task");
+        assert_eq!(properties.task_id(), "local_task_id");
     }
 
     #[test]
