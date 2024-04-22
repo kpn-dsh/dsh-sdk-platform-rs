@@ -1,6 +1,7 @@
 //! # Kafka Properties
 //!
-//! This module contains logic to connect to Kafka on DSH and get properties of your tenant. For example all available streams and topics.
+//! This module contains logic to connect to Kafka on DSH and get properties of your tenant.
+//! For example all available streams and topics.
 //!
 //! The implementation contains some high level functions to get the correct config to connect to Kafka and schema store.
 //! For more low level functions, see
@@ -30,8 +31,6 @@ use crate::error::DshError;
 pub mod bootstrap;
 pub mod certificates;
 pub mod datastream;
-#[cfg(feature = "local")]
-pub mod local;
 
 static PROPERTIES: OnceLock<Properties> = OnceLock::new();
 
@@ -69,22 +68,28 @@ impl Properties {
     /// Get the DSH Properties on a lazy way. If not already initialized, it will initialize the properties
     /// and bootstrap to DSH.
     ///
-    /// This struct contains all information and certificates.
-    /// needed to connect to Kafka and DSH.
+    /// This struct contains all configuration and certificates needed to connect to Kafka and DSH.
     ///
     ///  - Contains a struct equal to datastreams.json
     ///  - Metadata of running container/task
     ///  - Certificates for Kafka and DSH
     ///
-    /// If running locally, it will try to load the local_datastreams.json file
-    /// and crate the properties struct based on this file
+    /// # Example
+    /// ```
+    /// use dsh_sdk::dsh::Properties;
+    /// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
     ///
-    /// # Panic
-    /// If initilization fails, it will panic
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let dsh_properties = Properties::get();
+    /// let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
+    /// # Ok(())
+    /// # }
+    /// ```
     ///
     /// # Required environment variables
-    /// The following environment variables are required to be set. If not set, it will default to local (or Panic!
-    /// when 'local' is disabled). When starting a container in DSH, these variable are automatically set.
+    /// The following environment variables are required to be set. If not set, it will default to local settings.
+    /// When starting a container in DSH, these variable are automatically set.
     ///
     /// - `MESOS_TASK_ID` - The task id of the running container
     /// - `MARATHON_APP_ID` - Includes the tenant name of the running container
@@ -94,87 +99,42 @@ impl Properties {
     /// ### Optional
     /// - `DSH_SECRET_TOKEN_PATH` - The path to the secret token file. (useful when running in system space)
     ///
-    /// # local_datastreams.json
-    /// local_datastreams.json should be placed in the root of the project
-    ///
-    /// Example of local_datastreams.json.
-    /// (important that read and write has correct topic names that are configured in your local kafka cluster)
-    ///
-    /// ```json
-    /// {
-    ///     "brokers": ["localhost:9092"],
-    ///     "streams": {
-    ///       "scratch.local": {
-    ///         "name": "scratch.local",
-    ///         "cluster": "/tt",
-    ///         "read": "scratch.local.local-tenant",
-    ///         "write": "scratch.local.local-tenant",
-    ///         "partitions": 3,
-    ///         "replication": 1,
-    ///         "partitioner": "default-partitioner",
-    ///         "partitioningDepth": 0,
-    ///         "canRetain": false
-    ///       },
-    ///       "stream.test": {
-    ///         "name": "scratch.dlq.local-tenant",
-    ///         "cluster": "/tt",
-    ///         "read": "scratch\\.dlq.\\[^.]*",
-    ///         "write": "scratch.dlq.local-tenant",
-    ///         "partitions": 1,
-    ///         "replication": 1,
-    ///         "partitioner": "default-partitioner",
-    ///         "partitioningDepth": 0,
-    ///         "canRetain": false
-    ///       }
-    ///     },
-    ///     "private_consumer_groups": [
-    ///       "local-app.7e93a513-6556-11eb-841e-f6ab8576620c_1",
-    ///       "local-app.7e93a513-6556-11eb-841e-f6ab8576620c_2",
-    ///       "local-app.7e93a513-6556-11eb-841e-f6ab8576620c_3",
-    ///       "local-app.7e93a513-6556-11eb-841e-f6ab8576620c_4"
-    ///     ],
-    ///     "shared_consumer_groups": [
-    ///       "local-app_1",
-    ///       "local-app_2",
-    ///       "local-app_3",
-    ///       "local-app_4"
-    ///     ],
-    ///     "non_enveloped_streams": [],
-    ///     "schema_store": "http://localhost:8081/apis/ccompat/v7"
-    ///   }
-    /// ```
+    /// # Running on local machine
+    /// When running on a local machine, it can connect to a local Kafka cluster and Schema Registry. By
+    /// default it connects `localhost:9092` for kafka and `localhost:8081/apis/ccompat/v7` for the schema
+    /// registry. If you want to connect to a different Kafka cluster, or manipulate the datastream configuration,
+    /// you can create a [local_datastreams.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json)
+    /// file in the root of the project.
+
     pub fn get() -> &'static Self {
         PROPERTIES.get_or_init(Self::init)
     }
 
     /// Initialize the properties and bootstrap to DSH
     fn init() -> Self {
-        #[cfg(not(feature = "local"))]
-        let result = Self::new_dsh();
-        #[cfg(feature = "local")]
-        let result = match Self::new_dsh() {
-            Ok(b) => Ok(b),
+        match Self::new_dsh() {
+            Ok(properties) => {
+                info!("Successfully connected to DSH");
+                properties
+            }
             Err(e) => {
-                warn!("App does not seem to be running on DSH, due to: {}", e);
-                warn!("Starting local properties instead");
-                Self::new_local()
+                warn!("DSH_SDK was not able to connect to DSH, due to: {}", e);
+                warn!("Using local configuration instead");
+                Properties::default()
             }
-        };
-        match result {
-            Ok(prop) => {
-                info!("DSH SDK successfully initialized");
-                prop
-            }
-            Err(e) => panic!("Could not bootstrap to DSH: {e}"),
         }
     }
 
     /// Get default RDKafka Consumer config to connect to Kafka on DSH.
-    /// If certificates are present, it will use SSL to connect to Kafka.
-    /// If not, it will use plaintext so it can connect to local as well.
     ///
     /// Note: This config is set to auto commit to false. You need to manually commit offsets.
     /// You can overwrite this config by setting the enable.auto.commit and enable.auto.offset.store property to `true`.
+    ///
+    /// # Group ID
+    /// There are 2 types of group id's in DSH: private and shared. Private will have a unique group id per running instance.
+    /// Shared will have the same group id for all running instances. With this you can horizontally scale your service.
+    /// The group type can be manipulated by environment variable KAFKA_CONSUMER_GROUP_TYPE.
+    /// If not set, it will default to private.
     ///
     /// # Example
     /// ```
@@ -186,7 +146,7 @@ impl Properties {
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let dsh_properties = Properties::get();
     ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config()?;
-    ///     let consumer: StreamConsumer =  consumer_config.create().expect("Consumer creation failed");
+    ///     let consumer: StreamConsumer =  consumer_config.create()?;
     ///     Ok(())
     /// }
     /// ```
@@ -195,19 +155,19 @@ impl Properties {
     /// See full list of configs properties in case you want to add/overwrite the config:
     /// <https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md>
     ///
-    /// | **config**                | **Default value**                      | **Remark**                                                                                                                                                           |
-    /// |---------------------------|----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-    /// | `bootstrap.servers`       | Brokers based on <br>datastreams.json  | Brokers from datastreams.json                                                                                                                                        |
-    /// | `group.id`                | Group ID from <br>datastreams.json     | Set env variable KAFKA_CONSUMER_GROUP_TYPE to<br>"private" or "shared" to switch between group types.<br>Always selects first group id.<br>DEFAULT: private, if not set |
-    /// | `client.id`               | task_id of service                     | Based on task_id of running service                                                                                                                                  |
-    /// | `enable.auto.commit`      | false                                  | Autocommmit                                                                                                                                                          |
-    /// | `enable.auto.offset.store`| false                                  | Store autocommit of last message provided                                                                                                                            |
-    /// | `auto.offset.reset`       | earliest                               | Start consuming from the beginning.                                                                                                                                  |
-    /// | `security.protocol`       | ssl (DSH)<br>plaintext (local)        | Security protocol                                                                                                                                                    |
-    /// | `ssl.key.pem`             | private key                            | Generated when bootstrap is initiated                                                                                                                                |
-    /// | `ssl.certificate.pem`     | dsh kafka certificate                  | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated)                                                                              |
-    /// | `ssl.ca.pem`              | CA certifacte                          | Root certificate, provided by DSH.                                                                                                                                   |
-    /// | `log_level`               | Info                                   | Log level of rdkafka                                                                                                                                                 |
+    /// | **config**                | **Default value**                      | **Remark**                                                                                                                            |
+    /// |---------------------------|----------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+    /// | `bootstrap.servers`       | Brokers based on <br>datastreams.json  | Brokers from datastreams.json                                                                                                         |
+    /// | `group.id`                | Group ID from <br>datastreams.json     | Set env variable KAFKA_CONSUMER_GROUP_TYPE to<br>"private" or "shared" to switch between group types.<br>DEFAULT: private, if not set |
+    /// | `client.id`               | task_id of service                     | Based on task_id of running service                                                                                                   |
+    /// | `enable.auto.commit`      | false                                  | Autocommmit                                                                                                                           |
+    /// | `enable.auto.offset.store`| false                                  | Store autocommit of last message provided                                                                                             |
+    /// | `auto.offset.reset`       | earliest                               | Start consuming from the beginning.                                                                                                   |
+    /// | `security.protocol`       | ssl (DSH)<br>plaintext (local)         | Security protocol                                                                                                                     |
+    /// | `ssl.key.pem`             | private key                            | Generated when bootstrap is initiated                                                                                                 |
+    /// | `ssl.certificate.pem`     | dsh kafka certificate                  | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated)                                               |
+    /// | `ssl.ca.pem`              | CA certifacte                          | Root certificate, provided by DSH.                                                                                                    |
+    /// | `log_level`               | Info                                   | Log level of rdkafka                                                                                                                  |
     #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
     pub fn consumer_rdkafka_config(&self) -> Result<rdkafka::config::ClientConfig, DshError> {
         let mut config = rdkafka::config::ClientConfig::new();
@@ -371,19 +331,22 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
         .collect())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn test_properties() -> Properties {
-        Properties {
-            client_id: "test_client_id".to_string(),
-            task_id: "test_task_id".to_string(),
-            tenant_name: "test".to_string(),
-            datastream: datastream::Datastream::default(),
+impl Default for Properties {
+    fn default() -> Self {
+        let datastream = datastream::Datastream::load_local_datastreams().unwrap_or_default();
+        Self {
+            client_id: "local".to_string(),
+            task_id: "local_task_id".to_string(),
+            tenant_name: "local_tenant".to_string(),
+            datastream,
             certificates: None,
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
 
     #[test]
     fn test_get_configured_topics() {
@@ -404,14 +367,14 @@ mod tests {
     #[test]
     fn test_get_or_init() {
         let properties = Properties::get();
-        assert_eq!(properties.client_id(), "local_client_id");
+        assert_eq!(properties.client_id(), "local");
         assert_eq!(properties.task_id(), "local_task_id");
-        assert_eq!(properties.tenant_name(), "local");
+        assert_eq!(properties.tenant_name(), "local_tenant");
     }
 
     #[test]
     fn test_consumer_rdkafka_config() {
-        let properties = Properties::new_local().unwrap();
+        let properties = Properties::default();
         let config = properties.consumer_rdkafka_config();
         assert!(config.is_ok());
         let config = config.unwrap();
@@ -434,7 +397,7 @@ mod tests {
 
     #[test]
     fn test_producer_rdkafka_config() {
-        let properties = Properties::new_local().unwrap();
+        let properties = Properties::default();
         let config = properties.producer_rdkafka_config();
         assert!(config.is_ok());
         let config = config.unwrap();
@@ -447,32 +410,32 @@ mod tests {
 
     #[test]
     fn test_reqwest_client_config() {
-        let properties = &test_properties();
+        let properties = Properties::default();
         let config = properties.reqwest_client_config();
         assert!(config.is_ok());
     }
 
     #[test]
     fn test_client_id() {
-        let properties = &test_properties();
-        assert_eq!(properties.client_id(), "test_client_id");
+        let properties = Properties::default();
+        assert_eq!(properties.client_id(), "local");
     }
 
     #[test]
     fn test_tenant_name() {
-        let properties = &test_properties();
-        assert_eq!(properties.tenant_name(), "test");
+        let properties = Properties::default();
+        assert_eq!(properties.tenant_name(), "local_tenant");
     }
 
     #[test]
     fn test_task_id() {
-        let properties = &test_properties();
-        assert_eq!(properties.task_id(), "test_task_id");
+        let properties = Properties::default();
+        assert_eq!(properties.task_id(), "local_task_id");
     }
 
     #[test]
     fn test_schema_registry_host() {
-        let properties = &test_properties();
+        let properties = Properties::default();
         assert_eq!(
             properties.schema_registry_host(),
             "http://localhost:8081/apis/ccompat/v7"

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Add Default implementation for Dsh::Properties
+  - Points to localhost:9092 for kafka, localhost:8081 for schemastore
+  - local_datastreams.json is now optional
+
 
 ## [0.3.1] - 2024-03-25
   

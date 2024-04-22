@@ -2,18 +2,22 @@
 //! This file contains all information about the kafka topics and consumer groups.
 use std::collections::HashMap;
 use std::env;
+use std::fs::File;
+use std::io::Read;
 
-use log::{error, info, warn};
+use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 
 use crate::error::DshError;
+
+const FILE_NAME: &str = "local_datastreams.json";
 
 /// This struct is equivalent to the datastreams.json
 /// It is possible to deserialize the json into this struct using serde_json.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Datastream {
     brokers: Vec<String>,
-    streams: std::collections::HashMap<String, Stream>,
+    streams: HashMap<String, Stream>,
     private_consumer_groups: Vec<String>,
     shared_consumer_groups: Vec<String>,
     non_enveloped_streams: Vec<String>,
@@ -122,15 +126,36 @@ impl Datastream {
         info!("File created ({})", path.display());
         Ok(())
     }
+
+    pub(crate) fn load_local_datastreams() -> Result<Self, DshError> {
+        let path_buf: std::path::PathBuf = std::env::current_dir().unwrap().join(FILE_NAME);
+        debug!("Reading local datastreams from {}", path_buf.display());
+        let file_result = File::open(&path_buf);
+        let mut file = match file_result {
+            Ok(file) => file,
+            Err(e) => {
+                error!(
+                    "Error opening local_datastreams.json ({}): {}",
+                    path_buf.display(),
+                    e
+                );
+                return Err(DshError::IoErrorFile(FILE_NAME, e));
+            }
+        };
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let datastream: Datastream = serde_json::from_str(&contents)?;
+        Ok(datastream)
+    }
 }
 
 impl Default for Datastream {
     fn default() -> Self {
         Datastream {
-            brokers: vec![],
+            brokers: vec!["localhost:9092".to_string()],
             streams: HashMap::new(),
-            private_consumer_groups: vec![],
-            shared_consumer_groups: vec![],
+            private_consumer_groups: vec!["private_group".to_string()],
+            shared_consumer_groups: vec!["shared_group".to_string()],
             non_enveloped_streams: vec![],
             schema_store: String::from("http://localhost:8081/apis/ccompat/v7"),
         }

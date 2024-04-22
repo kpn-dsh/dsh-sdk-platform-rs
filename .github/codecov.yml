@@ -15,7 +15,7 @@ coverage:
 ignore:
   - "tests"
   - "examples"
-  - "exeample_dsh_service"
+  - "example_dsh_service"
 
 # Make comments less noisy
 comment:
