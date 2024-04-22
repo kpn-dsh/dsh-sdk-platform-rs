@@ -15,8 +15,6 @@ exclude = ["/tmp", "/test_files"]
 homepage = "https://www.kpn.com/dsh"
 keywords = ["kpn", "dsh", "sdk"]
 license = "Apache-2.0"
-name = "dsh_sdk"
-readme = "README.md"
 repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
 
 
