@@ -28,10 +28,8 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
                     // Deserialize and print the message
                     deserialize_and_print(&msg);
                     // Commit the message
-                    match consumer.commit_message(&msg, CommitMode::Sync)
-                    {
-                        Ok(_) => {}
-                        Err(e) => println!("Error while committing message: {:?}", e),
+                    if let Err(e) = consumer.commit_message(&msg, CommitMode::Sync) {
+                        println!("Error while committing message: {:?}", e);
                     }
             },
             _ = shutdown.recv() => {
