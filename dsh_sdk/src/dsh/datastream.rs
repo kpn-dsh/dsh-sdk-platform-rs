@@ -17,7 +17,7 @@ const FILE_NAME: &str = "local_datastreams.json";
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Datastream {
     brokers: Vec<String>,
-    streams: std::collections::HashMap<String, Stream>,
+    streams: HashMap<String, Stream>,
     private_consumer_groups: Vec<String>,
     shared_consumer_groups: Vec<String>,
     non_enveloped_streams: Vec<String>,

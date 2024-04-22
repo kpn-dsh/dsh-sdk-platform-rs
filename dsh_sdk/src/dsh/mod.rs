@@ -1,6 +1,6 @@
 //! # Kafka Properties
 //!
-//! This module contains logic to connect to Kafka on DSH and get properties of your tenant. 
+//! This module contains logic to connect to Kafka on DSH and get properties of your tenant.
 //! For example all available streams and topics.
 //!
 //! The implementation contains some high level functions to get the correct config to connect to Kafka and schema store.
@@ -87,9 +87,9 @@ impl Properties {
     /// - `DSH_SECRET_TOKEN_PATH` - The path to the secret token file. (useful when running in system space)
     ///
     /// # Running on local machine
-    /// When running on a local machine, it can connect to a local Kafka cluster and Schema Registry. By default 
-    /// it connects localhost:9092. If you want to connect to a different Kafka cluster, or manipulate the datastream 
-    /// configuration, you can create a [local_datastreams.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json) 
+    /// When running on a local machine, it can connect to a local Kafka cluster and Schema Registry. By default
+    /// it connects localhost:9092. If you want to connect to a different Kafka cluster, or manipulate the datastream
+    /// configuration, you can create a [local_datastreams.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json)
     /// file in the root of the project.
 
     pub fn get() -> &'static Self {
@@ -102,7 +102,7 @@ impl Properties {
             Ok(properties) => {
                 info!("Successfully connected to DSH");
                 properties
-            },
+            }
             Err(e) => {
                 warn!("DSH_SDK was not able to connect to DSH, due to: {}", e);
                 warn!("Using local configuration instead");
@@ -121,7 +121,7 @@ impl Properties {
     /// Shared will have the same group id for all running instances. With this you can horizontally scale your service.
     /// The group type can be manipulated by environment variable KAFKA_CONSUMER_GROUP_TYPE.
     /// If not set, it will default to private.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
