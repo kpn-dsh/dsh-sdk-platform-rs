@@ -74,6 +74,19 @@ impl Properties {
     ///  - Metadata of running container/task
     ///  - Certificates for Kafka and DSH
     ///
+    /// # Example
+    /// ```
+    /// use dsh_sdk::dsh::Properties;
+    /// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+    /// 
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let dsh_properties = Properties::get();
+    /// let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    /// 
     /// # Required environment variables
     /// The following environment variables are required to be set. If not set, it will default to local settings.
     /// When starting a container in DSH, these variable are automatically set.
@@ -87,9 +100,10 @@ impl Properties {
     /// - `DSH_SECRET_TOKEN_PATH` - The path to the secret token file. (useful when running in system space)
     ///
     /// # Running on local machine
-    /// When running on a local machine, it can connect to a local Kafka cluster and Schema Registry. By default
-    /// it connects localhost:9092. If you want to connect to a different Kafka cluster, or manipulate the datastream
-    /// configuration, you can create a [local_datastreams.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json)
+    /// When running on a local machine, it can connect to a local Kafka cluster and Schema Registry. By 
+    /// default it connects `localhost:9092` for kafka and `localhost:8081/apis/ccompat/v7` for the schema 
+    /// registry. If you want to connect to a different Kafka cluster, or manipulate the datastream configuration, 
+    /// you can create a [local_datastreams.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json)
     /// file in the root of the project.
 
     pub fn get() -> &'static Self {
