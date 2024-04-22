@@ -1,8 +1,8 @@
 use dsh_sdk::dsh::Properties;
+use dsh_sdk::rdkafka::consumer::CommitMode;
 use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::producer::{FutureProducer, FutureRecord};
 use dsh_sdk::rdkafka::Message;
-use dsh_sdk::rdkafka::consumer::CommitMode;
 
 const TOTAL_MESSAGES: usize = 10;
 
