@@ -53,7 +53,7 @@ The following features are available in this library and can be enabled/disabled
 | **feature** | **default** | **Description** |
 |---|---|---|
 | `bootstrap` | &check; | Generate signed certificate and fetch datastreams info <br> Also makes certificates available, to be used as lowlevel API |
-| `local` | &check; | Use the SDK in your local environment* |
+| ~~`local`~~ | &check; | Will be deprecated in v0.4.0 |
 | `metrics` | &check; | Enable (custom) metrics for your service |
 | `graceful_shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
 | `dlq` | &cross; | Dead Letter Queue implementation (experimental) |
@@ -62,16 +62,20 @@ The following features are available in this library and can be enabled/disabled
 
 See api documentation for more information on how to use these features including.
 
-\* Requires a [local_datastreams.json](/dsh_sdk/local_datastreams.json) in your project root.
-
-
 ## Api doc
 See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
 
 ### Local development
-When starting the SDK on your local machine, it will automatica
+You can start the [docker-compose](../docker/docker-compose.yml) file in the root of this project to start a local Kafka broker and Schema Registry.
 
-Add a [local_datastreams.json](/local_datastreams.json) to your project root.
+When running the SDK on your local machine, it will automatically try to connect to the local Kafka broker and Schema Registry
+
+| Service | Host |
+| --- | --- |
+| Kafka | `localhost:9092` |
+| Schema Registry | `localhost:8081/apis/ccompat/v7` |
+
+If you want manipulate these endpoints, or want to use specific datastream info, you can add a [local_datastreams.json](local_datastreams.json) to your project root to overwrite the default values.
 
 ### Note
 Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installed in your environment and/or Dockerfile where you are compiling.
@@ -81,19 +85,19 @@ See dockerfile in [example_dsh_service](../example_dsh_service/Dockerfile) for a
 See folder [dsh_sdk/examples](/examples/) for simple examples on how to use the SDK.
 
 ### Full service example
-See folder [example_dsh_service](/example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](/example_dsh_service/README.md) for more information.
+See folder [example_dsh_service](../example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](/example_dsh_service/README.md) for more information.
 
 ## Changelog
-See [CHANGELOG.md](CHANGELOG.md) for all changes per version.
+See [CHANGELOG.md](../CHANGELOG.md) for all changes per version.
 
 ## Contributing
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more information on how to contribute to this project.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for more information on how to contribute to this project.
 
 ## License
-See [LICENSE](LICENSE) for more information on the license for this project.
+See [LICENSE](../LICENSE) for more information on the license for this project.
 
 ## Security
-See [SECURITY.md](SECURITY.md) for more information on the security policy for this project.
+See [SECURITY.md](../SECURITY.md) for more information on the security policy for this project.
 
 ---
 _Copyright (c) Koninklijke KPN N.V._ 
