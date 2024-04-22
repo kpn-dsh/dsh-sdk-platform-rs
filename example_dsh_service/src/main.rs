@@ -3,13 +3,15 @@ use dsh_sdk::graceful_shutdown::Shutdown;
 use dsh_sdk::rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::message::{BorrowedMessage, Message};
 
+use log::{info, error};
+
 mod custom_metrics;
 
 fn deserialize_and_print(msg: &BorrowedMessage) {
     let payload = String::from_utf8_lossy(msg.payload().unwrap_or(b""));
     let key = String::from_utf8_lossy(msg.key().unwrap_or(b""));
 
-    println!(
+    info!(
         "Received message from topic {} partition {} offset {} with key {:?} and payload {}",
         msg.topic(),
         msg.partition(),
@@ -29,11 +31,11 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
                     deserialize_and_print(&msg);
                     // Commit the message
                     if let Err(e) = consumer.commit_message(&msg, CommitMode::Sync) {
-                        println!("Error while committing message: {:?}", e);
+                        error!("Error while committing message: {:?}", e);
                     }
             },
             _ = shutdown.recv() => {
-                println!("Shutdown requested, breaking out of consumer");
+                info!("Shutdown requested, breaking out of consumer");
                 consumer.unsubscribe();
                 break;
              }
@@ -74,14 +76,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     consumer_client_config.set("auto.offset.reset", "latest");
 
     // Create a new consumer instance
-    let consumer: StreamConsumer = consumer_client_config
-        .create()
-        .expect("Consumer creation failed");
+    let consumer: StreamConsumer = consumer_client_config.create()?;
 
     // Subscribe to the configured topics
-    consumer
-        .subscribe(&topics)
-        .expect("Can't subscribe to specified topics");
+    consumer.subscribe(&topics)?;
 
     // Create handle for consuming messages,
     let shutdown_clone = shutdown.clone();
@@ -92,10 +90,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Wait for shutdown signal or that the consumer has stopped
     tokio::select! {
         _ = shutdown.signal_listener() => {
-            println!("Shutdown signal received");
+            info!("Shutdown signal received");
         }
         _ = consumer_handle => {
-            println!("Consumer stopped");
+            info!("Consumer stopped");
             shutdown.start(); // Start the shutdown process (this will stop other potential running tasks that implemented the shutdown listener)
         }
     }
