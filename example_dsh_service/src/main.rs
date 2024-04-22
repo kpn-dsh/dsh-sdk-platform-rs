@@ -3,7 +3,7 @@ use dsh_sdk::graceful_shutdown::Shutdown;
 use dsh_sdk::rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::message::{BorrowedMessage, Message};
 
-use log::{info, error};
+use log::{error, info};
 
 mod custom_metrics;
 
