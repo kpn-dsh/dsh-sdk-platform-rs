@@ -1,4 +1,5 @@
 use dsh_sdk::dsh::Properties;
+use dsh_sdk::rdkafka::consumer::CommitMode;
 use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::producer::{FutureProducer, FutureRecord};
 use dsh_sdk::rdkafka::Message;
@@ -31,6 +32,7 @@ async fn consume(consumer: &mut StreamConsumer, topic: &str) {
         let payload = String::from_utf8_lossy(msg.payload().unwrap());
         let key = usize::from_be_bytes(msg.key().unwrap().try_into().unwrap());
         println!("Received message: key: {}, payload: {}", key, payload);
+        consumer.commit_message(&msg, CommitMode::Async).unwrap();
         i += 1;
     }
 }

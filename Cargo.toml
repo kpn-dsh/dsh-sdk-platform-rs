@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "dsh_sdk"
+    "dsh_sdk",
+    "example_dsh_service",
 ]
 readme = "README.md"
 resolver = "2"
