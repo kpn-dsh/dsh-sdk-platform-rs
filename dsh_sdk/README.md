@@ -69,14 +69,16 @@ See api documentation for more information on how to use these features includin
 See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
 
 ### Local development
-Add a [local_datastreams.json](/dsh_sdk/local_datastreams.json) to your project root.
+When starting the SDK on your local machine, it will automatica
+
+Add a [local_datastreams.json](/local_datastreams.json) to your project root.
 
 ### Note
 Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installed in your environment and/or Dockerfile where you are compiling.
-See dockerfile in [example_dsh_service](/example_dsh_service/Dockerfile) for an example.
+See dockerfile in [example_dsh_service](../example_dsh_service/Dockerfile) for an example.
 
 ## Examples
-See folder [dsh_sdk/examples](/dsh_sdk/examples/) for simple examples on how to use the SDK.
+See folder [dsh_sdk/examples](/examples/) for simple examples on how to use the SDK.
 
 ### Full service example
 See folder [example_dsh_service](/example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](/example_dsh_service/README.md) for more information.
