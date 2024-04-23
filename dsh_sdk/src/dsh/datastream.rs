@@ -187,6 +187,30 @@ impl Stream {
     pub fn write_access(&self) -> bool {
         !self.write.is_empty()
     }
+
+    /// Get the Stream's Read whitelist pattern
+    pub fn read_pattern(&self) -> Result<&str, DshError> {
+        if self.read_access() {
+            Ok(&self.read)
+        } else {
+            Err(DshError::TopicPermissionsError(
+                self.name.clone(),
+                ReadWriteAccess::Read,
+            ))
+        }
+    }
+
+    /// Get the Stream's Write pattern
+    pub fn write_pattern(&self) -> Result<&str, DshError> {
+        if self.write_access() {
+            Ok(&self.write)
+        } else {
+            Err(DshError::TopicPermissionsError(
+                self.name.clone(),
+                ReadWriteAccess::Write,
+            ))
+        }
+    }
 }
 
 /// Enum to indicate if we want to check the read or write topics
@@ -397,6 +421,48 @@ mod tests {
                 .write_access(),
             false
         );
+    }
+
+    #[test]
+    fn test_datastream_check_read_topic() {
+        assert_eq!(
+            datastream()
+                .get_stream("scratch.test.test-tenant")
+                .unwrap()
+                .read_pattern()
+                .unwrap(),
+            "scratch.test.test-tenant"
+        );
+        assert_eq!(
+            datastream()
+                .get_stream("stream.test.test-tenant")
+                .unwrap()
+                .read_pattern()
+                .unwrap(),
+            "stream\\.test\\.[^.]*"
+        );
+    }
+
+    #[test]
+    fn test_datastream_check_write_topic() {
+        assert_eq!(
+            datastream()
+                .get_stream("scratch.test.test-tenant")
+                .unwrap()
+                .write_pattern()
+                .unwrap(),
+            "scratch.test.test-tenant"
+        );
+        let e = datastream()
+            .get_stream("stream.test.test-tenant")
+            .unwrap()
+            .write_pattern()
+            .unwrap_err();
+
+        assert!(matches!(
+            e,
+            DshError::TopicPermissionsError(_, ReadWriteAccess::Write)
+        ));
     }
 
     #[test]
