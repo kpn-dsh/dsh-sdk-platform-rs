@@ -453,16 +453,16 @@ mod tests {
                 .unwrap(),
             "scratch.test.test-tenant"
         );
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_datastream_check_write_topic_panic() {
-        datastream()
+        let e = datastream()
             .get_stream("stream.test.test-tenant")
             .unwrap()
             .write_pattern()
-            .unwrap();
+            .unwrap_err();
+
+        assert!(matches!(
+            e,
+            DshError::TopicPermissionsError(_, ReadWriteAccess::Write)
+        ));
     }
 
     #[test]
