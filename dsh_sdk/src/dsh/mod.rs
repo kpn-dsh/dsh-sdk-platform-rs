@@ -31,6 +31,7 @@ use crate::error::DshError;
 pub mod bootstrap;
 pub mod certificates;
 pub mod datastream;
+pub mod rest_api;
 
 static PROPERTIES: OnceLock<Properties> = OnceLock::new();
 
