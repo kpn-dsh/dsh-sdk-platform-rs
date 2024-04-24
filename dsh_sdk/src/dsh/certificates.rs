@@ -192,11 +192,14 @@ mod tests {
     use openssl::x509::X509Req;
 
     static TEST_CERTIFICATES: OnceLock<Cert> = OnceLock::new();
+    static CA_CERT:&str = "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
+    static KAFKA_CERT:&str = "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
+
 
     fn set_test_cert() -> Cert {
         Cert{
-            dsh_ca_certificate_pem: "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----".to_string(),
-            dsh_kafka_certificate_pem: "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----".to_string(),
+            dsh_ca_certificate_pem: CA_CERT.to_string(),
+            dsh_kafka_certificate_pem: KAFKA_CERT.to_string(),
             key_pair: Arc::new(KeyPair::generate().unwrap()),
         }
     }
@@ -252,16 +255,14 @@ mod tests {
     fn test_dsh_ca_certificate_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let pem = cert.dsh_ca_certificate_pem();
-        assert!(pem.starts_with("-----BEGIN CERTIFICATE-----"));
-        assert!(pem.ends_with("-----END CERTIFICATE-----"));
+        assert_eq!(pem, CA_CERT);
     }
 
     #[test]
     fn test_dsh_kafka_certificate_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let pem = cert.dsh_kafka_certificate_pem();
-        assert!(pem.starts_with("-----BEGIN CERTIFICATE-----"));
-        assert!(pem.ends_with("-----END CERTIFICATE-----"));
+        assert_eq!(pem, KAFKA_CERT);
     }
 
     #[test]
@@ -296,13 +297,13 @@ mod tests {
 
         let req = X509Req::from_pem(csr_pem.as_bytes()).unwrap();
         req.verify(&pkey).unwrap();
-        let subj = req
+        let subject = req
             .subject_name()
             .entries()
             .into_iter()
             .map(|e| e.data().as_utf8().unwrap().to_string())
             .collect::<Vec<String>>()
             .join(",");
-        assert_eq!(subj, "Test CN,Test OU,Test Org");
+        assert_eq!(subject, "Test CN,Test OU,Test Org");
     }
 }
