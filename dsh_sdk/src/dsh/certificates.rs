@@ -38,12 +38,11 @@ use reqwest::blocking::{Client, ClientBuilder};
 use reqwest::Identity;
 use std::path::PathBuf;
 
-
 use super::bootstrap::{Dn, DshCall, DshConfig};
 
 use crate::error::DshError;
 
-use rcgen::{KeyPair, CertificateParams, CertificateSigningRequest, DnType};
+use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
 
 /// Hold all relevant certificates and keys to connect to DSH.
 ///
@@ -58,11 +57,11 @@ pub struct Cert {
 impl Cert {
     /// Create a new certificate struct.
     pub(crate) fn new(dn: Dn, dsh_config: &DshConfig, client: &Client) -> Result<Self, DshError> {
-        let key_pair = KeyPair::generate()?;
+        let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
         let csr = Self::generate_csr(&key_pair, dn)?;
         let dsh_kafka_certificate_pem = DshCall::CertificateSignRequest {
             config: dsh_config,
-            csr: csr.pem()?,
+            csr: &csr.pem()?,
         }
         .perform_call(client)?;
         Ok(Self {
@@ -111,7 +110,6 @@ impl Cert {
     pub fn dsh_kafka_certificate_pem(&self) -> &str {
         self.dsh_kafka_certificate_pem.as_str()
     }
-
 
     /// Get the private key as PKCS8 and return bytes based on asn1 DER format.
     pub fn private_key_pkcs8(&self) -> Result<Vec<u8>, DshError> {
@@ -162,8 +160,12 @@ impl Cert {
     fn generate_csr(key_pair: &KeyPair, dn: Dn) -> Result<CertificateSigningRequest, DshError> {
         let mut params = CertificateParams::default();
         params.distinguished_name.push(DnType::CommonName, dn.cn());
-        params.distinguished_name.push(DnType::OrganizationalUnitName, dn.ou());
-        params.distinguished_name.push(DnType::OrganizationName, dn.o());
+        params
+            .distinguished_name
+            .push(DnType::OrganizationalUnitName, dn.ou());
+        params
+            .distinguished_name
+            .push(DnType::OrganizationName, dn.o());
         Ok(params.serialize_request(key_pair)?)
     }
 
@@ -186,6 +188,9 @@ mod tests {
     use super::*;
     use std::sync::OnceLock;
 
+    use openssl::pkey::PKey;
+    use openssl::x509::X509Req;
+
     static TEST_CERTIFICATES: OnceLock<Cert> = OnceLock::new();
 
     fn set_test_cert() -> Cert {
@@ -199,30 +204,48 @@ mod tests {
     #[test]
     fn test_private_key_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let pem = cert.private_key_pem().unwrap();
-        println!("{}", pem);
-        assert!(pem.starts_with("-----BEGIN PRIVATE KEY-----"));
-        assert!(pem.trim().ends_with("-----END PRIVATE KEY-----"));
+        let der = cert.key_pair.serialize_der();
+        let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
+        let pkey_pem_bytes = pkey.private_key_to_pem_pkcs8().unwrap();
+        
+        let key_pem = cert.private_key_pem().unwrap();
+        let pkey_pem = String::from_utf8_lossy(pkey_pem_bytes.as_slice());
+        assert_eq!(key_pem, pkey_pem);
     }
 
     #[test]
     fn test_public_key_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let pem = cert.public_key_pem().unwrap();
-        assert!(pem.starts_with("-----BEGIN PUBLIC KEY-----"));
-        assert!(pem.trim().ends_with("-----END PUBLIC KEY-----"));
-    }
+        let der = cert.key_pair.serialize_der();
+        let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
+        let pkey_pub_pem_bytes = pkey.public_key_to_pem().unwrap();
 
-    #[test]
-    fn test_private_key_pkcs8() {
-        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        assert!( cert.private_key_pkcs8().is_ok());
+        let pub_pem = cert.public_key_pem().unwrap();
+        let pkey_pub_pem = String::from_utf8_lossy(pkey_pub_pem_bytes.as_slice());
+        assert_eq!(pub_pem, pkey_pub_pem);
     }
 
     #[test]
     fn test_public_key_der() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        assert!(cert.public_key_der().is_ok());
+        let der = cert.key_pair.serialize_der();
+        let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
+        let pkey_pub_der = pkey.public_key_to_der().unwrap();
+
+        let pub_der = cert.public_key_der().unwrap();
+        assert_eq!(pub_der, pkey_pub_der);
+
+    }
+
+    #[test]
+    fn test_private_key_pkcs8() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let der = cert.key_pair.serialize_der();
+        let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
+        let pkey = pkey.private_key_to_pkcs8().unwrap();
+
+        let key = cert.private_key_pkcs8().unwrap();
+        assert_eq!(key, pkey);
     }
 
     #[test]
@@ -252,19 +275,34 @@ mod tests {
         assert!(std::path::Path::new(&format!("{}/client.key", dir)).exists());
     }
 
-//    #[test]
-//    fn test_dsh_certificate_sign_request() {
-//        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-//        let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
-//        let csr = Cert::generate_csr(&cert.key_pair, dn).unwrap();
-//        let (directory_name, pub_key) = csr.into_subject_infos();
-//        assert_eq!(
-//            directory_name.to_string(),
-//            "CN=Test CN,OU=Test OU,O=Test Org"
-//        );
-//        assert_eq!(
-//            pub_key.to_pem_str().unwrap(),
-//            cert.public_key_pem().unwrap()
-//        );
-//    }
+    #[test]
+    fn test_dsh_certificate_sign_request() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
+        let csr = Cert::generate_csr(&cert.key_pair, dn).unwrap();
+        let req = csr.pem().unwrap();
+        assert!(req.starts_with("-----BEGIN CERTIFICATE REQUEST-----"));
+        assert!(req.trim().ends_with("-----END CERTIFICATE REQUEST-----"));
+    }
+
+    #[test]
+    fn test_verify_csr() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
+        let csr = Cert::generate_csr(&cert.key_pair, dn).unwrap();
+        let csr_pem = csr.pem().unwrap();
+        let key = cert.private_key_pkcs8().unwrap();
+        let pkey = PKey::private_key_from_der(&key).unwrap();
+
+        let req = X509Req::from_pem(csr_pem.as_bytes()).unwrap();
+        req.verify(&pkey).unwrap();
+        let subj = req
+            .subject_name()
+            .entries()
+            .into_iter()
+            .map(|e| e.data().as_utf8().unwrap().to_string())
+            .collect::<Vec<String>>()
+            .join(",");
+        assert_eq!(subj, "Test CN,Test OU,Test Org");
+    }
 }

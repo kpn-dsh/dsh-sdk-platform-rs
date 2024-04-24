@@ -142,10 +142,7 @@ pub(crate) enum DshCall<'a> {
     /// Call to retreive datastreams.json.
     Datastream(&'a DshConfig),
     /// Call to post the certificate signing request.
-    CertificateSignRequest {
-        config: &'a DshConfig,
-        csr: String,
-    },
+    CertificateSignRequest { config: &'a DshConfig, csr: &'a str },
 }
 
 impl DshCall<'_> {
@@ -178,7 +175,7 @@ impl DshCall<'_> {
             DshCall::CertificateSignRequest { config, csr, .. } => client
                 .post(url)
                 .header("X-Kafka-Config-Token", &config.dsh_secret_token)
-                .body(csr.to_owned()),
+                .body(csr.to_string()),
         }
     }
 
@@ -291,7 +288,7 @@ mod tests {
             DshCall::Datastream(&dsh_config).request_builder("https://test_host", &Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
-        let csr = "-----BEGIN test_type-----\n-----END test_type-----".to_string();
+        let csr = "-----BEGIN test_type-----\n-----END test_type-----";
         let builder: reqwest::blocking::RequestBuilder = DshCall::CertificateSignRequest {
             config: &dsh_config,
             csr,
@@ -309,7 +306,7 @@ mod tests {
             "test_token"
         );
         let body = from_utf8(request.body().unwrap().as_bytes().unwrap()).unwrap();
-        assert!(body.contains("-----BEGIN test_type-----"));
+        assert_eq!(body, csr);
     }
 
     #[test]
