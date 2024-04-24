@@ -144,7 +144,7 @@ pub(crate) enum DshCall<'a> {
     /// Call to post the certificate signing request.
     CertificateSignRequest {
         config: &'a DshConfig,
-        csr: picky::pem::Pem<'a>,
+        csr: String,
     },
 }
 
@@ -178,7 +178,7 @@ impl DshCall<'_> {
             DshCall::CertificateSignRequest { config, csr, .. } => client
                 .post(url)
                 .header("X-Kafka-Config-Token", &config.dsh_secret_token)
-                .body(csr.to_string()),
+                .body(csr.to_owned()),
         }
     }
 
@@ -291,10 +291,10 @@ mod tests {
             DshCall::Datastream(&dsh_config).request_builder("https://test_host", &Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
-        let pem = picky::pem::Pem::new("test_type", "test".as_bytes());
+        let csr = "-----BEGIN test_type-----\n-----END test_type-----".to_string();
         let builder: reqwest::blocking::RequestBuilder = DshCall::CertificateSignRequest {
             config: &dsh_config,
-            csr: pem,
+            csr,
         }
         .request_builder("https://test_host", &Client::new());
         let request = builder.build().unwrap();
