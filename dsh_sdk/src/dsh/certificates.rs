@@ -192,12 +192,13 @@ mod tests {
     use openssl::x509::X509Req;
 
     static TEST_CERTIFICATES: OnceLock<Cert> = OnceLock::new();
-    static CA_CERT:&str = "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
-    static KAFKA_CERT:&str = "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
-
+    static CA_CERT: &str =
+        "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
+    static KAFKA_CERT: &str =
+        "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
 
     fn set_test_cert() -> Cert {
-        Cert{
+        Cert {
             dsh_ca_certificate_pem: CA_CERT.to_string(),
             dsh_kafka_certificate_pem: KAFKA_CERT.to_string(),
             key_pair: Arc::new(KeyPair::generate().unwrap()),
@@ -210,7 +211,7 @@ mod tests {
         let der = cert.key_pair.serialize_der();
         let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
         let pkey_pem_bytes = pkey.private_key_to_pem_pkcs8().unwrap();
-        
+
         let key_pem = cert.private_key_pem().unwrap();
         let pkey_pem = String::from_utf8_lossy(pkey_pem_bytes.as_slice());
         assert_eq!(key_pem, pkey_pem);
@@ -237,7 +238,6 @@ mod tests {
 
         let pub_der = cert.public_key_der().unwrap();
         assert_eq!(pub_der, pkey_pub_der);
-
     }
 
     #[test]
