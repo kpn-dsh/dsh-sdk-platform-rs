@@ -36,7 +36,7 @@ See [feature flags](#feature-flags) for more information on the available featur
 
 To use this SDK in your project
 ```rust
-use dsh_sdk::dsh::Properties;
+use dsh_sdk::Properties;
 use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{

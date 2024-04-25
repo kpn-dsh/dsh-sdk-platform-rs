@@ -1,4 +1,4 @@
-use dsh_sdk::dsh::Properties;
+use dsh_sdk::Properties;
 use dsh_sdk::rdkafka::consumer::CommitMode;
 use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::producer::{FutureProducer, FutureRecord};
