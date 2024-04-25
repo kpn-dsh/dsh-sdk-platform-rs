@@ -22,21 +22,21 @@ To use this SDK with the default features in your project, add the following to 
   
 ```toml
 [dependencies]
-dsh_sdk = "0.3"
+dsh_sdk = "0.4"
 ```
 
 However, if you would like to use only specific features, you can specify them in your Cargo.toml file. For example, if you would like to use only the bootstrap feature, add the following to your Cargo.toml file:
   
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.3", default-features = false, features = ["bootstrap"] }
+dsh_sdk = { version = "0.4", default-features = false, features = ["bootstrap"] }
 ```
 
 See [feature flags](#feature-flags) for more information on the available features.
 
 To use this SDK in your project
 ```rust
-use dsh_sdk::dsh::Properties;
+use dsh_sdk::Properties;
 use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{

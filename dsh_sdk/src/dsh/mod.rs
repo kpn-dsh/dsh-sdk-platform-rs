@@ -1,16 +1,15 @@
-//! # Kafka Properties
+//! # DSH Properties
 //!
-//! This module contains logic to connect to Kafka on DSH and get properties of your tenant.
-//! For example all available streams and topics.
+//! This module contains logic to connect to Kafka on DSH and retreive all properties of your tenant.
 //!
-//! The implementation contains some high level functions to get the correct config to connect to Kafka and schema store.
+//! From `Properties` there are level functions to get the correct config to connect to Kafka and schema store.
 //! For more low level functions, see
 //!     - [datastream](datastream/index.html) module.
 //!     - [certificates](certificates/index.html) module.
 //!
 //! # Example
 //! ```
-//! use dsh_sdk::dsh::Properties;
+//! use dsh_sdk::Properties;
 //! use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 //!
 //! # #[tokio::main]
@@ -34,14 +33,14 @@ pub mod datastream;
 
 static PROPERTIES: OnceLock<Properties> = OnceLock::new();
 
-/// Kafka properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
+/// DSH properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
 ///  - Contains a struct similar to datastreams.json
 ///  - Metadata of running container/task
 ///  - Certificates for Kafka and DSH Schema Registry
 ///
 /// # Example
 /// ```
-/// use dsh_sdk::dsh::Properties;
+/// use dsh_sdk::Properties;
 /// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 ///
 /// #[tokio::main]
@@ -76,7 +75,7 @@ impl Properties {
     ///
     /// # Example
     /// ```
-    /// use dsh_sdk::dsh::Properties;
+    /// use dsh_sdk::Properties;
     /// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
     ///
     /// # #[tokio::main]
@@ -138,9 +137,9 @@ impl Properties {
     ///
     /// # Example
     /// ```
+    /// use dsh_sdk::Properties;
     /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
     /// use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
-    /// use dsh_sdk::dsh::Properties;
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -235,7 +234,7 @@ impl Properties {
     /// ```
     /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
     /// use dsh_sdk::rdkafka::producer::FutureProducer;
-    /// use dsh_sdk::dsh::Properties;
+    /// use dsh_sdk::Properties;
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>>{
@@ -296,13 +295,12 @@ impl Properties {
     ///
     /// # Example
     /// ```
-    /// # use dsh_sdk::dsh::Properties;
+    /// # use dsh_sdk::Properties;
     /// # use reqwest::Client;
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let dsh_properties = Properties::get();
-    ///     let client = dsh_properties.reqwest_client_config()?.build()?;
-    ///
+    /// let dsh_properties = Properties::get();
+    /// let client = dsh_properties.reqwest_client_config()?.build()?;
     /// #    Ok(())
     /// # }
     /// ```
@@ -314,7 +312,17 @@ impl Properties {
         Ok(client_builder)
     }
 
-    /// Get the certificates and private key. If running local it returns None
+    /// Get the certificates and private key. Returns an error when running on local machine.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use dsh_sdk::Properties;
+    /// # use dsh_sdk::error::DshError;
+    /// # fn main() -> Result<(), DshError> {
+    /// let dsh_properties = Properties::get();
+    /// let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();
+    /// #    Ok(())
+    /// # }
     pub fn certificates(&self) -> Result<&certificates::Cert, DshError> {
         if let Some(cert) = &self.certificates {
             Ok(cert)

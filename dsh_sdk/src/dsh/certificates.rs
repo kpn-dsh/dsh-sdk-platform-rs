@@ -11,7 +11,7 @@
 //! To create the ca.crt, client.pem, and client.key files in a desired directory, use the
 //! `to_files` method.
 //! ```no_run
-//! use dsh_sdk::dsh::Properties;
+//! use dsh_sdk::Properties;
 //! use std::path::PathBuf;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -138,7 +138,7 @@ impl Cert {
     /// # Example
     ///
     /// ```no_run
-    /// use dsh_sdk::dsh::Properties;
+    /// use dsh_sdk::Properties;
     /// use std::path::PathBuf;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {

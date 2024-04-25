@@ -34,8 +34,8 @@ use rdkafka::producer::{FutureProducer, FutureRecord};
 
 use tokio::sync::mpsc;
 
-use crate::dsh::Properties;
 use crate::graceful_shutdown::Shutdown;
+use crate::Properties;
 
 /// Trait to convert an error to a dlq message
 /// This trait is implemented for all errors that can and should be converted to a dlq message

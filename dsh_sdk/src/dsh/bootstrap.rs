@@ -14,7 +14,7 @@
 //!
 //! ## Example
 //! ```
-//! use dsh_sdk::dsh::Properties;
+//! use dsh_sdk::Properties;
 //!
 //! let dsh_properties = Properties::get();
 //! ```
