@@ -16,7 +16,7 @@
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let dsh_properties = Properties::get();
-//! let consumer_config = dsh_properties.consumer_rdkafka_config()?;
+//! let consumer_config = dsh_properties.consumer_rdkafka_config();
 //! let consumer: StreamConsumer = consumer_config.create()?;
 //!
 //! # Ok(())
@@ -48,7 +48,7 @@ static PROPERTIES: OnceLock<Properties> = OnceLock::new();
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let dsh_properties = Properties::get();
 ///     
-///     let consumer_config = dsh_properties.consumer_rdkafka_config()?;
+///     let consumer_config = dsh_properties.consumer_rdkafka_config();
 ///     let consumer: StreamConsumer = consumer_config.create()?;
 ///
 ///     Ok(())
@@ -82,7 +82,7 @@ impl Properties {
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh_properties = Properties::get();
-    /// let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
+    /// let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
     /// # Ok(())
     /// # }
     /// ```
@@ -145,7 +145,7 @@ impl Properties {
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let dsh_properties = Properties::get();
-    ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config()?;
+    ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config();
     ///     let consumer: StreamConsumer =  consumer_config.create()?;
     ///     Ok(())
     /// }
@@ -155,39 +155,65 @@ impl Properties {
     /// See full list of configs properties in case you want to add/overwrite the config:
     /// <https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md>
     ///
-    /// | **config**                | **Default value**                      | **Remark**                                                                                                                            |
-    /// |---------------------------|----------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-    /// | `bootstrap.servers`       | Brokers based on <br>datastreams.json  | Brokers from datastreams.json                                                                                                         |
-    /// | `group.id`                | Group ID from <br>datastreams.json     | Set env variable KAFKA_CONSUMER_GROUP_TYPE to<br>"private" or "shared" to switch between group types.<br>DEFAULT: private, if not set |
-    /// | `client.id`               | task_id of service                     | Based on task_id of running service                                                                                                   |
-    /// | `enable.auto.commit`      | false                                  | Autocommmit                                                                                                                           |
-    /// | `enable.auto.offset.store`| false                                  | Store autocommit of last message provided                                                                                             |
-    /// | `auto.offset.reset`       | earliest                               | Start consuming from the beginning.                                                                                                   |
-    /// | `security.protocol`       | ssl (DSH)<br>plaintext (local)         | Security protocol                                                                                                                     |
-    /// | `ssl.key.pem`             | private key                            | Generated when bootstrap is initiated                                                                                                 |
-    /// | `ssl.certificate.pem`     | dsh kafka certificate                  | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated)                                               |
-    /// | `ssl.ca.pem`              | CA certifacte                          | Root certificate, provided by DSH.                                                                                                    |
-    /// | `log_level`               | Info                                   | Log level of rdkafka                                                                                                                  |
+    /// Some configurations are overwitable by environment variables.
+    ///
+    /// | **config**                | **Default value**                | **Remark**                                            |
+    /// |---------------------------|----------------------------------|-------------------------------------------------------|
+    /// | `bootstrap.servers`       | Brokers based on datastreams     | Overwritable by env variable KAFKA_BOOTSTRAP_SERVERS` |
+    /// | `group.id`                | Shared Group ID from datastreams | Overwritable by setting `KAFKA_GROUP_ID` or `KAFKA_CONSUMER_GROUP_TYPE`|
+    /// | `client.id`               | Task_id of service               | |
+    /// | `enable.auto.commit`      | `false`                          | Overwritable by setting `KAFKA_ENABLE_AUTO_COMMIT` |
+    /// | `auto.offset.reset`       | `earliest`                       | Overwritable by setting `KAFKA_AUTO_OFFSET_RESET`    |
+    /// | `security.protocol`       | ssl (DSH) / plaintext (local)    | Security protocol                               |
+    /// | `ssl.key.pem`             | private key                      | Generated when bootstrap is initiated           |
+    /// | `ssl.certificate.pem`     | dsh kafka certificate            | Signed certificate to connect to kafka cluster  |
+    /// | `ssl.ca.pem`              | CA certifacte                    | CA certificate, provided by DSH.                |
+    ///
+    /// # Environment variables
+    /// To manipulate the configuration during runtume, you can set the following environment variables.
+    ///
+    /// ### `KAFKA_BOOTSTRAP_SERVERS`
+    /// - Usage: Overwrite hostnames of brokers (useful for local testing)
+    /// - Default: Brokers based on datastreams
+    /// - Required: `false`
+    ///
+    /// ### `KAFKA_CONSUMER_GROUP_TYPE`
+    /// - Usage: Picks group_id based on type from datastreams
+    /// - Default: Shared
+    /// - Options: private, shared
+    /// - Required: `false`
+    ///
+    /// ### `KAFKA_GROUP_ID`
+    /// - Usage: Custom group id
+    /// - Default: NA
+    /// - Required: `false`
+    /// - Remark: Overrules `KAFKA_CONSUMER_GROUP_TYPE`. Mandatory to start with tenant name. (will prefix tenant name automatically if not set)
+    ///
+    /// ### `KAFKA_ENABLE_AUTO_COMMIT`
+    /// - Usage: Enable/Disable auto commit
+    /// - Default: `false`
+    /// - Required: `false`
+    /// - Options: `true`, `false`
+    ///
+    /// ### `KAFKA_AUTO_OFFSET_RESET`
+    /// - Usage: Set the offset reset settings to start consuming from set option.
+    /// - Default: earliest
+    /// - Required: `false`
+    /// - Options: smallest, earliest, beginning, largest, latest, end
     #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
-    pub fn consumer_rdkafka_config(&self) -> Result<rdkafka::config::ClientConfig, DshError> {
+    pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         let mut config = rdkafka::config::ClientConfig::new();
         config
-            .set("bootstrap.servers", self.datastream().get_brokers_string())
-            .set(
-                "group.id",
-                self.datastream()
-                    .get_group_id(datastream::GroupType::from_env())?,
-            )
+            .set("bootstrap.servers", self.kafka_brokers())
+            .set("group.id", self.kafka_group_id())
             .set("client.id", self.client_id())
-            .set("enable.auto.commit", "false")
-            .set("enable.auto.offset.store", "false")
-            .set("auto.offset.reset", "earliest")
-            .set_log_level(rdkafka::config::RDKafkaLogLevel::Info);
+            .set("enable.auto.commit", self.kafka_auto_commit().to_string())
+            .set("auto.offset.reset", self.kafka_auto_offset_reset());
         // Set SSL if certificates are present
         if let Ok(certificates) = &self.certificates() {
             config
                 .set("security.protocol", "ssl")
-                .set("ssl.key.pem", certificates.private_key_pem()?)
+                .set("ssl.key.pem", certificates.private_key_pem())
                 .set(
                     "ssl.certificate.pem",
                     certificates.dsh_kafka_certificate_pem(),
@@ -196,15 +222,14 @@ impl Properties {
         } else {
             config.set("security.protocol", "plaintext");
         }
-        Ok(config)
+        config
     }
 
     /// Get default RDKafka Producer config to connect to Kafka on DSH.
     /// If certificates are present, it will use SSL to connect to Kafka.
     /// If not, it will use plaintext so it can connect to local as well.
     ///
-    /// Note: This config is set to auto commit to false. You need to manually commit offsets.
-    /// You can overwrite this config by setting the enable.auto.commit and enable.auto.offset.store property to `true`.
+    /// Note: The default config is set to auto commit to false. You need to manually commit offsets.
     ///
     /// # Example
     /// ```
@@ -215,7 +240,7 @@ impl Properties {
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>>{
     ///     let dsh_properties = Properties::get();
-    ///     let mut producer_config = dsh_properties.producer_rdkafka_config().expect("Producer config creation failed");
+    ///     let mut producer_config = dsh_properties.producer_rdkafka_config();
     ///     let producer: FutureProducer =  producer_config.create().expect("Producer creation failed");
     ///     Ok(())
     /// }
@@ -225,28 +250,34 @@ impl Properties {
     /// See full list of configs properties in case you want to add/overwrite the config:
     /// <https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md>
     ///
-    /// | **config**          | **Default value**                      | **Remark**                                                                              |
-    /// |---------------------|----------------------------------------|-----------------------------------------------------------------------------------------|
-    /// | bootstrap.servers   | Brokers based on <br>datastreams.json  | Brokers from datastreams.json                                                           |
-    /// | client.id           | task_id of service                     | Based on task_id of running service                                                     |
-    /// | security.protocol   | ssl (DSH))<br>plaintext (local)        | Security protocol                                                                       |
-    /// | ssl.key.pem         | private key                            | Generated when bootstrap is initiated                                                   |
-    /// | ssl.certificate.pem | dsh kafka certificate                  | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated) |
-    /// | ssl.ca.pem          | CA certifacte                          | Root certificate, provided by DSH.                                                      |
-    /// | log_level           | Info                                   | Log level of rdkafka                                                                    |
+    /// | **config**          | **Default value**              | **Remark**                                                                              |
+    /// |---------------------|--------------------------------|-----------------------------------------------------------------------------------------|
+    /// | bootstrap.servers   | Brokers based on datastreams   | Overwritable by env variable `KAFKA_BOOTSTRAP_SERVERS`                                  |
+    /// | client.id           | task_id of service             | Based on task_id of running service                                                     |
+    /// | security.protocol   | ssl (DSH)) / plaintext (local) | Security protocol                                                                       |
+    /// | ssl.key.pem         | private key                    | Generated when bootstrap is initiated                                                   |
+    /// | ssl.certificate.pem | dsh kafka certificate          | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated) |
+    /// | ssl.ca.pem          | CA certifacte                  | CA certificate, provided by DSH.                                                        |
+    /// | log_level           | Info                           | Log level of rdkafka                                                                    |
+    ///
+    /// # Environment variables
+    /// To manipulate the configuration during runtume, you can set the following environment variables.
+    ///
+    /// ### `KAFKA_BOOTSTRAP_SERVERS`
+    /// - Usage: Overwrite hostnames of brokers (useful for local testing)
+    /// - Default: Brokers based on datastreams
+    /// - Required: `false`
     #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
-    pub fn producer_rdkafka_config(&self) -> Result<rdkafka::config::ClientConfig, DshError> {
+    pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         let mut config = rdkafka::config::ClientConfig::new();
         config
-            .set("bootstrap.servers", self.datastream().get_brokers_string())
-            .set("client.id", self.client_id())
-            .set_log_level(rdkafka::config::RDKafkaLogLevel::Info);
-
+            .set("bootstrap.servers", self.kafka_brokers())
+            .set("client.id", self.client_id());
         // Set SSL if certificates are present
         if let Ok(certificates) = self.certificates() {
             config
                 .set("security.protocol", "ssl")
-                .set("ssl.key.pem", certificates.private_key_pem()?)
+                .set("ssl.key.pem", certificates.private_key_pem())
                 .set(
                     "ssl.certificate.pem",
                     certificates.dsh_kafka_certificate_pem(),
@@ -255,7 +286,7 @@ impl Properties {
         } else {
             config.set("security.protocol", "plaintext");
         }
-        Ok(config)
+        config
     }
 
     /// Get reqwest async client config to connect to DSH Schema Registry.
@@ -283,7 +314,7 @@ impl Properties {
         Ok(client_builder)
     }
 
-    /// Get the certificates. If running local it returns None
+    /// Get the certificates and private key. If running local it returns None
     pub fn certificates(&self) -> Result<&certificates::Cert, DshError> {
         if let Some(cert) = &self.certificates {
             Ok(cert)
@@ -313,10 +344,84 @@ impl Properties {
     }
 
     /// Get schema host of DSH.
-    ///
-    /// Overwritable with environment variable SCHEMA_REGISTRY_HOST, if set
     pub fn schema_registry_host(&self) -> &str {
         self.datastream().schema_store()
+    }
+
+    /// Get the Kafka brokers.
+    ///
+    /// ## Environment variables
+    /// To manipulate the hastnames of the brokers, you can set the following environment variables.
+    ///
+    /// ### `KAFKA_BOOTSTRAP_SERVERS`
+    /// - Usage: Overwrite hostnames of brokers
+    /// - Default: Brokers based on datastreams
+    /// - Required: `false`
+    pub fn kafka_brokers(&self) -> String {
+        env::var("KAFKA_BOOTSTRAP_SERVERS")
+            .unwrap_or_else(|_| self.datastream().get_brokers_string().to_string())
+    }
+
+    /// Get the kafka_group_id based.
+    ///
+    /// ## Environment variables
+    /// To manipulate the group id, you can set the following environment variables.
+    ///  
+    /// ### `KAFKA_CONSUMER_GROUP_TYPE`
+    /// - Usage: Picks group_id based on type from datastreams
+    /// - Default: Shared
+    /// - Options: private, shared
+    /// - Required: `false`
+    ///
+    /// ### `KAFKA_GROUP_ID`
+    /// - Usage: Custom group id
+    /// - Default: NA
+    /// - Required: `false`
+    /// - Remark: Overrules `KAFKA_CONSUMER_GROUP_TYPE`. Mandatory to start with tenant name. (will prefix tenant name automatically if not set)
+    pub fn kafka_group_id(&self) -> String {
+        if let Ok(group_id) = env::var("KAFKA_GROUP_ID") {
+            if !group_id.starts_with(self.tenant_name()) {
+                format!("{}_{}", self.tenant_name(), group_id)
+            } else {
+                group_id
+            }
+        } else {
+            self.datastream()
+                .get_group_id(datastream::GroupType::from_env())
+                .unwrap_or(&format!("{}_CONSUMER", self.tenant_name()))
+                .to_string()
+        }
+    }
+
+    /// Get the confifured kafka auto commit setinngs.
+    ///
+    /// ## Environment variables
+    /// To manipulate the auto commit settings, you can set the following environment variables.
+    ///
+    /// ### `KAFKA_ENABLE_AUTO_COMMIT`
+    /// - Usage: Enable/Disable auto commit
+    /// - Default: `false`
+    /// - Required: `false`
+    /// - Options: `true`, `false`
+    pub fn kafka_auto_commit(&self) -> bool {
+        env::var("KAFKA_ENABLE_AUTO_COMMIT")
+            .unwrap_or_else(|_| "false".to_string())
+            .parse()
+            .unwrap_or(false)
+    }
+
+    /// Get the kafka auto offset reset settings.
+    ///
+    /// ## Environment variables
+    /// To manipulate the auto offset reset settings, you can set the following environment variables.
+    ///
+    /// ### `KAFKA_AUTO_OFFSET_RESET`
+    /// - Usage: Set the offset reset settings to start consuming from set option.
+    /// - Default: earliest
+    /// - Required: `false`
+    /// - Options: smallest, earliest, beginning, largest, latest, end
+    pub fn kafka_auto_offset_reset(&self) -> String {
+        env::var("KAFKA_AUTO_OFFSET_RESET").unwrap_or_else(|_| "earliest".to_string())
     }
 }
 
@@ -347,8 +452,10 @@ impl Default for Properties {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     #[test]
+    #[serial(env_depencency)]
     fn test_get_configured_topics() {
         std::env::set_var("TOPICS", "topic1, topic2, topic3");
 
@@ -373,11 +480,10 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_depencency)]
     fn test_consumer_rdkafka_config() {
         let properties = Properties::default();
         let config = properties.consumer_rdkafka_config();
-        assert!(config.is_ok());
-        let config = config.unwrap();
         assert_eq!(
             config.get("bootstrap.servers").unwrap(),
             properties.datastream().get_brokers_string()
@@ -391,16 +497,14 @@ mod tests {
         );
         assert_eq!(config.get("client.id").unwrap(), properties.client_id());
         assert_eq!(config.get("enable.auto.commit").unwrap(), "false");
-        assert_eq!(config.get("enable.auto.offset.store").unwrap(), "false");
         assert_eq!(config.get("auto.offset.reset").unwrap(), "earliest");
     }
 
     #[test]
+    #[serial(env_depencency)]
     fn test_producer_rdkafka_config() {
         let properties = Properties::default();
         let config = properties.producer_rdkafka_config();
-        assert!(config.is_ok());
-        let config = config.unwrap();
         assert_eq!(
             config.get("bootstrap.servers").unwrap(),
             properties.datastream().get_brokers_string()
@@ -440,5 +544,100 @@ mod tests {
             properties.schema_registry_host(),
             "http://localhost:8081/apis/ccompat/v7"
         );
+    }
+
+    #[test]
+    #[serial(env_depencency)]
+    fn test_kafka_brokers() {
+        let properties = Properties::default();
+        assert_eq!(
+            properties.kafka_brokers(),
+            properties.datastream().get_brokers_string()
+        );
+        env::set_var("KAFKA_BOOTSTRAP_SERVERS", "test:9092");
+        assert_eq!(properties.kafka_brokers(), "test:9092");
+        env::remove_var("KAFKA_BOOTSTRAP_SERVERS");
+    }
+
+    #[test]
+    #[serial(env_depencency)]
+    fn test_kafka_group_id() {
+        let properties = Properties::default();
+        assert_eq!(
+            properties.kafka_group_id(),
+            properties
+                .datastream()
+                .get_group_id(datastream::GroupType::Shared(0))
+                .unwrap()
+        );
+        env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "private");
+        assert_eq!(
+            properties.kafka_group_id(),
+            properties
+                .datastream()
+                .get_group_id(datastream::GroupType::Private(0))
+                .unwrap()
+        );
+        env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "shared");
+        assert_eq!(
+            properties.kafka_group_id(),
+            properties
+                .datastream()
+                .get_group_id(datastream::GroupType::Shared(0))
+                .unwrap()
+        );
+        env::set_var("KAFKA_GROUP_ID", "test_group");
+        assert_eq!(
+            properties.kafka_group_id(),
+            format!("{}_test_group", properties.tenant_name())
+        );
+        env::set_var(
+            "KAFKA_GROUP_ID",
+            format!("{}_test_group", properties.tenant_name()),
+        );
+        assert_eq!(
+            properties.kafka_group_id(),
+            format!("{}_test_group", properties.tenant_name())
+        );
+        env::remove_var("KAFKA_CONSUMER_GROUP_TYPE");
+        assert_eq!(
+            properties.kafka_group_id(),
+            format!("{}_test_group", properties.tenant_name())
+        );
+        env::remove_var("KAFKA_GROUP_ID");
+    }
+
+    #[test]
+    #[serial(env_depencency)]
+    fn test_kafka_auto_commit() {
+        let properties = Properties::default();
+        assert_eq!(properties.kafka_auto_commit(), false);
+        env::set_var("KAFKA_ENABLE_AUTO_COMMIT", "false");
+        assert_eq!(properties.kafka_auto_commit(), false);
+        env::set_var("KAFKA_ENABLE_AUTO_COMMIT", "true");
+        assert_eq!(properties.kafka_auto_commit(), true);
+        env::set_var("KAFKA_ENABLE_AUTO_COMMIT", "X");
+        assert_eq!(properties.kafka_auto_commit(), false);
+        env::remove_var("KAFKA_ENABLE_AUTO_COMMIT");
+    }
+
+    #[test]
+    #[serial(env_depencency)]
+    fn test_kafka_auto_offset_reset() {
+        let properties = Properties::default();
+        assert_eq!(properties.kafka_auto_offset_reset(), "earliest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "smallest");
+        assert_eq!(properties.kafka_auto_offset_reset(), "smallest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "earliest");
+        assert_eq!(properties.kafka_auto_offset_reset(), "earliest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "beginning");
+        assert_eq!(properties.kafka_auto_offset_reset(), "beginning");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "largest");
+        assert_eq!(properties.kafka_auto_offset_reset(), "largest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "latest");
+        assert_eq!(properties.kafka_auto_offset_reset(), "latest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "end");
+        assert_eq!(properties.kafka_auto_offset_reset(), "end");
+        env::remove_var("KAFKA_AUTO_OFFSET_RESET");
     }
 }

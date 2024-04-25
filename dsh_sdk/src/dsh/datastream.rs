@@ -134,7 +134,7 @@ impl Datastream {
         let mut file = match file_result {
             Ok(file) => file,
             Err(e) => {
-                error!(
+                warn!(
                     "Error opening local_datastreams.json ({}): {}",
                     path_buf.display(),
                     e

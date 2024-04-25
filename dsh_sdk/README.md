@@ -42,7 +42,7 @@ use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 fn main() -> Result<(), Box<dyn std::error::Error>>{
     let dsh_properties = Properties::get();
     // get a rdkafka consumer config for example
-    let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
+    let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
 }
 ```
 
@@ -53,7 +53,6 @@ The following features are available in this library and can be enabled/disabled
 | **feature** | **default** | **Description** |
 |---|---|---|
 | `bootstrap` | &check; | Generate signed certificate and fetch datastreams info <br> Also makes certificates available, to be used as lowlevel API |
-| ~~`local`~~ | &check; | Will be deprecated in v0.4.0 |
 | `metrics` | &check; | Enable (custom) metrics for your service |
 | `graceful_shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
 | `dlq` | &cross; | Dead Letter Queue implementation (experimental) |
@@ -62,11 +61,43 @@ The following features are available in this library and can be enabled/disabled
 
 See api documentation for more information on how to use these features including.
 
+## Environment variables
+The default RDKafka config can be overwritten by setting the following environment variables:
+
+### `KAFKA_BOOTSTRAP_SERVERS`
+- Usage: Overwrite hostnames of brokers (useful for local testing)
+- Default: Brokers based on datastreams
+- Required: `false`
+
+### `KAFKA_CONSUMER_GROUP_TYPE`
+- Usage: Picks group_id based on type from datastreams
+- Default: Shared
+- Options: private, shared
+- Required: `false`
+
+### `KAFKA_GROUP_ID`
+- Usage: Custom group id
+- Default: NA
+- Required: `false`
+- Remark: Overrules `KAFKA_CONSUMER_GROUP_TYPE`. Mandatory to start with tenant name. (will prefix tenant name automatically if not set)
+
+### `KAFKA_ENABLE_AUTO_COMMIT`
+- Usage: Enable/Disable auto commit
+- Default: `false`
+- Required: `false`
+- Options: `true`, `false`
+
+### `KAFKA_AUTO_OFFSET_RESET`
+- Usage: Set the offset reset settings to start consuming from set option.
+- Default: earliest
+- Required: `false`
+- Options: smallest, earliest, beginning, largest, latest, end
+
 ## Api doc
 See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
 
 ### Local development
-You can start the [docker-compose](../docker/docker-compose.yml) file in the root of this project to start a local Kafka broker and Schema Registry.
+You can start the [docker-compose](../docker/docker-compose.yml) file to start a local Kafka broker and Schema Registry.
 
 When running the SDK on your local machine, it will automatically try to connect to the local Kafka broker and Schema Registry
 
@@ -75,7 +106,7 @@ When running the SDK on your local machine, it will automatically try to connect
 | Kafka | `localhost:9092` |
 | Schema Registry | `localhost:8081/apis/ccompat/v7` |
 
-If you want manipulate these endpoints, or want to use specific datastream info, you can add a [local_datastreams.json](local_datastreams.json) to your project root to overwrite the default values.
+If you want manipulate these endpoints, or want to use specific datastream info, you can add a [local_datastreams.json](local_datastreams.json) to your project root to overwrite the default values or set the environment variables accordingly.
 
 ### Note
 Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installed in your environment and/or Dockerfile where you are compiling.

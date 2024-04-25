@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let shutdown = Shutdown::new();
 
     // Get the consumer config from the Properties instance
-    let mut consumer_client_config = dsh_properties.consumer_rdkafka_config()?;
+    let mut consumer_client_config = dsh_properties.consumer_rdkafka_config();
 
     // Override some default values (optional)
     consumer_client_config.set("auto.offset.reset", "latest");
