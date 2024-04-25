@@ -139,7 +139,7 @@ impl Datastream {
                     path_buf.display(),
                     e
                 );
-                return Err(DshError::IoErrorFile(FILE_NAME, e));
+                return Err(DshError::IoError(e));
             }
         };
         let mut contents = String::new();

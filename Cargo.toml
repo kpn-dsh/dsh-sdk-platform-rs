@@ -16,7 +16,3 @@ homepage = "https://www.kpn.com/dsh"
 keywords = ["kpn", "dsh", "sdk"]
 license = "Apache-2.0"
 repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
-
-
-[profile.dev.package.num-bigint-dig]
-opt-level = 3

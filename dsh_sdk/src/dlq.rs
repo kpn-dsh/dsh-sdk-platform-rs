@@ -23,9 +23,6 @@
 //! ### Example:
 //! See the examples folder on github for a working example.
 
-#[cfg(not(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored")))]
-compile_error!("feature \"dlq\" requires feature \"rdkafka-ssl\" or \"rdkafka-ssl-vendored\"");
-
 use std::collections::HashMap;
 use std::env;
 use std::str::from_utf8;
@@ -135,7 +132,7 @@ pub struct Dlq {
     dlq_tx: mpsc::Sender<SendToDlq>,
     dlq_dead_topic: String,
     dlq_retry_topic: String,
-    shutdown: Option<Shutdown>,
+    shutdown: Shutdown,
 }
 
 impl Dlq {
@@ -159,7 +156,7 @@ impl Dlq {
             dlq_tx,
             dlq_dead_topic,
             dlq_retry_topic,
-            shutdown: Some(shutdown),
+            shutdown,
         })
     }
 
@@ -167,12 +164,9 @@ impl Dlq {
     /// This function will run until the shutdown channel is closed
     pub async fn run(&mut self) {
         info!("DLQ started");
-        #[cfg(feature = "graceful_shutdown")]
-        let shutdown = self.shutdown.as_ref().expect("Shutdown channel not set");
         loop {
-            #[cfg(feature = "graceful_shutdown")]
             tokio::select! {
-                _ = shutdown.recv() => {
+                _ = self.shutdown.recv() => {
                     warn!("DLQ shutdown");
                     return;
                 },
@@ -182,13 +176,6 @@ impl Dlq {
                         Err(e) => error!("Error sending message to DLQ: {}", e),
                     };
                 }
-            }
-            #[cfg(not(feature = "graceful_shutdown"))]
-            if let Some(mut dlq_message) = self.dlq_rx.recv().await {
-                match self.send(&mut dlq_message).await {
-                    Ok(_) => {}
-                    Err(e) => error!("Error sending message to DLQ: {}", e),
-                };
             }
         }
     }
@@ -480,7 +467,7 @@ mod tests {
             dlq_tx: mpsc::channel(200).0,
             dlq_dead_topic: "dead_topic".to_string(),
             dlq_retry_topic: "retry_topic".to_string(),
-            shutdown: None,
+            shutdown: Shutdown::new(),
         };
         let error = MockError::MockErrorRetryable("some_error".to_string());
         let topic = dlq.dlq_topic(error.retryable());
