@@ -14,10 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add Default implementation for Dsh::Properties
   - Points to localhost:9092 for kafka, localhost:8081 for schemastore
-  - local_datastreams.json is now optional
+  - local_datastreams.json is now optional as it falssback to default values
+- Overwrite Kafka config via environment variables for producer and consumer
 - Add extra check in github actions to check for compile issues for all features independently
 
 ### Changed
+- **Breaking change:** consumer_rdkafka_config and producer_rdkafka_config returns `ClientConfig` instead of `Result<ClientConfig>`
+- **Breaking change:** certificates and keys are now returned as `T` instead of `Result<T>` 
 - **Breaking change:** Private key is based on ECDSA instead of RSA 
 - **Breaking change:** Error enum is now non_exhaustive
 
