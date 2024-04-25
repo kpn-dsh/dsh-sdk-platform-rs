@@ -1,7 +1,5 @@
 use thiserror::Error;
 
-use crate::dsh::datastream::ReadWriteAccess;
-
 #[derive(Error, Debug)]
 #[non_exhaustive]
 pub enum DshError {
@@ -11,7 +9,7 @@ pub enum DshError {
     EnvVarError(#[from] std::env::VarError),
     #[error("Convert bytes to utf8 error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
-    
+
     #[cfg(feature = "bootstrap")]
     #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]
     DshCallError {
@@ -42,7 +40,7 @@ pub enum DshError {
     NotFoundTopicError(String),
     #[cfg(feature = "bootstrap")]
     #[error("Error in topic permissions: {0} does not have {1:?} permissions.")]
-    TopicPermissionsError(String, ReadWriteAccess),
+    TopicPermissionsError(String, crate::dsh::datastream::ReadWriteAccess),
 
     #[cfg(feature = "metrics")]
     #[error("Prometheus error: {0}")]
