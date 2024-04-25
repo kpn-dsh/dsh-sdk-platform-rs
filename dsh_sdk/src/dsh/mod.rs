@@ -454,7 +454,6 @@ mod tests {
     use super::*;
     use serial_test::serial;
 
-
     #[test]
     #[serial(env_depencency)]
     fn test_get_configured_topics() {
@@ -640,5 +639,5 @@ mod tests {
         env::set_var("KAFKA_AUTO_OFFSET_RESET", "end");
         assert_eq!(properties.kafka_auto_offset_reset(), "end");
         env::remove_var("KAFKA_AUTO_OFFSET_RESET");
-    }    
+    }
 }
