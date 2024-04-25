@@ -50,6 +50,10 @@ jobs:
         run: cargo install cargo-audit
       - name: audit check
         run: cargo audit
+      - name: install cargo-hack
+        run: cargo install cargo-hack --locked
+      - name: cargo check all features
+        run: cargo hack check --feature-powerset --no-dev-deps
   coverage:
     runs-on: ubuntu-latest
     name: ubuntu / stable / coverage
