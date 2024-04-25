@@ -26,12 +26,8 @@ pub enum DshError {
     #[cfg(feature = "bootstrap")]
     #[error("Serde_json error: {0}")]
     JsonError(#[from] serde_json::Error),
-    #[cfg(feature = "bootstrap")]
-    #[error("Error generating private key: {0}")]
-    PrivateKeyError(#[from] picky::key::KeyError),
-    #[cfg(feature = "bootstrap")]
-    #[error("Error with Certificate Sign Request: {0}")]
-    CsrError(#[from] picky::x509::csr::CsrError),
+    #[error("Rcgen error: {0}")]
+    PrivateKeyError(#[from] rcgen::Error),
     #[error("Error parsing Distinguished Name: {0}")]
     ParseDnError(String),
     #[cfg(feature = "bootstrap")]

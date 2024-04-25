@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed vulnerability RUSTSEC-2023-0071 by replacing Picky with RCGen
+
 ### Added
 - Add Default implementation for Dsh::Properties
   - Points to localhost:9092 for kafka, localhost:8081 for schemastore
   - local_datastreams.json is now optional
 
+### Changed
+- **Breaking change:** Private key is based on ECDSA instead of RSA 
+
+### Removed
+- Removed return of Picky key struct is removed
 
 ## [0.3.1] - 2024-03-25
   

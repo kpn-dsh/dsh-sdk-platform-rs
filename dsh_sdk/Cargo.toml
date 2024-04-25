@@ -22,7 +22,7 @@ hyper-util = { version = "0.1", features = ["tokio"], optional = true }
 lazy_static = { version = "1.4", optional = true }
 log = "0.4"
 prometheus = { version = "0.13", features = ["process"], optional = true }
-picky = { version = "7.0.0-rc.8", default-features = false, features = ["x509"], optional = true }
+rcgen = { version = "0.13", optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "blocking"], optional = true }
 rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
@@ -34,7 +34,7 @@ tokio-util = { version = "0.7", optional = true }
 [features]
 default = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl"]
 full = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl", "dlq"]
-bootstrap = ["picky", "serde_json", "reqwest"]
+bootstrap = ["rcgen", "serde_json", "reqwest"]
 local = ["bootstrap"]
 metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes", ]
 dlq = ["tokio", "bootstrap"]
@@ -44,5 +44,6 @@ rdkafka-ssl = ["rdkafka", "rdkafka/ssl"]
 
 [dev-dependencies]
 mockito = "1.1.1"
+openssl = "0.10"
 tokio = "^1.35"
 hyper = { version = "1.2.0", features = ["full"]}
