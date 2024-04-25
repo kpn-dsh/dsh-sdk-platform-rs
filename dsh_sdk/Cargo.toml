@@ -32,10 +32,9 @@ tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], op
 tokio-util = { version = "0.7", optional = true }
 
 [features]
-default = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl"]
-full = ["bootstrap", "graceful_shutdown", "local", "metrics", "rdkafka-ssl", "dlq"]
+default = ["bootstrap", "graceful_shutdown", "metrics", "rdkafka-ssl"]
+full = ["bootstrap", "graceful_shutdown", "metrics", "rdkafka-ssl", "dlq"]
 bootstrap = ["rcgen", "serde_json", "reqwest"]
-local = ["bootstrap"]
 metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes", ]
 dlq = ["tokio", "bootstrap"]
 graceful_shutdown = ["tokio", "tokio-util"]
