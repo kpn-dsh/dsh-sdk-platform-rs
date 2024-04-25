@@ -38,7 +38,7 @@ bootstrap = ["rcgen", "serde_json", "reqwest"]
 metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes", ]
 dlq = ["tokio", "bootstrap", "rdkafka-ssl"]
 graceful_shutdown = ["tokio", "tokio-util"]
-rdkafka-ssl-vendored = ["rdkafka", "rdkafka/ssl-vendored"]
+rdkafka-ssl-vendored = ["rdkafka", "rdkafka/ssl-vendored", "graceful_shutdown"]
 rdkafka-ssl = ["rdkafka", "rdkafka/ssl"]
 
 [dev-dependencies]
