@@ -10,6 +10,7 @@ The [example_dsh_service](example_dsh_service) is a simple example of a service 
 
 ## Docker
 The [docker](docker) directory contains a docker-compose file that can be used for local development. The docker-compose file starts a Kafka cluster, a Zookeeper instance and a schema registry.
+
 ---
 
 ### Changelog
