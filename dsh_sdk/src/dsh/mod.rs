@@ -259,10 +259,10 @@ impl Properties {
     /// | ssl.certificate.pem | dsh kafka certificate          | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated) |
     /// | ssl.ca.pem          | CA certifacte                  | CA certificate, provided by DSH.                                                        |
     /// | log_level           | Info                           | Log level of rdkafka                                                                    |
-    /// 
+    ///
     /// # Environment variables
     /// To manipulate the configuration during runtume, you can set the following environment variables.
-    /// 
+    ///
     /// ### `KAFKA_BOOTSTRAP_SERVERS`
     /// - Usage: Overwrite hostnames of brokers (useful for local testing)
     /// - Default: Brokers based on datastreams
@@ -388,7 +388,7 @@ impl Properties {
         } else {
             self.datastream()
                 .get_group_id(datastream::GroupType::from_env())
-                .unwrap_or(&format!("{}_SDK_CONSUMER", self.tenant_name()))
+                .unwrap_or(&format!("{}_CONSUMER", self.tenant_name()))
                 .to_string()
         }
     }
@@ -452,8 +452,11 @@ impl Default for Properties {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
+
 
     #[test]
+    #[serial(env_depencency)]
     fn test_get_configured_topics() {
         std::env::set_var("TOPICS", "topic1, topic2, topic3");
 
@@ -478,6 +481,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_depencency)]
     fn test_consumer_rdkafka_config() {
         let properties = Properties::default();
         let config = properties.consumer_rdkafka_config();
@@ -498,6 +502,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_depencency)]
     fn test_producer_rdkafka_config() {
         let properties = Properties::default();
         let config = properties.producer_rdkafka_config();
@@ -541,4 +546,99 @@ mod tests {
             "http://localhost:8081/apis/ccompat/v7"
         );
     }
+
+    #[test]
+    #[serial(env_depencency)]
+    fn test_kafka_brokers() {
+        let properties = Properties::default();
+        assert_eq!(
+            properties.kafka_brokers(),
+            properties.datastream().get_brokers_string()
+        );
+        env::set_var("KAFKA_BOOTSTRAP_SERVERS", "test:9092");
+        assert_eq!(properties.kafka_brokers(), "test:9092");
+        env::remove_var("KAFKA_BOOTSTRAP_SERVERS");
+    }
+
+    #[test]
+    #[serial(env_depencency)]
+    fn test_kafka_group_id() {
+        let properties = Properties::default();
+        assert_eq!(
+            properties.kafka_group_id(),
+            properties
+                .datastream()
+                .get_group_id(datastream::GroupType::Shared(0))
+                .unwrap()
+        );
+        env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "private");
+        assert_eq!(
+            properties.kafka_group_id(),
+            properties
+                .datastream()
+                .get_group_id(datastream::GroupType::Private(0))
+                .unwrap()
+        );
+        env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "shared");
+        assert_eq!(
+            properties.kafka_group_id(),
+            properties
+                .datastream()
+                .get_group_id(datastream::GroupType::Shared(0))
+                .unwrap()
+        );
+        env::set_var("KAFKA_GROUP_ID", "test_group");
+        assert_eq!(
+            properties.kafka_group_id(),
+            format!("{}_test_group", properties.tenant_name())
+        );
+        env::set_var(
+            "KAFKA_GROUP_ID",
+            format!("{}_test_group", properties.tenant_name()),
+        );
+        assert_eq!(
+            properties.kafka_group_id(),
+            format!("{}_test_group", properties.tenant_name())
+        );
+        env::remove_var("KAFKA_CONSUMER_GROUP_TYPE");
+        assert_eq!(
+            properties.kafka_group_id(),
+            format!("{}_test_group", properties.tenant_name())
+        );
+        env::remove_var("KAFKA_GROUP_ID");
+    }
+
+    #[test]
+    #[serial(env_depencency)]
+    fn test_kafka_auto_commit() {
+        let properties = Properties::default();
+        assert_eq!(properties.kafka_auto_commit(), false);
+        env::set_var("KAFKA_ENABLE_AUTO_COMMIT", "false");
+        assert_eq!(properties.kafka_auto_commit(), false);
+        env::set_var("KAFKA_ENABLE_AUTO_COMMIT", "true");
+        assert_eq!(properties.kafka_auto_commit(), true);
+        env::set_var("KAFKA_ENABLE_AUTO_COMMIT", "X");
+        assert_eq!(properties.kafka_auto_commit(), false);
+        env::remove_var("KAFKA_ENABLE_AUTO_COMMIT");
+    }
+
+    #[test]
+    #[serial(env_depencency)]
+    fn test_kafka_auto_offset_reset() {
+        let properties = Properties::default();
+        assert_eq!(properties.kafka_auto_offset_reset(), "earliest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "smallest");
+        assert_eq!(properties.kafka_auto_offset_reset(), "smallest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "earliest");
+        assert_eq!(properties.kafka_auto_offset_reset(), "earliest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "beginning");
+        assert_eq!(properties.kafka_auto_offset_reset(), "beginning");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "largest");
+        assert_eq!(properties.kafka_auto_offset_reset(), "largest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "latest");
+        assert_eq!(properties.kafka_auto_offset_reset(), "latest");
+        env::set_var("KAFKA_AUTO_OFFSET_RESET", "end");
+        assert_eq!(properties.kafka_auto_offset_reset(), "end");
+        env::remove_var("KAFKA_AUTO_OFFSET_RESET");
+    }    
 }
