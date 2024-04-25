@@ -18,7 +18,7 @@
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
 //! let dsh_properties = Properties::get();
-//! let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
+//! let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
 //! # Ok(())
 //! # }
 //! ```

@@ -76,7 +76,7 @@ impl Cert {
     pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
         let pem_identity = Cert::create_identity(
             self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem()?.as_bytes(),
+            self.private_key_pem().as_bytes(),
         )?;
         let reqwest_cert =
             reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
@@ -91,7 +91,7 @@ impl Cert {
     pub fn reqwest_blocking_client_config(&self) -> Result<ClientBuilder, DshError> {
         let pem_identity = Cert::create_identity(
             self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem()?.as_bytes(),
+            self.private_key_pem().as_bytes(),
         )?;
         let reqwest_cert =
             reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
@@ -112,23 +112,23 @@ impl Cert {
     }
 
     /// Get the private key as PKCS8 and return bytes based on asn1 DER format.
-    pub fn private_key_pkcs8(&self) -> Result<Vec<u8>, DshError> {
-        Ok(self.key_pair.serialize_der())
+    pub fn private_key_pkcs8(&self) -> Vec<u8> {
+        self.key_pair.serialize_der()
     }
 
     /// Get the private key as PEM string. Equivalent to client.key.
-    pub fn private_key_pem(&self) -> Result<String, DshError> {
-        Ok(self.key_pair.serialize_pem())
+    pub fn private_key_pem(&self) -> String {
+        self.key_pair.serialize_pem()
     }
 
     /// Get the public key as PEM string.
-    pub fn public_key_pem(&self) -> Result<String, DshError> {
-        Ok(self.key_pair.public_key_pem())
+    pub fn public_key_pem(&self) -> String {
+        self.key_pair.public_key_pem()
     }
 
     /// Get the public key as DER bytes.
-    pub fn public_key_der(&self) -> Result<Vec<u8>, DshError> {
-        Ok(self.key_pair.public_key_der())
+    pub fn public_key_der(&self) -> Vec<u8> {
+        self.key_pair.public_key_der()
     }
 
     /// Create the ca.crt, client.pem, and client.key files in a desired directory.
@@ -152,7 +152,7 @@ impl Cert {
         std::fs::create_dir_all(dir)?;
         Self::create_file(dir.join("ca.crt"), self.dsh_ca_certificate_pem())?;
         Self::create_file(dir.join("client.pem"), self.dsh_kafka_certificate_pem())?;
-        Self::create_file(dir.join("client.key"), self.private_key_pem()?)?;
+        Self::create_file(dir.join("client.key"), self.private_key_pem())?;
         Ok(())
     }
 
@@ -212,7 +212,7 @@ mod tests {
         let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
         let pkey_pem_bytes = pkey.private_key_to_pem_pkcs8().unwrap();
 
-        let key_pem = cert.private_key_pem().unwrap();
+        let key_pem = cert.private_key_pem();
         let pkey_pem = String::from_utf8_lossy(pkey_pem_bytes.as_slice());
         assert_eq!(key_pem, pkey_pem);
     }
@@ -224,7 +224,7 @@ mod tests {
         let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
         let pkey_pub_pem_bytes = pkey.public_key_to_pem().unwrap();
 
-        let pub_pem = cert.public_key_pem().unwrap();
+        let pub_pem = cert.public_key_pem();
         let pkey_pub_pem = String::from_utf8_lossy(pkey_pub_pem_bytes.as_slice());
         assert_eq!(pub_pem, pkey_pub_pem);
     }
@@ -236,7 +236,7 @@ mod tests {
         let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
         let pkey_pub_der = pkey.public_key_to_der().unwrap();
 
-        let pub_der = cert.public_key_der().unwrap();
+        let pub_der = cert.public_key_der();
         assert_eq!(pub_der, pkey_pub_der);
     }
 
@@ -247,7 +247,7 @@ mod tests {
         let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
         let pkey = pkey.private_key_to_pkcs8().unwrap();
 
-        let key = cert.private_key_pkcs8().unwrap();
+        let key = cert.private_key_pkcs8();
         assert_eq!(key, pkey);
     }
 
@@ -292,7 +292,7 @@ mod tests {
         let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
         let csr = Cert::generate_csr(&cert.key_pair, dn).unwrap();
         let csr_pem = csr.pem().unwrap();
-        let key = cert.private_key_pkcs8().unwrap();
+        let key = cert.private_key_pkcs8();
         let pkey = PKey::private_key_from_der(&key).unwrap();
 
         let req = X509Req::from_pem(csr_pem.as_bytes()).unwrap();
