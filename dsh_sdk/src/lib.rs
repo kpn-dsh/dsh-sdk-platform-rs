@@ -45,9 +45,9 @@
 //!
 //! # Metrics
 //! The metrics module provides a way to expose prometheus metrics. This module is a re-export of the `prometheus` crate. It also contains a function to start a http server to expose the metrics to DSH.
-//! 
+//!
 //! See [metrics](metrics/index.html) for more information.
-//! 
+//!
 //! # Graceful shutdown
 //! To implement a graceful shutdown in your service, you can use the `Shutdown` struct. This struct has an implementation based on the best practices example of Tokio.
 //!
@@ -62,7 +62,7 @@
 //! This is an experimental feature and is not yet finalized.
 //!
 //! This implementation only includes pushing messages towards a kafka topic. (Dead or Retry topic)
-//! 
+//!
 //! ### NOTE:
 //! This implementation does not (and will not) handle any other DLQ related tasks like:
 //!     - Retrying messages

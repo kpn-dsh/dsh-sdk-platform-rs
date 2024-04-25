@@ -313,7 +313,7 @@ impl Properties {
     }
 
     /// Get the certificates and private key. Returns an error when running on local machine.
-    /// 
+    ///
     /// # Example
     /// ```no_run
     /// # use dsh_sdk::Properties;

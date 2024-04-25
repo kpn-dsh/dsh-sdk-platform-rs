@@ -1,7 +1,7 @@
-use dsh_sdk::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 use dsh_sdk::rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::message::{BorrowedMessage, Message};
+use dsh_sdk::Properties;
 
 use log::{error, info};
 
