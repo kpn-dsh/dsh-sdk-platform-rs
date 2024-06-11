@@ -1,5 +1,5 @@
 # Dsh-sdk-platform-rs
-This repository contains the Rust SDK for the Data Sharing Hub (DSH) platform. 
+This repository contains the Rust SDK for the Data Sharing Hub (DSH) platform and some related utility crates.
 
 ## Dsh_sdk
 The [dsh_sdk](dsh_sdk) is a Rust library that provides a simple interface to interact with the DSH platform. The SDK is used to create and manage data streams, and to send data to the DSH platform.
@@ -14,7 +14,7 @@ The [docker](docker) directory contains a docker-compose file that can be used f
 ---
 
 ### Changelog
-See [CHANGELOG.md](CHANGELOG.md) for all changes per version.
+See DSH_SDK [CHANGELOG.md](dsh_sdk/CHANGELOG.md) for all changes per version for SDK.
 
 ### Contributing
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more information on how to contribute to this project.

@@ -93,6 +93,11 @@ The default RDKafka config can be overwritten by setting the following environme
 - Required: `false`
 - Options: smallest, earliest, beginning, largest, latest, end
 
+### `SCHEMA_REGISTRY_HOST`
+- Usage: Overwrite Schema Registry host
+- Default: Schema Registry based on datastreams
+- Required: `false`
+
 ## Api doc
 See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
 
@@ -116,10 +121,10 @@ See dockerfile in [example_dsh_service](../example_dsh_service/Dockerfile) for a
 See folder [dsh_sdk/examples](/examples/) for simple examples on how to use the SDK.
 
 ### Full service example
-See folder [example_dsh_service](../example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](/example_dsh_service/README.md) for more information.
+See folder [example_dsh_service](../example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](../example_dsh_service/README.md) for more information.
 
 ## Changelog
-See [CHANGELOG.md](../CHANGELOG.md) for all changes per version.
+See [CHANGELOG.md](CHANGELOG.md) for all changes per version.
 
 ## Contributing
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for more information on how to contribute to this project.
