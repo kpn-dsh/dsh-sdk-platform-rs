@@ -1,5 +1,20 @@
-//! This module contains the structs for the datastreams.json file.
-//! This file contains all information about the kafka topics and consumer groups.
+//! Module to handle the datastreams.json file.
+//! 
+//! The datastreams.json can be parsed into a Datastream struct using serde_json.
+//! This struct contains all the information from the datastreams.json file.
+//! 
+//! You can get the Datastream struct via the 'Properties' struct.
+//! 
+//! # Example
+//! ```
+//! use dsh_sdk::Properties;
+//! 
+//! let properties = Properties::get();
+//! let datastream = properties.datastream();
+//! 
+//! let brokers = datastream.get_brokers();
+//! let schema_store = datastream.schema_store();
+//! ```
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
@@ -16,7 +31,18 @@ use crate::error::DshError;
 const FILE_NAME: &str = "local_datastreams.json";
 
 /// This struct is equivalent to the datastreams.json
-/// It is possible to deserialize the json into this struct using serde_json.
+/// 
+/// # Example
+/// ```
+/// use dsh_sdk::Properties;
+/// 
+/// let properties = Properties::get();
+/// let datastream = properties.datastream();
+/// 
+/// let brokers = datastream.get_brokers();
+/// let streams = datastream.streams();
+/// let schema_store = datastream.schema_store();
+/// ```
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Datastream {
     brokers: Vec<String>,
@@ -108,7 +134,14 @@ impl Datastream {
         Ok(())
     }
 
-    /// Get schema_store from datastreams info.
+    /// Get schema store url from datastreams.
+    /// 
+    /// ## How to connect to schema registry
+    /// Use the Reqwest client from `Cert` to connect to the schema registry.
+    /// As this client is already configured with the correct certificates.
+    /// 
+    /// You can use [schema_registry_converter](https://crates.io/crates/schema_registry_converter) 
+    /// to fetch the schema and decode your payload.
     pub fn schema_store(&self) -> &str {
         &self.schema_store
     }
@@ -119,7 +152,7 @@ impl Datastream {
     /// ```no_run
     /// # use dsh_sdk::dsh::datastream::Datastream;
     /// # let datastream = Datastream::default();
-    /// let path = std::path::PathBuf::from("/home/user");
+    /// let path = std::path::PathBuf::from("/path/to/directory");
     /// datastream.to_file(&path).unwrap();
     /// ```
     pub fn to_file(&self, path: &std::path::Path) -> Result<(), DshError> {
@@ -146,7 +179,10 @@ impl Datastream {
         };
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
-        let datastream: Datastream = serde_json::from_str(&contents)?;
+        let mut datastream: Datastream = serde_json::from_str(&contents)?;
+        if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
+            datastream.brokers = brokers.split(',').map(|s| s.to_string()).collect();
+        }
         Ok(datastream)
     }
 }

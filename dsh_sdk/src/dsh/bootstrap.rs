@@ -7,12 +7,7 @@
 //! ## Note
 //! This module is not intended to be used directly, but through the `Properties` struct. It will
 //! always be used when getting a `Properties` struct via dsh::Properties::get().
-//!
-//! If this module returns an error, it defaults to the local_datastreams.json file or the
-//! default properties. This means it can be used in you local development environment without
-//! the need to connect to DSH.
-
-use log::{info, warn};
+use log::{debug, warn};
 use reqwest::blocking::Client;
 
 use crate::error::DshError;
@@ -26,11 +21,11 @@ use super::{
 pub(crate) fn bootstrap(tenant_name: &str, task_id: &str) -> Result<(Cert, Datastream), DshError> {
     let dsh_config = DshConfig::new(tenant_name, task_id)?;
     let client = reqwest_ca_client(dsh_config.dsh_ca_certificate.as_bytes())?;
-    let dn = DshCall::Dn(&dsh_config).perform_call(&client)?;
+    let dn = DshBootstapCall::Dn(&dsh_config).perform_call(&client)?;
     let dn = Dn::parse_string(&dn)?;
-    let certificates = Cert::bootstrap(dn, &dsh_config, &client)?;
+    let certificates = Cert::get_signed_client_cert(dn, &dsh_config, &client)?;
     let client_with_cert = certificates.reqwest_blocking_client_config()?.build()?;
-    let datastreams_string = DshCall::Datastream(&dsh_config).perform_call(&client_with_cert)?;
+    let datastreams_string = DshBootstapCall::Datastream(&dsh_config).perform_call(&client_with_cert)?;
     let datastream: Datastream = serde_json::from_str(&datastreams_string)?;
     Ok((certificates, datastream))
 }
@@ -44,6 +39,7 @@ fn reqwest_ca_client(dsh_ca_certificate: &[u8]) -> Result<Client, reqwest::Error
     Ok(client)
 }
 
+/// Helper struct to store the config needed for bootstrapping to DSH
 #[derive(Debug)]
 pub(crate) struct DshConfig<'a> {
     config_host: String,
@@ -52,8 +48,6 @@ pub(crate) struct DshConfig<'a> {
     dsh_secret_token: String,
     dsh_ca_certificate: String,
 }
-
-/// Helper struct to store the config needed for bootstrapping to DSH
 impl<'a> DshConfig<'a> {
     fn new(tenant_name: &'a str, task_id: &'a str) -> Result<Self, DshError> {
         let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST)
@@ -70,7 +64,7 @@ impl<'a> DshConfig<'a> {
             Ok(token) => token,
             Err(_) => {
                 // if DSH_SECRET_TOKEN is not set, try to read it from a file (for system space applications)
-                info!("trying to read DSH_SECRET_TOKEN from file");
+                debug!("trying to read DSH_SECRET_TOKEN from file");
                 let secret_token_path = utils::get_env_var(VAR_DSH_SECRET_TOKEN_PATH)?;
                 let path = std::path::PathBuf::from(secret_token_path);
                 std::fs::read_to_string(path)?
@@ -91,7 +85,7 @@ impl<'a> DshConfig<'a> {
     }
 }
 
-pub(crate) enum DshCall<'a> {
+pub(crate) enum DshBootstapCall<'a> {
     /// Call to retreive distinguished name.
     Dn(&'a DshConfig<'a>),
     /// Call to retreive datastreams.json.
@@ -103,22 +97,22 @@ pub(crate) enum DshCall<'a> {
     },
 }
 
-impl DshCall<'_> {
+impl DshBootstapCall<'_> {
     fn url_for_call(&self) -> String {
         match self {
-            DshCall::Dn(config) => {
+            DshBootstapCall::Dn(config) => {
                 format!(
                     "{}/dn/{}/{}",
                     config.config_host, config.tenant_name, config.task_id
                 )
             }
-            DshCall::Datastream(config) => {
+            DshBootstapCall::Datastream(config) => {
                 format!(
                     "{}/kafka/config/{}/{}",
                     config.config_host, config.tenant_name, config.task_id
                 )
             }
-            DshCall::CertificateSignRequest { config, .. } => {
+            DshBootstapCall::CertificateSignRequest { config, .. } => {
                 format!(
                     "{}/sign/{}/{}",
                     config.config_host, config.tenant_name, config.task_id
@@ -127,10 +121,11 @@ impl DshCall<'_> {
         }
     }
 
-    fn request_builder(&self, url: &str, client: &Client) -> reqwest::blocking::RequestBuilder {
+    fn request_builder(&self, client: &Client) -> reqwest::blocking::RequestBuilder {
+        let url = self.url_for_call();
         match self {
-            DshCall::Dn(..) | DshCall::Datastream(..) => client.get(url),
-            DshCall::CertificateSignRequest { config, csr, .. } => client
+            DshBootstapCall::Dn(..) | DshBootstapCall::Datastream(..) => client.get(url),
+            DshBootstapCall::CertificateSignRequest { config, csr, .. } => client
                 .post(url)
                 .header("X-Kafka-Config-Token", &config.dsh_secret_token)
                 .body(csr.to_string()),
@@ -138,13 +133,12 @@ impl DshCall<'_> {
     }
 
     pub(crate) fn perform_call(&self, client: &Client) -> Result<String, DshError> {
-        let url = self.url_for_call();
-        let response = self.request_builder(&url, client).send()?;
+        let response = self.request_builder(client).send()?;
         if !response.status().is_success() {
             return Err(DshError::DshCallError {
-                url,
+                url: self.url_for_call(),
                 status_code: response.status(),
-                error_body: response.text()?,
+                error_body: response.text().unwrap_or_default(),
             });
         }
         Ok(response.text()?)
@@ -221,19 +215,19 @@ mod tests {
             dsh_ca_certificate: "test_ca_certificate".to_string(),
         };
         let builder: reqwest::blocking::RequestBuilder =
-            DshCall::Dn(&dsh_config).request_builder("https://test_host", &Client::new());
+            DshBootstapCall::Dn(&dsh_config).request_builder(&Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
         let builder: reqwest::blocking::RequestBuilder =
-            DshCall::Datastream(&dsh_config).request_builder("https://test_host", &Client::new());
+            DshBootstapCall::Datastream(&dsh_config).request_builder(&Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
         let csr = "-----BEGIN test_type-----\n-----END test_type-----";
-        let builder: reqwest::blocking::RequestBuilder = DshCall::CertificateSignRequest {
+        let builder: reqwest::blocking::RequestBuilder = DshBootstapCall::CertificateSignRequest {
             config: &dsh_config,
             csr,
         }
-        .request_builder("https://test_host", &Client::new());
+        .request_builder( &Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "POST");
         assert_eq!(
@@ -270,7 +264,7 @@ mod tests {
             dsh_ca_certificate: "test_ca_certificate".to_string(),
         };
         // call the function
-        let response = DshCall::Dn(&dsh_config).perform_call(&client).unwrap();
+        let response = DshBootstapCall::Dn(&dsh_config).perform_call(&client).unwrap();
         assert_eq!(response, dn);
     }
 

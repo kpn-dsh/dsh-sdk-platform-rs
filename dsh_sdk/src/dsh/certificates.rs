@@ -23,30 +23,21 @@
 //! ```
 //!
 //! ## Reqwest Client
-//!
 //! With this request client we can retrieve datastreams.json and connect to Schema Registry.
-
 use std::sync::Arc;
 
 use log::info;
-//use picky::hash::HashAlgorithm;
-//use picky::key::PrivateKey;
-//use picky::signature::SignatureAlgorithm;
-//use picky::x509::csr::Csr;
-//use picky::x509::name::{DirectoryName, NameAttr};
 use reqwest::blocking::{Client, ClientBuilder};
 use reqwest::Identity;
 use std::path::PathBuf;
 
-use super::bootstrap::{Dn, DshCall, DshConfig};
+use super::bootstrap::{Dn, DshBootstapCall, DshConfig};
 
 use crate::error::DshError;
 
 use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
 
-/// Hold all relevant certificates and keys to connect to DSH.
-///
-///
+/// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
 #[derive(Debug, Clone)]
 pub struct Cert {
     dsh_ca_certificate_pem: String,
@@ -67,15 +58,15 @@ impl Cert {
             key_pair: Arc::new(key_pair),
         }
     }
-    ///
-    pub(crate) fn bootstrap(
+    /// Generate private key and call for a signed certificate to DSH.
+    pub(crate) fn get_signed_client_cert(
         dn: Dn,
         dsh_config: &DshConfig,
         client: &Client,
     ) -> Result<Self, DshError> {
         let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
         let csr = Self::generate_csr(&key_pair, dn)?;
-        let client_certificate = DshCall::CertificateSignRequest {
+        let client_certificate = DshBootstapCall::CertificateSignRequest {
             config: dsh_config,
             csr: &csr.pem()?,
         }
