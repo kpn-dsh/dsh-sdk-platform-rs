@@ -28,8 +28,7 @@ pub(crate) fn tenant_name() -> Result<String, DshError> {
             None => {
                 warn!(
                     "{} did not parse succesfully, using \"{}\" as tenant name",
-                    VAR_APP_ID,
-                    app_id
+                    VAR_APP_ID, app_id
                 );
                 Ok(app_id)
             }

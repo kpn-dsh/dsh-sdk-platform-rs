@@ -21,14 +21,14 @@
 //! # Ok(())
 //! # }
 //! ```
-use log::{debug, info, warn, error};
+use log::{debug, error, info, warn};
 use std::env;
 use std::sync::OnceLock;
 
 use super::bootstrap::bootstrap;
 use super::{
-    certificates, datastream, pki_config_dir, utils, VAR_KAFKA_AUTO_OFFSET_RESET,
-    VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_ENABLE_AUTO_COMMIT, VAR_KAFKA_GROUP_ID, VAR_TASK_ID,VAR_APP_ID, VAR_DSH_TENANT_NAME
+    certificates, datastream, pki_config_dir, utils, VAR_APP_ID, VAR_DSH_TENANT_NAME,
+    VAR_KAFKA_AUTO_OFFSET_RESET, VAR_KAFKA_ENABLE_AUTO_COMMIT, VAR_KAFKA_GROUP_ID, VAR_TASK_ID,
 };
 use crate::error::DshError;
 
@@ -64,7 +64,7 @@ pub struct Properties {
 }
 
 impl Properties {
-    ///
+    /// New `Properties` struct
     pub(crate) fn new(
         task_id: String,
         tenant_name: String,
@@ -101,10 +101,10 @@ impl Properties {
     /// ```
     ///
     /// # How to run
-    /// The SDK is compatible with running in a container on a DSH tenant, on DSH System Space, on a machine with Kafka 
+    /// The SDK is compatible with running in a container on a DSH tenant, on DSH System Space, on a machine with Kafka
     /// Proxy/VPN or on a local machine to a local Kafka(for development purposes).
     ///
-    /// ## DSH 
+    /// ## DSH
     /// The following environment variables are required to run on DSH, and are set by DSH automatically:
     /// - `MESOS_TASK_ID` - The task id of the running container
     /// - `MARATHON_APP_ID` - Includes the tenant name of the running container
@@ -113,16 +113,16 @@ impl Properties {
     ///
     /// ### System Space
     /// - `DSH_SECRET_TOKEN_PATH` - The path to the secret token file.
-    /// 
+    ///
     /// ## Kafka Proxy/VPN
     /// When running on a machine with Kafka Proxy/VPN, the following environment variables are required:
     /// - 'PKI_CONFIG_DIR' - The path to the directory containing the certificates and private key
     /// - `DSH_TENANT_NAME` - The tenant name of which you want to connect to
     /// - 'KAFKA_BOOTSTRAP_SERVERS' - The hostnames of the Kafka brokers
-    /// 
+    ///
     /// ### Note!
     /// Currently only PEM formatted certificates and keys are supported.
-    /// 
+    ///
     /// ## Local
     /// When no environment variables are set, it will default to a local configuration.
     /// - Kafka will be set to `localhost:9092` and uses plaintext instead of SSL
@@ -138,7 +138,7 @@ impl Properties {
 
     /// Initialize the properties and bootstrap to DSH
     fn init() -> Self {
-        let tenant_name = match  utils::tenant_name() {
+        let tenant_name = match utils::tenant_name() {
             Ok(tenant_name) => tenant_name,
             Err(_) => {
                 error!("{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster!. Please set one of these environment variables.", VAR_APP_ID, VAR_DSH_TENANT_NAME);
@@ -168,12 +168,7 @@ impl Properties {
                 }
             }
         };
-        Self::new(
-            task_id,
-            tenant_name,
-            datastream,
-            certificates,
-        )
+        Self::new(task_id, tenant_name, datastream, certificates)
     }
 
     /// Get default RDKafka Consumer config to connect to Kafka on DSH.
@@ -185,7 +180,7 @@ impl Properties {
     /// There are 2 types of group id's in DSH: private and shared. Private will have a unique group id per running instance.
     /// Shared will have the same group id for all running instances. With this you can horizontally scale your service.
     /// The group type can be manipulated by environment variable KAFKA_CONSUMER_GROUP_TYPE.
-    /// If not set, it will default to private.
+    /// If not set, it will default to shared.
     ///
     /// # Example
     /// ```
@@ -345,7 +340,7 @@ impl Properties {
     /// Get reqwest async client config to connect to DSH Schema Registry.
     /// If certificates are present, it will use SSL to connect to Schema Registry.
     ///
-    /// Use <https://crates.io/crates/schema_registry_converter> to connect to Schema Registry.
+    /// Use [schema_registry_converter](https://crates.io/crates/schema_registry_converter) to connect to Schema Registry.
     ///
     /// # Example
     /// ```
@@ -420,8 +415,7 @@ impl Properties {
     /// - Default: Brokers based on datastreams
     /// - Required: `false`
     pub fn kafka_brokers(&self) -> String {
-        env::var(VAR_KAFKA_BOOTSTRAP_SERVERS)
-            .unwrap_or_else(|_| self.datastream().get_brokers_string().to_string())
+        self.datastream().get_brokers_string()
     }
 
     /// Get the kafka_group_id based.
@@ -502,7 +496,7 @@ impl Default for Properties {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dsh::VAR_KAFKA_CONSUMER_GROUP_TYPE;
+    use crate::dsh::{VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE};
     use serial_test::serial;
 
     #[test]
@@ -589,6 +583,7 @@ mod tests {
             properties.datastream().get_brokers_string()
         );
         env::set_var(VAR_KAFKA_BOOTSTRAP_SERVERS, "test:9092");
+        let properties = Properties::default();
         assert_eq!(properties.kafka_brokers(), "test:9092");
         env::remove_var(VAR_KAFKA_BOOTSTRAP_SERVERS);
     }

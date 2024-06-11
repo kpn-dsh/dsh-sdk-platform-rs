@@ -8,7 +8,9 @@ use std::io::Read;
 use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 
-use super::{utils, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_SCHEMA_REGISTRY_HOST};
+use super::{
+    utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_SCHEMA_REGISTRY_HOST,
+};
 use crate::error::DshError;
 
 const FILE_NAME: &str = "local_datastreams.json";
@@ -160,7 +162,8 @@ impl Default for Datastream {
         } else {
             vec!["localhost:9092".to_string()]
         };
-        let schema_store = utils::get_env_var(VAR_SCHEMA_REGISTRY_HOST).unwrap_or("http://localhost:8081/apis/ccompat/v7".to_string());
+        let schema_store = utils::get_env_var(VAR_SCHEMA_REGISTRY_HOST)
+            .unwrap_or("http://localhost:8081/apis/ccompat/v7".to_string());
         Datastream {
             brokers,
             streams: HashMap::new(),
