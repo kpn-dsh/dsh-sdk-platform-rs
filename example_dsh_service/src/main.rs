@@ -30,9 +30,9 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
                     // Deserialize and print the message
                     deserialize_and_print(&msg);
                     // Commit the message
-                    if let Err(e) = consumer.commit_message(&msg, CommitMode::Sync) {
-                        error!("Error while committing message: {:?}", e);
-                    }
+                    //if let Err(e) = consumer.commit_message(&msg, CommitMode::Sync) {
+                    //    error!("Error while committing message: {:?}", e);
+                    //}
             },
             _ = shutdown.recv() => {
                 info!("Shutdown requested, breaking out of consumer");
@@ -47,7 +47,7 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Start logger to Stdout
     env_logger::builder()
-        .filter_level(log::LevelFilter::Info)
+        .filter_level(log::LevelFilter::Debug)
         .target(env_logger::Target::Stdout)
         .init();
 
@@ -60,11 +60,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Get the configured topics from env variable TOPICS (comma separated)
     let topics_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
     let topics = topics_string.split(",").map(|s| s).collect::<Vec<&str>>();
-
-    // Validate your configured topic if it has read access (optional)
-    dsh_properties
-        .datastream()
-        .verify_list_of_topics(&topics, dsh_sdk::dsh::datastream::ReadWriteAccess::Read)?;
 
     // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals, and you can act on them)
     let shutdown = Shutdown::new();

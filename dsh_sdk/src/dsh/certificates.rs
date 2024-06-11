@@ -50,25 +50,41 @@ use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
 #[derive(Debug, Clone)]
 pub struct Cert {
     dsh_ca_certificate_pem: String,
-    dsh_kafka_certificate_pem: String,
+    dsh_client_certificate_pem: String,
     key_pair: Arc<KeyPair>,
 }
 
 impl Cert {
-    /// Create a new certificate struct.
-    pub(crate) fn new(dn: Dn, dsh_config: &DshConfig, client: &Client) -> Result<Self, DshError> {
+    /// Create new `Cert` struct
+    pub(crate) fn new(
+        dsh_ca_certificate_pem: String,
+        dsh_client_certificate_pem: String,
+        key_pair: KeyPair,
+    ) -> Cert {
+        Self {
+            dsh_ca_certificate_pem,
+            dsh_client_certificate_pem,
+            key_pair: Arc::new(key_pair),
+        }
+    }
+    ///
+    pub(crate) fn bootstrap(
+        dn: Dn,
+        dsh_config: &DshConfig,
+        client: &Client,
+    ) -> Result<Self, DshError> {
         let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
         let csr = Self::generate_csr(&key_pair, dn)?;
-        let dsh_kafka_certificate_pem = DshCall::CertificateSignRequest {
+        let client_certificate = DshCall::CertificateSignRequest {
             config: dsh_config,
             csr: &csr.pem()?,
         }
         .perform_call(client)?;
-        Ok(Self {
-            dsh_ca_certificate_pem: dsh_config.dsh_ca_certificate().to_string(),
-            dsh_kafka_certificate_pem,
-            key_pair: Arc::new(key_pair),
-        })
+        Ok(Self::new(
+            dsh_config.dsh_ca_certificate().to_string(),
+            client_certificate,
+            key_pair,
+        ))
     }
 
     /// Build an async reqwest client with the DSH Kafka certificate included.
@@ -108,7 +124,7 @@ impl Cert {
 
     /// Get the kafka certificate as PEM string. Equivalent to client.pem.
     pub fn dsh_kafka_certificate_pem(&self) -> &str {
-        self.dsh_kafka_certificate_pem.as_str()
+        &self.dsh_client_certificate_pem.as_str()
     }
 
     /// Get the private key as PKCS8 and return bytes based on asn1 DER format.
@@ -200,7 +216,7 @@ mod tests {
     fn set_test_cert() -> Cert {
         Cert {
             dsh_ca_certificate_pem: CA_CERT.to_string(),
-            dsh_kafka_certificate_pem: KAFKA_CERT.to_string(),
+            dsh_client_certificate_pem: KAFKA_CERT.to_string(),
             key_pair: Arc::new(KeyPair::generate().unwrap()),
         }
     }
