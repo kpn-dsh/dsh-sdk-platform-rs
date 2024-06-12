@@ -16,8 +16,11 @@ This library can be used to interact with the DSH Platform. It is intended to be
 - Prometheus Metrics (web server and re-export of metrics crate)
 - Dead Letter Queue (experimental)
 
-## Usage
+### Note
+Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installed in your environment and/or Dockerfile where you are compiling.
+See [dockerfile](../example_dsh_service/Dockerfile) for an example.
 
+## Usage
 To use this SDK with the default features in your project, add the following to your Cargo.toml file:
   
 ```toml
@@ -46,8 +49,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
 }
 ```
 
-## Feature flags
+## Connect to DSH
+The SDK is compatible with running in a container on a DSH tenant, on DSH System Space, on a machine with Kafka Proxy/VPN or on a local machine to a local Kafka. 
+See [CONNECT_PROXY_VPN_LOCAL](dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md) for more info.
 
+## Feature flags
 The following features are available in this library and can be enabled/disabled in your Cargo.toml file.:
 
 | **feature** | **default** | **Description** |
@@ -100,22 +106,6 @@ The default RDKafka config can be overwritten by setting the following environme
 
 ## Api doc
 See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
-
-### Local development
-You can start the [docker-compose](../docker/docker-compose.yml) file to start a local Kafka broker and Schema Registry.
-
-When running the SDK on your local machine, it will automatically try to connect to the local Kafka broker and Schema Registry
-
-| Service | Host |
-| --- | --- |
-| Kafka | `localhost:9092` |
-| Schema Registry | `localhost:8081/apis/ccompat/v7` |
-
-If you want manipulate these endpoints, or want to use specific datastream info, you can add a [local_datastreams.json](local_datastreams.json) to your project root to overwrite the default values or set the environment variables accordingly.
-
-### Note
-Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installed in your environment and/or Dockerfile where you are compiling.
-See dockerfile in [example_dsh_service](../example_dsh_service/Dockerfile) for an example.
 
 ## Examples
 See folder [dsh_sdk/examples](/examples/) for simple examples on how to use the SDK.
