@@ -233,7 +233,8 @@ mod tests {
         assert!(result.is_ok());
         let result = get_key_pair(vec![path_ne.clone(), path_key.clone()]);
         assert!(result.is_ok());
-        let result = get_key_pair(vec![path_ne.clone(), path_cert.clone(), path_ca.clone()]).unwrap_err();
+        let result =
+            get_key_pair(vec![path_ne.clone(), path_cert.clone(), path_ca.clone()]).unwrap_err();
         assert!(matches!(result, DshError::NoCertificates));
         let result = get_key_pair(vec![]).unwrap_err();
         assert!(matches!(result, DshError::NoCertificates));
