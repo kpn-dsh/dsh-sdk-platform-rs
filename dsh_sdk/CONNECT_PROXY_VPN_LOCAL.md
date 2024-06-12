@@ -2,10 +2,10 @@
 The SDK is compatible with running in a container on a DSH tenant, on DSH System Space, on a machine with Kafka
 Proxy/VPN or on a local machine to a local Kafka
 
-[DSH](#dsh)
-[System Space](#system-space)
-[Kafka Proxy/VPN](#kafka-proxyvpn)
-[Local](#local)
+- [DSH](#dsh)
+- [System Space](#system-space)
+- [Kafka Proxy/VPN](#kafka-proxyvpn)
+- [Local](#local)
 
 ## DSH
 The following environment variables are required to run on DSH, and are set by DSH automatically:
