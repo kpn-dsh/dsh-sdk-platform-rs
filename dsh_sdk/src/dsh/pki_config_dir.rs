@@ -137,7 +137,7 @@ mod tests {
 
     const PKI_CONFIG_DIR: &str = "test_files/pki_config_dir";
     const PKI_KEY_FILE_NAME: &str = "client.key";
-    const PKI_CERT_FILE_NAME: &str = "client.crt";
+    const PKI_CERT_FILE_NAME: &str = "client.pem";
     const PKI_CA_FILE_NAME: &str = "ca.crt";
 
     fn create_test_pki_config_dir() {
@@ -219,5 +219,37 @@ mod tests {
         assert!(matches!(result, DshError::NoCertificates));
         let result = get_certificate(vec![path_ne]).unwrap_err();
         assert!(matches!(result, DshError::NoCertificates));
+    }
+
+    #[test]
+    #[serial(pki)]
+    fn test_get_key_pair() {
+        create_test_pki_config_dir();
+        let path_key = PathBuf::from(PKI_CONFIG_DIR).join(PKI_KEY_FILE_NAME);
+        let path_cert = PathBuf::from(PKI_CONFIG_DIR).join(PKI_CERT_FILE_NAME);
+        let path_ca = PathBuf::from(PKI_CONFIG_DIR).join(PKI_CA_FILE_NAME);
+        let path_ne = PathBuf::from(PKI_CONFIG_DIR).join("not_existing.key");
+        let result = get_key_pair(vec![path_key.clone()]);
+        assert!(result.is_ok());
+        let result = get_key_pair(vec![path_ne.clone(), path_key.clone()]);
+        assert!(result.is_ok());
+        let result = get_key_pair(vec![path_ne.clone(), path_cert.clone(), path_ca.clone()]).unwrap_err();
+        assert!(matches!(result, DshError::NoCertificates));
+        let result = get_key_pair(vec![]).unwrap_err();
+        assert!(matches!(result, DshError::NoCertificates));
+        let result = get_key_pair(vec![path_ne]).unwrap_err();
+        assert!(matches!(result, DshError::NoCertificates));
+    }
+
+    #[test]
+    #[serial(pki, env_dependency)]
+    fn test_get_pki_cert() {
+        create_test_pki_config_dir();
+        let result = get_pki_cert().unwrap_err();
+        assert!(matches!(result, DshError::EnvVarError(_)));
+        std::env::set_var(VAR_PKI_CONFIG_DIR, PKI_CONFIG_DIR);
+        let result = get_pki_cert();
+        assert!(result.is_ok());
+        std::env::remove_var(VAR_PKI_CONFIG_DIR);
     }
 }
