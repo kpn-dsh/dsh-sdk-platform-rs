@@ -99,39 +99,6 @@ impl Properties {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// # How to run
-    /// The SDK is compatible with running in a container on a DSH tenant, on DSH System Space, on a machine with Kafka
-    /// Proxy/VPN or on a local machine to a local Kafka(for development purposes).
-    ///
-    /// ## DSH
-    /// The following environment variables are required to run on DSH, and are set by DSH automatically:
-    /// - `MESOS_TASK_ID` - The task id of the running container
-    /// - `MARATHON_APP_ID` - Includes the tenant name of the running container
-    /// - `DSH_CA_CERTIFICATE` - The CA certificate of DSH
-    /// - `DSH_SECRET_TOKEN` - The secret token to authenticate to DSH
-    ///
-    /// ### System Space
-    /// - `DSH_SECRET_TOKEN_PATH` - The path to the secret token file.
-    ///
-    /// ## Kafka Proxy/VPN
-    /// When running on a machine with Kafka Proxy/VPN, the following environment variables are required:
-    /// - 'PKI_CONFIG_DIR' - The path to the directory containing the certificates and private key
-    /// - `DSH_TENANT_NAME` - The tenant name of which you want to connect to
-    /// - 'KAFKA_BOOTSTRAP_SERVERS' - The hostnames of the Kafka brokers
-    ///
-    /// ### Note!
-    /// Currently only PEM formatted certificates and keys are supported.
-    ///
-    /// ## Local
-    /// When no environment variables are set, it will default to a local configuration.
-    /// - Kafka will be set to `localhost:9092` and uses plaintext instead of SSL
-    /// - Schema Registry will be set to `localhost:8081/apis/ccompat/v7`
-    /// You can overwrite this by providing a [local_datastreams.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json)
-    /// file in the root of the project or by setting the following environment variables.
-    /// - `KAFKA_BOOTSTRAP_SERVERS` - The hostnames of the Kafka brokers
-    /// - `SCHEMA_REGISTRY_HOST` - The host of the Schema Registryq
-
     pub fn get() -> &'static Self {
         PROPERTIES.get_or_init(Self::init)
     }
@@ -508,7 +475,7 @@ mod tests {
     }
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_consumer_rdkafka_config() {
         let properties = Properties::default();
         let config = properties.consumer_rdkafka_config();
@@ -529,7 +496,7 @@ mod tests {
     }
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_producer_rdkafka_config() {
         let properties = Properties::default();
         let config = properties.producer_rdkafka_config();
@@ -575,7 +542,7 @@ mod tests {
     }
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_kafka_brokers() {
         let properties = Properties::default();
         assert_eq!(
@@ -589,7 +556,7 @@ mod tests {
     }
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_kafka_group_id() {
         let properties = Properties::default();
         assert_eq!(
@@ -637,7 +604,7 @@ mod tests {
     }
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_kafka_auto_commit() {
         let properties = Properties::default();
         assert_eq!(properties.kafka_auto_commit(), false);
@@ -651,7 +618,7 @@ mod tests {
     }
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_kafka_auto_offset_reset() {
         let properties = Properties::default();
         assert_eq!(properties.kafka_auto_offset_reset(), "earliest");

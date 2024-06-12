@@ -21,11 +21,11 @@
 //! # Ok(())
 //! # }
 //! ```
-pub mod bootstrap;
+mod bootstrap;
 pub mod certificates;
 pub mod datastream;
 mod pki_config_dir;
-mod properties;
+pub mod properties;
 mod utils;
 
 // Re-export the properties struct to avoid braking changes

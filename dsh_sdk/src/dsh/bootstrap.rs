@@ -25,7 +25,8 @@ pub(crate) fn bootstrap(tenant_name: &str, task_id: &str) -> Result<(Cert, Datas
     let dn = Dn::parse_string(&dn)?;
     let certificates = Cert::get_signed_client_cert(dn, &dsh_config, &client)?;
     let client_with_cert = certificates.reqwest_blocking_client_config()?.build()?;
-    let datastreams_string = DshBootstapCall::Datastream(&dsh_config).perform_call(&client_with_cert)?;
+    let datastreams_string =
+        DshBootstapCall::Datastream(&dsh_config).perform_call(&client_with_cert)?;
     let datastream: Datastream = serde_json::from_str(&datastreams_string)?;
     Ok((certificates, datastream))
 }
@@ -227,7 +228,7 @@ mod tests {
             config: &dsh_config,
             csr,
         }
-        .request_builder( &Client::new());
+        .request_builder(&Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "POST");
         assert_eq!(
@@ -264,7 +265,9 @@ mod tests {
             dsh_ca_certificate: "test_ca_certificate".to_string(),
         };
         // call the function
-        let response = DshBootstapCall::Dn(&dsh_config).perform_call(&client).unwrap();
+        let response = DshBootstapCall::Dn(&dsh_config)
+            .perform_call(&client)
+            .unwrap();
         assert_eq!(response, dn);
     }
 
@@ -278,7 +281,7 @@ mod tests {
     }
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_dsh_config_new() {
         // normal situation where DSH variables are set
         env::set_var(VAR_KAFKA_CONFIG_HOST, "test_host");

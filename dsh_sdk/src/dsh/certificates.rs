@@ -35,6 +35,7 @@ use super::bootstrap::{Dn, DshBootstapCall, DshConfig};
 
 use crate::error::DshError;
 
+use pem;
 use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
 
 /// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
@@ -71,9 +72,11 @@ impl Cert {
             csr: &csr.pem()?,
         }
         .perform_call(client)?;
+        let ca_cert = pem::parse_many(dsh_config.dsh_ca_certificate())?;
+        let client_cert = pem::parse_many(client_certificate)?;
         Ok(Self::new(
-            dsh_config.dsh_ca_certificate().to_string(),
-            client_certificate,
+            pem::encode_many(&ca_cert),
+            pem::encode_many(&client_cert),
             key_pair,
         ))
     }

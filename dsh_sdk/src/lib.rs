@@ -39,9 +39,8 @@
 //! #     Ok(())
 //! # }
 //! ```
-//! ## Local
-//! It is possible to connect to local kafka cluster. By default it will connect to localhost:9092 when running on your local machine.
-//! This can be changed by setting the environment variable `KAFKA_BOOTSTRAP_SERVERS` to the desired kafka brokers or by providing a [local_datastreams.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json) in your root folder.
+//! ## Kafka Proxy / VPN / Local
+//! Read [CONNECT_PROXY_VPN_LOCAL.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md) on how to connect to DSH with Kafka Proxy, VPN or to a local Kafka cluster.
 //!
 //! # Metrics
 //! The metrics module provides a way to expose prometheus metrics. This module is a re-export of the `prometheus` crate. It also contains a function to start a http server to expose the metrics to DSH.

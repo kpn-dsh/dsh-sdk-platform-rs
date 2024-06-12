@@ -61,7 +61,7 @@ mod tests {
     use serial_test::serial;
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_dsh_config_tenant_name() {
         let result = tenant_name();
         assert!(matches!(result, Err(DshError::NoTenantName)));
@@ -79,7 +79,7 @@ mod tests {
     }
 
     #[test]
-    #[serial(env_depencency)]
+    #[serial(env_dependency)]
     fn test_get_configured_topics() {
         std::env::set_var("TOPICS", "topic1, topic2, topic3");
 

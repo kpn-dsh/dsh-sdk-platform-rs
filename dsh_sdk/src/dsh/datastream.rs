@@ -1,17 +1,17 @@
 //! Module to handle the datastreams.json file.
-//! 
+//!
 //! The datastreams.json can be parsed into a Datastream struct using serde_json.
 //! This struct contains all the information from the datastreams.json file.
-//! 
+//!
 //! You can get the Datastream struct via the 'Properties' struct.
-//! 
+//!
 //! # Example
 //! ```
 //! use dsh_sdk::Properties;
-//! 
+//!
 //! let properties = Properties::get();
 //! let datastream = properties.datastream();
-//! 
+//!
 //! let brokers = datastream.get_brokers();
 //! let schema_store = datastream.schema_store();
 //! ```
@@ -31,14 +31,14 @@ use crate::error::DshError;
 const FILE_NAME: &str = "local_datastreams.json";
 
 /// This struct is equivalent to the datastreams.json
-/// 
+///
 /// # Example
 /// ```
 /// use dsh_sdk::Properties;
-/// 
+///
 /// let properties = Properties::get();
 /// let datastream = properties.datastream();
-/// 
+///
 /// let brokers = datastream.get_brokers();
 /// let streams = datastream.streams();
 /// let schema_store = datastream.schema_store();
@@ -135,12 +135,12 @@ impl Datastream {
     }
 
     /// Get schema store url from datastreams.
-    /// 
+    ///
     /// ## How to connect to schema registry
     /// Use the Reqwest client from `Cert` to connect to the schema registry.
     /// As this client is already configured with the correct certificates.
-    /// 
-    /// You can use [schema_registry_converter](https://crates.io/crates/schema_registry_converter) 
+    ///
+    /// You can use [schema_registry_converter](https://crates.io/crates/schema_registry_converter)
     /// to fetch the schema and decode your payload.
     pub fn schema_store(&self) -> &str {
         &self.schema_store

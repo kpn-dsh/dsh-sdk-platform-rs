@@ -10,7 +10,7 @@ use super::{utils, VAR_PKI_CONFIG_DIR};
 use crate::error::DshError;
 
 use log::{debug, info, warn};
-use pem;
+use pem::{self, Pem};
 use rcgen::KeyPair;
 use std::path::{Path, PathBuf};
 
@@ -24,8 +24,8 @@ pub(crate) fn get_pki_cert() -> Result<Cert, DshError> {
     let key_pair = get_key_pair(client_key_paths)?;
     debug!("Certificates loaded from PKI config directory");
     Ok(Cert::new(
-        dsh_ca_certificate_pem,
-        dsh_client_certificate_pem,
+        pem::encode_many(&dsh_ca_certificate_pem),
+        pem::encode_many(&dsh_client_certificate_pem),
         key_pair,
     ))
 }
@@ -33,8 +33,8 @@ pub(crate) fn get_pki_cert() -> Result<Cert, DshError> {
 /// Get certificate from the PKI config directory
 ///
 /// Looks for all files containing client*.pem and client.crt in the PKI config directory.
-fn get_certificate(mut cert_paths: Vec<PathBuf>) -> Result<String, DshError> {
-    while let Some(file) = cert_paths.pop() {
+fn get_certificate(mut cert_paths: Vec<PathBuf>) -> Result<Vec<Pem>, DshError> {
+    'file: while let Some(file) = cert_paths.pop() {
         info!("{} - Reading certificate file", file.display());
         if let Ok(ca_cert) = std::fs::read(&file) {
             let pem_result = pem::parse_many(&ca_cert);
@@ -45,8 +45,13 @@ fn get_certificate(mut cert_paths: Vec<PathBuf>) -> Result<String, DshError> {
                         file.display(),
                         pem.len()
                     );
-                    let pem_str = pem::encode_many(&pem);
-                    return Ok(pem_str);
+                    for p in &pem {
+                        if !p.tag().eq_ignore_ascii_case("CERTIFICATE") {
+                            warn!("{} - Certificate tag is not 'CERTIFICATE'", file.display());
+                            continue 'file;
+                        }
+                    }
+                    return Ok(pem);
                 }
                 Err(e) => warn!("{} - Error parsing certificate: {:?}", file.display(), e),
             }
@@ -82,7 +87,7 @@ fn get_key_pair(mut key_paths: Vec<PathBuf>) -> Result<KeyPair, DshError> {
 /// Get the path to the PKI config direc
 fn get_file_path_bufs<P>(
     prefix: &str,
-    extension: PkiFileType,
+    contains: PkiFileType,
     config_dir: P,
 ) -> Result<Vec<PathBuf>, DshError>
 where
@@ -94,12 +99,12 @@ where
         .filter_map(|entry| {
             entry.ok().and_then(|e| {
                 let filename = e.file_name().to_string_lossy().into_owned();
-                if filename.starts_with(prefix)
-                    && match extension {
+                if filename.contains(prefix)
+                    && match contains {
                         PkiFileType::Cert => {
                             filename.ends_with(".crt") || filename.ends_with(".pem")
                         }
-                        PkiFileType::Key => filename.ends_with(".key"),
+                        PkiFileType::Key => filename.contains(".key"), //.key.pem is allowed
                     }
                 {
                     Some(e.path())
@@ -121,4 +126,98 @@ where
 enum PkiFileType {
     Cert,
     Key,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use openssl;
+    use openssl::pkey::PKey;
+    use serial_test::serial;
+
+    const PKI_CONFIG_DIR: &str = "test_files/pki_config_dir";
+    const PKI_KEY_FILE_NAME: &str = "client.key";
+    const PKI_CERT_FILE_NAME: &str = "client.crt";
+    const PKI_CA_FILE_NAME: &str = "ca.crt";
+
+    fn create_test_pki_config_dir() {
+        let path = PathBuf::from(PKI_CONFIG_DIR);
+        let path_key = PathBuf::from(PKI_CONFIG_DIR).join(PKI_KEY_FILE_NAME);
+        let path_cert = PathBuf::from(PKI_CONFIG_DIR).join(PKI_CERT_FILE_NAME);
+        let path_ca = PathBuf::from(PKI_CONFIG_DIR).join(PKI_CA_FILE_NAME);
+        if path_key.exists() && path_cert.exists() && path_ca.exists() {
+            return;
+        }
+        let _ = std::fs::create_dir(path);
+        let priv_key = openssl::rsa::Rsa::generate(2048).unwrap();
+        let pkey = PKey::from_rsa(priv_key).unwrap();
+        let key = pkey.private_key_to_pem_pkcs8().unwrap();
+        let mut x509_name = openssl::x509::X509NameBuilder::new().unwrap();
+        x509_name.append_entry_by_text("CN", "test_ca").unwrap();
+        let x509_name = x509_name.build();
+        let mut x509 = openssl::x509::X509::builder().unwrap();
+        x509.set_version(2).unwrap();
+        x509.set_subject_name(&x509_name).unwrap();
+        x509.set_not_before(&openssl::asn1::Asn1Time::days_from_now(0).unwrap())
+            .unwrap();
+        x509.set_not_after(&openssl::asn1::Asn1Time::days_from_now(365).unwrap())
+            .unwrap();
+        x509.set_pubkey(&pkey).unwrap();
+        x509.sign(&pkey, openssl::hash::MessageDigest::sha256())
+            .unwrap();
+        let x509 = x509.build();
+        let ca_cert = x509.to_pem().unwrap();
+        let cert = x509.to_pem().unwrap();
+        std::fs::write(path_key, key).unwrap();
+        std::fs::write(path_ca, ca_cert).unwrap();
+        std::fs::write(path_cert, cert).unwrap();
+    }
+
+    #[test]
+    #[serial(pki)]
+    fn test_get_file_path_bufs() {
+        create_test_pki_config_dir();
+        let path = PathBuf::from(PKI_CONFIG_DIR);
+        let result_cert = get_file_path_bufs("client", PkiFileType::Cert, &path).unwrap();
+        assert_eq!(result_cert.len(), 1);
+        let result_key = get_file_path_bufs("client", PkiFileType::Key, &path).unwrap();
+        assert_eq!(result_key.len(), 1);
+        assert_ne!(result_cert, result_key);
+        let result_ca = get_file_path_bufs("ca", PkiFileType::Cert, &path).unwrap();
+        assert_eq!(result_ca.len(), 1);
+        let result = get_file_path_bufs("ca", PkiFileType::Key, &path).unwrap();
+        assert_eq!(result.len(), 0);
+        let result = get_file_path_bufs("not_existing", PkiFileType::Key, &path).unwrap();
+        assert_eq!(result.len(), 0);
+    }
+    #[test]
+    #[serial(pki)]
+    fn test_get_certificate() {
+        create_test_pki_config_dir();
+        let path_key = PathBuf::from(PKI_CONFIG_DIR).join(PKI_KEY_FILE_NAME);
+        let path_cert = PathBuf::from(PKI_CONFIG_DIR).join(PKI_CERT_FILE_NAME);
+        let path_ca = PathBuf::from(PKI_CONFIG_DIR).join(PKI_CA_FILE_NAME);
+        let path_ne = PathBuf::from(PKI_CONFIG_DIR).join("not_existing.crt");
+        let result = get_certificate(vec![path_cert.clone()]).unwrap();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].tag(), "CERTIFICATE");
+        let result = get_certificate(vec![path_ca.clone()]).unwrap();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].tag(), "CERTIFICATE");
+        let result = get_certificate(vec![
+            path_key.clone(),
+            path_ne.clone(),
+            path_cert.clone(),
+            path_ca.clone(),
+        ])
+        .unwrap();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].tag(), "CERTIFICATE");
+        let result = get_certificate(vec![path_key]).unwrap_err();
+        assert!(matches!(result, DshError::NoCertificates));
+        let result = get_certificate(vec![]).unwrap_err();
+        assert!(matches!(result, DshError::NoCertificates));
+        let result = get_certificate(vec![path_ne]).unwrap_err();
+        assert!(matches!(result, DshError::NoCertificates));
+    }
 }

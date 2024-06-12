@@ -20,6 +20,9 @@ pub enum DshError {
     #[error("Certificates are not set")]
     NoCertificates,
     #[cfg(feature = "bootstrap")]
+    #[error("Invalid PEM certificate: {0}")]
+    PemError(#[from] pem::PemError),
+    #[cfg(feature = "bootstrap")]
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
     #[cfg(feature = "bootstrap")]
