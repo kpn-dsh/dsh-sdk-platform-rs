@@ -118,7 +118,7 @@ impl Cert {
 
     /// Get the kafka certificate as PEM string. Equivalent to client.pem.
     pub fn dsh_kafka_certificate_pem(&self) -> &str {
-        &self.dsh_client_certificate_pem.as_str()
+        self.dsh_client_certificate_pem.as_str()
     }
 
     /// Get the private key as PKCS8 and return bytes based on asn1 DER format.
