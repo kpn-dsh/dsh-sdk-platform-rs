@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Description
-This library can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. It is not intended to be used directly. Features include:
+This library can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. Features include:
 - Connect to DSH 
 - Fetch Kafka Properties and certificates
 - Common functions 
@@ -71,9 +71,9 @@ See api documentation for more information on how to use these features includin
 The default RDKafka config can be overwritten by setting the following environment variables:
 
 ### `KAFKA_BOOTSTRAP_SERVERS`
-- Usage: Overwrite hostnames of brokers (useful for local testing)
+- Usage: Overwrite hostnames of brokers
 - Default: Brokers based on datastreams
-- Required: `false`
+- Required: `false` (for local development or Kafka Proxy/VPN)
 
 ### `KAFKA_CONSUMER_GROUP_TYPE`
 - Usage: Picks group_id based on type from datastreams
