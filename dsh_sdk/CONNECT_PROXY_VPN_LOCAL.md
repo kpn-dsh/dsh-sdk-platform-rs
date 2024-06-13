@@ -25,7 +25,7 @@ When running on a machine with Kafka Proxy/VPN, the following environment variab
 - `KAFKA_BOOTSTRAP_SERVERS` - The hostnames of the Kafka brokers
 
 ### Note!
-Currently only PEM formatted certificates and keys are supported. Make sure to convert your certificates and key to PEM format if they are not already.
+Currently only PEM formatted certificates and keys are supported. Make sure to convert your certificates and key to PEM format if they are not already. For VPN, make sure you have the latest version of the VPN repository. This version includes generating PEM formatted certificates and keys.
 
 ## Local
 You can start the [docker-compose](../docker/docker-compose.yml) file to start a local Kafka broker and Schema Registry.
