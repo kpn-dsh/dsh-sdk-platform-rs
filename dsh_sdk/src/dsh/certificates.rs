@@ -23,52 +23,62 @@
 //! ```
 //!
 //! ## Reqwest Client
-//!
 //! With this request client we can retrieve datastreams.json and connect to Schema Registry.
-
 use std::sync::Arc;
 
 use log::info;
-//use picky::hash::HashAlgorithm;
-//use picky::key::PrivateKey;
-//use picky::signature::SignatureAlgorithm;
-//use picky::x509::csr::Csr;
-//use picky::x509::name::{DirectoryName, NameAttr};
 use reqwest::blocking::{Client, ClientBuilder};
 use reqwest::Identity;
 use std::path::PathBuf;
 
-use super::bootstrap::{Dn, DshCall, DshConfig};
+use super::bootstrap::{Dn, DshBootstapCall, DshConfig};
 
 use crate::error::DshError;
 
+use pem;
 use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
 
-/// Hold all relevant certificates and keys to connect to DSH.
-///
-///
+/// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
 #[derive(Debug, Clone)]
 pub struct Cert {
     dsh_ca_certificate_pem: String,
-    dsh_kafka_certificate_pem: String,
+    dsh_client_certificate_pem: String,
     key_pair: Arc<KeyPair>,
 }
 
 impl Cert {
-    /// Create a new certificate struct.
-    pub(crate) fn new(dn: Dn, dsh_config: &DshConfig, client: &Client) -> Result<Self, DshError> {
+    /// Create new `Cert` struct
+    pub(crate) fn new(
+        dsh_ca_certificate_pem: String,
+        dsh_client_certificate_pem: String,
+        key_pair: KeyPair,
+    ) -> Cert {
+        Self {
+            dsh_ca_certificate_pem,
+            dsh_client_certificate_pem,
+            key_pair: Arc::new(key_pair),
+        }
+    }
+    /// Generate private key and call for a signed certificate to DSH.
+    pub(crate) fn get_signed_client_cert(
+        dn: Dn,
+        dsh_config: &DshConfig,
+        client: &Client,
+    ) -> Result<Self, DshError> {
         let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
         let csr = Self::generate_csr(&key_pair, dn)?;
-        let dsh_kafka_certificate_pem = DshCall::CertificateSignRequest {
+        let client_certificate = DshBootstapCall::CertificateSignRequest {
             config: dsh_config,
             csr: &csr.pem()?,
         }
         .perform_call(client)?;
-        Ok(Self {
-            dsh_ca_certificate_pem: dsh_config.dsh_ca_certificate().to_string(),
-            dsh_kafka_certificate_pem,
-            key_pair: Arc::new(key_pair),
-        })
+        let ca_cert = pem::parse_many(dsh_config.dsh_ca_certificate())?;
+        let client_cert = pem::parse_many(client_certificate)?;
+        Ok(Self::new(
+            pem::encode_many(&ca_cert),
+            pem::encode_many(&client_cert),
+            key_pair,
+        ))
     }
 
     /// Build an async reqwest client with the DSH Kafka certificate included.
@@ -108,7 +118,7 @@ impl Cert {
 
     /// Get the kafka certificate as PEM string. Equivalent to client.pem.
     pub fn dsh_kafka_certificate_pem(&self) -> &str {
-        self.dsh_kafka_certificate_pem.as_str()
+        self.dsh_client_certificate_pem.as_str()
     }
 
     /// Get the private key as PKCS8 and return bytes based on asn1 DER format.
@@ -200,7 +210,7 @@ mod tests {
     fn set_test_cert() -> Cert {
         Cert {
             dsh_ca_certificate_pem: CA_CERT.to_string(),
-            dsh_kafka_certificate_pem: KAFKA_CERT.to_string(),
+            dsh_client_certificate_pem: KAFKA_CERT.to_string(),
             key_pair: Arc::new(KeyPair::generate().unwrap()),
         }
     }

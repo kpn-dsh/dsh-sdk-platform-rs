@@ -9,7 +9,6 @@ pub enum DshError {
     EnvVarError(#[from] std::env::VarError),
     #[error("Convert bytes to utf8 error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
-
     #[cfg(feature = "bootstrap")]
     #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]
     DshCallError {
@@ -20,6 +19,9 @@ pub enum DshError {
     #[cfg(feature = "bootstrap")]
     #[error("Certificates are not set")]
     NoCertificates,
+    #[cfg(feature = "bootstrap")]
+    #[error("Invalid PEM certificate: {0}")]
+    PemError(#[from] pem::PemError),
     #[cfg(feature = "bootstrap")]
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
@@ -36,12 +38,14 @@ pub enum DshError {
     #[error("Error getting group id, index out of bounds for {0}")]
     IndexGroupIdError(crate::dsh::datastream::GroupType),
     #[cfg(feature = "bootstrap")]
+    #[error("No tenant name found")]
+    NoTenantName,
+    #[cfg(feature = "bootstrap")]
     #[error("Error getting topic name {0}, Topic not found in datastreams.")]
     NotFoundTopicError(String),
     #[cfg(feature = "bootstrap")]
     #[error("Error in topic permissions: {0} does not have {1:?} permissions.")]
     TopicPermissionsError(String, crate::dsh::datastream::ReadWriteAccess),
-
     #[cfg(feature = "metrics")]
     #[error("Prometheus error: {0}")]
     Prometheus(#[from] prometheus::Error),
