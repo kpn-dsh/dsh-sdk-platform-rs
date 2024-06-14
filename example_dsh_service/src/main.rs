@@ -1,7 +1,7 @@
-use dsh_sdk::dsh::Properties;
 use dsh_sdk::graceful_shutdown::Shutdown;
 use dsh_sdk::rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::message::{BorrowedMessage, Message};
+use dsh_sdk::Properties;
 
 use log::{error, info};
 
@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Get the configured topics from env variable TOPICS (comma separated)
     let topics_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
-    let topics = topics_string.split(",").map(|s| s).collect::<Vec<&str>>();
+    let topics = topics_string.split(',').collect::<Vec<&str>>();
 
     // Validate your configured topic if it has read access (optional)
     dsh_properties
@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let shutdown = Shutdown::new();
 
     // Get the consumer config from the Properties instance
-    let mut consumer_client_config = dsh_properties.consumer_rdkafka_config()?;
+    let mut consumer_client_config = dsh_properties.consumer_rdkafka_config();
 
     // Override some default values (optional)
     consumer_client_config.set("auto.offset.reset", "latest");

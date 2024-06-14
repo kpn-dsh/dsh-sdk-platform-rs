@@ -1,8 +1,8 @@
-use dsh_sdk::dsh::Properties;
 use dsh_sdk::rdkafka::consumer::CommitMode;
 use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::producer::{FutureProducer, FutureRecord};
 use dsh_sdk::rdkafka::Message;
+use dsh_sdk::Properties;
 
 const TOTAL_MESSAGES: usize = 10;
 
@@ -46,13 +46,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let topic = "scratch.local.local-tenant";
 
     // Create a new producer based on the properties default config
-    let mut producer: FutureProducer = dsh_properties.producer_rdkafka_config()?.create()?;
+    let mut producer: FutureProducer = dsh_properties.producer_rdkafka_config().create()?;
 
     // Produce messages towards topic
     produce(&mut producer, topic).await;
 
     // Create a new consumer based on the properties default config
-    let mut consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config()?.create()?;
+    let mut consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
 
     consume(&mut consumer, topic).await;
     Ok(())

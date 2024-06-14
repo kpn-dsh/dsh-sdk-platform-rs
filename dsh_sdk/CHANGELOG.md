@@ -5,13 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.1] - 2024-06-13
+### Added
+- Add loading Certificates and Keys from $PKI_CONFIG_DIR
+  - Compatbile with DSH VPN
+  - Compatbile with Kafka Proxy
+- Overwrrite tenant name via $DSH_TENANT_NAME variable
+
+### Changed
+- Restructure of the private functions to make it more modular
+- Improved logging
+- Improved API Documentation
+
+## [0.4.0] - 2024-04-25
+
+### Fixed
+- Fixed vulnerability RUSTSEC-2023-0071 by replacing Picky with RCGen
+- Fixed compile issues when defaullt feature = false and graceful_shutdown, metrics or DLQ is enabled
 
 ### Added
 - Add Default implementation for Dsh::Properties
   - Points to localhost:9092 for kafka, localhost:8081 for schemastore
-  - local_datastreams.json is now optional
+  - local_datastreams.json is now optional as it falssback to default values
+- Overwrite Kafka config via environment variables for producer and consumer
+- Add extra check in github actions to check for compile issues for all features independently
 
+### Changed
+- **Breaking change:** consumer_rdkafka_config and producer_rdkafka_config returns `ClientConfig` instead of `Result<ClientConfig>`
+- **Breaking change:** certificates and keys are now returned as `T` instead of `Result<T>` 
+- **Breaking change:** Private key is based on ECDSA instead of RSA 
+- **Breaking change:** Error enum is now non_exhaustive
+
+### Removed
+- Removed return of Picky key struct is removed
 
 ## [0.3.1] - 2024-03-25
   

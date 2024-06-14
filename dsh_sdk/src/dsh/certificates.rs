@@ -11,7 +11,7 @@
 //! To create the ca.crt, client.pem, and client.key files in a desired directory, use the
 //! `to_files` method.
 //! ```no_run
-//! use dsh_sdk::dsh::Properties;
+//! use dsh_sdk::Properties;
 //! use std::path::PathBuf;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -23,48 +23,62 @@
 //! ```
 //!
 //! ## Reqwest Client
-//!
 //! With this request client we can retrieve datastreams.json and connect to Schema Registry.
+use std::sync::Arc;
 
 use log::info;
-use picky::hash::HashAlgorithm;
-use picky::key::PrivateKey;
-use picky::signature::SignatureAlgorithm;
-use picky::x509::csr::Csr;
-use picky::x509::name::{DirectoryName, NameAttr};
 use reqwest::blocking::{Client, ClientBuilder};
 use reqwest::Identity;
 use std::path::PathBuf;
 
-use super::bootstrap::{Dn, DshCall, DshConfig};
+use super::bootstrap::{Dn, DshBootstapCall, DshConfig};
 
 use crate::error::DshError;
 
-/// Hold all relevant certificates and keys to connect to DSH.
-///
-///
+use pem;
+use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
+
+/// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
 #[derive(Debug, Clone)]
 pub struct Cert {
     dsh_ca_certificate_pem: String,
-    dsh_kafka_certificate_pem: String,
-    private_key: PrivateKey,
+    dsh_client_certificate_pem: String,
+    key_pair: Arc<KeyPair>,
 }
 
 impl Cert {
-    /// Create a new certificate struct.
-    pub(crate) fn new(dn: Dn, dsh_config: &DshConfig, client: &Client) -> Result<Self, DshError> {
-        let private_key = PrivateKey::generate_rsa(4096)?;
-        let csr = Self::generate_csr(&private_key, dn)?;
-        let dsh_kafka_certificate_pem = DshCall::CertificateSignRequest {
+    /// Create new `Cert` struct
+    pub(crate) fn new(
+        dsh_ca_certificate_pem: String,
+        dsh_client_certificate_pem: String,
+        key_pair: KeyPair,
+    ) -> Cert {
+        Self {
+            dsh_ca_certificate_pem,
+            dsh_client_certificate_pem,
+            key_pair: Arc::new(key_pair),
+        }
+    }
+    /// Generate private key and call for a signed certificate to DSH.
+    pub(crate) fn get_signed_client_cert(
+        dn: Dn,
+        dsh_config: &DshConfig,
+        client: &Client,
+    ) -> Result<Self, DshError> {
+        let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
+        let csr = Self::generate_csr(&key_pair, dn)?;
+        let client_certificate = DshBootstapCall::CertificateSignRequest {
             config: dsh_config,
-            csr: csr.to_pem()?,
+            csr: &csr.pem()?,
         }
         .perform_call(client)?;
-        Ok(Self {
-            dsh_ca_certificate_pem: dsh_config.dsh_ca_certificate().to_string(),
-            dsh_kafka_certificate_pem,
-            private_key,
-        })
+        let ca_cert = pem::parse_many(dsh_config.dsh_ca_certificate())?;
+        let client_cert = pem::parse_many(client_certificate)?;
+        Ok(Self::new(
+            pem::encode_many(&ca_cert),
+            pem::encode_many(&client_cert),
+            key_pair,
+        ))
     }
 
     /// Build an async reqwest client with the DSH Kafka certificate included.
@@ -72,7 +86,7 @@ impl Cert {
     pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
         let pem_identity = Cert::create_identity(
             self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem()?.as_bytes(),
+            self.private_key_pem().as_bytes(),
         )?;
         let reqwest_cert =
             reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
@@ -87,7 +101,7 @@ impl Cert {
     pub fn reqwest_blocking_client_config(&self) -> Result<ClientBuilder, DshError> {
         let pem_identity = Cert::create_identity(
             self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem()?.as_bytes(),
+            self.private_key_pem().as_bytes(),
         )?;
         let reqwest_cert =
             reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
@@ -104,35 +118,27 @@ impl Cert {
 
     /// Get the kafka certificate as PEM string. Equivalent to client.pem.
     pub fn dsh_kafka_certificate_pem(&self) -> &str {
-        self.dsh_kafka_certificate_pem.as_str()
-    }
-
-    /// Get the private key. This format is from the picky library.
-    ///
-    /// With this format we can convert it to other formats like PEM.
-    /// It allso is able to return the public key.
-    pub fn private_key(&self) -> &PrivateKey {
-        &self.private_key
+        self.dsh_client_certificate_pem.as_str()
     }
 
     /// Get the private key as PKCS8 and return bytes based on asn1 DER format.
-    pub fn private_key_pkcs8(&self) -> Result<Vec<u8>, DshError> {
-        Ok(self.private_key().to_pkcs8()?)
+    pub fn private_key_pkcs8(&self) -> Vec<u8> {
+        self.key_pair.serialize_der()
     }
 
     /// Get the private key as PEM string. Equivalent to client.key.
-    pub fn private_key_pem(&self) -> Result<String, DshError> {
-        Ok(self.private_key().to_pem_str()?)
+    pub fn private_key_pem(&self) -> String {
+        self.key_pair.serialize_pem()
     }
 
     /// Get the public key as PEM string.
-    pub fn public_key_pem(&self) -> Result<String, DshError> {
-        Ok(self.private_key().to_public_key()?.to_pem_str()?)
+    pub fn public_key_pem(&self) -> String {
+        self.key_pair.public_key_pem()
     }
 
     /// Get the public key as DER bytes.
-    pub fn public_key_der(&self) -> Result<Vec<u8>, DshError> {
-        Ok(self.private_key().to_public_key()?.to_der()?)
+    pub fn public_key_der(&self) -> Vec<u8> {
+        self.key_pair.public_key_der()
     }
 
     /// Create the ca.crt, client.pem, and client.key files in a desired directory.
@@ -142,7 +148,7 @@ impl Cert {
     /// # Example
     ///
     /// ```no_run
-    /// use dsh_sdk::dsh::Properties;
+    /// use dsh_sdk::Properties;
     /// use std::path::PathBuf;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -156,22 +162,21 @@ impl Cert {
         std::fs::create_dir_all(dir)?;
         Self::create_file(dir.join("ca.crt"), self.dsh_ca_certificate_pem())?;
         Self::create_file(dir.join("client.pem"), self.dsh_kafka_certificate_pem())?;
-        Self::create_file(dir.join("client.key"), self.private_key_pem()?)?;
+        Self::create_file(dir.join("client.key"), self.private_key_pem())?;
         Ok(())
     }
 
     /// Generate the certificate signing request.
-    ///
-    /// Implementation via Picky library.
-    fn generate_csr(private_key: &PrivateKey, dn: Dn) -> Result<Csr, picky::x509::csr::CsrError> {
-        let mut subject = DirectoryName::new_common_name(dn.cn());
-        subject.add_attr(NameAttr::OrganizationalUnitName, dn.ou());
-        subject.add_attr(NameAttr::OrganizationName, dn.o());
-        Csr::generate(
-            subject,
-            private_key,
-            SignatureAlgorithm::RsaPkcs1v15(HashAlgorithm::SHA2_512),
-        )
+    fn generate_csr(key_pair: &KeyPair, dn: Dn) -> Result<CertificateSigningRequest, DshError> {
+        let mut params = CertificateParams::default();
+        params.distinguished_name.push(DnType::CommonName, dn.cn());
+        params
+            .distinguished_name
+            .push(DnType::OrganizationalUnitName, dn.ou());
+        params
+            .distinguished_name
+            .push(DnType::OrganizationName, dn.o());
+        Ok(params.serialize_request(key_pair)?)
     }
 
     fn create_file<C: AsRef<[u8]>>(path: PathBuf, contents: C) -> Result<(), DshError> {
@@ -193,67 +198,81 @@ mod tests {
     use super::*;
     use std::sync::OnceLock;
 
+    use openssl::pkey::PKey;
+    use openssl::x509::X509Req;
+
     static TEST_CERTIFICATES: OnceLock<Cert> = OnceLock::new();
+    static CA_CERT: &str =
+        "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
+    static KAFKA_CERT: &str =
+        "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
 
     fn set_test_cert() -> Cert {
-        Cert{
-            dsh_ca_certificate_pem: "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----".to_string(),
-            dsh_kafka_certificate_pem: "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----".to_string(),
-            private_key: PrivateKey::generate_rsa(4096).unwrap(),
+        Cert {
+            dsh_ca_certificate_pem: CA_CERT.to_string(),
+            dsh_client_certificate_pem: KAFKA_CERT.to_string(),
+            key_pair: Arc::new(KeyPair::generate().unwrap()),
         }
     }
 
     #[test]
     fn test_private_key_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let pem = cert.private_key_pem().unwrap();
-        assert!(pem.starts_with("-----BEGIN PRIVATE KEY-----"));
-        assert!(pem.ends_with("-----END PRIVATE KEY-----"));
+        let der = cert.key_pair.serialize_der();
+        let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
+        let pkey_pem_bytes = pkey.private_key_to_pem_pkcs8().unwrap();
+
+        let key_pem = cert.private_key_pem();
+        let pkey_pem = String::from_utf8_lossy(pkey_pem_bytes.as_slice());
+        assert_eq!(key_pem, pkey_pem);
     }
 
     #[test]
     fn test_public_key_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let pem = cert.public_key_pem().unwrap();
-        assert!(pem.starts_with("-----BEGIN PUBLIC KEY-----"));
-        assert!(pem.ends_with("-----END PUBLIC KEY-----"));
-    }
+        let der = cert.key_pair.serialize_der();
+        let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
+        let pkey_pub_pem_bytes = pkey.public_key_to_pem().unwrap();
 
-    #[test]
-    fn test_private_key_pkcs8() {
-        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let pkcs8 = cert.private_key_pkcs8().unwrap();
-        let picky_pks8 = PrivateKey::from_pkcs8(&pkcs8).unwrap();
-        assert_eq!(cert.private_key(), &picky_pks8);
+        let pub_pem = cert.public_key_pem();
+        let pkey_pub_pem = String::from_utf8_lossy(pkey_pub_pem_bytes.as_slice());
+        assert_eq!(pub_pem, pkey_pub_pem);
     }
 
     #[test]
     fn test_public_key_der() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let der = cert.public_key_der().unwrap();
-        let picky_der = cert
-            .private_key()
-            .to_public_key()
-            .unwrap()
-            .to_der()
-            .unwrap();
-        assert_eq!(der, picky_der);
+        let der = cert.key_pair.serialize_der();
+        let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
+        let pkey_pub_der = pkey.public_key_to_der().unwrap();
+
+        let pub_der = cert.public_key_der();
+        assert_eq!(pub_der, pkey_pub_der);
+    }
+
+    #[test]
+    fn test_private_key_pkcs8() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let der = cert.key_pair.serialize_der();
+        let pkey = PKey::private_key_from_der(der.as_slice()).unwrap();
+        let pkey = pkey.private_key_to_pkcs8().unwrap();
+
+        let key = cert.private_key_pkcs8();
+        assert_eq!(key, pkey);
     }
 
     #[test]
     fn test_dsh_ca_certificate_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let pem = cert.dsh_ca_certificate_pem();
-        assert!(pem.starts_with("-----BEGIN CERTIFICATE-----"));
-        assert!(pem.ends_with("-----END CERTIFICATE-----"));
+        assert_eq!(pem, CA_CERT);
     }
 
     #[test]
     fn test_dsh_kafka_certificate_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let pem = cert.dsh_kafka_certificate_pem();
-        assert!(pem.starts_with("-----BEGIN CERTIFICATE-----"));
-        assert!(pem.ends_with("-----END CERTIFICATE-----"));
+        assert_eq!(pem, KAFKA_CERT);
     }
 
     #[test]
@@ -271,15 +290,30 @@ mod tests {
     fn test_dsh_certificate_sign_request() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
-        let csr = Cert::generate_csr(&cert.private_key(), dn).unwrap();
-        let (directory_name, pub_key) = csr.into_subject_infos();
-        assert_eq!(
-            directory_name.to_string(),
-            "CN=Test CN,OU=Test OU,O=Test Org"
-        );
-        assert_eq!(
-            pub_key.to_pem_str().unwrap(),
-            cert.public_key_pem().unwrap()
-        );
+        let csr = Cert::generate_csr(&cert.key_pair, dn).unwrap();
+        let req = csr.pem().unwrap();
+        assert!(req.starts_with("-----BEGIN CERTIFICATE REQUEST-----"));
+        assert!(req.trim().ends_with("-----END CERTIFICATE REQUEST-----"));
+    }
+
+    #[test]
+    fn test_verify_csr() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
+        let csr = Cert::generate_csr(&cert.key_pair, dn).unwrap();
+        let csr_pem = csr.pem().unwrap();
+        let key = cert.private_key_pkcs8();
+        let pkey = PKey::private_key_from_der(&key).unwrap();
+
+        let req = X509Req::from_pem(csr_pem.as_bytes()).unwrap();
+        req.verify(&pkey).unwrap();
+        let subject = req
+            .subject_name()
+            .entries()
+            .into_iter()
+            .map(|e| e.data().as_utf8().unwrap().to_string())
+            .collect::<Vec<String>>()
+            .join(",");
+        assert_eq!(subject, "Test CN,Test OU,Test Org");
     }
 }
