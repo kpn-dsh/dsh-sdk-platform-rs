@@ -1,5 +1,5 @@
 [workspace]
-members = [
+members = [ "dsh_mqtt_client",
     "dsh_sdk",
     "example_dsh_service",
 ]
@@ -16,3 +16,7 @@ homepage = "https://www.kpn.com/dsh"
 keywords = ["kpn", "dsh", "sdk"]
 license = "Apache-2.0"
 repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
+
+[workspace.dependencies]
+#move other shared dependencies here
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "blocking", "json"]}
