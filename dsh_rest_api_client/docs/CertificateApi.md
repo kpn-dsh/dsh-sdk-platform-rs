@@ -10,7 +10,7 @@ Method | HTTP request | Description
 [**allocation_tenant_certificate_id_configuration_get**](CertificateApi.md#allocation_tenant_certificate_id_configuration_get) | **GET** /allocation/{tenant}/certificate/{id}/configuration | returns the configuration of a certificate allocation
 [**allocation_tenant_certificate_id_configuration_put**](CertificateApi.md#allocation_tenant_certificate_id_configuration_put) | **PUT** /allocation/{tenant}/certificate/{id}/configuration | create a new certificate. It is impossible to update an existing certificate. This requires a delete of the existing certificate and creation of a new one with the wanted configuration.
 [**allocation_tenant_certificate_id_get**](CertificateApi.md#allocation_tenant_certificate_id_get) | **GET** /allocation/{tenant}/certificate/{id} | returns the status of a specific certificate allocation by id
-[**allocation_tenant_certificate_id_status_get**](CertificateApi.md#allocation_tenant_certificate_id_status_get) | **GET** /allocation/{tenant}/certificate/{id}/status | retuns a brief status description of a certificate allocation
+[**allocation_tenant_certificate_id_status_get**](CertificateApi.md#allocation_tenant_certificate_id_status_get) | **GET** /allocation/{tenant}/certificate/{id}/status | returns a brief status description of a certificate allocation
 
 
 
@@ -191,7 +191,7 @@ Name | Type | Description  | Required | Notes
 ## allocation_tenant_certificate_id_status_get
 
 > models::AllocationStatus allocation_tenant_certificate_id_status_get(tenant, id)
-retuns a brief status description of a certificate allocation
+returns a brief status description of a certificate allocation
 
 ### Parameters
 

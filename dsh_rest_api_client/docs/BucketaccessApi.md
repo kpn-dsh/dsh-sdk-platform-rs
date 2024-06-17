@@ -1,17 +1,17 @@
-# \BucketaccessApi
+# \BucketAccessApi
 
 All URIs are relative to */resources/v0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**allocation_tenant_bucket_id_bucketaccess_get**](BucketaccessApi.md#allocation_tenant_bucket_id_bucketaccess_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess | shows bucketaccesses about a specific bucket
-[**allocation_tenant_bucket_id_bucketaccess_name_actual_get**](BucketaccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_actual_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/actual | gets actual configuration of a bucketaccess allocation
-[**allocation_tenant_bucket_id_bucketaccess_name_configuration_delete**](BucketaccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_configuration_delete) | **DELETE** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration | deletes a bucketaccess
-[**allocation_tenant_bucket_id_bucketaccess_name_configuration_get**](BucketaccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_configuration_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration | gets configuration of a bucketaccess allocation
-[**allocation_tenant_bucket_id_bucketaccess_name_configuration_put**](BucketaccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_configuration_put) | **PUT** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration | creates bucketaccess configuration.
-[**allocation_tenant_bucket_id_bucketaccess_name_get**](BucketaccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess/{name} | shows overall status of a third party bucket concession
-[**allocation_tenant_bucket_id_bucketaccess_name_status_get**](BucketaccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_status_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/status | gets status description of a bucketaccess allocation
-[**allocation_tenant_bucketaccess_get**](BucketaccessApi.md#allocation_tenant_bucketaccess_get) | **GET** /allocation/{tenant}/bucketaccess | lists all bucketaccesses of a tenant
+[**allocation_tenant_bucket_id_bucketaccess_get**](BucketAccessApi.md#allocation_tenant_bucket_id_bucketaccess_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess | shows bucketaccesses about a specific bucket
+[**allocation_tenant_bucket_id_bucketaccess_name_actual_get**](BucketAccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_actual_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/actual | gets actual configuration of a bucketaccess allocation
+[**allocation_tenant_bucket_id_bucketaccess_name_configuration_delete**](BucketAccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_configuration_delete) | **DELETE** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration | deletes a bucketaccess
+[**allocation_tenant_bucket_id_bucketaccess_name_configuration_get**](BucketAccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_configuration_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration | gets configuration of a bucketaccess allocation
+[**allocation_tenant_bucket_id_bucketaccess_name_configuration_put**](BucketAccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_configuration_put) | **PUT** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration | creates bucketaccess configuration.
+[**allocation_tenant_bucket_id_bucketaccess_name_get**](BucketAccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess/{name} | shows overall status of a third party bucket
+[**allocation_tenant_bucket_id_bucketaccess_name_status_get**](BucketAccessApi.md#allocation_tenant_bucket_id_bucketaccess_name_status_get) | **GET** /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/status | gets status description of a bucketaccess allocation
+[**allocation_tenant_bucketaccess_get**](BucketAccessApi.md#allocation_tenant_bucketaccess_get) | **GET** /allocation/{tenant}/bucketaccess | lists all bucketaccesses of a tenant
 
 
 
@@ -168,7 +168,7 @@ Name | Type | Description  | Required | Notes
 ## allocation_tenant_bucket_id_bucketaccess_name_get
 
 > models::BucketAccessStatus allocation_tenant_bucket_id_bucketaccess_name_get(tenant, id, name)
-shows overall status of a third party bucket concession
+shows overall status of a third party bucket
 
 ### Parameters
 

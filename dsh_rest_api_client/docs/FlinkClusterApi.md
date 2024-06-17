@@ -108,7 +108,7 @@ create a new Flink Cluster. It is impossible to update an existing Flink Cluster
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **tenant** | **String** | tenant name | [required] |
-**flink_cluster** | [**FlinkCluster**](FlinkCluster.md) | a JSON object containg the desired configuration of the Flink Cluster. Zone must be known to the platform. | [required] |
+**flink_cluster** | [**FlinkCluster**](FlinkCluster.md) | a JSON object containing the desired configuration of the Flink Cluster. Zone must be known to the platform. | [required] |
 
 ### Return type
 
