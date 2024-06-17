@@ -24,7 +24,7 @@ impl Zone {
         Zone { network }
     }
 }
-///
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Network {
     #[serde(rename = "internal")]
