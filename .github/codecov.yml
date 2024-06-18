@@ -16,6 +16,7 @@ ignore:
   - "tests"
   - "examples"
   - "example_dsh_service"
+  - "dsh_rest_api_client"
 
 # Make comments less noisy
 comment:
