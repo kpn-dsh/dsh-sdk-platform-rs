@@ -17,3 +17,10 @@ homepage = "https://www.kpn.com/dsh"
 keywords = ["kpn", "dsh", "sdk"]
 license = "Apache-2.0"
 repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
+
+[workspace.dependencies]
+bytes = "1.6"
+reqwest = "0.12"
+serde = "1.0"
+serde_json = "1.0"
+tokio = "^1.35" 
