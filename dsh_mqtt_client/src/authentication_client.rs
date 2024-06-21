@@ -1,6 +1,7 @@
 use crate::config::{ArcDshConfig, DshConfig};
 use crate::error::DshError;
-use crate::model::{MqttToken, MqttTokenRequest, RestToken, RestTokenRequest};
+use crate::model::mqtt_model::{MqttToken, MqttTokenRequest};
+use crate::model::rest_model::{RestToken, RestTokenRequest};
 use dashmap::DashMap;
 use lazy_static::lazy_static;
 use reqwest::Client;

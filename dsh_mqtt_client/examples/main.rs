@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use dsh_mqtt_client::{
     config::DshConfig,
-    model::RetrieveTokenRequest,
+    model::token_request_attr::RetrieveTokenRequest,
     service::{AuthenticationService, DshAuthenticationServiceAdapter},
 };
 

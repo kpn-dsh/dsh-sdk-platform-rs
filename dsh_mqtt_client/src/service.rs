@@ -7,7 +7,9 @@ use reqwest::Client;
 use crate::authentication_client::{DshMqttAuthenticationClient, DshRestAuthenticationClient};
 use crate::config::ArcDshConfig;
 use crate::error::DshError;
-use crate::model::{MqttToken, MqttTokenRequest, RestTokenRequest, RetrieveTokenRequest};
+use crate::model::mqtt_model::{MqttToken, MqttTokenRequest};
+use crate::model::rest_model::RestTokenRequest;
+use crate::model::token_request_attr::RetrieveTokenRequest;
 
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 
