@@ -1,25 +1,22 @@
-use std::sync::Arc;
+use std::{env, sync::Arc};
 
 use dsh_mqtt_client::{
-    config::DshConfig,
-    model::token_request_attr::RetrieveTokenRequest,
+    config::{DshConfig, DshEnv},
+    model::{
+        mqtt_model::{Claims, Resource},
+        token_request_attr::RetrieveTokenRequest,
+    },
     service::{AuthenticationService, DshAuthenticationServiceAdapter},
 };
 
 #[tokio::main]
 async fn main() {
-    let dsh_conf = Arc::new(DshConfig {
-        // TODO: create enum for env urls
-        rest_token_endpoint: "https://api.dsh-dev.dsh.np.aws.kpn.com/auth/v0/token".to_string(),
-        mqtt_token_endpoint: "https://api.dsh-dev.dsh.np.aws.kpn.com/datastreams/v0/mqtt/token"
-            .to_string(),
-    });
+    let dsh_conf = Arc::new(DshConfig::new(DshEnv::Dev));
 
     let retrieve_request = RetrieveTokenRequest {
-        tenant: "tenant-name".to_string(), // change here before commit
-        //TODO:  initiate from ENV VAR
-        api_key: "********".to_string(), // change here before commit
-        claims: None,                    //better example
+        tenant: env::var("TENANT_NAME").unwrap().to_string(),
+        api_key: env::var("API_KEY").unwrap().to_string(),
+        claims: get_claims(),
         client_id: uuid::Uuid::new_v4().to_string(),
     };
     let service = DshAuthenticationServiceAdapter::new(dsh_conf);
@@ -29,6 +26,21 @@ async fn main() {
         .unwrap();
 
     print!("mqtt -> {:?}", mqtt_token);
+}
 
-    //TODO: another file example for stream
+fn get_claims() -> Option<Vec<Claims>> {
+    let resource = Resource {
+        stream: "weather".to_string(),
+        prefix: "/tt".to_string(),
+        topic: "+/+/+/+/+/+/+/+/+/+/+/#".to_string(),
+        type_: Some("topic".to_string()),
+    };
+
+    let claims = Claims {
+        resource: resource,
+        action: "subscribe".to_string(),
+    };
+
+    let claims_vector = vec![claims];
+    Some(claims_vector)
 }
