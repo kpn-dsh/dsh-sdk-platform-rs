@@ -10,6 +10,9 @@
 //!
 //! ### Example:
 //! ```
+//! use std::sync::Arc;
+//! use dsh_mqtt_client::{config::{DshConfig, DshEnv}};
+//!
 //! let dsh_conf = Arc::new(DshConfig::new(DshEnv::Dev));
 //! ```
 //!
@@ -23,8 +26,26 @@
 //!
 //! ### Example:
 //! ```
+//! use std::sync::Arc;
+//! use std::env;
+//! use dsh_mqtt_client::{config::{DshConfig, DshEnv}};
+//! use dsh_mqtt_client::service::{DshAuthenticationServiceAdapter,AuthenticationService};
+//! use dsh_mqtt_client::model::mqtt_model::MqttToken;
+//! use dsh_mqtt_client::model::token_request_attr::RetrieveTokenRequest;
+//!
+//! #[tokio::main]
+//! # async fn main() {
+//! let retrieve_request = RetrieveTokenRequest {
+//! tenant: env::var("TENANT_NAME").unwrap().to_string(),
+//! api_key: env::var("API_KEY").unwrap().to_string(),
+//! claims: None,
+//! client_id: uuid::Uuid::new_v4().to_string(),
+//! };
+//!
+//! let dsh_conf = Arc::new(DshConfig::new(DshEnv::Dev));
 //! let service: DshAuthenticationServiceAdapter = DshAuthenticationServiceAdapter::new(dsh_conf);
 //! let mqtt_token: MqttToken = service.retrieve_token(retrieve_request.clone()).await.unwrap();
+//! }
 //! ```
 /// Includes all the logic and steps to fetch rest and mqtt tokens.
 mod authentication_client;
