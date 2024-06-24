@@ -3,7 +3,7 @@ use std::{env, sync::Arc};
 use dsh_mqtt_client::{
     config::{DshConfig, DshEnv},
     model::{
-        mqtt_model::{Claims, Resource},
+        mqtt_model::{Claims, MqttToken, Resource},
         token_request_attr::RetrieveTokenRequest,
     },
     service::{AuthenticationService, DshAuthenticationServiceAdapter},
@@ -19,8 +19,8 @@ async fn main() {
         claims: get_claims(),
         client_id: uuid::Uuid::new_v4().to_string(),
     };
-    let service = DshAuthenticationServiceAdapter::new(dsh_conf);
-    let mqtt_token = service
+    let service: DshAuthenticationServiceAdapter = DshAuthenticationServiceAdapter::new(dsh_conf);
+    let mqtt_token: MqttToken = service
         .retrieve_token(retrieve_request.clone())
         .await
         .unwrap();
