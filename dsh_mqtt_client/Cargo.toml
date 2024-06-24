@@ -15,7 +15,6 @@ repository.workspace = true
 [dependencies]
 async-trait = { version = "0.1", features = [] }
 base64 = "0.22"
-dashmap = "5.5"
 lazy_static = "1.4"
 lombok = "0.4"
 reqwest = { workspace = true }

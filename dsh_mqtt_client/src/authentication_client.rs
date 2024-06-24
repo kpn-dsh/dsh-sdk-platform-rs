@@ -2,17 +2,39 @@ use crate::config::{ArcDshConfig, DshConfig};
 use crate::error::DshError;
 use crate::model::mqtt_model::{MqttToken, MqttTokenRequest};
 use crate::model::rest_model::{RestToken, RestTokenRequest};
-use dashmap::DashMap;
 use lazy_static::lazy_static;
 use reqwest::Client;
 use serde_json::json;
 use sha2::{Digest, Sha256};
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-lazy_static! {   //TODO: Since there will be one tenant change here from dashmap to Rwlock of struct
-    //tenant_id, (duration, token)
-    static ref CACHED_REST_TOKENS: Arc<DashMap<String, (i64, String)>> = Arc::new(DashMap::new());
+lazy_static! {
+    static ref CACHED_REST_TOKENS: Arc<RwLock<Option<TokenCache>>> = Arc::new(RwLock::new(None));
+}
+
+#[derive(Clone)]
+struct TokenCache {
+    token: String,
+    expiration_date: i64,
+}
+
+impl TokenCache {
+    fn read_cache() -> Option<TokenCache> {
+        let cache = CACHED_REST_TOKENS.read().unwrap();
+        cache.clone()
+    }
+    fn write_cache(token: String, expiration_date: i64) {
+        let mut cache = CACHED_REST_TOKENS.write().unwrap();
+        *cache = Some(TokenCache {
+            token,
+            expiration_date,
+        })
+    }
+    fn clear_cache() {
+        let mut cache = CACHED_REST_TOKENS.write().unwrap();
+        *cache = None
+    }
 }
 
 /// To create MQTT Token, Rest Token need to be fetched first. This fetching will be handled in DshRestAuthenticationClient implementation.
@@ -46,30 +68,24 @@ impl DshRestAuthenticationClient {
         &self,
         rest_request: &RestTokenRequest,
     ) -> Result<String, DshError> {
-        let rest_cache = Arc::clone(&CACHED_REST_TOKENS);
-        if let Some((expiry, token)) = rest_cache.get(&rest_request.tenant).map(|e| e.clone()) {
-            if is_token_valid(expiry) {
-                return Ok(token);
+        if let Some(token_cache) = TokenCache::read_cache() {
+            if is_token_valid(token_cache.expiration_date) {
+                return Ok(token_cache.token);
             } else {
-                rest_cache.remove(&rest_request.tenant);
+                TokenCache::clear_cache()
             }
         }
-        self.get_new_token_add_cache(rest_request, &rest_cache)
-            .await
+        self.get_new_token_add_cache(rest_request).await
     }
 
     async fn get_new_token_add_cache(
         &self,
         rest_request: &RestTokenRequest,
-        rest_cache: &Arc<DashMap<String, (i64, String)>>,
     ) -> Result<String, DshError> {
         let created_raw_rest_token = self.create_rest_token(rest_request).await?;
 
         if let Ok(ref new_token) = RestToken::new(created_raw_rest_token.clone()) {
-            rest_cache.insert(
-                rest_request.tenant.clone(),
-                (new_token.token_attributes.exp, new_token.raw_token.clone()),
-            );
+            TokenCache::write_cache(new_token.raw_token.clone(), new_token.token_attributes.exp)
         }
 
         Ok(created_raw_rest_token)
