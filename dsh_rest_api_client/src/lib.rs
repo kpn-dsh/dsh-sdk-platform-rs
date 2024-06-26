@@ -6481,9 +6481,11 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_application_configuration<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<std::collections::HashMap<String, types::Application>>, Error<()>>
     {
         let url = format!(
@@ -6491,6 +6493,8 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6499,6 +6503,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6517,10 +6522,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appid`: application name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_application_by_appid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Application>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/application/{}/configuration",
@@ -6528,6 +6535,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6536,6 +6545,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6553,12 +6563,14 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appid`: application name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: a JSON containing the configuration of the application you
     ///   want to deploy
     pub async fn put_allocation_by_tenant_application_by_appid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
+        authorization: &'a str,
         body: &'a types::Application,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -6567,8 +6579,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -6586,10 +6605,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appid`: application name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_application_by_appid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/application/{}/configuration",
@@ -6597,8 +6618,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -6614,9 +6637,11 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_application_actual<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<std::collections::HashMap<String, types::Application>>, Error<()>>
     {
         let url = format!(
@@ -6624,6 +6649,8 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6632,6 +6659,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6650,10 +6678,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appid`: application name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_application_by_appid_actual<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Application>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/application/{}/actual",
@@ -6661,6 +6691,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6669,6 +6701,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6686,10 +6719,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appid`: application name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_application_by_appid_status<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/application/{}/status",
@@ -6697,6 +6732,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6705,6 +6742,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6722,9 +6760,11 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_appcatalogapp_configuration<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<std::collections::HashMap<String, types::AppCatalogApp>>, Error<()>>
     {
         let url = format!(
@@ -6732,6 +6772,8 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6740,6 +6782,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6757,9 +6800,11 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_appcatalogapp_actual<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<std::collections::HashMap<String, types::AppCatalogApp>>, Error<()>>
     {
         let url = format!(
@@ -6767,6 +6812,8 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6775,6 +6822,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6796,10 +6844,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AppCatalogApp>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/appcatalogapp/{}/configuration",
@@ -6807,6 +6857,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6815,6 +6867,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6835,10 +6888,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_appcatalogapp_by_appcatalogappid_actual<'a>(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AppCatalogApp>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/appcatalogapp/{}/actual",
@@ -6846,6 +6901,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6854,6 +6911,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6873,10 +6931,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AppCatalogAppConfiguration>, Error<()>> {
         let url = format!(
             "{}/appcatalog/{}/appcatalogapp/{}/configuration",
@@ -6884,6 +6944,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6892,6 +6954,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -6909,6 +6972,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: JSON object containing required parameters for AppCatalogApp
     ///   manifest. This is comparable to the configuration object on a regular
     ///   Application service.
@@ -6916,6 +6980,7 @@ impl Client {
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
+        authorization: &'a str,
         body: &'a types::AppCatalogAppConfiguration,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -6924,8 +6989,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -6943,10 +7015,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/appcatalog/{}/appcatalogapp/{}/configuration",
@@ -6954,8 +7028,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -6972,10 +7048,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_status<'a>(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/appcatalog/{}/appcatalogapp/{}/status",
@@ -6983,6 +7061,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -6991,6 +7071,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7006,15 +7087,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_appcatalog_by_tenant_manifest<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<Vec<types::AppCatalogManifest>>, Error<()>> {
         let url = format!(
             "{}/appcatalog/{}/manifest",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7023,6 +7108,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7038,15 +7124,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucketwatch<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucketwatch",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7055,6 +7145,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7071,10 +7162,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketwatch<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::BucketWatchStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketwatch",
@@ -7082,6 +7175,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7090,6 +7185,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7107,10 +7203,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::BucketWatch>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
@@ -7118,6 +7216,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7126,6 +7226,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7143,10 +7244,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn put_allocation_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
@@ -7154,8 +7257,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).build()?;
+        let mut request = self.client.put(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -7172,10 +7277,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
@@ -7183,8 +7290,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -7201,10 +7310,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketwatch_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::BucketWatch>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketwatch/actual",
@@ -7212,6 +7323,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7220,6 +7333,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7237,10 +7351,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketwatch_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketwatch/status",
@@ -7248,6 +7364,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7256,6 +7374,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7271,15 +7390,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7288,6 +7411,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7304,10 +7428,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::BucketStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}",
@@ -7315,6 +7441,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7323,6 +7451,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7340,10 +7469,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Bucket>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/configuration",
@@ -7351,6 +7482,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7359,6 +7492,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7378,11 +7512,13 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON representation of the resource
     pub async fn put_allocation_by_tenant_bucket_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
         body: &'a types::Bucket,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -7391,8 +7527,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -7409,10 +7552,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_bucket_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/configuration",
@@ -7420,8 +7565,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -7437,10 +7584,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Bucket>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/actual",
@@ -7448,6 +7597,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7456,6 +7607,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7472,10 +7624,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/status",
@@ -7483,6 +7637,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7491,6 +7647,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7506,15 +7663,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucketaccess<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucketaccess",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7523,6 +7684,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7539,10 +7701,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketaccess",
@@ -7550,6 +7714,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7558,6 +7724,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7576,11 +7743,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess_by_name<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
         name: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::BucketAccessStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketaccess/{}",
@@ -7589,6 +7758,8 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7597,6 +7768,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7615,11 +7787,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
         name: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::BucketAccessConfiguration>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketaccess/{}/configuration",
@@ -7628,6 +7802,8 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7636,6 +7812,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7654,12 +7831,14 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the wanted config of the (new) bucketaccess allocation
     pub async fn put_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
         name: &'a str,
+        authorization: &'a str,
         body: &'a types::BucketAccessConfiguration,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -7669,8 +7848,15 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -7688,11 +7874,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
         name: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketaccess/{}/configuration",
@@ -7701,8 +7889,10 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -7720,11 +7910,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
         name: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::BucketAccess>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketaccess/{}/actual",
@@ -7733,6 +7925,8 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7741,6 +7935,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7759,11 +7954,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
         name: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/{}/bucketaccess/{}/status",
@@ -7772,6 +7969,8 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7780,6 +7979,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7795,15 +7995,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_certificate<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/certificate",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7812,6 +8016,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7828,10 +8033,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_certificate_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::CertificateStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/certificate/{}",
@@ -7839,6 +8046,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7847,6 +8056,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7864,10 +8074,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_certificate_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Certificate>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/certificate/{}/configuration",
@@ -7875,6 +8087,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7883,6 +8097,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7902,12 +8117,14 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the configuration of a certificate.
     ///   certChainSecret and keySecret must be known to the platform.
     pub async fn put_allocation_by_tenant_certificate_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
         body: &'a types::Certificate,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -7916,8 +8133,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -7934,10 +8158,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_certificate_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/certificate/{}/configuration",
@@ -7945,8 +8171,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -7963,10 +8191,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_certificate_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Certificate>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/certificate/{}/actual",
@@ -7974,6 +8204,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -7982,6 +8214,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -7998,10 +8231,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_certificate_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/certificate/{}/status",
@@ -8009,6 +8244,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8017,6 +8254,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8032,15 +8270,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_database<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/database",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8049,6 +8291,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8065,10 +8308,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_database_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::DatabaseStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/database/{}",
@@ -8076,6 +8321,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8084,6 +8331,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8101,10 +8349,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_database_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Database>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/database/{}/configuration",
@@ -8112,6 +8362,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8120,6 +8372,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8138,11 +8391,13 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON representation of the resource
     pub async fn put_allocation_by_tenant_database_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
         body: &'a types::Database,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -8151,8 +8406,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8169,10 +8431,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_database_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/database/{}/configuration",
@@ -8180,8 +8444,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8197,10 +8463,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_database_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Database>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/database/{}/actual",
@@ -8208,6 +8476,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8216,6 +8486,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8232,10 +8503,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_database_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/database/{}/status",
@@ -8243,6 +8516,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8251,6 +8526,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8267,10 +8543,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `kind`: data catalog asset kind
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_datacatalog_asset_by_kind<'a>(
         &'a self,
         tenant: &'a str,
         kind: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/datacatalog/asset/{}",
@@ -8278,6 +8556,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&kind.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8286,6 +8566,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8304,11 +8585,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `kind`: data catalog asset kind
     /// - `name`: data catalog asset name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_datacatalog_asset_by_kind_by_name<'a>(
         &'a self,
         tenant: &'a str,
         kind: &'a str,
         name: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::DataCatalogAssetStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/datacatalog/asset/{}/{}",
@@ -8317,6 +8600,8 @@ impl Client {
             encode_path(&kind.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8325,6 +8610,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8343,11 +8629,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `kind`: data catalog asset kind
     /// - `name`: data catalog asset name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
         kind: &'a str,
         name: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::DataCatalogAsset>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/datacatalog/asset/{}/{}/configuration",
@@ -8356,6 +8644,8 @@ impl Client {
             encode_path(&kind.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8364,6 +8654,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8382,12 +8673,14 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `kind`: data catalog asset kind
     /// - `name`: data catalog asset name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON representation of the resource
     pub async fn put_allocation_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
         kind: &'a str,
         name: &'a str,
+        authorization: &'a str,
         body: &'a types::DataCatalogAsset,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -8397,8 +8690,15 @@ impl Client {
             encode_path(&kind.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8416,11 +8716,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `kind`: data catalog asset kind
     /// - `name`: data catalog asset name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
         kind: &'a str,
         name: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/datacatalog/asset/{}/{}/configuration",
@@ -8429,8 +8731,10 @@ impl Client {
             encode_path(&kind.to_string()),
             encode_path(&name.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8445,15 +8749,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_flinkcluster<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::FlinkClusterStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/flinkcluster",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8462,6 +8770,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8478,15 +8787,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_flinkcluster_configuration<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::FlinkCluster>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/flinkcluster/configuration",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8495,6 +8808,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8513,11 +8827,13 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: a JSON object containing the desired configuration of the
     ///   Flink Cluster. Zone must be known to the platform.
     pub async fn put_allocation_by_tenant_flinkcluster_configuration<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
         body: &'a types::FlinkCluster,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -8525,8 +8841,15 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8543,17 +8866,21 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_flinkcluster_configuration<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/flinkcluster/configuration",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8568,15 +8895,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_flinkcluster_actual<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::FlinkCluster>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/flinkcluster/actual",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8585,6 +8916,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8600,15 +8932,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_flinkcluster_status<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/flinkcluster/status",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8617,6 +8953,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8632,15 +8969,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_kafkaproxy<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/kafkaproxy",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8649,6 +8990,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8667,10 +9009,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_kafkaproxy_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::KafkaProxy>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/kafkaproxy/{}/configuration",
@@ -8678,6 +9022,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8686,6 +9032,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8703,11 +9050,13 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the kafka proxy configuration options
     pub async fn put_allocation_by_tenant_kafkaproxy_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
         body: &'a types::KafkaProxy,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -8716,8 +9065,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8734,10 +9090,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_kafkaproxy_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/kafkaproxy/{}/configuration",
@@ -8745,8 +9103,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8761,15 +9121,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_robot_by_tenant_generate_secret<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ClientSecret>, Error<()>> {
         let url = format!(
             "{}/robot/{}/generate-secret",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8778,6 +9142,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8793,15 +9158,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_secret<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/secret",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8810,6 +9179,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8825,10 +9195,12 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: a JSON object containing the name and the secret value
     pub async fn post_allocation_by_tenant_secret<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
         body: &'a types::Secret,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -8836,8 +9208,15 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.post(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .post(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8854,10 +9233,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_secret_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Empty>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/secret/{}/configuration",
@@ -8865,6 +9246,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8873,6 +9256,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8890,10 +9274,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_secret_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/secret/{}/configuration",
@@ -8901,8 +9287,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -8920,10 +9308,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_secret_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Empty>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/secret/{}/actual",
@@ -8931,6 +9321,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8939,6 +9331,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8955,10 +9348,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_secret_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/secret/{}/status",
@@ -8966,6 +9361,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8974,6 +9371,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -8990,10 +9388,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_secret_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<ByteStream>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/secret/{}",
@@ -9001,8 +9401,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.get(url).build()?;
+        let mut request = self.client.get(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -9018,11 +9420,13 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the secret value as a string
     pub async fn put_allocation_by_tenant_secret_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
         body: String,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -9031,6 +9435,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9040,6 +9446,7 @@ impl Client {
                 reqwest::header::HeaderValue::from_static("text/plain"),
             )
             .body(body)
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9055,15 +9462,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_task<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/task",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9072,6 +9483,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9088,10 +9500,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `appid`: application name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_task_by_appid<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/task/{}",
@@ -9099,6 +9513,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9107,6 +9523,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9124,11 +9541,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appid`: application name
     /// - `id`: task name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_task_by_appid_by_id<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::TaskStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/task/{}/{}",
@@ -9137,6 +9556,8 @@ impl Client {
             encode_path(&appid.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9145,6 +9566,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9162,11 +9584,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appid`: application name
     /// - `id`: task name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_task_by_appid_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Task>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/task/{}/{}/actual",
@@ -9175,6 +9599,8 @@ impl Client {
             encode_path(&appid.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9183,6 +9609,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9200,11 +9627,13 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appid`: application name
     /// - `id`: task name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_task_by_appid_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/task/{}/{}/status",
@@ -9213,6 +9642,8 @@ impl Client {
             encode_path(&appid.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9221,6 +9652,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9237,15 +9669,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_bucket_fromthirdparty<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/bucket/fromthirdparty",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9254,6 +9690,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9271,15 +9708,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_thirdpartybucketconcession<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/thirdpartybucketconcession",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9288,6 +9729,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9305,10 +9747,12 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the secret value
     pub async fn post_allocation_by_tenant_thirdpartybucketconcession<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
         body: &'a types::ThirdPartyBucketConcessionRegistration,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -9316,8 +9760,15 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.post(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .post(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -9334,10 +9785,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_thirdpartybucketconcession_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ThirdPartyBucketConcessionStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/thirdpartybucketconcession/{}",
@@ -9345,6 +9798,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9353,6 +9808,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9371,10 +9827,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_thirdpartybucketconcession_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ThirdPartyBucketConcession>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/thirdpartybucketconcession/{}/configuration",
@@ -9382,6 +9840,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9390,6 +9850,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9408,10 +9869,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_thirdpartybucketconcession_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/thirdpartybucketconcession/{}/configuration",
@@ -9419,8 +9882,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -9438,10 +9903,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_thirdpartybucketconcession_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ThirdPartyBucketConcession>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/thirdpartybucketconcession/{}/actual",
@@ -9449,6 +9916,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9457,6 +9926,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9475,10 +9945,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_thirdpartybucketconcession_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/thirdpartybucketconcession/{}/status",
@@ -9486,6 +9958,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9494,6 +9968,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9509,15 +9984,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_topic<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/topic",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9526,6 +10005,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9542,10 +10022,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_topic_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::TopicStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/topic/{}",
@@ -9553,6 +10035,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9561,6 +10045,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9577,10 +10062,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_topic_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Topic>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/topic/{}/configuration",
@@ -9588,6 +10075,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9596,6 +10085,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9614,12 +10104,14 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the configuration of the desired
     ///   topic
     pub async fn put_allocation_by_tenant_topic_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
         body: &'a types::Topic,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -9628,8 +10120,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -9646,10 +10145,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_topic_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/topic/{}/configuration",
@@ -9657,8 +10158,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -9674,10 +10177,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_topic_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Topic>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/topic/{}/actual",
@@ -9685,6 +10190,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9693,6 +10200,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9709,10 +10217,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_topic_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/topic/{}/status",
@@ -9720,6 +10230,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9728,6 +10240,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9743,15 +10256,19 @@ impl Client {
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_volume<'a>(
         &'a self,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/volume",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9760,6 +10277,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9776,10 +10294,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_volume_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::VolumeStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/volume/{}",
@@ -9787,6 +10307,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9795,6 +10317,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9812,10 +10335,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_volume_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Volume>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/volume/{}/configuration",
@@ -9823,6 +10348,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9831,6 +10358,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9850,12 +10378,14 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the desired configuration of a
     ///   volume allocation
     pub async fn put_allocation_by_tenant_volume_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
         body: &'a types::Volume,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -9864,8 +10394,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -9882,10 +10419,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_allocation_by_tenant_volume_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/volume/{}/configuration",
@@ -9893,8 +10432,10 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -9910,10 +10451,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_volume_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::Volume>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/volume/{}/actual",
@@ -9921,6 +10464,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9929,6 +10474,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9945,10 +10491,12 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_allocation_by_tenant_volume_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/volume/{}/status",
@@ -9956,6 +10504,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9964,6 +10514,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -9980,15 +10531,19 @@ impl Client {
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_manage_by_manager_tenant<'a>(
         &'a self,
         manager: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant",
             self.baseurl,
             encode_path(&manager.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9997,6 +10552,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -10015,10 +10571,12 @@ impl Client {
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_manage_by_manager_tenant_by_tenant_configuration<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ManagedTenant>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant/{}/configuration",
@@ -10026,6 +10584,8 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10034,6 +10594,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -10053,12 +10614,14 @@ impl Client {
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the configuration of the managed
     ///   tenant
     pub async fn put_manage_by_manager_tenant_by_tenant_configuration<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
+        authorization: &'a str,
         body: &'a types::ManagedTenant,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -10067,8 +10630,15 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -10087,10 +10657,12 @@ impl Client {
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn delete_manage_by_manager_tenant_by_tenant_configuration<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant/{}/configuration",
@@ -10098,8 +10670,10 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.delete(url).build()?;
+        let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -10116,10 +10690,12 @@ impl Client {
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_manage_by_manager_tenant_by_tenant_actual<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::ManagedTenant>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant/{}/actual",
@@ -10127,6 +10703,8 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10135,6 +10713,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -10152,10 +10731,12 @@ impl Client {
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_manage_by_manager_tenant_by_tenant_status<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant/{}/status",
@@ -10163,6 +10744,8 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10171,6 +10754,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -10188,10 +10772,12 @@ impl Client {
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_manage_by_manager_tenant_by_tenant_limit<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
+        authorization: &'a str,
     ) -> Result<ResponseValue<Vec<types::LimitValue>>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant/{}/limit",
@@ -10199,6 +10785,8 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10207,6 +10795,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -10224,11 +10813,13 @@ impl Client {
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: a JSON list with multiple limits of the managed tenant
     pub async fn patch_manage_by_manager_tenant_by_tenant_limit<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
+        authorization: &'a str,
         body: &'a Vec<types::LimitValue>,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -10237,8 +10828,15 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.patch(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .patch(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -10258,11 +10856,13 @@ impl Client {
     ///   request
     /// - `tenant`: tenant name
     /// - `kind`: Limit request type
+    /// - `authorization`: Authorization header (bearer token)
     pub async fn get_manage_by_manager_tenant_by_tenant_limit_by_kind<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
         kind: types::GetManageByManagerTenantByTenantLimitByKindKind,
+        authorization: &'a str,
     ) -> Result<ResponseValue<types::LimitValue>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant/{}/limit/{}",
@@ -10271,6 +10871,8 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&kind.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10279,6 +10881,7 @@ impl Client {
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
             )
+            .headers(header_map)
             .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
@@ -10298,6 +10901,7 @@ impl Client {
     ///   request
     /// - `tenant`: tenant name
     /// - `kind`: Limit request type
+    /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the limit configuration of the
     ///   managed tenant
     pub async fn put_manage_by_manager_tenant_by_tenant_limit_by_kind<'a>(
@@ -10305,6 +10909,7 @@ impl Client {
         manager: &'a str,
         tenant: &'a str,
         kind: types::PutManageByManagerTenantByTenantLimitByKindKind,
+        authorization: &'a str,
         body: &'a types::LimitValue,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -10314,8 +10919,15 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&kind.to_string()),
         );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).json(&body).build()?;
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {

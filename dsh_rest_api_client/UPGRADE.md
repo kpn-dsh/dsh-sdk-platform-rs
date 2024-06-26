@@ -21,7 +21,7 @@ Download the OpenAPI spec file from the DSH API documentation.
 The spec of DSH is missing the required `OperationId` field. To add this, run the following python script:
 
 ```shell
-python3 add_operation_id.py path/to/openapi.json
+python3 update_openapi_spec.py path/to/openapi.json
 ```
 
 ## Generate the client
@@ -32,4 +32,4 @@ cargo +nightly  progenitor -i path/to/updated_openapi.json -o path/to/tmp_dsh_re
 ```
 
 ## Update the client
-Copy the generated src code to the `dsh_rest_api_client` in the`dsh_sdk` repository and update the `README.md` file and `cargo.toml` with the new version number. 
+Copy the generated src folder to the `dsh_rest_api_client` in the `dsh_sdk` repository and update the `README.md` file and `cargo.toml` with the new version number. 
