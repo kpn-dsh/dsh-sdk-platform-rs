@@ -27,10 +27,11 @@ use std::sync::OnceLock;
 
 use super::bootstrap::bootstrap;
 use super::{
-    certificates, datastream, pki_config_dir, utils, VAR_APP_ID, VAR_DSH_TENANT_NAME,
+    certificates, datastream, pki_config_dir, VAR_APP_ID, VAR_DSH_TENANT_NAME,
     VAR_KAFKA_AUTO_OFFSET_RESET, VAR_KAFKA_ENABLE_AUTO_COMMIT, VAR_KAFKA_GROUP_ID, VAR_TASK_ID,
 };
 use crate::error::DshError;
+use crate::utils;
 
 static PROPERTIES: OnceLock<Properties> = OnceLock::new();
 

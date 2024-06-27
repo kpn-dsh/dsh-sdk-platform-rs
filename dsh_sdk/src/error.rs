@@ -53,3 +53,15 @@ pub enum DshError {
     #[error("Hyper error: {0}")]
     HyperError(#[from] hyper::http::Error),
 }
+
+#[cfg(feature = "rest_token_fetcher")]
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum DshRestTokenError {
+    #[error("Client ID is unknown")]
+    UnknownClientId,
+    #[error("Client secret not set")]
+    UnknownClientSecret,
+    #[error("Unexpected failure while fetching token from server: {0}")]
+    FailureTokenFetch(reqwest::Error),
+}

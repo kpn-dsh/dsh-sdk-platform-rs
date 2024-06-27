@@ -13,9 +13,10 @@ use reqwest::blocking::Client;
 use crate::error::DshError;
 
 use super::{
-    certificates::Cert, datastream::Datastream, utils, VAR_DSH_CA_CERTIFICATE,
-    VAR_DSH_SECRET_TOKEN, VAR_DSH_SECRET_TOKEN_PATH, VAR_KAFKA_CONFIG_HOST,
+    certificates::Cert, datastream::Datastream, VAR_DSH_CA_CERTIFICATE, VAR_DSH_SECRET_TOKEN,
+    VAR_DSH_SECRET_TOKEN_PATH, VAR_KAFKA_CONFIG_HOST,
 };
+use crate::utils;
 
 /// Connect to DSH and retrieve the certificates and datastreams.json to create the properties struct
 pub(crate) fn bootstrap(tenant_name: &str, task_id: &str) -> Result<(Cert, Datastream), DshError> {
