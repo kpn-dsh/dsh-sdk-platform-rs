@@ -1,3 +1,37 @@
+//! Module for fetching and storing access tokens for the DSH Rest API client
+//! 
+//! This module is meant to be used together with the [dsh_rest_api_client].
+//! 
+//! The TokenFetcher will fetch and store access tokens to be used in the DSH Rest API client.
+//! 
+//! ## Example
+//! Recommended usage is to use the [RestTokenFetcherBuilder] to create a new instance of the token fetcher.
+//! However, you can also create a new instance of the token fetcher directly.
+//! ```no_run
+//! use dsh_sdk::{RestTokenFetcherBuilder, Platform};
+//! use dsh_rest_api_client::Client;
+//! 
+//! const CLIENT_SECRET: &str = "";
+//! const TENANT: &str = "tenant-name";
+//! 
+//! #[tokio::main]
+//! async fn main() {
+//!     let platform = Platform::NpLz;
+//!     let client = Client::new(platform.endpoint_rest_api());
+//! 
+//!     let tf = RestTokenFetcherBuilder::new(platform)
+//!         .tenant_name(TENANT.to_string())
+//!         .client_secret(CLIENT_SECRET.to_string())
+//!         .build()
+//!         .unwrap();
+//! 
+//!     let response = client
+//!         .get_allocation_by_tenant_topic(TENANT, &tf.get_token().await.unwrap())
+//!         .await;
+//!     println!("Available topics of my tenant: {:#?}", response);
+//! }
+//! ```
+
 use std::fmt::Debug;
 use std::ops::Add;
 use std::sync::Mutex;
@@ -94,14 +128,15 @@ impl RestTokenFetcher {
     ///
     /// ## Example
     /// ```no_run
-    /// use dsh_sdk::dsh::rest_api_client::{TokenFetcher, };
+    /// use dsh_sdk::{RestTokenFetcher, Platform};
+    /// use dsh_rest_api_client::Client;
     ///
     /// #[tokio::main]
     /// async fn main() {
     ///     let platform = Platform::NpLz;
-    ///     let client_id = platform.client_id("my-tenant");
+    ///     let client_id = platform.rest_client_id("my-tenant");
     ///     let client_secret = "my-secret".to_string();
-    ///     let token_fetcher = TokenFetcher::new(client_id, client_secret, platform.endpoint_rest_access_token());
+    ///     let token_fetcher = RestTokenFetcher::new(client_id, client_secret, platform.endpoint_rest_access_token().to_string());
     ///     let token = token_fetcher.get_token().await.unwrap();
     /// }
     /// ```
@@ -227,11 +262,11 @@ impl RestTokenFetcherBuilder {
     ///
     /// ## Example
     /// ```
-    /// # use dsh_sdk::dsh::rest_api_client::{ClientBuilder, Platform};
+    /// # use dsh_sdk::{RestTokenFetcherBuilder, Platform};
     /// let platform = Platform::NpLz;
     /// let client_id = "robot:dev-lz-dsh:my-tenant".to_string();
     /// let client_secret = "secret".to_string();
-    /// let (client, token_fetcher) = ClientBuilder::new(platform)
+    /// let tf = RestTokenFetcherBuilder::new(platform)
     ///     .client_id(client_id)
     ///     .client_secret(client_secret)
     ///     .build()

@@ -27,9 +27,9 @@ impl Platform {
     ///
     /// ## Example
     /// ```
-    /// # use dsh_sdk::dsh::rest_api_client::Platform;
+    /// # use dsh_sdk::Platform;
     /// let platform = Platform::NpLz;
-    /// let client_id = platform.client_id("my-tenant");
+    /// let client_id = platform.rest_client_id("my-tenant");
     /// assert_eq!(client_id, "robot:dev-lz-dsh:my-tenant");
     /// ```
     pub fn rest_client_id<T>(&self, tenant: T) -> String
@@ -45,7 +45,7 @@ impl Platform {
     ///
     /// ## Example
     /// ```
-    /// # use dsh_sdk::dsh::rest_api_client::Platform;
+    /// # use dsh_sdk::Platform;
     /// let platform = Platform::NpLz;
     /// let endpoint = platform.endpoint_rest_api();
     /// assert_eq!(endpoint, "https://api.dsh-dev.dsh.np.aws.kpn.com/resources/v0");
@@ -63,7 +63,7 @@ impl Platform {
     ///
     /// ## Example
     /// ```
-    /// # use dsh_sdk::dsh::rest_api_client::Platform;
+    /// # use dsh_sdk::Platform;
     /// let platform = Platform::NpLz;
     /// let endpoint = platform.endpoint_rest_access_token();
     /// assert_eq!(endpoint, "https://auth.lz.lz-cp.dsh.np.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token");

@@ -88,7 +88,7 @@ mod utils;
 
 #[cfg(feature = "bootstrap")]
 pub use dsh::Properties;
-pub use rest_api_token_fetcher::{AccessToken, RestTokenFetcher, RestTokenFetcherBuilder};
+pub use rest_api_token_fetcher::{RestTokenFetcher, RestTokenFetcherBuilder};
 pub use utils::Platform;
 
 // Environment variables
