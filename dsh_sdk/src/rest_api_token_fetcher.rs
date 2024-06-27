@@ -231,7 +231,6 @@ impl Debug for RestTokenFetcher {
             .field("client_secret", &"xxxxxx")
             .field("auth_url", &self.auth_url)
             .finish()
-        
     }
 }
 
@@ -378,13 +377,12 @@ mod test {
         assert_eq!(token.formatted_token(), " ");
     }
 
-
     #[test]
     fn test_rest_token_fetcher_is_valid_default_token() {
         // Test is_valid when validating default token (should expire in 0 seconds)
         let tf = create_mock_tf();
         assert!(!tf.is_valid());
-        }
+    }
 
     #[test]
     fn test_rest_token_fetcher_is_valid_valid_token() {
@@ -421,7 +419,8 @@ mod test {
     #[tokio::test]
     async fn test_fetch_access_token_from_server() {
         let mut auth_server = mockito::Server::new_async().await;
-        auth_server.mock("POST", "/")
+        auth_server
+            .mock("POST", "/")
             .with_status(200)
             .with_body(
                 r#"{
@@ -448,7 +447,8 @@ mod test {
     #[tokio::test]
     async fn test_fetch_access_token_from_server_error() {
         let mut auth_server = mockito::Server::new_async().await;
-        auth_server.mock("POST", "/")
+        auth_server
+            .mock("POST", "/")
             .with_status(400)
             .with_body("Bad request")
             .create();
@@ -456,7 +456,10 @@ mod test {
         tf.auth_url = auth_server.url();
         let err = tf.fetch_access_token_from_server().await.unwrap_err();
         match err {
-            DshRestTokenError::StatusCode { status_code, error_body } => {
+            DshRestTokenError::StatusCode {
+                status_code,
+                error_body,
+            } => {
                 assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
                 assert_eq!(error_body.text().await.unwrap(), "Bad request");
             }
@@ -489,7 +492,10 @@ mod test {
             .client_secret(client_secret.to_string())
             .build()
             .unwrap();
-        assert_eq!(tf.client_id, format!("robot:{}:{}", Platform::NpLz.realm(), tenant_name));
+        assert_eq!(
+            tf.client_id,
+            format!("robot:{}:{}", Platform::NpLz.realm(), tenant_name)
+        );
         assert_eq!(tf.client_secret, client_secret);
         assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
     }
@@ -524,6 +530,5 @@ mod test {
             .build()
             .unwrap_err();
         assert!(matches!(err, DshRestTokenError::UnknownClientSecret));
-
     }
 }
