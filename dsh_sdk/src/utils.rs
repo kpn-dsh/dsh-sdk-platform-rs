@@ -76,7 +76,7 @@ impl Platform {
         }
     }
 
-    fn realm(&self) -> &str {
+    pub fn realm(&self) -> &str {
         match self {
             Platform::NpLz => "dev-lz-dsh",
             Platform::ProdLz => "prod-lz-dsh",
