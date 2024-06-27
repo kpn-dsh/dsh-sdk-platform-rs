@@ -19,5 +19,5 @@ async fn main() {
         .get_allocation_by_tenant_topic(TENANT, &tf.get_token().await.unwrap())
         .await;
 
-    println!("Available topics of my tenant: {:#?}", response);
+    println!("Available topics: {:#?}", response);
 }
