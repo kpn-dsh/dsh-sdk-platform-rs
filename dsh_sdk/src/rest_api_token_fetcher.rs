@@ -1,34 +1,34 @@
 //! Module for fetching and storing access tokens for the DSH Rest API client
-//! 
+//!
 //! This module is meant to be used together with the [dsh_rest_api_client].
-//! 
+//!
 //! The TokenFetcher will fetch and store access tokens to be used in the DSH Rest API client.
-//! 
+//!
 //! ## Example
 //! Recommended usage is to use the [RestTokenFetcherBuilder] to create a new instance of the token fetcher.
 //! However, you can also create a new instance of the token fetcher directly.
 //! ```no_run
 //! use dsh_sdk::{RestTokenFetcherBuilder, Platform};
 //! use dsh_rest_api_client::Client;
-//! 
+//!
 //! const CLIENT_SECRET: &str = "";
 //! const TENANT: &str = "tenant-name";
-//! 
+//!
 //! #[tokio::main]
 //! async fn main() {
 //!     let platform = Platform::NpLz;
 //!     let client = Client::new(platform.endpoint_rest_api());
-//! 
+//!
 //!     let tf = RestTokenFetcherBuilder::new(platform)
 //!         .tenant_name(TENANT.to_string())
 //!         .client_secret(CLIENT_SECRET.to_string())
 //!         .build()
 //!         .unwrap();
-//! 
+//!
 //!     let response = client
 //!         .get_allocation_by_tenant_topic(TENANT, &tf.get_token().await.unwrap())
 //!         .await;
-//!     println!("Available topics of my tenant: {:#?}", response);
+//!     println!("Available topics: {:#?}", response);
 //! }
 //! ```
 
@@ -162,10 +162,7 @@ impl RestTokenFetcher {
             true => Ok(self.access_token.lock().unwrap().formatted_token()),
             false => {
                 debug!("Token is expired, fetching new token");
-                let access_token = self
-                    .fetch_access_token_from_server()
-                    .await
-                    .map_err(DshRestTokenError::FailureTokenFetch)?;
+                let access_token = self.fetch_access_token_from_server().await?;
                 let mut token = self.access_token.lock().unwrap();
                 let mut fetched_at = self.fetched_at.lock().unwrap();
                 *token = access_token;
@@ -196,9 +193,12 @@ impl RestTokenFetcher {
     /// Fetch a new access token from the server
     ///
     /// This will fetch a new access token from the server and return it.
-    /// If the request fails, it will return a `reqwest::Error` error.
-    pub async fn fetch_access_token_from_server(&self) -> Result<AccessToken, reqwest::Error> {
-        self.client
+    /// If the request fails, it will return a [DshRestTokenError::FailureTokenFetch] error.
+    /// If the status code is not successful, it will return a [DshRestTokenError::StatusCode] error.
+    /// If the request is successful, it will return the [AccessToken].
+    pub async fn fetch_access_token_from_server(&self) -> Result<AccessToken, DshRestTokenError> {
+        let response = self
+            .client
             .post(&self.auth_url)
             .form(&[
                 ("client_id", self.client_id.as_ref()),
@@ -206,9 +206,32 @@ impl RestTokenFetcher {
                 ("grant_type", "client_credentials"),
             ])
             .send()
-            .await?
-            .json::<AccessToken>()
             .await
+            .map_err(DshRestTokenError::FailureTokenFetch)?;
+        if !response.status().is_success() {
+            return Err(DshRestTokenError::StatusCode {
+                status_code: response.status(),
+                error_body: response,
+            });
+        } else {
+            response
+                .json::<AccessToken>()
+                .await
+                .map_err(DshRestTokenError::FailureTokenFetch)
+        }
+    }
+}
+
+impl Debug for RestTokenFetcher {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RestTokenFetcher")
+            .field("access_token", &self.access_token)
+            .field("fetched_at", &self.fetched_at)
+            .field("client_id", &self.client_id)
+            .field("client_secret", &"xxxxxx")
+            .field("auth_url", &self.auth_url)
+            .finish()
+        
     }
 }
 
@@ -299,11 +322,208 @@ impl Debug for RestTokenFetcherBuilder {
             .client_secret
             .as_ref()
             .map(|_| "Some(\"client_secret\")");
-        f.debug_struct("ClientBuilder")
+        f.debug_struct("RestTokenFetcherBuilder")
             .field("client_id", &self.client_id)
             .field("client_secret", &client_secret)
             .field("platform", &self.platform)
             .field("tenant_name", &self.tenant_name)
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn create_mock_tf() -> RestTokenFetcher {
+        RestTokenFetcher {
+            access_token: Mutex::new(AccessToken::default()),
+            fetched_at: Mutex::new(Instant::now()),
+            client_id: "client_id".to_string(),
+            client_secret: "client_secret".to_string(),
+            client: reqwest::Client::new(),
+            auth_url: "http://localhost".to_string(),
+        }
+    }
+
+    #[test]
+    fn test_access_token() {
+        let token_str = r#"{
+          "access_token": "secret_access_token",
+          "expires_in": 600,
+          "refresh_expires_in": 0,
+          "token_type": "Bearer",
+          "not-before-policy": 0,
+          "scope": "email"
+        }"#;
+        let token: AccessToken = serde_json::from_str(token_str).unwrap();
+        assert_eq!(token.access_token(), "secret_access_token");
+        assert_eq!(token.expires_in(), 600);
+        assert_eq!(token.refresh_expires_in(), 0);
+        assert_eq!(token.token_type(), "Bearer");
+        assert_eq!(token.not_before_policy(), 0);
+        assert_eq!(token.scope(), "email");
+        assert_eq!(token.formatted_token(), "Bearer secret_access_token");
+    }
+
+    #[test]
+    fn test_access_token_default() {
+        let token = AccessToken::default();
+        assert_eq!(token.access_token(), "");
+        assert_eq!(token.expires_in(), 0);
+        assert_eq!(token.refresh_expires_in(), 0);
+        assert_eq!(token.token_type(), "");
+        assert_eq!(token.not_before_policy(), 0);
+        assert_eq!(token.scope(), "");
+        assert_eq!(token.formatted_token(), " ");
+    }
+
+
+    #[test]
+    fn test_rest_token_fetcher_is_valid_default_token() {
+        // Test is_valid when validating default token (should expire in 0 seconds)
+        let tf = create_mock_tf();
+        assert!(!tf.is_valid());
+        }
+
+    #[test]
+    fn test_rest_token_fetcher_is_valid_valid_token() {
+        let tf = create_mock_tf();
+        tf.access_token.lock().unwrap().expires_in = 600;
+        assert!(tf.is_valid());
+    }
+
+    #[test]
+    fn test_rest_token_fetcher_is_valid_expired_token() {
+        // Test is_valid when validating an expired token
+        let tf = create_mock_tf();
+        tf.access_token.lock().unwrap().expires_in = 600;
+        *tf.fetched_at.lock().unwrap() = Instant::now() - Duration::from_secs(600);
+        assert!(!tf.is_valid());
+    }
+
+    #[test]
+    fn test_rest_token_fetcher_is_valid_poisoned_token() {
+        // Test is_valid when token is poisoned
+        let tf = create_mock_tf();
+        tf.access_token.lock().unwrap().expires_in = 600;
+        let tf_arc = std::sync::Arc::new(tf);
+        let tf_clone = tf_arc.clone();
+        assert!(tf_arc.is_valid(), "Token should be valid");
+        let h = std::thread::spawn(move || {
+            let _unused = tf_clone.access_token.lock().unwrap();
+            panic!("Poison token")
+        });
+        let _ = h.join();
+        assert!(!tf_arc.is_valid(), "Token should be invalid");
+    }
+
+    #[tokio::test]
+    async fn test_fetch_access_token_from_server() {
+        let mut auth_server = mockito::Server::new_async().await;
+        auth_server.mock("POST", "/")
+            .with_status(200)
+            .with_body(
+                r#"{
+          "access_token": "secret_access_token",
+          "expires_in": 600,
+          "refresh_expires_in": 0,
+          "token_type": "Bearer",
+          "not-before-policy": 0,
+          "scope": "email"
+        }"#,
+            )
+            .create();
+        let mut tf = create_mock_tf();
+        tf.auth_url = auth_server.url();
+        let token = tf.fetch_access_token_from_server().await.unwrap();
+        assert_eq!(token.access_token(), "secret_access_token");
+        assert_eq!(token.expires_in(), 600);
+        assert_eq!(token.refresh_expires_in(), 0);
+        assert_eq!(token.token_type(), "Bearer");
+        assert_eq!(token.not_before_policy(), 0);
+        assert_eq!(token.scope(), "email");
+    }
+
+    #[tokio::test]
+    async fn test_fetch_access_token_from_server_error() {
+        let mut auth_server = mockito::Server::new_async().await;
+        auth_server.mock("POST", "/")
+            .with_status(400)
+            .with_body("Bad request")
+            .create();
+        let mut tf = create_mock_tf();
+        tf.auth_url = auth_server.url();
+        let err = tf.fetch_access_token_from_server().await.unwrap_err();
+        match err {
+            DshRestTokenError::StatusCode { status_code, error_body } => {
+                assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
+                assert_eq!(error_body.text().await.unwrap(), "Bad request");
+            }
+            _ => panic!("Unexpected error: {:?}", err),
+        }
+    }
+
+    #[test]
+    fn test_token_fetcher_builder_client_id() {
+        let platform = Platform::NpLz;
+        let client_id = "robot:dev-lz-dsh:my-tenant";
+        let client_secret = "secret";
+        let tf = RestTokenFetcherBuilder::new(platform)
+            .client_id(client_id.to_string())
+            .client_secret(client_secret.to_string())
+            .build()
+            .unwrap();
+        assert_eq!(tf.client_id, client_id);
+        assert_eq!(tf.client_secret, client_secret);
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+    }
+
+    #[test]
+    fn test_token_fetcher_builder_tenant_name() {
+        let platform = Platform::NpLz;
+        let tenant_name = "my-tenant";
+        let client_secret = "secret";
+        let tf = RestTokenFetcherBuilder::new(platform)
+            .tenant_name(tenant_name.to_string())
+            .client_secret(client_secret.to_string())
+            .build()
+            .unwrap();
+        assert_eq!(tf.client_id, format!("robot:{}:{}", Platform::NpLz.realm(), tenant_name));
+        assert_eq!(tf.client_secret, client_secret);
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+    }
+
+    #[test]
+    fn test_token_fetcher_builder_client_id_precedence() {
+        let platform = Platform::NpLz;
+        let tenant = "my-tenant";
+        let client_id_override = "override";
+        let client_secret = "secret";
+        let tf = RestTokenFetcherBuilder::new(platform)
+            .tenant_name(tenant.to_string())
+            .client_id(client_id_override.to_string())
+            .client_secret(client_secret.to_string())
+            .build()
+            .unwrap();
+        assert_eq!(tf.client_id, client_id_override);
+        assert_eq!(tf.client_secret, client_secret);
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+    }
+
+    #[test]
+    fn test_token_fetcher_builder_build_error() {
+        let err = RestTokenFetcherBuilder::new(Platform::NpLz)
+            .client_secret("client_secret".to_string())
+            .build()
+            .unwrap_err();
+        assert!(matches!(err, DshRestTokenError::UnknownClientId));
+
+        let err = RestTokenFetcherBuilder::new(Platform::NpLz)
+            .tenant_name("tenant_name".to_string())
+            .build()
+            .unwrap_err();
+        assert!(matches!(err, DshRestTokenError::UnknownClientSecret));
+
     }
 }
