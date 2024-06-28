@@ -27,7 +27,7 @@ It is recommended to use the Rest Token Fetcher from the `dsh_sdk` crate. To do 
 ```toml
 [dependencies]
 dsh_rest_api_client = "0.1.0"
-dsh_sdk = { version = "0.4", features = ["rest_token_fetcher"], default-features = false }
+dsh_sdk = { version = "0.4", features = ["rest-token-fetcher"], default-features = false }
 tokio = { version = "1", features = ["full"] }
 ```
 
