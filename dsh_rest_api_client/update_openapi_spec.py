@@ -1,5 +1,6 @@
 import json
 import sys
+import os
 
 def generate_operation_id(path, method):
     # Generate a meaningful operationId based on the path and method
@@ -44,11 +45,16 @@ def update_spec(input_file):
     # Add operationId to each path
     updated_spec = add_mising_items(openapi_spec)
 
+    api_version = updated_spec.get('info', {}).get('version', 'unknkown').replace('.', '_')
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.path.join(dir_path, 'openapi_spec')
+    output_file = os.path.join(dir_path, f'openapi_{api_version}.json')
+
     # Overwrite the input file with the updated spec
-    with open(input_file, 'w') as file:
+    with open(output_file, 'w') as file:
         json.dump(updated_spec, file, indent=2)
 
-    print(f"Updated OpenAPI spec saved to {input_file}")
+    print(f"Updated OpenAPI spec saved to {output_file}")
 
 
 if __name__ == '__main__':
