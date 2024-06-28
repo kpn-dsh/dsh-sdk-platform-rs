@@ -7,17 +7,27 @@ use std::env;
 
 /// Available DSH platforms plus it's related metadata
 ///
-/// # TODO
-/// - Add Azure platforms
+/// The platform enum contains 
+/// - `Prod` (kpn-dsh.com)
+/// - `ProdAz` (az.kpn-dsh.com)
+/// - `ProdLz` (dsh-prod.dsh.prod.aws.kpn.com)
+/// - `NpLz` (dsh-dev.dsh.np.aws.kpn.com)
+/// - `Poc` (poc.kpn-dsh.com)
+/// 
+/// Each platform has it's own realm, endpoint for the DSH Rest API and endpoint for the DSH Rest API access token.
 #[derive(Clone, Debug)]
 #[non_exhaustive]
 pub enum Platform {
-    /// Non-Production Landing Zone on AWS (AKA Dev Landing Zone)
-    NpLz,
-    /// Proof of Concept platform
-    Poc,
-    /// Production Landing Zone on AWS
+    /// Production platform (kpn-dsh.com)
+    Prod,
+    /// Production platform on Azure (az.kpn-dsh.com)
+    ProdAz,
+    /// Production Landing Zone on AWS (dsh-prod.dsh.prod.aws.kpn.com)
     ProdLz,
+    /// Non-Production (Dev) Landing Zone on AWS (dsh-dev.dsh.np.aws.kpn.com)
+    NpLz,
+    /// Proof of Concept platform (poc.kpn-dsh.com)
+    Poc,
 }
 
 impl Platform {
@@ -52,9 +62,11 @@ impl Platform {
     /// ```
     pub fn endpoint_rest_api(&self) -> &str {
         match self {
-            Platform::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/resources/v0",
-            Platform::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/resources/v0",
-            Platform::Poc => "https://api.poc.kpn-dsh.com/resources/v0",
+            Self::Prod => "https://api.kpn-dsh.com/resources/v0",
+            Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/resources/v0",
+            Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/resources/v0",
+            Self::ProdAz => "https://api.az.kpn-dsh.com/resources/v0",
+            Self::Poc => "https://api.poc.kpn-dsh.com/resources/v0",
         }
     }
     /// Get the endpoint for the DSH Rest API access token
@@ -70,17 +82,21 @@ impl Platform {
     /// ```
     pub fn endpoint_rest_access_token(&self) -> &str {
         match self {
-            Platform::NpLz =>   "https://auth.lz.lz-cp.dsh.np.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token",
-            Platform::ProdLz => "https://auth.lz.lz-cp.dsh.np.aws.kpn.com/auth/realms/prod-lz-dsh/protocol/openid-connect/token", 
-            Platform::Poc =>    "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token", 
+            Self::Prod =>   "https://auth.prod.cp.kpn-dsh.com/auth/realms/tt-dsh/protocol/openid-connect/token",
+            Self::NpLz =>   "https://auth.lz.lz-cp.dsh.np.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token",
+            Self::ProdLz => "https://auth.lz.lz-cp.dsh.np.aws.kpn.com/auth/realms/prod-lz-dsh/protocol/openid-connect/token",
+            Self::ProdAz => "https://auth.prod.cp.kpn-dsh.com/auth/realms/prod-azure-dsh/protocol/openid-connect/token",
+            Self::Poc =>    "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token", 
         }
     }
 
     pub fn realm(&self) -> &str {
         match self {
-            Platform::NpLz => "dev-lz-dsh",
-            Platform::ProdLz => "prod-lz-dsh",
-            Platform::Poc => "poc-dsh",
+            Self::Prod => "tt-dsh",
+            Self::NpLz => "dev-lz-dsh",
+            Self::ProdLz => "prod-lz-dsh",
+            Self::ProdAz => "prod-azure-dsh",
+            Self::Poc => "poc-dsh",
         }
     }
 }
