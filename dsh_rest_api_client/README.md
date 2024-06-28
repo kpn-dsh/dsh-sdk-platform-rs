@@ -19,7 +19,7 @@ This crate does not provide:
 - Token management
 - Functionality to select specific platform/base URL
 
-These goals are provided by the `dsh_sdk` crate.
+These goals are provided by the [DSH_SDK](https://crates.io/crates/dsh_sdk) crate.
 
 ## Recomended usage
 It is recommended to use the Rest Token Fetcher from the `dsh_sdk` crate. To do this, add the following to your Cargo.toml file:
