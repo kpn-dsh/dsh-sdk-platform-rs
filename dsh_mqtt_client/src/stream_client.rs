@@ -100,3 +100,41 @@ impl MqttClient {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_get_tls_certificates() {
+        match BaseMqttOptions::get_tls_certificates() {
+            Ok(root_cert_store) => {
+                assert!(!root_cert_store.is_empty());
+            }
+            Err(_) => panic!("Failed to get TLS certificates"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_mqtt_client_publish() {
+        let base_mqtt_options = BaseMqttOptions::new(MqttEnv::Dev).await;
+        let credentials = MqttCredentials {
+            mqtt_token: "test_token".to_string(),
+            client_id: "test_client_id".to_string(),
+        };
+        let mqtt_client = MqttClient::new(base_mqtt_options, credentials).await;
+
+        // Publish a test message
+        let result = mqtt_client
+            .async_client
+            .publish(
+                "test/topic",
+                rumqttc::QoS::AtLeastOnce,
+                false,
+                "test_message",
+            )
+            .await;
+
+        assert!(result.is_ok(), "Failed to publish message");
+    }
+}

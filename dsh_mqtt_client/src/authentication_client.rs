@@ -216,3 +216,31 @@ impl DshMqttAuthenticationClient {
         format!("{:x}", result)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_token_cache_read_write_clear() {
+        // Test write_cache
+        TokenCache::write_cache("test_token".to_string(), 1620000000);
+        let cache = TokenCache::read_cache().unwrap();
+        assert_eq!(cache.token, "test_token");
+        assert_eq!(cache.expiration_date, 1620000000);
+
+        // Test clear_cache
+        TokenCache::clear_cache();
+        assert!(TokenCache::read_cache().is_none());
+    }
+
+    #[tokio::test]
+    async fn test_is_token_valid() {
+        let current_unixtime = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("SystemTime before UNIX EPOCH!")
+            .as_secs() as i64;
+        assert!(is_token_valid(current_unixtime + 1000));
+        assert!(!is_token_valid(current_unixtime - 1000));
+    }
+}
