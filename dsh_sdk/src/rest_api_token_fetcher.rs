@@ -26,7 +26,7 @@
 //!         .unwrap();
 //!
 //!     let response = client
-//!         .get_allocation_by_tenant_topic(TENANT, &tf.get_token().await.unwrap())
+//!         .topic_get_by_tenant_topic(TENANT, &tf.get_token().await.unwrap())
 //!         .await;
 //!     println!("Available topics: {:#?}", response);
 //! }
