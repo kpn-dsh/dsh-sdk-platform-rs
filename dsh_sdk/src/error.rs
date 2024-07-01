@@ -54,7 +54,7 @@ pub enum DshError {
     HyperError(#[from] hyper::http::Error),
 }
 
-#[cfg(feature = "rest_token_fetcher")]
+#[cfg(feature = "rest-token-fetcher")]
 #[derive(Error, Debug)]
 #[non_exhaustive]
 pub enum DshRestTokenError {
