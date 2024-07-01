@@ -27,3 +27,5 @@ pub mod error;
 pub mod model;
 /// Includes async service which uses authentication_client to fetch mqtt token.
 pub mod service;
+/// Module for constructing MQTT Client
+pub mod stream_client;

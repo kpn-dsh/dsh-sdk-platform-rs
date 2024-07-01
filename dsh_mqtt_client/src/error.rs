@@ -1,3 +1,5 @@
+use rumqttc::ClientError;
+
 #[derive(Debug)]
 pub enum DshError {
     RequestError(String),
@@ -5,6 +7,13 @@ pub enum DshError {
     SerdeJson(serde_json::Error),
     IoError(std::io::Error),
     Request(reqwest::Error),
+    Utf8Error(String),
+    PublishError(String),
+    SubscribeError(String),
+    FailedToDisconnect(String),
+    StreamConnectionError(String),
+    ClientError(ClientError),
+    CertificateAddError(String),
 }
 
 impl From<std::io::Error> for DshError {
@@ -22,6 +31,11 @@ impl From<serde_json::Error> for DshError {
         DshError::SerdeJson(error)
     }
 }
+impl From<rumqttc::ClientError> for DshError {
+    fn from(error: rumqttc::ClientError) -> Self {
+        DshError::ClientError(error)
+    }
+}
 impl std::fmt::Display for DshError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -30,6 +44,13 @@ impl std::fmt::Display for DshError {
             DshError::SerdeJson(e) => write!(f, "SerdeJsonError: {}", e),
             DshError::IoError(e) => write!(f, "Io error: {}", e),
             DshError::Request(e) => write!(f, "Reqwest error: {}", e),
+            DshError::PublishError(e) => write!(f, "Error while publishing: {}", e),
+            DshError::Utf8Error(e) => write!(f, "Error while receiving message: {}", e),
+            DshError::SubscribeError(e) => write!(f, "Couldn't subscribe to topic: {}", e),
+            DshError::FailedToDisconnect(e) => write!(f, "Failed to disconnect MQTT client: {}", e),
+            DshError::StreamConnectionError(e) => write!(f, "Event loop disconnected: {}", e),
+            DshError::ClientError(e) => write!(f, "Mqtt Client Error: {}", e),
+            DshError::CertificateAddError(e) => write!(f, "Failed to load TLS certificates: {}", e),
         }
     }
 }

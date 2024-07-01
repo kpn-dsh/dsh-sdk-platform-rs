@@ -16,8 +16,10 @@ repository.workspace = true
 async-trait = { version = "0.1", features = [] }
 base64 = "0.22"
 lazy_static = "1.4"
+log = "0.4"
 lombok = "0.4"
 reqwest = { workspace = true }
+rumqttc = { git = "https://github.com/bytebeamio/rumqtt", branch = "main" }
 rustls = "0.23"
 rustls-native-certs = { version = "0.7", features = [] }
 serde = { version = "1.0", features = ["derive"] }
@@ -25,3 +27,4 @@ serde_json = "1.0"
 sha2 = "0.10"
 uuid = { version = "1.6", features = ["v4"] }
 tokio = { version = "1.36", features = ["full"] }
+tokio-rustls = "0.26.0"
