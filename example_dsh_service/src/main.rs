@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Get the configured topics from env variable TOPICS (comma separated)
     let topics_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
-    let topics = topics_string.split(",").map(|s| s).collect::<Vec<&str>>();
+    let topics = topics_string.split(',').collect::<Vec<&str>>();
 
     // Validate your configured topic if it has read access (optional)
     dsh_properties

@@ -4,23 +4,24 @@ description = "SDK for KPN Data Services Hub"
 edition.workspace = true
 exclude.workspace = true
 homepage.workspace = true
-keywords.workspace = true
+keywords = ["kpn", "dsh", "sdk"]
 license.workspace = true
 name = "dsh_sdk"
 readme = 'README.md'
 repository.workspace = true
-version = "0.4.0"
+version = "0.4.2"
 
 [package.metadata.docs.rs]
-features = ["full"]
+all-features = true
 
 [dependencies]
-bytes = { version = "1", optional = true }
+bytes = { version = "1.6", optional = true }
 http-body-util = { version = "0.1", optional = true }
 hyper = { version = "1.3", features = ["server", "http1"], optional = true }
 hyper-util = { version = "0.1", features = ["tokio"], optional = true }
 lazy_static = { version = "1.4", optional = true }
 log = "0.4"
+pem = "3"
 prometheus = { version = "0.13", features = ["process"], optional = true }
 rcgen = { version = "0.13", optional = true }
 reqwest = { workspace=true, optional = true }
@@ -32,14 +33,15 @@ tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], op
 tokio-util = { version = "0.7", optional = true }
 
 [features]
-default = ["bootstrap", "graceful_shutdown", "metrics", "rdkafka-ssl"]
-full = ["bootstrap", "graceful_shutdown", "metrics", "rdkafka-ssl", "dlq"]
+default = ["bootstrap", "graceful_shutdown", "metrics", "rdkafka-ssl", "rest-token-fetcher"]
+
 bootstrap = ["rcgen", "serde_json", "reqwest"]
-metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes", ]
+metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-ssl", "graceful_shutdown"]
 graceful_shutdown = ["tokio", "tokio-util"]
 rdkafka-ssl-vendored = ["rdkafka", "rdkafka/ssl-vendored"]
 rdkafka-ssl = ["rdkafka", "rdkafka/ssl"]
+rest-token-fetcher = ["reqwest"] 
 
 [dev-dependencies]
 mockito = "1.1.1"
@@ -47,3 +49,4 @@ openssl = "0.10"
 tokio = "^1.35"
 hyper = { version = "1.2.0", features = ["full"]}
 serial_test = "3.1.0"
+dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.1.0"}

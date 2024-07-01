@@ -148,7 +148,7 @@ async fn run_server(port: u16) -> DshResult<()> {
 
 async fn handle_connection(stream: tokio::net::TcpStream) {
     let io = TokioIo::new(stream);
-    let service = service_fn(move |req| routes(req));
+    let service = service_fn(routes);
 
     if let Err(err) = http1::Builder::new().serve_connection(io, service).await {
         error!("Failed to serve connection: {:?}", err);

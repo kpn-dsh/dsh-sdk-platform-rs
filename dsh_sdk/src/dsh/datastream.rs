@@ -1,5 +1,20 @@
-//! This module contains the structs for the datastreams.json file.
-//! This file contains all information about the kafka topics and consumer groups.
+//! Module to handle the datastreams.json file.
+//!
+//! The datastreams.json can be parsed into a Datastream struct using serde_json.
+//! This struct contains all the information from the datastreams.json file.
+//!
+//! You can get the Datastream struct via the 'Properties' struct.
+//!
+//! # Example
+//! ```
+//! use dsh_sdk::Properties;
+//!
+//! let properties = Properties::get();
+//! let datastream = properties.datastream();
+//!
+//! let brokers = datastream.get_brokers();
+//! let schema_store = datastream.schema_store();
+//! ```
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
@@ -8,12 +23,25 @@ use std::io::Read;
 use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 
+use super::{VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_SCHEMA_REGISTRY_HOST};
 use crate::error::DshError;
+use crate::utils;
 
 const FILE_NAME: &str = "local_datastreams.json";
 
 /// This struct is equivalent to the datastreams.json
-/// It is possible to deserialize the json into this struct using serde_json.
+///
+/// # Example
+/// ```
+/// use dsh_sdk::Properties;
+///
+/// let properties = Properties::get();
+/// let datastream = properties.datastream();
+///
+/// let brokers = datastream.get_brokers();
+/// let streams = datastream.streams();
+/// let schema_store = datastream.schema_store();
+/// ```
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Datastream {
     brokers: Vec<String>,
@@ -45,7 +73,6 @@ impl Datastream {
             GroupType::Private(i) => self.private_consumer_groups.get(i),
             GroupType::Shared(i) => self.shared_consumer_groups.get(i),
         };
-        info!("Kafka group id: {:?}", group_id);
         match group_id {
             Some(id) => Ok(id),
             None => Err(DshError::IndexGroupIdError(group_type)),
@@ -106,7 +133,14 @@ impl Datastream {
         Ok(())
     }
 
-    /// Get schema_store from datastreams info.
+    /// Get schema store url from datastreams.
+    ///
+    /// ## How to connect to schema registry
+    /// Use the Reqwest client from `Cert` to connect to the schema registry.
+    /// As this client is already configured with the correct certificates.
+    ///
+    /// You can use [schema_registry_converter](https://crates.io/crates/schema_registry_converter)
+    /// to fetch the schema and decode your payload.
     pub fn schema_store(&self) -> &str {
         &self.schema_store
     }
@@ -117,7 +151,7 @@ impl Datastream {
     /// ```no_run
     /// # use dsh_sdk::dsh::datastream::Datastream;
     /// # let datastream = Datastream::default();
-    /// let path = std::path::PathBuf::from("/home/user");
+    /// let path = std::path::PathBuf::from("/path/to/directory");
     /// datastream.to_file(&path).unwrap();
     /// ```
     pub fn to_file(&self, path: &std::path::Path) -> Result<(), DshError> {
@@ -134,8 +168,8 @@ impl Datastream {
         let mut file = match file_result {
             Ok(file) => file,
             Err(e) => {
-                warn!(
-                    "Error opening local_datastreams.json ({}): {}",
+                debug!(
+                    "Failed opening local_datastreams.json ({}): {}",
                     path_buf.display(),
                     e
                 );
@@ -144,20 +178,34 @@ impl Datastream {
         };
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
-        let datastream: Datastream = serde_json::from_str(&contents)?;
+        let mut datastream: Datastream = serde_json::from_str(&contents)?;
+        if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
+            datastream.brokers = brokers.split(',').map(|s| s.to_string()).collect();
+        }
         Ok(datastream)
     }
 }
 
 impl Default for Datastream {
     fn default() -> Self {
+        let group_id = format!(
+            "{}_default_group",
+            utils::tenant_name().unwrap_or("local".to_string())
+        );
+        let brokers = if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
+            brokers.split(',').map(|s| s.to_string()).collect()
+        } else {
+            vec!["localhost:9092".to_string()]
+        };
+        let schema_store = utils::get_env_var(VAR_SCHEMA_REGISTRY_HOST)
+            .unwrap_or("http://localhost:8081/apis/ccompat/v7".to_string());
         Datastream {
-            brokers: vec!["localhost:9092".to_string()],
+            brokers,
             streams: HashMap::new(),
-            private_consumer_groups: vec!["private_group".to_string()],
-            shared_consumer_groups: vec!["shared_group".to_string()],
-            non_enveloped_streams: vec![],
-            schema_store: String::from("http://localhost:8081/apis/ccompat/v7"),
+            private_consumer_groups: vec![group_id.clone()],
+            shared_consumer_groups: vec![group_id],
+            non_enveloped_streams: Vec::new(),
+            schema_store,
         }
     }
 }
@@ -230,7 +278,7 @@ impl GroupType {
     /// Get the group type from the environment variable KAFKA_CONSUMER_GROUP_TYPE
     /// If KAFKA_CONSUMER_GROUP_TYPE is not (properly) set, it defaults to shared
     pub fn from_env() -> Self {
-        let group_type = env::var("KAFKA_CONSUMER_GROUP_TYPE");
+        let group_type = env::var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
         match group_type {
             Ok(s) if s.to_lowercase() == *"private" => GroupType::Private(0),
             Ok(s) if s.to_lowercase() == *"shared" => GroupType::Shared(0),
@@ -357,13 +405,13 @@ mod tests {
     #[test]
     fn test_datastream_get_group_type_from_env() {
         // Set the KAFKA_CONSUMER_GROUP_TYPE environment variable to "private"
-        env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "private");
+        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
         assert_eq!(GroupType::from_env(), GroupType::Private(0),);
-        env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "shared");
+        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
         assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
-        env::set_var("KAFKA_CONSUMER_GROUP_TYPE", "invalid-type");
+        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "invalid-type");
         assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
-        env::remove_var("KAFKA_CONSUMER_GROUP_TYPE");
+        env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
         assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
     }
 

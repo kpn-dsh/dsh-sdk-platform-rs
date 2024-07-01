@@ -39,9 +39,8 @@
 //! #     Ok(())
 //! # }
 //! ```
-//! ## Local
-//! It is possible to connect to local kafka cluster. By default it will connect to localhost:9092 when running on your local machine.
-//! This can be changed by setting the environment variable `KAFKA_BOOTSTRAP_SERVERS` to the desired kafka brokers or by providing a [local_datastreams.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json) in your root folder.
+//! ## Kafka Proxy / VPN / Local
+//! Read [CONNECT_PROXY_VPN_LOCAL.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md) on how to connect to DSH with Kafka Proxy, VPN or to a local Kafka cluster.
 //!
 //! # Metrics
 //! The metrics module provides a way to expose prometheus metrics. This module is a re-export of the `prometheus` crate. It also contains a function to start a http server to expose the metrics to DSH.
@@ -84,6 +83,30 @@ pub mod graceful_shutdown;
 pub mod metrics;
 #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
 pub use rdkafka;
+#[cfg(feature = "rest-token-fetcher")]
+mod rest_api_token_fetcher;
+mod utils;
 
 #[cfg(feature = "bootstrap")]
 pub use dsh::Properties;
+#[cfg(feature = "rest-token-fetcher")]
+pub use rest_api_token_fetcher::{RestTokenFetcher, RestTokenFetcherBuilder};
+pub use utils::Platform;
+
+// Environment variables
+const VAR_APP_ID: &str = "MARATHON_APP_ID";
+const VAR_TASK_ID: &str = "MESOS_TASK_ID";
+const VAR_DSH_CA_CERTIFICATE: &str = "DSH_CA_CERTIFICATE";
+const VAR_DSH_SECRET_TOKEN: &str = "DSH_SECRET_TOKEN";
+const VAR_DSH_SECRET_TOKEN_PATH: &str = "DSH_SECRET_TOKEN_PATH";
+const VAR_DSH_TENANT_NAME: &str = "DSH_TENANT_NAME";
+
+const VAR_KAFKA_AUTO_OFFSET_RESET: &str = "KAFKA_AUTO_OFFSET_RESET";
+const VAR_KAFKA_BOOTSTRAP_SERVERS: &str = "KAFKA_BOOTSTRAP_SERVERS";
+const VAR_KAFKA_CONFIG_HOST: &str = "KAFKA_CONFIG_HOST";
+const VAR_KAFKA_CONSUMER_GROUP_TYPE: &str = "KAFKA_CONSUMER_GROUP_TYPE";
+const VAR_KAFKA_ENABLE_AUTO_COMMIT: &str = "KAFKA_ENABLE_AUTO_COMMIT";
+const VAR_KAFKA_GROUP_ID: &str = "KAFKA_GROUP_ID";
+
+const VAR_PKI_CONFIG_DIR: &str = "PKI_CONFIG_DIR";
+const VAR_SCHEMA_REGISTRY_HOST: &str = "SCHEMA_REGISTRY_HOST";
