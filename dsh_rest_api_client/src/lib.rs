@@ -1822,6 +1822,385 @@ pub mod types {
         }
     }
 
+    ///DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "bucket",
+    ///    "writablestream"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        #[serde(rename = "bucket")]
+        Bucket,
+        #[serde(rename = "writablestream")]
+        Writablestream,
+    }
+
+    impl From<&DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind>
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        fn from(
+            value: &DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        ) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Bucket => "bucket".to_string(),
+                Self::Writablestream => "writablestream".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "bucket" => Ok(Self::Bucket),
+                "writablestream" => Ok(Self::Writablestream),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str>
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String>
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String>
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "bucket",
+    ///    "writablestream"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        #[serde(rename = "bucket")]
+        Bucket,
+        #[serde(rename = "writablestream")]
+        Writablestream,
+    }
+
+    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        fn from(
+            value: &DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        ) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Bucket => "bucket".to_string(),
+                Self::Writablestream => "writablestream".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "bucket" => Ok(Self::Bucket),
+                "writablestream" => Ok(Self::Writablestream),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///DataCatalogGetByTenantDatacatalogAssetByKindByNameKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "bucket",
+    ///    "writablestream"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+        #[serde(rename = "bucket")]
+        Bucket,
+        #[serde(rename = "writablestream")]
+        Writablestream,
+    }
+
+    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindByNameKind>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind
+    {
+        fn from(value: &DataCatalogGetByTenantDatacatalogAssetByKindByNameKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Bucket => "bucket".to_string(),
+                Self::Writablestream => "writablestream".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "bucket" => Ok(Self::Bucket),
+                "writablestream" => Ok(Self::Writablestream),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///DataCatalogGetByTenantDatacatalogAssetByKindKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "bucket",
+    ///    "writablestream"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum DataCatalogGetByTenantDatacatalogAssetByKindKind {
+        #[serde(rename = "bucket")]
+        Bucket,
+        #[serde(rename = "writablestream")]
+        Writablestream,
+    }
+
+    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindKind>
+        for DataCatalogGetByTenantDatacatalogAssetByKindKind
+    {
+        fn from(value: &DataCatalogGetByTenantDatacatalogAssetByKindKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Bucket => "bucket".to_string(),
+                Self::Writablestream => "writablestream".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "bucket" => Ok(Self::Bucket),
+                "writablestream" => Ok(Self::Writablestream),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "bucket",
+    ///    "writablestream"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        #[serde(rename = "bucket")]
+        Bucket,
+        #[serde(rename = "writablestream")]
+        Writablestream,
+    }
+
+    impl From<&DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind>
+        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        fn from(
+            value: &DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        ) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Bucket => "bucket".to_string(),
+                Self::Writablestream => "writablestream".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "bucket" => Ok(Self::Bucket),
+                "writablestream" => Ok(Self::Writablestream),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str>
+        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String>
+        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String>
+        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
     ///Database
     ///
     /// <details><summary>JSON schema</summary>
@@ -2321,112 +2700,6 @@ pub mod types {
     impl From<&FlinkTaskManager> for FlinkTaskManager {
         fn from(value: &FlinkTaskManager) -> Self {
             value.clone()
-        }
-    }
-
-    ///GetManageByManagerTenantByTenantLimitByKindKind
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "cpu",
-    ///    "mem",
-    ///    "certificatecount",
-    ///    "secretcount",
-    ///    "topiccount",
-    ///    "partitioncount",
-    ///    "consumerrate",
-    ///    "producerrate",
-    ///    "requestrate"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum GetManageByManagerTenantByTenantLimitByKindKind {
-        #[serde(rename = "cpu")]
-        Cpu,
-        #[serde(rename = "mem")]
-        Mem,
-        #[serde(rename = "certificatecount")]
-        Certificatecount,
-        #[serde(rename = "secretcount")]
-        Secretcount,
-        #[serde(rename = "topiccount")]
-        Topiccount,
-        #[serde(rename = "partitioncount")]
-        Partitioncount,
-        #[serde(rename = "consumerrate")]
-        Consumerrate,
-        #[serde(rename = "producerrate")]
-        Producerrate,
-        #[serde(rename = "requestrate")]
-        Requestrate,
-    }
-
-    impl From<&GetManageByManagerTenantByTenantLimitByKindKind>
-        for GetManageByManagerTenantByTenantLimitByKindKind
-    {
-        fn from(value: &GetManageByManagerTenantByTenantLimitByKindKind) -> Self {
-            value.clone()
-        }
-    }
-
-    impl ToString for GetManageByManagerTenantByTenantLimitByKindKind {
-        fn to_string(&self) -> String {
-            match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::Certificatecount => "certificatecount".to_string(),
-                Self::Secretcount => "secretcount".to_string(),
-                Self::Topiccount => "topiccount".to_string(),
-                Self::Partitioncount => "partitioncount".to_string(),
-                Self::Consumerrate => "consumerrate".to_string(),
-                Self::Producerrate => "producerrate".to_string(),
-                Self::Requestrate => "requestrate".to_string(),
-            }
-        }
-    }
-
-    impl std::str::FromStr for GetManageByManagerTenantByTenantLimitByKindKind {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            match value {
-                "cpu" => Ok(Self::Cpu),
-                "mem" => Ok(Self::Mem),
-                "certificatecount" => Ok(Self::Certificatecount),
-                "secretcount" => Ok(Self::Secretcount),
-                "topiccount" => Ok(Self::Topiccount),
-                "partitioncount" => Ok(Self::Partitioncount),
-                "consumerrate" => Ok(Self::Consumerrate),
-                "producerrate" => Ok(Self::Producerrate),
-                "requestrate" => Ok(Self::Requestrate),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-
-    impl std::convert::TryFrom<&str> for GetManageByManagerTenantByTenantLimitByKindKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for GetManageByManagerTenantByTenantLimitByKindKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for GetManageByManagerTenantByTenantLimitByKindKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
         }
     }
 
@@ -4697,6 +4970,234 @@ pub mod types {
         }
     }
 
+    ///ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "cpu",
+    ///    "mem",
+    ///    "certificatecount",
+    ///    "secretcount",
+    ///    "topiccount",
+    ///    "partitioncount",
+    ///    "consumerrate",
+    ///    "producerrate",
+    ///    "requestrate"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
+        #[serde(rename = "cpu")]
+        Cpu,
+        #[serde(rename = "mem")]
+        Mem,
+        #[serde(rename = "certificatecount")]
+        Certificatecount,
+        #[serde(rename = "secretcount")]
+        Secretcount,
+        #[serde(rename = "topiccount")]
+        Topiccount,
+        #[serde(rename = "partitioncount")]
+        Partitioncount,
+        #[serde(rename = "consumerrate")]
+        Consumerrate,
+        #[serde(rename = "producerrate")]
+        Producerrate,
+        #[serde(rename = "requestrate")]
+        Requestrate,
+    }
+
+    impl From<&ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind>
+        for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
+    {
+        fn from(
+            value: &ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind,
+        ) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Cpu => "cpu".to_string(),
+                Self::Mem => "mem".to_string(),
+                Self::Certificatecount => "certificatecount".to_string(),
+                Self::Secretcount => "secretcount".to_string(),
+                Self::Topiccount => "topiccount".to_string(),
+                Self::Partitioncount => "partitioncount".to_string(),
+                Self::Consumerrate => "consumerrate".to_string(),
+                Self::Producerrate => "producerrate".to_string(),
+                Self::Requestrate => "requestrate".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "cpu" => Ok(Self::Cpu),
+                "mem" => Ok(Self::Mem),
+                "certificatecount" => Ok(Self::Certificatecount),
+                "secretcount" => Ok(Self::Secretcount),
+                "topiccount" => Ok(Self::Topiccount),
+                "partitioncount" => Ok(Self::Partitioncount),
+                "consumerrate" => Ok(Self::Consumerrate),
+                "producerrate" => Ok(Self::Producerrate),
+                "requestrate" => Ok(Self::Requestrate),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str>
+        for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String>
+        for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String>
+        for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "cpu",
+    ///    "mem",
+    ///    "certificatecount",
+    ///    "secretcount",
+    ///    "topiccount",
+    ///    "partitioncount",
+    ///    "consumerrate",
+    ///    "producerrate",
+    ///    "requestrate"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
+        #[serde(rename = "cpu")]
+        Cpu,
+        #[serde(rename = "mem")]
+        Mem,
+        #[serde(rename = "certificatecount")]
+        Certificatecount,
+        #[serde(rename = "secretcount")]
+        Secretcount,
+        #[serde(rename = "topiccount")]
+        Topiccount,
+        #[serde(rename = "partitioncount")]
+        Partitioncount,
+        #[serde(rename = "consumerrate")]
+        Consumerrate,
+        #[serde(rename = "producerrate")]
+        Producerrate,
+        #[serde(rename = "requestrate")]
+        Requestrate,
+    }
+
+    impl From<&ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind>
+        for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
+    {
+        fn from(
+            value: &ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind,
+        ) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Cpu => "cpu".to_string(),
+                Self::Mem => "mem".to_string(),
+                Self::Certificatecount => "certificatecount".to_string(),
+                Self::Secretcount => "secretcount".to_string(),
+                Self::Topiccount => "topiccount".to_string(),
+                Self::Partitioncount => "partitioncount".to_string(),
+                Self::Consumerrate => "consumerrate".to_string(),
+                Self::Producerrate => "producerrate".to_string(),
+                Self::Requestrate => "requestrate".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "cpu" => Ok(Self::Cpu),
+                "mem" => Ok(Self::Mem),
+                "certificatecount" => Ok(Self::Certificatecount),
+                "secretcount" => Ok(Self::Secretcount),
+                "topiccount" => Ok(Self::Topiccount),
+                "partitioncount" => Ok(Self::Partitioncount),
+                "consumerrate" => Ok(Self::Consumerrate),
+                "producerrate" => Ok(Self::Producerrate),
+                "requestrate" => Ok(Self::Requestrate),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str>
+        for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String>
+        for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String>
+        for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
     ///ManagedTenantServices
     ///
     /// <details><summary>JSON schema</summary>
@@ -5173,112 +5674,6 @@ pub mod types {
     }
 
     impl std::convert::TryFrom<String> for PortMappingTls {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    ///PutManageByManagerTenantByTenantLimitByKindKind
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "cpu",
-    ///    "mem",
-    ///    "certificatecount",
-    ///    "secretcount",
-    ///    "topiccount",
-    ///    "partitioncount",
-    ///    "consumerrate",
-    ///    "producerrate",
-    ///    "requestrate"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum PutManageByManagerTenantByTenantLimitByKindKind {
-        #[serde(rename = "cpu")]
-        Cpu,
-        #[serde(rename = "mem")]
-        Mem,
-        #[serde(rename = "certificatecount")]
-        Certificatecount,
-        #[serde(rename = "secretcount")]
-        Secretcount,
-        #[serde(rename = "topiccount")]
-        Topiccount,
-        #[serde(rename = "partitioncount")]
-        Partitioncount,
-        #[serde(rename = "consumerrate")]
-        Consumerrate,
-        #[serde(rename = "producerrate")]
-        Producerrate,
-        #[serde(rename = "requestrate")]
-        Requestrate,
-    }
-
-    impl From<&PutManageByManagerTenantByTenantLimitByKindKind>
-        for PutManageByManagerTenantByTenantLimitByKindKind
-    {
-        fn from(value: &PutManageByManagerTenantByTenantLimitByKindKind) -> Self {
-            value.clone()
-        }
-    }
-
-    impl ToString for PutManageByManagerTenantByTenantLimitByKindKind {
-        fn to_string(&self) -> String {
-            match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::Certificatecount => "certificatecount".to_string(),
-                Self::Secretcount => "secretcount".to_string(),
-                Self::Topiccount => "topiccount".to_string(),
-                Self::Partitioncount => "partitioncount".to_string(),
-                Self::Consumerrate => "consumerrate".to_string(),
-                Self::Producerrate => "producerrate".to_string(),
-                Self::Requestrate => "requestrate".to_string(),
-            }
-        }
-    }
-
-    impl std::str::FromStr for PutManageByManagerTenantByTenantLimitByKindKind {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            match value {
-                "cpu" => Ok(Self::Cpu),
-                "mem" => Ok(Self::Mem),
-                "certificatecount" => Ok(Self::Certificatecount),
-                "secretcount" => Ok(Self::Secretcount),
-                "topiccount" => Ok(Self::Topiccount),
-                "partitioncount" => Ok(Self::Partitioncount),
-                "consumerrate" => Ok(Self::Consumerrate),
-                "producerrate" => Ok(Self::Producerrate),
-                "requestrate" => Ok(Self::Requestrate),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-
-    impl std::convert::TryFrom<&str> for PutManageByManagerTenantByTenantLimitByKindKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for PutManageByManagerTenantByTenantLimitByKindKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for PutManageByManagerTenantByTenantLimitByKindKind {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
@@ -6482,7 +6877,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_application_configuration<'a>(
+    pub async fn application_get_by_tenant_application_configuration<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -6523,7 +6918,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appid`: application name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_application_by_appid_configuration<'a>(
+    pub async fn application_get_by_tenant_application_by_appid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -6566,7 +6961,7 @@ impl Client {
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: a JSON containing the configuration of the application you
     ///   want to deploy
-    pub async fn put_allocation_by_tenant_application_by_appid_configuration<'a>(
+    pub async fn application_put_by_tenant_application_by_appid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -6606,7 +7001,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appid`: application name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_application_by_appid_configuration<'a>(
+    pub async fn application_delete_by_tenant_application_by_appid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -6638,7 +7033,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_application_actual<'a>(
+    pub async fn application_get_by_tenant_application_actual<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -6679,7 +7074,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appid`: application name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_application_by_appid_actual<'a>(
+    pub async fn application_get_by_tenant_application_by_appid_actual<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -6720,7 +7115,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appid`: application name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_application_by_appid_status<'a>(
+    pub async fn application_get_by_tenant_application_by_appid_status<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -6761,7 +7156,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_appcatalogapp_configuration<'a>(
+    pub async fn app_catalog_get_by_tenant_appcatalogapp_configuration<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -6801,7 +7196,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_appcatalogapp_actual<'a>(
+    pub async fn app_catalog_get_by_tenant_appcatalogapp_actual<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -6845,7 +7240,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
+    pub async fn app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
@@ -6889,7 +7284,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_appcatalogapp_by_appcatalogappid_actual<'a>(
+    pub async fn app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_actual<'a>(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
@@ -6932,7 +7327,9 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
+    pub async fn app_catalog_app_configuration_get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration<
+        'a,
+    >(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
@@ -6976,7 +7373,9 @@ impl Client {
     /// - `body`: JSON object containing required parameters for AppCatalogApp
     ///   manifest. This is comparable to the configuration object on a regular
     ///   Application service.
-    pub async fn put_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
+    pub async fn app_catalog_app_configuration_put_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration<
+        'a,
+    >(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
@@ -7016,7 +7415,9 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
+    pub async fn app_catalog_app_configuration_delete_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration<
+        'a,
+    >(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
@@ -7049,7 +7450,9 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appcatalogappid`: appcatalogapp name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_status<'a>(
+    pub async fn app_catalog_app_configuration_get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_status<
+        'a,
+    >(
         &'a self,
         tenant: &'a str,
         appcatalogappid: &'a str,
@@ -7088,7 +7491,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_appcatalog_by_tenant_manifest<'a>(
+    pub async fn app_catalog_manifest_get_appcatalog_by_tenant_manifest<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -7125,7 +7528,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucketwatch<'a>(
+    pub async fn bucket_watch_get_by_tenant_bucketwatch<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -7163,7 +7566,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketwatch<'a>(
+    pub async fn bucket_watch_get_by_tenant_bucket_by_id_bucketwatch<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7204,7 +7607,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
+    pub async fn bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7245,7 +7648,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn put_allocation_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
+    pub async fn bucket_watch_put_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7278,7 +7681,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
+    pub async fn bucket_watch_delete_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7311,7 +7714,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketwatch_actual<'a>(
+    pub async fn bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7352,7 +7755,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketwatch_status<'a>(
+    pub async fn bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7391,7 +7794,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket<'a>(
+    pub async fn bucket_get_by_tenant_bucket<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -7429,7 +7832,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id<'a>(
+    pub async fn bucket_get_by_tenant_bucket_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7470,7 +7873,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_configuration<'a>(
+    pub async fn bucket_get_by_tenant_bucket_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7514,7 +7917,7 @@ impl Client {
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON representation of the resource
-    pub async fn put_allocation_by_tenant_bucket_by_id_configuration<'a>(
+    pub async fn bucket_put_by_tenant_bucket_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7553,7 +7956,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_bucket_by_id_configuration<'a>(
+    pub async fn bucket_delete_by_tenant_bucket_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7585,7 +7988,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_actual<'a>(
+    pub async fn bucket_get_by_tenant_bucket_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7625,7 +8028,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_status<'a>(
+    pub async fn bucket_get_by_tenant_bucket_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7664,7 +8067,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucketaccess<'a>(
+    pub async fn bucket_access_get_by_tenant_bucketaccess<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -7702,7 +8105,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess<'a>(
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7744,7 +8147,7 @@ impl Client {
     /// - `id`: bucket name
     /// - `name`: bucket access name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess_by_name<'a>(
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7788,7 +8191,7 @@ impl Client {
     /// - `id`: bucket name
     /// - `name`: bucket access name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7833,7 +8236,7 @@ impl Client {
     /// - `name`: bucket access name
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the wanted config of the (new) bucketaccess allocation
-    pub async fn put_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
+    pub async fn bucket_access_put_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7875,7 +8278,9 @@ impl Client {
     /// - `id`: bucket name
     /// - `name`: bucket access name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
+    pub async fn bucket_access_delete_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<
+        'a,
+    >(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7911,7 +8316,7 @@ impl Client {
     /// - `id`: bucket name
     /// - `name`: bucket access name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_actual<'a>(
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7955,7 +8360,7 @@ impl Client {
     /// - `id`: bucket name
     /// - `name`: bucket access name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_by_id_bucketaccess_by_name_status<'a>(
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -7996,7 +8401,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_certificate<'a>(
+    pub async fn certificate_get_by_tenant_certificate<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -8034,7 +8439,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: certificate name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_certificate_by_id<'a>(
+    pub async fn certificate_get_by_tenant_certificate_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8075,7 +8480,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: certificate name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_certificate_by_id_configuration<'a>(
+    pub async fn certificate_get_by_tenant_certificate_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8120,7 +8525,7 @@ impl Client {
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the configuration of a certificate.
     ///   certChainSecret and keySecret must be known to the platform.
-    pub async fn put_allocation_by_tenant_certificate_by_id_configuration<'a>(
+    pub async fn certificate_put_by_tenant_certificate_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8159,7 +8564,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: certificate name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_certificate_by_id_configuration<'a>(
+    pub async fn certificate_delete_by_tenant_certificate_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8192,7 +8597,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: certificate name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_certificate_by_id_actual<'a>(
+    pub async fn certificate_get_by_tenant_certificate_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8232,7 +8637,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: certificate name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_certificate_by_id_status<'a>(
+    pub async fn certificate_get_by_tenant_certificate_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8271,7 +8676,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_database<'a>(
+    pub async fn database_get_by_tenant_database<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -8309,7 +8714,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: database name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_database_by_id<'a>(
+    pub async fn database_get_by_tenant_database_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8350,7 +8755,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: database name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_database_by_id_configuration<'a>(
+    pub async fn database_get_by_tenant_database_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8393,7 +8798,7 @@ impl Client {
     /// - `id`: database name
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON representation of the resource
-    pub async fn put_allocation_by_tenant_database_by_id_configuration<'a>(
+    pub async fn database_put_by_tenant_database_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8432,7 +8837,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: database name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_database_by_id_configuration<'a>(
+    pub async fn database_delete_by_tenant_database_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8464,7 +8869,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: database name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_database_by_id_actual<'a>(
+    pub async fn database_get_by_tenant_database_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8504,7 +8909,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: database name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_database_by_id_status<'a>(
+    pub async fn database_get_by_tenant_database_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -8544,10 +8949,10 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `kind`: data catalog asset kind
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_datacatalog_asset_by_kind<'a>(
+    pub async fn data_catalog_get_by_tenant_datacatalog_asset_by_kind<'a>(
         &'a self,
         tenant: &'a str,
-        kind: &'a str,
+        kind: types::DataCatalogGetByTenantDatacatalogAssetByKindKind,
         authorization: &'a str,
     ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
@@ -8586,10 +8991,10 @@ impl Client {
     /// - `kind`: data catalog asset kind
     /// - `name`: data catalog asset name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_datacatalog_asset_by_kind_by_name<'a>(
+    pub async fn data_catalog_get_by_tenant_datacatalog_asset_by_kind_by_name<'a>(
         &'a self,
         tenant: &'a str,
-        kind: &'a str,
+        kind: types::DataCatalogGetByTenantDatacatalogAssetByKindByNameKind,
         name: &'a str,
         authorization: &'a str,
     ) -> Result<ResponseValue<types::DataCatalogAssetStatus>, Error<()>> {
@@ -8630,10 +9035,10 @@ impl Client {
     /// - `kind`: data catalog asset kind
     /// - `name`: data catalog asset name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
+    pub async fn data_catalog_get_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
-        kind: &'a str,
+        kind: types::DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind,
         name: &'a str,
         authorization: &'a str,
     ) -> Result<ResponseValue<types::DataCatalogAsset>, Error<()>> {
@@ -8675,10 +9080,10 @@ impl Client {
     /// - `name`: data catalog asset name
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON representation of the resource
-    pub async fn put_allocation_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
+    pub async fn data_catalog_put_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
         &'a self,
         tenant: &'a str,
-        kind: &'a str,
+        kind: types::DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind,
         name: &'a str,
         authorization: &'a str,
         body: &'a types::DataCatalogAsset,
@@ -8717,10 +9122,12 @@ impl Client {
     /// - `kind`: data catalog asset kind
     /// - `name`: data catalog asset name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
+    pub async fn data_catalog_delete_by_tenant_datacatalog_asset_by_kind_by_name_configuration<
+        'a,
+    >(
         &'a self,
         tenant: &'a str,
-        kind: &'a str,
+        kind: types::DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind,
         name: &'a str,
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
@@ -8750,7 +9157,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_flinkcluster<'a>(
+    pub async fn flink_cluster_get_by_tenant_flinkcluster<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -8788,7 +9195,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_flinkcluster_configuration<'a>(
+    pub async fn flink_cluster_get_by_tenant_flinkcluster_configuration<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -8830,7 +9237,7 @@ impl Client {
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: a JSON object containing the desired configuration of the
     ///   Flink Cluster. Zone must be known to the platform.
-    pub async fn put_allocation_by_tenant_flinkcluster_configuration<'a>(
+    pub async fn flink_cluster_put_by_tenant_flinkcluster_configuration<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -8867,7 +9274,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_flinkcluster_configuration<'a>(
+    pub async fn flink_cluster_delete_by_tenant_flinkcluster_configuration<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -8896,7 +9303,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_flinkcluster_actual<'a>(
+    pub async fn flink_cluster_get_by_tenant_flinkcluster_actual<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -8933,7 +9340,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_flinkcluster_status<'a>(
+    pub async fn flink_cluster_get_by_tenant_flinkcluster_status<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -8970,7 +9377,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_kafkaproxy<'a>(
+    pub async fn kafka_proxy_get_by_tenant_kafkaproxy<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9010,7 +9417,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: Kafka proxy id
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_kafkaproxy_by_id_configuration<'a>(
+    pub async fn kafka_proxy_get_by_tenant_kafkaproxy_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9052,7 +9459,7 @@ impl Client {
     /// - `id`: Kafka proxy id
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the kafka proxy configuration options
-    pub async fn put_allocation_by_tenant_kafkaproxy_by_id_configuration<'a>(
+    pub async fn kafka_proxy_put_by_tenant_kafkaproxy_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9091,7 +9498,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: Kafka proxy id
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_kafkaproxy_by_id_configuration<'a>(
+    pub async fn kafka_proxy_delete_by_tenant_kafkaproxy_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9122,7 +9529,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_robot_by_tenant_generate_secret<'a>(
+    pub async fn robot_get_robot_by_tenant_generate_secret<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9159,7 +9566,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_secret<'a>(
+    pub async fn secret_get_by_tenant_secret<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9197,7 +9604,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: a JSON object containing the name and the secret value
-    pub async fn post_allocation_by_tenant_secret<'a>(
+    pub async fn secret_post_by_tenant_secret<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9234,7 +9641,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: secret name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_secret_by_id_configuration<'a>(
+    pub async fn secret_get_by_tenant_secret_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9275,7 +9682,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: secret name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_secret_by_id_configuration<'a>(
+    pub async fn secret_delete_by_tenant_secret_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9309,7 +9716,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: secret name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_secret_by_id_actual<'a>(
+    pub async fn secret_get_by_tenant_secret_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9349,7 +9756,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: secret name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_secret_by_id_status<'a>(
+    pub async fn secret_get_by_tenant_secret_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9389,7 +9796,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: secret name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_secret_by_id<'a>(
+    pub async fn secret_get_by_tenant_secret_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9422,7 +9829,7 @@ impl Client {
     /// - `id`: secret name
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the secret value as a string
-    pub async fn put_allocation_by_tenant_secret_by_id<'a>(
+    pub async fn secret_put_by_tenant_secret_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9463,7 +9870,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_task<'a>(
+    pub async fn application_get_by_tenant_task<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9501,7 +9908,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `appid`: application name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_task_by_appid<'a>(
+    pub async fn application_get_by_tenant_task_by_appid<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -9542,7 +9949,7 @@ impl Client {
     /// - `appid`: application name
     /// - `id`: task name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_task_by_appid_by_id<'a>(
+    pub async fn application_get_by_tenant_task_by_appid_by_id<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -9585,7 +9992,7 @@ impl Client {
     /// - `appid`: application name
     /// - `id`: task name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_task_by_appid_by_id_actual<'a>(
+    pub async fn application_get_by_tenant_task_by_appid_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -9628,7 +10035,7 @@ impl Client {
     /// - `appid`: application name
     /// - `id`: task name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_task_by_appid_by_id_status<'a>(
+    pub async fn application_get_by_tenant_task_by_appid_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         appid: &'a str,
@@ -9670,7 +10077,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_bucket_fromthirdparty<'a>(
+    pub async fn third_party_bucket_get_by_tenant_bucket_fromthirdparty<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9709,7 +10116,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_thirdpartybucketconcession<'a>(
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9749,7 +10156,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the secret value
-    pub async fn post_allocation_by_tenant_thirdpartybucketconcession<'a>(
+    pub async fn third_party_bucket_post_by_tenant_thirdpartybucketconcession<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9786,7 +10193,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_thirdpartybucketconcession_by_id<'a>(
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9828,7 +10235,9 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_thirdpartybucketconcession_by_id_configuration<'a>(
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_configuration<
+        'a,
+    >(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9870,7 +10279,9 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_thirdpartybucketconcession_by_id_configuration<'a>(
+    pub async fn third_party_bucket_delete_by_tenant_thirdpartybucketconcession_by_id_configuration<
+        'a,
+    >(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9904,7 +10315,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_thirdpartybucketconcession_by_id_actual<'a>(
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9946,7 +10357,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: your name of choice for the third party bucket
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_thirdpartybucketconcession_by_id_status<'a>(
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -9985,7 +10396,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_topic<'a>(
+    pub async fn topic_get_by_tenant_topic<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -10023,7 +10434,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: topic name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_topic_by_id<'a>(
+    pub async fn topic_get_by_tenant_topic_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10063,7 +10474,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: topic name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_topic_by_id_configuration<'a>(
+    pub async fn topic_get_by_tenant_topic_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10107,7 +10518,7 @@ impl Client {
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the configuration of the desired
     ///   topic
-    pub async fn put_allocation_by_tenant_topic_by_id_configuration<'a>(
+    pub async fn topic_put_by_tenant_topic_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10146,7 +10557,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: topic name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_topic_by_id_configuration<'a>(
+    pub async fn topic_delete_by_tenant_topic_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10178,7 +10589,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: topic name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_topic_by_id_actual<'a>(
+    pub async fn topic_get_by_tenant_topic_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10218,7 +10629,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: topic name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_topic_by_id_status<'a>(
+    pub async fn topic_get_by_tenant_topic_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10257,7 +10668,7 @@ impl Client {
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_volume<'a>(
+    pub async fn volume_get_by_tenant_volume<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -10295,7 +10706,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: volume name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_volume_by_id<'a>(
+    pub async fn volume_get_by_tenant_volume_by_id<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10336,7 +10747,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: volume name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_volume_by_id_configuration<'a>(
+    pub async fn volume_get_by_tenant_volume_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10381,7 +10792,7 @@ impl Client {
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the desired configuration of a
     ///   volume allocation
-    pub async fn put_allocation_by_tenant_volume_by_id_configuration<'a>(
+    pub async fn volume_put_by_tenant_volume_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10420,7 +10831,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: volume name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_allocation_by_tenant_volume_by_id_configuration<'a>(
+    pub async fn volume_delete_by_tenant_volume_by_id_configuration<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10452,7 +10863,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: volume name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_volume_by_id_actual<'a>(
+    pub async fn volume_get_by_tenant_volume_by_id_actual<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10492,7 +10903,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `id`: volume name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_allocation_by_tenant_volume_by_id_status<'a>(
+    pub async fn volume_get_by_tenant_volume_by_id_status<'a>(
         &'a self,
         tenant: &'a str,
         id: &'a str,
@@ -10532,7 +10943,7 @@ impl Client {
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_manage_by_manager_tenant<'a>(
+    pub async fn managed_tenant_get_manage_by_manager_tenant<'a>(
         &'a self,
         manager: &'a str,
         authorization: &'a str,
@@ -10572,7 +10983,7 @@ impl Client {
     ///   request
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_manage_by_manager_tenant_by_tenant_configuration<'a>(
+    pub async fn managed_tenant_get_manage_by_manager_tenant_by_tenant_configuration<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
@@ -10617,7 +11028,7 @@ impl Client {
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the configuration of the managed
     ///   tenant
-    pub async fn put_manage_by_manager_tenant_by_tenant_configuration<'a>(
+    pub async fn managed_tenant_put_manage_by_manager_tenant_by_tenant_configuration<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
@@ -10658,7 +11069,7 @@ impl Client {
     ///   request
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn delete_manage_by_manager_tenant_by_tenant_configuration<'a>(
+    pub async fn managed_tenant_delete_manage_by_manager_tenant_by_tenant_configuration<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
@@ -10691,7 +11102,7 @@ impl Client {
     ///   request
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_manage_by_manager_tenant_by_tenant_actual<'a>(
+    pub async fn managed_tenant_get_manage_by_manager_tenant_by_tenant_actual<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
@@ -10732,7 +11143,7 @@ impl Client {
     ///   request
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_manage_by_manager_tenant_by_tenant_status<'a>(
+    pub async fn managed_tenant_get_manage_by_manager_tenant_by_tenant_status<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
@@ -10773,7 +11184,7 @@ impl Client {
     ///   request
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_manage_by_manager_tenant_by_tenant_limit<'a>(
+    pub async fn managed_tenant_limits_get_manage_by_manager_tenant_by_tenant_limit<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
@@ -10815,7 +11226,7 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: a JSON list with multiple limits of the managed tenant
-    pub async fn patch_manage_by_manager_tenant_by_tenant_limit<'a>(
+    pub async fn managed_tenant_limits_patch_manage_by_manager_tenant_by_tenant_limit<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
@@ -10857,11 +11268,11 @@ impl Client {
     /// - `tenant`: tenant name
     /// - `kind`: Limit request type
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn get_manage_by_manager_tenant_by_tenant_limit_by_kind<'a>(
+    pub async fn managed_tenant_limits_get_manage_by_manager_tenant_by_tenant_limit_by_kind<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
-        kind: types::GetManageByManagerTenantByTenantLimitByKindKind,
+        kind: types::ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind,
         authorization: &'a str,
     ) -> Result<ResponseValue<types::LimitValue>, Error<()>> {
         let url = format!(
@@ -10904,11 +11315,11 @@ impl Client {
     /// - `authorization`: Authorization header (bearer token)
     /// - `body`: the JSON object containing the limit configuration of the
     ///   managed tenant
-    pub async fn put_manage_by_manager_tenant_by_tenant_limit_by_kind<'a>(
+    pub async fn managed_tenant_limits_put_manage_by_manager_tenant_by_tenant_limit_by_kind<'a>(
         &'a self,
         manager: &'a str,
         tenant: &'a str,
-        kind: types::PutManageByManagerTenantByTenantLimitByKindKind,
+        kind: types::ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind,
         authorization: &'a str,
         body: &'a types::LimitValue,
     ) -> Result<ResponseValue<()>, Error<()>> {

@@ -7,13 +7,13 @@ use std::env;
 
 /// Available DSH platforms plus it's related metadata
 ///
-/// The platform enum contains 
+/// The platform enum contains
 /// - `Prod` (kpn-dsh.com)
 /// - `ProdAz` (az.kpn-dsh.com)
 /// - `ProdLz` (dsh-prod.dsh.prod.aws.kpn.com)
 /// - `NpLz` (dsh-dev.dsh.np.aws.kpn.com)
 /// - `Poc` (poc.kpn-dsh.com)
-/// 
+///
 /// Each platform has it's own realm, endpoint for the DSH Rest API and endpoint for the DSH Rest API access token.
 #[derive(Clone, Debug)]
 #[non_exhaustive]

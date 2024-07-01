@@ -2,10 +2,12 @@ import json
 import sys
 import os
 
-def generate_operation_id(path, method):
-    # Generate a meaningful operationId based on the path and method
+def generate_operation_id(path, method, tag):
+    # Generate a meaningful operationId based on the tag, method and path
     path_parts = path.strip('/').split('/')
-    operation_id = method.lower() + ''.join(part.capitalize() if part[0] != '{' else 'By' + part[1:-1].capitalize() for part in path_parts)
+    # remove allocation from path
+    path_parts = [part for part in path_parts if part != 'allocation']
+    operation_id = tag.lower() + method.capitalize() + ''.join(part.capitalize() if part[0] != '{' else 'By' + part[1:-1].capitalize() for part in path_parts)
     return operation_id
 
 def add_mising_items(openapi_spec):
@@ -13,9 +15,10 @@ def add_mising_items(openapi_spec):
     for path, methods in paths.items():
         for method in ['get', 'post', 'put', 'delete', 'patch']:
             if method in methods:
+                tag = methods[method].get('tags', [''])[0]
                 # Add operationId if missing
                 if 'operationId' not in methods[method]:
-                    operation_id = generate_operation_id(path, method)
+                    operation_id = generate_operation_id(path, method, tag)
                     methods[method]['operationId'] = operation_id
                 
                 # Append bearer auth parameters

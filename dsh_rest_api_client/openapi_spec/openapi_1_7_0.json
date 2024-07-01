@@ -139,7 +139,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantApplicationConfiguration"
+        "operationId": "applicationGetByTenantApplicationConfiguration"
       }
     },
     "/allocation/{tenant}/application/{appid}/configuration": {
@@ -189,7 +189,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "deleteAllocationByTenantApplicationByAppidConfiguration"
+        "operationId": "applicationDeleteByTenantApplicationByAppidConfiguration"
       },
       "get": {
         "parameters": [
@@ -249,7 +249,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantApplicationByAppidConfiguration"
+        "operationId": "applicationGetByTenantApplicationByAppidConfiguration"
       },
       "put": {
         "parameters": [
@@ -316,7 +316,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "putAllocationByTenantApplicationByAppidConfiguration"
+        "operationId": "applicationPutByTenantApplicationByAppidConfiguration"
       }
     },
     "/allocation/{tenant}/application/actual": {
@@ -364,7 +364,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantApplicationActual"
+        "operationId": "applicationGetByTenantApplicationActual"
       }
     },
     "/allocation/{tenant}/application/{appid}/actual": {
@@ -426,7 +426,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantApplicationByAppidActual"
+        "operationId": "applicationGetByTenantApplicationByAppidActual"
       }
     },
     "/allocation/{tenant}/application/{appid}/status": {
@@ -488,7 +488,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantApplicationByAppidStatus"
+        "operationId": "applicationGetByTenantApplicationByAppidStatus"
       }
     },
     "/allocation/{tenant}/appcatalogapp/configuration": {
@@ -536,7 +536,7 @@
         "tags": [
           "app catalog"
         ],
-        "operationId": "getAllocationByTenantAppcatalogappConfiguration"
+        "operationId": "app catalogGetByTenantAppcatalogappConfiguration"
       }
     },
     "/allocation/{tenant}/appcatalogapp/actual": {
@@ -584,7 +584,7 @@
         "tags": [
           "app catalog"
         ],
-        "operationId": "getAllocationByTenantAppcatalogappActual"
+        "operationId": "app catalogGetByTenantAppcatalogappActual"
       }
     },
     "/allocation/{tenant}/appcatalogapp/{appcatalogappid}/configuration": {
@@ -641,7 +641,7 @@
         "tags": [
           "app catalog"
         ],
-        "operationId": "getAllocationByTenantAppcatalogappByAppcatalogappidConfiguration"
+        "operationId": "app catalogGetByTenantAppcatalogappByAppcatalogappidConfiguration"
       }
     },
     "/allocation/{tenant}/appcatalogapp/{appcatalogappid}/actual": {
@@ -698,7 +698,7 @@
         "tags": [
           "app catalog"
         ],
-        "operationId": "getAllocationByTenantAppcatalogappByAppcatalogappidActual"
+        "operationId": "app catalogGetByTenantAppcatalogappByAppcatalogappidActual"
       }
     },
     "/appcatalog/{tenant}/appcatalogapp/{appcatalogappid}/configuration": {
@@ -748,7 +748,7 @@
         "tags": [
           "app catalog app configuration"
         ],
-        "operationId": "deleteAppcatalogByTenantAppcatalogappByAppcatalogappidConfiguration"
+        "operationId": "app catalog app configurationDeleteAppcatalogByTenantAppcatalogappByAppcatalogappidConfiguration"
       },
       "get": {
         "parameters": [
@@ -808,7 +808,7 @@
         "tags": [
           "app catalog app configuration"
         ],
-        "operationId": "getAppcatalogByTenantAppcatalogappByAppcatalogappidConfiguration"
+        "operationId": "app catalog app configurationGetAppcatalogByTenantAppcatalogappByAppcatalogappidConfiguration"
       },
       "put": {
         "parameters": [
@@ -875,7 +875,7 @@
         "tags": [
           "app catalog app configuration"
         ],
-        "operationId": "putAppcatalogByTenantAppcatalogappByAppcatalogappidConfiguration"
+        "operationId": "app catalog app configurationPutAppcatalogByTenantAppcatalogappByAppcatalogappidConfiguration"
       }
     },
     "/appcatalog/{tenant}/appcatalogapp/{appcatalogappid}/status": {
@@ -937,7 +937,7 @@
         "tags": [
           "app catalog app configuration"
         ],
-        "operationId": "getAppcatalogByTenantAppcatalogappByAppcatalogappidStatus"
+        "operationId": "app catalog app configurationGetAppcatalogByTenantAppcatalogappByAppcatalogappidStatus"
       }
     },
     "/appcatalog/{tenant}/manifest": {
@@ -985,7 +985,7 @@
         "tags": [
           "app catalog manifest"
         ],
-        "operationId": "getAppcatalogByTenantManifest"
+        "operationId": "app catalog manifestGetAppcatalogByTenantManifest"
       }
     },
     "/allocation/{tenant}/bucketwatch": {
@@ -1027,7 +1027,7 @@
         "tags": [
           "bucket watch"
         ],
-        "operationId": "getAllocationByTenantBucketwatch"
+        "operationId": "bucket watchGetByTenantBucketwatch"
       },
       "parameters": [
         {
@@ -1095,7 +1095,7 @@
         "tags": [
           "bucket watch"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketwatch"
+        "operationId": "bucket watchGetByTenantBucketByIdBucketwatch"
       },
       "parameters": [
         {
@@ -1161,7 +1161,7 @@
         "tags": [
           "bucket watch"
         ],
-        "operationId": "deleteAllocationByTenantBucketByIdBucketwatchConfiguration"
+        "operationId": "bucket watchDeleteByTenantBucketByIdBucketwatchConfiguration"
       },
       "get": {
         "parameters": [
@@ -1211,7 +1211,7 @@
         "tags": [
           "bucket watch"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketwatchConfiguration"
+        "operationId": "bucket watchGetByTenantBucketByIdBucketwatchConfiguration"
       },
       "parameters": [
         {
@@ -1275,7 +1275,7 @@
         "tags": [
           "bucket watch"
         ],
-        "operationId": "putAllocationByTenantBucketByIdBucketwatchConfiguration"
+        "operationId": "bucket watchPutByTenantBucketByIdBucketwatchConfiguration"
       }
     },
     "/allocation/{tenant}/bucket/{id}/bucketwatch/actual": {
@@ -1327,7 +1327,7 @@
         "tags": [
           "bucket watch"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketwatchActual"
+        "operationId": "bucket watchGetByTenantBucketByIdBucketwatchActual"
       },
       "parameters": [
         {
@@ -1405,7 +1405,7 @@
         "tags": [
           "bucket watch"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketwatchStatus"
+        "operationId": "bucket watchGetByTenantBucketByIdBucketwatchStatus"
       },
       "parameters": [
         {
@@ -1468,7 +1468,7 @@
         "tags": [
           "bucket"
         ],
-        "operationId": "getAllocationByTenantBucket"
+        "operationId": "bucketGetByTenantBucket"
       },
       "parameters": [
         {
@@ -1536,7 +1536,7 @@
         "tags": [
           "bucket"
         ],
-        "operationId": "getAllocationByTenantBucketById"
+        "operationId": "bucketGetByTenantBucketById"
       },
       "parameters": [
         {
@@ -1602,7 +1602,7 @@
         "tags": [
           "bucket"
         ],
-        "operationId": "deleteAllocationByTenantBucketByIdConfiguration"
+        "operationId": "bucketDeleteByTenantBucketByIdConfiguration"
       },
       "get": {
         "parameters": [
@@ -1657,7 +1657,7 @@
         "tags": [
           "bucket"
         ],
-        "operationId": "getAllocationByTenantBucketByIdConfiguration"
+        "operationId": "bucketGetByTenantBucketByIdConfiguration"
       },
       "parameters": [
         {
@@ -1737,7 +1737,7 @@
         "tags": [
           "bucket"
         ],
-        "operationId": "putAllocationByTenantBucketByIdConfiguration"
+        "operationId": "bucketPutByTenantBucketByIdConfiguration"
       }
     },
     "/allocation/{tenant}/bucket/{id}/actual": {
@@ -1794,7 +1794,7 @@
         "tags": [
           "bucket"
         ],
-        "operationId": "getAllocationByTenantBucketByIdActual"
+        "operationId": "bucketGetByTenantBucketByIdActual"
       },
       "parameters": [
         {
@@ -1872,7 +1872,7 @@
         "tags": [
           "bucket"
         ],
-        "operationId": "getAllocationByTenantBucketByIdStatus"
+        "operationId": "bucketGetByTenantBucketByIdStatus"
       },
       "parameters": [
         {
@@ -1935,7 +1935,7 @@
         "tags": [
           "bucket access"
         ],
-        "operationId": "getAllocationByTenantBucketaccess"
+        "operationId": "bucket accessGetByTenantBucketaccess"
       },
       "parameters": [
         {
@@ -1998,7 +1998,7 @@
         "tags": [
           "bucket access"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketaccess"
+        "operationId": "bucket accessGetByTenantBucketByIdBucketaccess"
       },
       "parameters": [
         {
@@ -2081,7 +2081,7 @@
         "tags": [
           "bucket access"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketaccessByName"
+        "operationId": "bucket accessGetByTenantBucketByIdBucketaccessByName"
       },
       "parameters": [
         {
@@ -2167,7 +2167,7 @@
         "tags": [
           "bucket access"
         ],
-        "operationId": "deleteAllocationByTenantBucketByIdBucketaccessByNameConfiguration"
+        "operationId": "bucket accessDeleteByTenantBucketByIdBucketaccessByNameConfiguration"
       },
       "get": {
         "parameters": [
@@ -2227,7 +2227,7 @@
         "tags": [
           "bucket access"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketaccessByNameConfiguration"
+        "operationId": "bucket accessGetByTenantBucketByIdBucketaccessByNameConfiguration"
       },
       "parameters": [
         {
@@ -2327,7 +2327,7 @@
         "tags": [
           "bucket access"
         ],
-        "operationId": "putAllocationByTenantBucketByIdBucketaccessByNameConfiguration"
+        "operationId": "bucket accessPutByTenantBucketByIdBucketaccessByNameConfiguration"
       }
     },
     "/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/actual": {
@@ -2394,7 +2394,7 @@
         "tags": [
           "bucket access"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketaccessByNameActual"
+        "operationId": "bucket accessGetByTenantBucketByIdBucketaccessByNameActual"
       },
       "parameters": [
         {
@@ -2492,7 +2492,7 @@
         "tags": [
           "bucket access"
         ],
-        "operationId": "getAllocationByTenantBucketByIdBucketaccessByNameStatus"
+        "operationId": "bucket accessGetByTenantBucketByIdBucketaccessByNameStatus"
       },
       "parameters": [
         {
@@ -2568,7 +2568,7 @@
         "tags": [
           "certificate"
         ],
-        "operationId": "getAllocationByTenantCertificate"
+        "operationId": "certificateGetByTenantCertificate"
       }
     },
     "/allocation/{tenant}/certificate/{id}": {
@@ -2630,7 +2630,7 @@
         "tags": [
           "certificate"
         ],
-        "operationId": "getAllocationByTenantCertificateById"
+        "operationId": "certificateGetByTenantCertificateById"
       }
     },
     "/allocation/{tenant}/certificate/{id}/configuration": {
@@ -2680,7 +2680,7 @@
         "tags": [
           "certificate"
         ],
-        "operationId": "deleteAllocationByTenantCertificateByIdConfiguration"
+        "operationId": "certificateDeleteByTenantCertificateByIdConfiguration"
       },
       "get": {
         "parameters": [
@@ -2740,7 +2740,7 @@
         "tags": [
           "certificate"
         ],
-        "operationId": "getAllocationByTenantCertificateByIdConfiguration"
+        "operationId": "certificateGetByTenantCertificateByIdConfiguration"
       },
       "put": {
         "parameters": [
@@ -2804,7 +2804,7 @@
         "tags": [
           "certificate"
         ],
-        "operationId": "putAllocationByTenantCertificateByIdConfiguration"
+        "operationId": "certificatePutByTenantCertificateByIdConfiguration"
       }
     },
     "/allocation/{tenant}/certificate/{id}/actual": {
@@ -2866,7 +2866,7 @@
         "tags": [
           "certificate"
         ],
-        "operationId": "getAllocationByTenantCertificateByIdActual"
+        "operationId": "certificateGetByTenantCertificateByIdActual"
       }
     },
     "/allocation/{tenant}/certificate/{id}/status": {
@@ -2928,7 +2928,7 @@
         "tags": [
           "certificate"
         ],
-        "operationId": "getAllocationByTenantCertificateByIdStatus"
+        "operationId": "certificateGetByTenantCertificateByIdStatus"
       }
     },
     "/allocation/{tenant}/database": {
@@ -2973,7 +2973,7 @@
         "tags": [
           "database"
         ],
-        "operationId": "getAllocationByTenantDatabase"
+        "operationId": "databaseGetByTenantDatabase"
       }
     },
     "/allocation/{tenant}/database/{id}": {
@@ -3035,7 +3035,7 @@
         "tags": [
           "database"
         ],
-        "operationId": "getAllocationByTenantDatabaseById"
+        "operationId": "databaseGetByTenantDatabaseById"
       }
     },
     "/allocation/{tenant}/database/{id}/configuration": {
@@ -3085,7 +3085,7 @@
         "tags": [
           "database"
         ],
-        "operationId": "deleteAllocationByTenantDatabaseByIdConfiguration"
+        "operationId": "databaseDeleteByTenantDatabaseByIdConfiguration"
       },
       "get": {
         "parameters": [
@@ -3145,7 +3145,7 @@
         "tags": [
           "database"
         ],
-        "operationId": "getAllocationByTenantDatabaseByIdConfiguration"
+        "operationId": "databaseGetByTenantDatabaseByIdConfiguration"
       },
       "put": {
         "parameters": [
@@ -3209,7 +3209,7 @@
         "tags": [
           "database"
         ],
-        "operationId": "putAllocationByTenantDatabaseByIdConfiguration"
+        "operationId": "databasePutByTenantDatabaseByIdConfiguration"
       }
     },
     "/allocation/{tenant}/database/{id}/actual": {
@@ -3271,7 +3271,7 @@
         "tags": [
           "database"
         ],
-        "operationId": "getAllocationByTenantDatabaseByIdActual"
+        "operationId": "databaseGetByTenantDatabaseByIdActual"
       }
     },
     "/allocation/{tenant}/database/{id}/status": {
@@ -3333,7 +3333,7 @@
         "tags": [
           "database"
         ],
-        "operationId": "getAllocationByTenantDatabaseByIdStatus"
+        "operationId": "databaseGetByTenantDatabaseByIdStatus"
       }
     },
     "/allocation/{tenant}/datacatalog/asset/{kind}": {
@@ -3388,7 +3388,7 @@
         "tags": [
           "data catalog"
         ],
-        "operationId": "getAllocationByTenantDatacatalogAssetByKind"
+        "operationId": "data catalogGetByTenantDatacatalogAssetByKind"
       },
       "parameters": [
         {
@@ -3482,7 +3482,7 @@
         "tags": [
           "data catalog"
         ],
-        "operationId": "getAllocationByTenantDatacatalogAssetByKindByName"
+        "operationId": "data catalogGetByTenantDatacatalogAssetByKindByName"
       },
       "parameters": [
         {
@@ -3574,7 +3574,7 @@
         "tags": [
           "data catalog"
         ],
-        "operationId": "deleteAllocationByTenantDatacatalogAssetByKindByNameConfiguration"
+        "operationId": "data catalogDeleteByTenantDatacatalogAssetByKindByNameConfiguration"
       },
       "get": {
         "parameters": [
@@ -3642,7 +3642,7 @@
         "tags": [
           "data catalog"
         ],
-        "operationId": "getAllocationByTenantDatacatalogAssetByKindByNameConfiguration"
+        "operationId": "data catalogGetByTenantDatacatalogAssetByKindByNameConfiguration"
       },
       "parameters": [
         {
@@ -3748,7 +3748,7 @@
         "tags": [
           "data catalog"
         ],
-        "operationId": "putAllocationByTenantDatacatalogAssetByKindByNameConfiguration"
+        "operationId": "data catalogPutByTenantDatacatalogAssetByKindByNameConfiguration"
       }
     },
     "/allocation/{tenant}/flinkcluster": {
@@ -3798,7 +3798,7 @@
         "tags": [
           "flink cluster"
         ],
-        "operationId": "getAllocationByTenantFlinkcluster"
+        "operationId": "flink clusterGetByTenantFlinkcluster"
       }
     },
     "/allocation/{tenant}/flinkcluster/configuration": {
@@ -3836,7 +3836,7 @@
         "tags": [
           "flink cluster"
         ],
-        "operationId": "deleteAllocationByTenantFlinkclusterConfiguration"
+        "operationId": "flink clusterDeleteByTenantFlinkclusterConfiguration"
       },
       "get": {
         "parameters": [
@@ -3884,7 +3884,7 @@
         "tags": [
           "flink cluster"
         ],
-        "operationId": "getAllocationByTenantFlinkclusterConfiguration"
+        "operationId": "flink clusterGetByTenantFlinkclusterConfiguration"
       },
       "put": {
         "parameters": [
@@ -3936,7 +3936,7 @@
         "tags": [
           "flink cluster"
         ],
-        "operationId": "putAllocationByTenantFlinkclusterConfiguration"
+        "operationId": "flink clusterPutByTenantFlinkclusterConfiguration"
       }
     },
     "/allocation/{tenant}/flinkcluster/actual": {
@@ -3986,7 +3986,7 @@
         "tags": [
           "flink cluster"
         ],
-        "operationId": "getAllocationByTenantFlinkclusterActual"
+        "operationId": "flink clusterGetByTenantFlinkclusterActual"
       }
     },
     "/allocation/{tenant}/flinkcluster/status": {
@@ -4036,7 +4036,7 @@
         "tags": [
           "flink cluster"
         ],
-        "operationId": "getAllocationByTenantFlinkclusterStatus"
+        "operationId": "flink clusterGetByTenantFlinkclusterStatus"
       }
     },
     "/allocation/{tenant}/kafkaproxy": {
@@ -4081,7 +4081,7 @@
         "tags": [
           "kafka proxy"
         ],
-        "operationId": "getAllocationByTenantKafkaproxy"
+        "operationId": "kafka proxyGetByTenantKafkaproxy"
       }
     },
     "/allocation/{tenant}/kafkaproxy/{id}/configuration": {
@@ -4131,7 +4131,7 @@
         "tags": [
           "kafka proxy"
         ],
-        "operationId": "deleteAllocationByTenantKafkaproxyByIdConfiguration"
+        "operationId": "kafka proxyDeleteByTenantKafkaproxyByIdConfiguration"
       },
       "get": {
         "parameters": [
@@ -4191,7 +4191,7 @@
         "tags": [
           "kafka proxy"
         ],
-        "operationId": "getAllocationByTenantKafkaproxyByIdConfiguration"
+        "operationId": "kafka proxyGetByTenantKafkaproxyByIdConfiguration"
       },
       "put": {
         "parameters": [
@@ -4255,7 +4255,7 @@
         "tags": [
           "kafka proxy"
         ],
-        "operationId": "putAllocationByTenantKafkaproxyByIdConfiguration"
+        "operationId": "kafka proxyPutByTenantKafkaproxyByIdConfiguration"
       }
     },
     "/robot/{tenant}/generate-secret": {
@@ -4303,7 +4303,7 @@
         "tags": [
           "robot"
         ],
-        "operationId": "getRobotByTenantGenerate-secret"
+        "operationId": "robotGetRobotByTenantGenerate-secret"
       }
     },
     "/allocation/{tenant}/secret": {
@@ -4348,7 +4348,7 @@
         "tags": [
           "secret"
         ],
-        "operationId": "getAllocationByTenantSecret"
+        "operationId": "secretGetByTenantSecret"
       },
       "post": {
         "parameters": [
@@ -4400,7 +4400,7 @@
         "tags": [
           "secret"
         ],
-        "operationId": "postAllocationByTenantSecret"
+        "operationId": "secretPostByTenantSecret"
       }
     },
     "/allocation/{tenant}/secret/{id}/configuration": {
@@ -4450,7 +4450,7 @@
         "tags": [
           "secret"
         ],
-        "operationId": "deleteAllocationByTenantSecretByIdConfiguration"
+        "operationId": "secretDeleteByTenantSecretByIdConfiguration"
       },
       "get": {
         "parameters": [
@@ -4505,7 +4505,7 @@
         "tags": [
           "secret"
         ],
-        "operationId": "getAllocationByTenantSecretByIdConfiguration"
+        "operationId": "secretGetByTenantSecretByIdConfiguration"
       }
     },
     "/allocation/{tenant}/secret/{id}/actual": {
@@ -4562,7 +4562,7 @@
         "tags": [
           "secret"
         ],
-        "operationId": "getAllocationByTenantSecretByIdActual"
+        "operationId": "secretGetByTenantSecretByIdActual"
       }
     },
     "/allocation/{tenant}/secret/{id}/status": {
@@ -4624,7 +4624,7 @@
         "tags": [
           "secret"
         ],
-        "operationId": "getAllocationByTenantSecretByIdStatus"
+        "operationId": "secretGetByTenantSecretByIdStatus"
       }
     },
     "/allocation/{tenant}/secret/{id}": {
@@ -4681,7 +4681,7 @@
         "tags": [
           "secret"
         ],
-        "operationId": "getAllocationByTenantSecretById"
+        "operationId": "secretGetByTenantSecretById"
       },
       "put": {
         "parameters": [
@@ -4741,7 +4741,7 @@
         "tags": [
           "secret"
         ],
-        "operationId": "putAllocationByTenantSecretById"
+        "operationId": "secretPutByTenantSecretById"
       }
     },
     "/allocation/{tenant}/task": {
@@ -4786,7 +4786,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantTask"
+        "operationId": "applicationGetByTenantTask"
       }
     },
     "/allocation/{tenant}/task/{appid}": {
@@ -4843,7 +4843,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantTaskByAppid"
+        "operationId": "applicationGetByTenantTaskByAppid"
       }
     },
     "/allocation/{tenant}/task/{appid}/{id}": {
@@ -4917,7 +4917,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantTaskByAppidById"
+        "operationId": "applicationGetByTenantTaskByAppidById"
       }
     },
     "/allocation/{tenant}/task/{appid}/{id}/actual": {
@@ -4991,7 +4991,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantTaskByAppidByIdActual"
+        "operationId": "applicationGetByTenantTaskByAppidByIdActual"
       }
     },
     "/allocation/{tenant}/task/{appid}/{id}/status": {
@@ -5065,7 +5065,7 @@
         "tags": [
           "application"
         ],
-        "operationId": "getAllocationByTenantTaskByAppidByIdStatus"
+        "operationId": "applicationGetByTenantTaskByAppidByIdStatus"
       }
     },
     "/allocation/{tenant}/bucket/fromthirdparty": {
@@ -5107,7 +5107,7 @@
         "tags": [
           "third party bucket"
         ],
-        "operationId": "getAllocationByTenantBucketFromthirdparty"
+        "operationId": "third party bucketGetByTenantBucketFromthirdparty"
       },
       "parameters": [
         {
@@ -5160,7 +5160,7 @@
         "tags": [
           "third party bucket"
         ],
-        "operationId": "getAllocationByTenantThirdpartybucketconcession"
+        "operationId": "third party bucketGetByTenantThirdpartybucketconcession"
       },
       "parameters": [
         {
@@ -5220,7 +5220,7 @@
         "tags": [
           "third party bucket"
         ],
-        "operationId": "postAllocationByTenantThirdpartybucketconcession"
+        "operationId": "third party bucketPostByTenantThirdpartybucketconcession"
       }
     },
     "/allocation/{tenant}/thirdpartybucketconcession/{id}": {
@@ -5277,7 +5277,7 @@
         "tags": [
           "third party bucket"
         ],
-        "operationId": "getAllocationByTenantThirdpartybucketconcessionById"
+        "operationId": "third party bucketGetByTenantThirdpartybucketconcessionById"
       },
       "parameters": [
         {
@@ -5343,7 +5343,7 @@
         "tags": [
           "third party bucket"
         ],
-        "operationId": "deleteAllocationByTenantThirdpartybucketconcessionByIdConfiguration"
+        "operationId": "third party bucketDeleteByTenantThirdpartybucketconcessionByIdConfiguration"
       },
       "get": {
         "parameters": [
@@ -5398,7 +5398,7 @@
         "tags": [
           "third party bucket"
         ],
-        "operationId": "getAllocationByTenantThirdpartybucketconcessionByIdConfiguration"
+        "operationId": "third party bucketGetByTenantThirdpartybucketconcessionByIdConfiguration"
       },
       "parameters": [
         {
@@ -5476,7 +5476,7 @@
         "tags": [
           "third party bucket"
         ],
-        "operationId": "getAllocationByTenantThirdpartybucketconcessionByIdActual"
+        "operationId": "third party bucketGetByTenantThirdpartybucketconcessionByIdActual"
       },
       "parameters": [
         {
@@ -5554,7 +5554,7 @@
         "tags": [
           "third party bucket"
         ],
-        "operationId": "getAllocationByTenantThirdpartybucketconcessionByIdStatus"
+        "operationId": "third party bucketGetByTenantThirdpartybucketconcessionByIdStatus"
       },
       "parameters": [
         {
@@ -5620,7 +5620,7 @@
         "tags": [
           "topic"
         ],
-        "operationId": "getAllocationByTenantTopic"
+        "operationId": "topicGetByTenantTopic"
       }
     },
     "/allocation/{tenant}/topic/{id}": {
@@ -5682,7 +5682,7 @@
         "tags": [
           "topic"
         ],
-        "operationId": "getAllocationByTenantTopicById"
+        "operationId": "topicGetByTenantTopicById"
       }
     },
     "/allocation/{tenant}/topic/{id}/configuration": {
@@ -5732,7 +5732,7 @@
         "tags": [
           "topic"
         ],
-        "operationId": "deleteAllocationByTenantTopicByIdConfiguration"
+        "operationId": "topicDeleteByTenantTopicByIdConfiguration"
       },
       "get": {
         "parameters": [
@@ -5792,7 +5792,7 @@
         "tags": [
           "topic"
         ],
-        "operationId": "getAllocationByTenantTopicByIdConfiguration"
+        "operationId": "topicGetByTenantTopicByIdConfiguration"
       },
       "put": {
         "parameters": [
@@ -5856,7 +5856,7 @@
         "tags": [
           "topic"
         ],
-        "operationId": "putAllocationByTenantTopicByIdConfiguration"
+        "operationId": "topicPutByTenantTopicByIdConfiguration"
       }
     },
     "/allocation/{tenant}/topic/{id}/actual": {
@@ -5918,7 +5918,7 @@
         "tags": [
           "topic"
         ],
-        "operationId": "getAllocationByTenantTopicByIdActual"
+        "operationId": "topicGetByTenantTopicByIdActual"
       }
     },
     "/allocation/{tenant}/topic/{id}/status": {
@@ -5980,7 +5980,7 @@
         "tags": [
           "topic"
         ],
-        "operationId": "getAllocationByTenantTopicByIdStatus"
+        "operationId": "topicGetByTenantTopicByIdStatus"
       }
     },
     "/allocation/{tenant}/volume": {
@@ -6025,7 +6025,7 @@
         "tags": [
           "volume"
         ],
-        "operationId": "getAllocationByTenantVolume"
+        "operationId": "volumeGetByTenantVolume"
       }
     },
     "/allocation/{tenant}/volume/{id}": {
@@ -6087,7 +6087,7 @@
         "tags": [
           "volume"
         ],
-        "operationId": "getAllocationByTenantVolumeById"
+        "operationId": "volumeGetByTenantVolumeById"
       }
     },
     "/allocation/{tenant}/volume/{id}/configuration": {
@@ -6137,7 +6137,7 @@
         "tags": [
           "volume"
         ],
-        "operationId": "deleteAllocationByTenantVolumeByIdConfiguration"
+        "operationId": "volumeDeleteByTenantVolumeByIdConfiguration"
       },
       "get": {
         "parameters": [
@@ -6197,7 +6197,7 @@
         "tags": [
           "volume"
         ],
-        "operationId": "getAllocationByTenantVolumeByIdConfiguration"
+        "operationId": "volumeGetByTenantVolumeByIdConfiguration"
       },
       "put": {
         "parameters": [
@@ -6261,7 +6261,7 @@
         "tags": [
           "volume"
         ],
-        "operationId": "putAllocationByTenantVolumeByIdConfiguration"
+        "operationId": "volumePutByTenantVolumeByIdConfiguration"
       }
     },
     "/allocation/{tenant}/volume/{id}/actual": {
@@ -6323,7 +6323,7 @@
         "tags": [
           "volume"
         ],
-        "operationId": "getAllocationByTenantVolumeByIdActual"
+        "operationId": "volumeGetByTenantVolumeByIdActual"
       }
     },
     "/allocation/{tenant}/volume/{id}/status": {
@@ -6385,7 +6385,7 @@
         "tags": [
           "volume"
         ],
-        "operationId": "getAllocationByTenantVolumeByIdStatus"
+        "operationId": "volumeGetByTenantVolumeByIdStatus"
       }
     },
     "/manage/{manager}/tenant": {
@@ -6430,7 +6430,7 @@
         "tags": [
           "managed tenant"
         ],
-        "operationId": "getManageByManagerTenant"
+        "operationId": "managed tenantGetManageByManagerTenant"
       }
     },
     "/manage/{manager}/tenant/{tenant}/configuration": {
@@ -6480,7 +6480,7 @@
         "tags": [
           "managed tenant"
         ],
-        "operationId": "deleteManageByManagerTenantByTenantConfiguration"
+        "operationId": "managed tenantDeleteManageByManagerTenantByTenantConfiguration"
       },
       "get": {
         "parameters": [
@@ -6540,7 +6540,7 @@
         "tags": [
           "managed tenant"
         ],
-        "operationId": "getManageByManagerTenantByTenantConfiguration"
+        "operationId": "managed tenantGetManageByManagerTenantByTenantConfiguration"
       },
       "put": {
         "parameters": [
@@ -6607,7 +6607,7 @@
         "tags": [
           "managed tenant"
         ],
-        "operationId": "putManageByManagerTenantByTenantConfiguration"
+        "operationId": "managed tenantPutManageByManagerTenantByTenantConfiguration"
       }
     },
     "/manage/{manager}/tenant/{tenant}/actual": {
@@ -6669,7 +6669,7 @@
         "tags": [
           "managed tenant"
         ],
-        "operationId": "getManageByManagerTenantByTenantActual"
+        "operationId": "managed tenantGetManageByManagerTenantByTenantActual"
       }
     },
     "/manage/{manager}/tenant/{tenant}/status": {
@@ -6731,7 +6731,7 @@
         "tags": [
           "managed tenant"
         ],
-        "operationId": "getManageByManagerTenantByTenantStatus"
+        "operationId": "managed tenantGetManageByManagerTenantByTenantStatus"
       }
     },
     "/manage/{manager}/tenant/{tenant}/limit": {
@@ -6796,7 +6796,7 @@
         "tags": [
           "managed tenant limits"
         ],
-        "operationId": "getManageByManagerTenantByTenantLimit"
+        "operationId": "managed tenant limitsGetManageByManagerTenantByTenantLimit"
       },
       "patch": {
         "parameters": [
@@ -6869,7 +6869,7 @@
         "tags": [
           "managed tenant limits"
         ],
-        "operationId": "patchManageByManagerTenantByTenantLimit"
+        "operationId": "managed tenant limitsPatchManageByManagerTenantByTenantLimit"
       }
     },
     "/manage/{manager}/tenant/{tenant}/limit/{kind}": {
@@ -6978,7 +6978,7 @@
         "tags": [
           "managed tenant limits"
         ],
-        "operationId": "getManageByManagerTenantByTenantLimitByKind"
+        "operationId": "managed tenant limitsGetManageByManagerTenantByTenantLimitByKind"
       },
       "put": {
         "parameters": [
@@ -7092,7 +7092,7 @@
         "tags": [
           "managed tenant limits"
         ],
-        "operationId": "putManageByManagerTenantByTenantLimitByKind"
+        "operationId": "managed tenant limitsPutManageByManagerTenantByTenantLimitByKind"
       }
     }
   },
