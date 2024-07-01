@@ -50,6 +50,8 @@ jobs:
         run: cargo install cargo-audit
       - name: audit check
         run: cargo audit
+      - name: cargo build doc
+        run: cargo doc --all-features
       - name: install cargo-hack
         run: cargo install cargo-hack --locked
       - name: cargo check all features
