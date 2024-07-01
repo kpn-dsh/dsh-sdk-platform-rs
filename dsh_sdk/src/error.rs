@@ -37,7 +37,6 @@ pub enum DshError {
     #[cfg(feature = "bootstrap")]
     #[error("Error getting group id, index out of bounds for {0}")]
     IndexGroupIdError(crate::dsh::datastream::GroupType),
-    #[cfg(feature = "bootstrap")]
     #[error("No tenant name found")]
     NoTenantName,
     #[cfg(feature = "bootstrap")]
