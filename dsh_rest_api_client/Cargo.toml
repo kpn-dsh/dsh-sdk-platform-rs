@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 license.workspace = true
 readme = "README.md"
+description = "REST API client for KPN Data Services Hub"
 homepage.workspace = true
 repository.workspace = true
 keywords = ["kpn", "dsh", "rest", "api", "client"]
