@@ -6,8 +6,9 @@
 //! This also makes it possible to use the DSH SDK with Kafka Proxy
 //! or VPN outside of the DSH environment.
 use super::certificates::Cert;
-use super::{utils, VAR_PKI_CONFIG_DIR};
+use super::VAR_PKI_CONFIG_DIR;
 use crate::error::DshError;
+use crate::utils;
 
 use log::{debug, info, warn};
 use pem::{self, Pem};

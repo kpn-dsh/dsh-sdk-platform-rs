@@ -9,6 +9,7 @@
 This library can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. Features include:
 - Connect to DSH 
 - Fetch Kafka Properties and certificates
+- Rest API Token Fetcher (to be used with [dsh_rest_api_client](https://crates.io/crates/dsh_rest_api_client))
 - Common functions 
   - Preconfigured RDKafka client config
   - Preconfigured Reqwest client config (for schema store)
@@ -51,7 +52,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
 
 ## Connect to DSH
 The SDK is compatible with running in a container on a DSH tenant, on DSH System Space, on a machine with Kafka Proxy/VPN or on a local machine to a local Kafka. 
-See [CONNECT_PROXY_VPN_LOCAL](/dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md) for more info.
+See [CONNECT_PROXY_VPN_LOCAL](CONNECT_PROXY_VPN_LOCAL.md) for more info.
 
 ## Feature flags
 The following features are available in this library and can be enabled/disabled in your Cargo.toml file.:
@@ -59,6 +60,7 @@ The following features are available in this library and can be enabled/disabled
 | **feature** | **default** | **Description** |
 |---|---|---|
 | `bootstrap` | &check; | Generate signed certificate and fetch datastreams info <br> Also makes certificates available, to be used as lowlevel API |
+| `rest-token-fetcher` | &cross; | Fetch a token to use the DSH Rest API |
 | `metrics` | &check; | Enable (custom) metrics for your service |
 | `graceful_shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
 | `dlq` | &cross; | Dead Letter Queue implementation (experimental) |

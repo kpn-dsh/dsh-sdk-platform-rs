@@ -23,10 +23,9 @@ use std::io::Read;
 use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 
-use super::{
-    utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_SCHEMA_REGISTRY_HOST,
-};
+use super::{VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_SCHEMA_REGISTRY_HOST};
 use crate::error::DshError;
+use crate::utils;
 
 const FILE_NAME: &str = "local_datastreams.json";
 

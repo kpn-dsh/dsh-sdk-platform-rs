@@ -31,15 +31,15 @@ jobs:
       - name: clean
         run: cargo clean
       - name: build
-        run: cargo build --features full
+        run: cargo build --all-features
         env:
           RUST_BACKTRACE: 1
       - name: test
-        run: cargo test --features full
+        run: cargo test --all-features
         env:
           RUST_BACKTRACE: 1
       - name: ignored test
-        run: cargo test --features full -- --ignored || true
+        run: cargo test --all-features -- --ignored || true
         env:
           RUST_BACKTRACE: 1
         if: matrix.version == 'nightly'
