@@ -2,7 +2,8 @@
 members = [
     "example_dsh_service",
     "dsh_sdk",
-    "dsh_rest_api_client"
+    "dsh_rest_api_client",
+    "dsh_mqtt_client"
 ]
 resolver = "2"
 
@@ -16,3 +17,7 @@ exclude = ["/tmp", "/test_files"]
 homepage = "https://www.kpn.com/dsh"
 license = "Apache-2.0"
 repository = "https://github.com/kpn-dsh/dsh-sdk-platform-rs"
+
+[workspace.dependencies]
+#move other shared dependencies here
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "blocking", "json"]}
