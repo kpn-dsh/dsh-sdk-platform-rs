@@ -237,14 +237,14 @@ impl Stream {
     }
 
     /// Get the read pattern as stated in datastreams.
-    /// 
+    ///
     /// Use `read_pattern` method to validate if read access is allowed.
     pub fn read(&self) -> &str {
         &self.read
     }
 
     /// Get the write pattern
-    /// 
+    ///
     /// Use `write_pattern` method to validate if write access is allowed.
     pub fn write(&self) -> &str {
         &self.write
@@ -286,7 +286,7 @@ impl Stream {
     }
 
     /// Get the Stream's Read whitelist pattern
-    /// 
+    ///
     /// ## Error
     /// If the topic does not have read access it returns a `TopicPermissionsError`
     pub fn read_pattern(&self) -> Result<&str, DshError> {
@@ -301,7 +301,7 @@ impl Stream {
     }
 
     /// Get the Stream's Write pattern
-    /// 
+    ///
     /// ## Error
     /// If the topic does not have write access it returns a `TopicPermissionsError`
     pub fn write_pattern(&self) -> Result<&str, DshError> {
