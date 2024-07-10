@@ -64,6 +64,7 @@ use tokio_util::sync::CancellationToken;
 /// Use clone to send shutdown request to all shutdown handles.
 ///
 /// see [dsh_sdk::graceful_shutdown](index.html) for full implementation example.
+#[derive(Debug)]
 pub struct Shutdown {
     cancel_token: CancellationToken,
     shutdown_complete_tx: mpsc::Sender<()>,
