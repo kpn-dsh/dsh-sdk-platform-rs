@@ -163,6 +163,10 @@ impl Datastream {
         Ok(())
     }
 
+    /// If local_datastreams.json is found, it will load the datastreams from this file.
+    /// If it does not parse or the file is not found based on on Environment Variable, it will panic.
+    /// If the Environment Variable is not set, it will look in the current directory. If it is not found, 
+    /// it will return a Error on the Result. Based on this it will use default Datastreams.
     pub(crate) fn load_local_datastreams() -> Result<Self, DshError> {
         let path_buf = if let Ok(path) = utils::get_env_var(VAR_LOCAL_DATASTREAMS_JSON) {
             let path = std::path::PathBuf::from(path);
@@ -175,18 +179,10 @@ impl Datastream {
             std::env::current_dir().unwrap().join(FILE_NAME)
         };
         debug!("Reading local datastreams from {}", path_buf.display());
-        let file_result = File::open(&path_buf);
-        let mut file = match file_result {
-            Ok(file) => file,
-            Err(e) => {
-                debug!(
-                    "Failed opening local_datastreams.json ({}): {}",
-                    path_buf.display(),
-                    e
-                );
-                return Err(DshError::IoError(e));
-            }
-        };
+        let mut file = File::open(&path_buf).map_err(|e| {
+            debug!("Failed opening local_datastreams.json ({}): {}", path_buf.display(), e);
+            DshError::IoError(e)
+        })?;
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
         let mut datastream: Datastream = serde_json::from_str(&contents)
