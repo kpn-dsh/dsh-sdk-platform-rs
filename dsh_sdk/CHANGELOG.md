@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [unreleased] 
 ### Added
 - Add derive debug to graceful_shutdown::Shutdown
+- Provide optional way to give path to load local_datastreams.json (LOCAL_DATASTREAMS_JSON)
+
+### Changed
+- Verify if local_datastreams.json parses correctly, else panic instead of using datastreams default
 
 
 ## [0.4.3] - 2024-07-08

@@ -26,12 +26,13 @@ use std::env;
 use std::sync::OnceLock;
 
 use super::bootstrap::bootstrap;
-use super::{
-    certificates, datastream, pki_config_dir, VAR_APP_ID, VAR_DSH_TENANT_NAME,
-    VAR_KAFKA_AUTO_OFFSET_RESET, VAR_KAFKA_ENABLE_AUTO_COMMIT, VAR_KAFKA_GROUP_ID, VAR_TASK_ID,
-};
+use super::{certificates, datastream, pki_config_dir};
 use crate::error::DshError;
 use crate::utils;
+use crate::{
+    VAR_APP_ID, VAR_DSH_TENANT_NAME, VAR_KAFKA_AUTO_OFFSET_RESET, VAR_KAFKA_ENABLE_AUTO_COMMIT,
+    VAR_KAFKA_GROUP_ID, VAR_TASK_ID,
+};
 
 static PROPERTIES: OnceLock<Properties> = OnceLock::new();
 
@@ -464,7 +465,7 @@ impl Default for Properties {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dsh::{VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE};
+    use crate::{VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE};
     use serial_test::serial;
 
     #[test]

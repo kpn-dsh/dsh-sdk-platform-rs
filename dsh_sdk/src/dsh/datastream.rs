@@ -23,9 +23,11 @@ use std::io::Read;
 use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 
-use super::{VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_SCHEMA_REGISTRY_HOST};
 use crate::error::DshError;
-use crate::utils;
+use crate::{
+    utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_LOCAL_DATASTREAMS_JSON,
+    VAR_SCHEMA_REGISTRY_HOST,
+};
 
 const FILE_NAME: &str = "local_datastreams.json";
 
@@ -161,24 +163,34 @@ impl Datastream {
         Ok(())
     }
 
+    /// If local_datastreams.json is found, it will load the datastreams from this file.
+    /// If it does not parse or the file is not found based on on Environment Variable, it will panic.
+    /// If the Environment Variable is not set, it will look in the current directory. If it is not found,
+    /// it will return a Error on the Result. Based on this it will use default Datastreams.
     pub(crate) fn load_local_datastreams() -> Result<Self, DshError> {
-        let path_buf: std::path::PathBuf = std::env::current_dir().unwrap().join(FILE_NAME);
-        debug!("Reading local datastreams from {}", path_buf.display());
-        let file_result = File::open(&path_buf);
-        let mut file = match file_result {
-            Ok(file) => file,
-            Err(e) => {
-                debug!(
-                    "Failed opening local_datastreams.json ({}): {}",
-                    path_buf.display(),
-                    e
-                );
-                return Err(DshError::IoError(e));
+        let path_buf = if let Ok(path) = utils::get_env_var(VAR_LOCAL_DATASTREAMS_JSON) {
+            let path = std::path::PathBuf::from(path);
+            if !path.exists() {
+                panic!("{} not found", path.display());
+            } else {
+                path
             }
+        } else {
+            std::env::current_dir().unwrap().join(FILE_NAME)
         };
+        debug!("Reading local datastreams from {}", path_buf.display());
+        let mut file = File::open(&path_buf).map_err(|e| {
+            debug!(
+                "Failed opening local_datastreams.json ({}): {}",
+                path_buf.display(),
+                e
+            );
+            DshError::IoError(e)
+        })?;
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
-        let mut datastream: Datastream = serde_json::from_str(&contents)?;
+        let mut datastream: Datastream = serde_json::from_str(&contents)
+            .unwrap_or_else(|e| panic!("Failed to parse {}, {:?}", path_buf.display(), e));
         if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
             datastream.brokers = brokers.split(',').map(|s| s.to_string()).collect();
         }
@@ -361,6 +373,7 @@ impl std::fmt::Display for GroupType {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     // Define a reusable Properties instance
     fn datastream() -> Datastream {
@@ -539,6 +552,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_datastream_get_group_type_from_env() {
         // Set the KAFKA_CONSUMER_GROUP_TYPE environment variable to "private"
         env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
@@ -654,5 +668,78 @@ mod tests {
         let test_path = std::path::PathBuf::from("test_files");
         let result = datastream().to_file(&test_path);
         assert!(result.is_ok())
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_load_local_valid_datastreams() {
+        // load from root directory
+        let datastream = Datastream::load_local_datastreams().is_ok();
+        assert!(datastream);
+        // load from custom directory
+        let current_dir = env::current_dir().unwrap();
+        let file_location = format!(
+            "{}/test_resources/valid_datastreams.json",
+            current_dir.display()
+        );
+        println!("file_location: {}", file_location);
+        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+        let datastream = Datastream::load_local_datastreams().is_ok();
+        assert!(datastream);
+        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_load_local_nonexisting_datastreams() {
+        let current_dir = env::current_dir().unwrap();
+        let file_location = format!(
+            "{}/test_resoources/nonexisting_datastreams.json",
+            current_dir.display()
+        );
+        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+        // let it panic in a thread
+        let join_handle = std::thread::spawn(move || {
+            let _ = Datastream::load_local_datastreams();
+        });
+        let result = join_handle.join();
+        assert!(result.is_err());
+        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_load_local_invalid_datastreams() {
+        let current_dir = env::current_dir().unwrap();
+        let file_location = format!(
+            "{}/test_resources/invalid_datastreams.json",
+            current_dir.display()
+        );
+        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+        // let it panic in a thread
+        let join_handle = std::thread::spawn(move || {
+            let _ = Datastream::load_local_datastreams();
+        });
+        let result = join_handle.join();
+        assert!(result.is_err());
+        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_load_local_invalid_json() {
+        let current_dir = env::current_dir().unwrap();
+        let file_location = format!(
+            "{}/test_resources/invalid_datastreams_missing_field.json",
+            current_dir.display()
+        );
+        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+        // let it panic in a thread
+        let join_handle = std::thread::spawn(move || {
+            let _ = Datastream::load_local_datastreams();
+        });
+        let result = join_handle.join();
+        assert!(result.is_err());
+        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
     }
 }
