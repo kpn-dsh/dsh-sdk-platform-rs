@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased] 
 ### Added
-- Add derive debug to graceful_shutdown::Shutdown
-- Provide optional way to give path to load local_datastreams.json (LOCAL_DATASTREAMS_JSON)
+- Provide new methods on `Properties`
+  - fetch_datastream: Highlevel async method to retun a `Result<Datastream>`
+  - fetch_datastream_blocking: Highlevel blocking method to return a `Result<Datastream>`
+  - reqwest_blocking_client_config: Returns a `Result<reqwest::blocking::ClientConfig>`
+- Provide new methods on `Datastream`
+  - fetch: Lowlevel async method to retun a `Result<Datastream>`
+  - fetch_datastream: Lowlevel  blocking method to return a `Result<Datastream>`
+- Add derive Debug to graceful_shutdown::Shutdown
+- Provide optional way to give path to load local_datastreams.json (`LOCAL_DATASTREAMS_JSON`)
 
 ### Changed
 - Verify if local_datastreams.json parses correctly, else panic instead of using datastreams default
+- Optimized bootstrap sequence and moved fetching datastreams to a separate method in `Datastream`
 
 
 ## [0.4.3] - 2024-07-08

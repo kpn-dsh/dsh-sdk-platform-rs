@@ -112,3 +112,5 @@ const VAR_PKI_CONFIG_DIR: &str = "PKI_CONFIG_DIR";
 const VAR_SCHEMA_REGISTRY_HOST: &str = "SCHEMA_REGISTRY_HOST";
 
 const VAR_LOCAL_DATASTREAMS_JSON: &str = "LOCAL_DATASTREAMS_JSON";
+
+const DEFAULT_CONFIG_HOST: &str = "https://pikachu.dsh.marathon.mesos:4443";

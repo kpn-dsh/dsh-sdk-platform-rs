@@ -22,7 +22,7 @@ pub(crate) fn get_pki_cert() -> Result<Cert, DshError> {
     let dsh_client_certificate_pem = get_certificate(client_cert_paths)?;
     let client_key_paths = get_file_path_bufs("client", PkiFileType::Key, &config_dir)?;
     let key_pair = get_key_pair(client_key_paths)?;
-    debug!("Certificates loaded from PKI config directory");
+    info!("Certificates loaded from PKI config directory");
     Ok(Cert::new(
         pem::encode_many(&dsh_ca_certificate_pem),
         pem::encode_many(&dsh_client_certificate_pem),

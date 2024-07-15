@@ -84,12 +84,11 @@ impl Cert {
     /// Build an async reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
     pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
-        let pem_identity = Cert::create_identity(
-            self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem().as_bytes(),
+        let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
+            self.dsh_kafka_certificate_pem(),
+            &self.private_key_pem(),
+            self.dsh_ca_certificate_pem(),
         )?;
-        let reqwest_cert =
-            reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
         Ok(reqwest::Client::builder()
             .add_root_certificate(reqwest_cert)
             .identity(pem_identity)
@@ -99,12 +98,11 @@ impl Cert {
     /// Build a reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
     pub fn reqwest_blocking_client_config(&self) -> Result<ClientBuilder, DshError> {
-        let pem_identity = Cert::create_identity(
-            self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem().as_bytes(),
+        let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
+            self.dsh_kafka_certificate_pem(),
+            &self.private_key_pem(),
+            self.dsh_ca_certificate_pem(),
         )?;
-        let reqwest_cert =
-            reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
         Ok(Client::builder()
             .add_root_certificate(reqwest_cert)
             .identity(pem_identity)
@@ -191,28 +189,40 @@ impl Cert {
         ident.extend_from_slice(cert);
         Identity::from_pem(&ident)
     }
+
+    fn prepare_reqwest_client(
+        kafka_certificate: &str,
+        private_key: &str,
+        ca_certificate: &str,
+    ) -> Result<(reqwest::Identity, reqwest::tls::Certificate), DshError> {
+        let pem_identity =
+            Cert::create_identity(kafka_certificate.as_bytes(), private_key.as_bytes())?;
+        let reqwest_cert = reqwest::tls::Certificate::from_pem(ca_certificate.as_bytes())?;
+        Ok((pem_identity, reqwest_cert))
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rcgen::{generate_simple_self_signed, CertifiedKey};
     use std::sync::OnceLock;
 
     use openssl::pkey::PKey;
     use openssl::x509::X509Req;
 
     static TEST_CERTIFICATES: OnceLock<Cert> = OnceLock::new();
-    static CA_CERT: &str =
-        "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
-    static KAFKA_CERT: &str =
-        "-----BEGIN CERTIFICATE-----\nMIIDYDCCAkigAwIBAgIUI--snip--\n-----END CERTIFICATE-----";
 
     fn set_test_cert() -> Cert {
-        Cert {
-            dsh_ca_certificate_pem: CA_CERT.to_string(),
-            dsh_client_certificate_pem: KAFKA_CERT.to_string(),
-            key_pair: Arc::new(KeyPair::generate().unwrap()),
-        }
+        let subject_alt_names = vec!["hello.world.example".to_string(), "localhost".to_string()];
+        let CertifiedKey { cert, key_pair } =
+            generate_simple_self_signed(subject_alt_names).unwrap();
+        Cert::new(cert.pem(), cert.pem(), key_pair)
+        //Cert {
+        //    dsh_ca_certificate_pem: CA_CERT.to_string(),
+        //    dsh_client_certificate_pem: KAFKA_CERT.to_string(),
+        //    key_pair: Arc::new(KeyPair::generate().unwrap()),
+        //}
     }
 
     #[test]
@@ -265,14 +275,14 @@ mod tests {
     fn test_dsh_ca_certificate_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let pem = cert.dsh_ca_certificate_pem();
-        assert_eq!(pem, CA_CERT);
+        assert_eq!(pem, cert.dsh_ca_certificate_pem);
     }
 
     #[test]
     fn test_dsh_kafka_certificate_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let pem = cert.dsh_kafka_certificate_pem();
-        assert_eq!(pem, KAFKA_CERT);
+        assert_eq!(pem, cert.dsh_client_certificate_pem);
     }
 
     #[test]
@@ -315,5 +325,40 @@ mod tests {
             .collect::<Vec<String>>()
             .join(",");
         assert_eq!(subject, "Test CN,Test OU,Test Org");
+    }
+
+    #[test]
+    fn test_create_identity() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let identity = Cert::create_identity(
+            cert.dsh_kafka_certificate_pem().as_bytes(),
+            cert.private_key_pem().as_bytes(),
+        );
+        assert!(identity.is_ok());
+    }
+
+    #[test]
+    fn test_prepare_reqwest_client() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let result = Cert::prepare_reqwest_client(
+            cert.dsh_kafka_certificate_pem(),
+            &cert.private_key_pem(),
+            cert.dsh_ca_certificate_pem(),
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_reqwest_client_config() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let client = cert.reqwest_client_config();
+        assert!(client.is_ok());
+    }
+
+    #[test]
+    fn test_reqwest_blocking_client_config() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let client = cert.reqwest_blocking_client_config();
+        assert!(client.is_ok());
     }
 }

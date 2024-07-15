@@ -7,29 +7,28 @@
 //! ## Note
 //! This module is not intended to be used directly, but through the `Properties` struct. It will
 //! always be used when getting a `Properties` struct via dsh::Properties::get().
-use log::{debug, warn};
+use log::{debug, info};
 use reqwest::blocking::Client;
 
 use crate::error::DshError;
 
-use super::{certificates::Cert, datastream::Datastream};
+use super::certificates::Cert;
 use crate::utils;
-use crate::{
-    VAR_DSH_CA_CERTIFICATE, VAR_DSH_SECRET_TOKEN, VAR_DSH_SECRET_TOKEN_PATH, VAR_KAFKA_CONFIG_HOST,
-};
+use crate::{VAR_DSH_CA_CERTIFICATE, VAR_DSH_SECRET_TOKEN, VAR_DSH_SECRET_TOKEN_PATH};
 
 /// Connect to DSH and retrieve the certificates and datastreams.json to create the properties struct
-pub(crate) fn bootstrap(tenant_name: &str, task_id: &str) -> Result<(Cert, Datastream), DshError> {
-    let dsh_config = DshConfig::new(tenant_name, task_id)?;
+pub(crate) fn bootstrap(
+    config_host: &str,
+    tenant_name: &str,
+    task_id: &str,
+) -> Result<Cert, DshError> {
+    let dsh_config = DshConfig::new(config_host, tenant_name, task_id)?;
     let client = reqwest_ca_client(dsh_config.dsh_ca_certificate.as_bytes())?;
     let dn = DshBootstapCall::Dn(&dsh_config).perform_call(&client)?;
     let dn = Dn::parse_string(&dn)?;
     let certificates = Cert::get_signed_client_cert(dn, &dsh_config, &client)?;
-    let client_with_cert = certificates.reqwest_blocking_client_config()?.build()?;
-    let datastreams_string =
-        DshBootstapCall::Datastream(&dsh_config).perform_call(&client_with_cert)?;
-    let datastream: Datastream = serde_json::from_str(&datastreams_string)?;
-    Ok((certificates, datastream))
+    info!("Successfully connected to DSH");
+    Ok(certificates)
 }
 
 /// Build a request client with the DSH CA certificate.
@@ -44,24 +43,14 @@ fn reqwest_ca_client(dsh_ca_certificate: &[u8]) -> Result<Client, reqwest::Error
 /// Helper struct to store the config needed for bootstrapping to DSH
 #[derive(Debug)]
 pub(crate) struct DshConfig<'a> {
-    config_host: String,
+    config_host: &'a str,
     tenant_name: &'a str,
     task_id: &'a str,
     dsh_secret_token: String,
     dsh_ca_certificate: String,
 }
 impl<'a> DshConfig<'a> {
-    fn new(tenant_name: &'a str, task_id: &'a str) -> Result<Self, DshError> {
-        let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST)
-            .map(|host| format!("https://{}", host))
-            .unwrap_or_else(|_| {
-                let default = "https://pikachu.dsh.marathon.mesos:4443";
-                warn!(
-                    "{} is not set, using default value {}",
-                    VAR_KAFKA_CONFIG_HOST, default
-                );
-                default.to_string()
-            });
+    fn new(config_host: &'a str, tenant_name: &'a str, task_id: &'a str) -> Result<Self, DshError> {
         let dsh_secret_token = match utils::get_env_var(VAR_DSH_SECRET_TOKEN) {
             Ok(token) => token,
             Err(_) => {
@@ -90,8 +79,6 @@ impl<'a> DshConfig<'a> {
 pub(crate) enum DshBootstapCall<'a> {
     /// Call to retreive distinguished name.
     Dn(&'a DshConfig<'a>),
-    /// Call to retreive datastreams.json.
-    Datastream(&'a DshConfig<'a>),
     /// Call to post the certificate signing request.
     CertificateSignRequest {
         config: &'a DshConfig<'a>,
@@ -108,12 +95,6 @@ impl DshBootstapCall<'_> {
                     config.config_host, config.tenant_name, config.task_id
                 )
             }
-            DshBootstapCall::Datastream(config) => {
-                format!(
-                    "{}/kafka/config/{}/{}",
-                    config.config_host, config.tenant_name, config.task_id
-                )
-            }
             DshBootstapCall::CertificateSignRequest { config, .. } => {
                 format!(
                     "{}/sign/{}/{}",
@@ -126,7 +107,7 @@ impl DshBootstapCall<'_> {
     fn request_builder(&self, client: &Client) -> reqwest::blocking::RequestBuilder {
         let url = self.url_for_call();
         match self {
-            DshBootstapCall::Dn(..) | DshBootstapCall::Datastream(..) => client.get(url),
+            DshBootstapCall::Dn(..) => client.get(url),
             DshBootstapCall::CertificateSignRequest { config, csr, .. } => client
                 .post(url)
                 .header("X-Kafka-Config-Token", &config.dsh_secret_token)
@@ -210,7 +191,7 @@ mod tests {
     #[test]
     fn test_dsh_call_request_builder() {
         let dsh_config = DshConfig {
-            config_host: "https://test_host".to_string(),
+            config_host: "https://test_host",
             tenant_name: "test_tenant_name",
             task_id: "test_task_id",
             dsh_secret_token: "test_token".to_string(),
@@ -218,10 +199,6 @@ mod tests {
         };
         let builder: reqwest::blocking::RequestBuilder =
             DshBootstapCall::Dn(&dsh_config).request_builder(&Client::new());
-        let request = builder.build().unwrap();
-        assert_eq!(request.method().as_str(), "GET");
-        let builder: reqwest::blocking::RequestBuilder =
-            DshBootstapCall::Datastream(&dsh_config).request_builder(&Client::new());
         let request = builder.build().unwrap();
         assert_eq!(request.method().as_str(), "GET");
         let csr = "-----BEGIN test_type-----\n-----END test_type-----";
@@ -259,7 +236,7 @@ mod tests {
         let client = Client::new();
         // create a DshConfig struct
         let dsh_config = DshConfig {
-            config_host: dsh.url(),
+            config_host: &dsh.url(),
             tenant_name: "tenant",
             task_id: "test_task_id",
             dsh_secret_token: "test_token".to_string(),
@@ -285,12 +262,12 @@ mod tests {
     #[serial(env_dependency)]
     fn test_dsh_config_new() {
         // normal situation where DSH variables are set
-        env::set_var(VAR_KAFKA_CONFIG_HOST, "test_host");
         env::set_var(VAR_DSH_SECRET_TOKEN, "test_token");
         env::set_var(VAR_DSH_CA_CERTIFICATE, "test_ca_certificate");
+        let config_host = "https://test_host";
         let tenant_name = "test_tenant";
         let task_id = "test_task_id";
-        let dsh_config = DshConfig::new(tenant_name, task_id).unwrap();
+        let dsh_config = DshConfig::new(config_host, tenant_name, task_id).unwrap();
         assert_eq!(dsh_config.config_host, "https://test_host");
         assert_eq!(dsh_config.task_id, "test_task_id");
         assert_eq!(dsh_config.tenant_name, "test_tenant");
@@ -303,16 +280,15 @@ mod tests {
         let test_token_dir = format!("{}/test_token", test_token_dir);
         let _ = std::fs::remove_file(&test_token_dir);
         env::set_var(VAR_DSH_SECRET_TOKEN_PATH, &test_token_dir);
-        let result = DshConfig::new(tenant_name, task_id);
+        let result = DshConfig::new(config_host, tenant_name, task_id);
         assert!(result.is_err());
         std::fs::write(test_token_dir.as_str(), "test_token_from_file").unwrap();
-        let dsh_config = DshConfig::new(tenant_name, task_id).unwrap();
+        let dsh_config = DshConfig::new(config_host, tenant_name, task_id).unwrap();
         assert_eq!(dsh_config.dsh_secret_token, "test_token_from_file");
         // fail if DSH_CA_CERTIFICATE is not set
         env::remove_var(VAR_DSH_CA_CERTIFICATE);
-        let result = DshConfig::new(tenant_name, task_id);
+        let result = DshConfig::new(config_host, tenant_name, task_id);
         assert!(result.is_err());
-        env::remove_var(VAR_KAFKA_CONFIG_HOST);
         env::remove_var(VAR_DSH_SECRET_TOKEN);
         env::remove_var(VAR_DSH_CA_CERTIFICATE);
         env::remove_var(VAR_DSH_SECRET_TOKEN_PATH);
