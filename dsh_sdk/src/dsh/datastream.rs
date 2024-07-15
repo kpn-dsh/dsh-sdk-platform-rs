@@ -163,6 +163,54 @@ impl Datastream {
         Ok(())
     }
 
+    /// Fetch datastreams from the dsh server (async)
+    ///
+    /// Make sure you use a Reqwest client from `Cert` to connect to the dsh server.
+    /// As this client is already configured with the correct certificates.
+    pub async fn fetch(
+        client: &reqwest::Client,
+        host: &str,
+        tenant: &str,
+        task_id: &str,
+    ) -> Result<Self, DshError> {
+        let url = Self::datastreams_endpoint(host, tenant, task_id);
+        let response = client.get(&url).send().await?;
+        if !response.status().is_success() {
+            return Err(DshError::DshCallError {
+                url,
+                status_code: response.status(),
+                error_body: response.text().await.unwrap_or_default(),
+            });
+        }
+        Ok(response.json().await?)
+    }
+
+    /// Fetch datastreams from the dsh server (blocking)
+    ///
+    /// Make sure you use a Reqwest client from `Cert` to connect to the dsh server.
+    /// As this client is already configured with the correct certificates.
+    pub fn fetch_blocking(
+        client: &reqwest::blocking::Client,
+        host: &str,
+        tenant: &str,
+        task_id: &str,
+    ) -> Result<Self, DshError> {
+        let url = Self::datastreams_endpoint(host, tenant, task_id);
+        let response = client.get(&url).send()?;
+        if !response.status().is_success() {
+            return Err(DshError::DshCallError {
+                url,
+                status_code: response.status(),
+                error_body: response.text().unwrap_or_default(),
+            });
+        }
+        Ok(response.json()?)
+    }
+
+    pub(crate) fn datastreams_endpoint(host: &str, tenant: &str, task_id: &str) -> String {
+        format!("{}/kafka/config/{}/{}", host, tenant, task_id)
+    }
+
     /// If local_datastreams.json is found, it will load the datastreams from this file.
     /// If it does not parse or the file is not found based on on Environment Variable, it will panic.
     /// If the Environment Variable is not set, it will look in the current directory. If it is not found,
@@ -377,58 +425,18 @@ mod tests {
 
     // Define a reusable Properties instance
     fn datastream() -> Datastream {
-        let data_stream: Datastream = serde_json::from_str(datastreams_json().as_str()).unwrap();
-        data_stream
+        serde_json::from_str(datastreams_json().as_str()).unwrap()
     }
 
     // maybe replace with local_datastreams.json?
     fn datastreams_json() -> String {
-        serde_json::json!({
-          "brokers": [
-            "broker-0.tt.kafka.mesos:9091",
-            "broker-1.tt.kafka.mesos:9091",
-            "broker-2.tt.kafka.mesos:9091"
-          ],
-          "streams": {
-            "scratch.test": {
-              "name": "scratch.test",
-              "cluster": "/tt",
-              "read": "scratch.test.test-tenant",
-              "write": "scratch.test.test-tenant",
-              "partitions": 3,
-              "replication": 1,
-              "partitioner": "default-partitioner",
-              "partitioningDepth": 0,
-              "canRetain": false
-            },
-            "stream.test": {
-              "name": "stream.test",
-              "cluster": "/tt",
-              "read": "stream\\.test\\.[^.]*",
-              "write": "",
-              "partitions": 1,
-              "replication": 1,
-              "partitioner": "default-partitioner",
-              "partitioningDepth": 0,
-              "canRetain": true
-            }
-          },
-          "private_consumer_groups": [
-            "test-app.7e93a513-6556-11eb-841e-f6ab8576620c_1",
-            "test-app.7e93a513-6556-11eb-841e-f6ab8576620c_2",
-            "test-app.7e93a513-6556-11eb-841e-f6ab8576620c_3",
-            "test-app.7e93a513-6556-11eb-841e-f6ab8576620c_4"
-          ],
-          "shared_consumer_groups": [
-            "test-app_1",
-            "test-app_2",
-            "test-app_3",
-            "test-app_4"
-          ],
-          "non_enveloped_streams": [],
-          "schema_store": "http://schema-registry.tt.kafka.mesos:8081"
-        })
-        .to_string()
+        std::fs::File::open("test_resources/valid_datastreams.json")
+            .map(|mut file| {
+                let mut contents = String::new();
+                file.read_to_string(&mut contents).unwrap();
+                contents
+            })
+            .unwrap()
     }
 
     #[test]
@@ -741,5 +749,52 @@ mod tests {
         let result = join_handle.join();
         assert!(result.is_err());
         env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+    }
+
+    #[test]
+    fn test_datastream_endpoint() {
+        let host = "http://localhost:8080";
+        let tenant = "test-tenant";
+        let task_id = "test-task-id";
+        let endpoint = Datastream::datastreams_endpoint(host, tenant, task_id);
+        assert_eq!(
+            endpoint,
+            "http://localhost:8080/kafka/config/test-tenant/test-task-id"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_fetch() {
+        let mut dsh = mockito::Server::new_async().await;
+        let tenant = "test-tenant";
+        let task_id = "test-task-id";
+        let host = dsh.url();
+        dsh.mock("GET", "/kafka/config/test-tenant/test-task-id")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(datastreams_json())
+            .create();
+        let client = reqwest::Client::new();
+        let fetched_datastream = Datastream::fetch(&client, &host, tenant, task_id)
+            .await
+            .unwrap();
+        assert_eq!(fetched_datastream, datastream());
+    }
+
+    #[test]
+    fn test_fetch_blocking() {
+        let mut dsh = mockito::Server::new();
+        let tenant = "test-tenant";
+        let task_id = "test-task-id";
+        let host = dsh.url();
+        dsh.mock("GET", "/kafka/config/test-tenant/test-task-id")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(datastreams_json())
+            .create();
+        let client = reqwest::blocking::Client::new();
+        let fetched_datastream =
+            Datastream::fetch_blocking(&client, &host, tenant, task_id).unwrap();
+        assert_eq!(fetched_datastream, datastream());
     }
 }

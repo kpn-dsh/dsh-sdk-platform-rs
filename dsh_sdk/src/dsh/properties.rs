@@ -21,7 +21,7 @@
 //! # Ok(())
 //! # }
 //! ```
-use log::{debug, error, info, warn};
+use log::{debug, error, warn};
 use std::env;
 use std::sync::OnceLock;
 
@@ -30,8 +30,8 @@ use super::{certificates, datastream, pki_config_dir};
 use crate::error::DshError;
 use crate::utils;
 use crate::{
-    VAR_APP_ID, VAR_DSH_TENANT_NAME, VAR_KAFKA_AUTO_OFFSET_RESET, VAR_KAFKA_ENABLE_AUTO_COMMIT,
-    VAR_KAFKA_GROUP_ID, VAR_TASK_ID,
+    DEFAULT_CONFIG_HOST, VAR_APP_ID, VAR_DSH_TENANT_NAME, VAR_KAFKA_AUTO_OFFSET_RESET,
+    VAR_KAFKA_CONFIG_HOST, VAR_KAFKA_ENABLE_AUTO_COMMIT, VAR_KAFKA_GROUP_ID, VAR_TASK_ID,
 };
 
 static PROPERTIES: OnceLock<Properties> = OnceLock::new();
@@ -59,6 +59,7 @@ static PROPERTIES: OnceLock<Properties> = OnceLock::new();
 
 #[derive(Debug, Clone)]
 pub struct Properties {
+    config_host: String,
     task_id: String,
     tenant_name: String,
     datastream: datastream::Datastream,
@@ -68,12 +69,14 @@ pub struct Properties {
 impl Properties {
     /// New `Properties` struct
     pub(crate) fn new(
+        config_host: String,
         task_id: String,
         tenant_name: String,
         datastream: datastream::Datastream,
         certificates: Option<certificates::Cert>,
     ) -> Self {
         Self {
+            config_host,
             task_id,
             tenant_name,
             datastream,
@@ -88,6 +91,11 @@ impl Properties {
     ///  - Contains a struct equal to datastreams.json
     ///  - Metadata of running container/task
     ///  - Certificates for Kafka and DSH
+    ///
+    /// # Panics
+    /// This method can panic when running on local machine and tries to load incorrect [local_datastream.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json).
+    /// When no file is available in root or path on env variable `LOCAL_DATASTREAMS_JSON` is not set, it will
+    /// return a default datastream struct and NOT panic.
     ///
     /// # Example
     /// ```
@@ -115,29 +123,45 @@ impl Properties {
             }
         };
         let task_id = utils::get_env_var(VAR_TASK_ID).unwrap_or("local_task_id".to_string());
-        let (certificates, datastream) = if let Ok(cert) = pki_config_dir::get_pki_cert() {
-            info!("Successfully loaded certificates from PKI config directory");
-            (
-                Some(cert),
-                datastream::Datastream::load_local_datastreams().unwrap_or_default(),
-            )
+        let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST)
+            .map(|host| format!("https://{}", host))
+            .unwrap_or_else(|_| {
+                warn!(
+                    "{} is not set, using default value {}",
+                    VAR_KAFKA_CONFIG_HOST, DEFAULT_CONFIG_HOST
+                );
+                DEFAULT_CONFIG_HOST.to_string()
+            });
+        let certificates = if let Ok(cert) = pki_config_dir::get_pki_cert() {
+            Some(cert)
         } else {
-            match bootstrap(&tenant_name, &task_id) {
-                Ok((cert, datastream)) => {
-                    info!("Successfully connected to DSH");
-                    (Some(cert), datastream)
-                }
-                Err(e) => {
-                    warn!("DSH_SDK was not able to connect to DSH, due to: {}", e);
-                    warn!("Using local configuration instead");
-                    (
-                        None,
-                        datastream::Datastream::load_local_datastreams().unwrap_or_default(),
-                    )
-                }
-            }
+            bootstrap(&config_host, &tenant_name, &task_id)
+                .inspect_err(|e| {
+                    warn!("Could not bootstrap to DSH, due to: {}", e);
+                })
+                .ok()
         };
-        Self::new(task_id, tenant_name, datastream, certificates)
+        let fetched_datastreams = certificates.as_ref().and_then(|cert| {
+            cert.reqwest_blocking_client_config()
+                .ok()
+                .and_then(|cb| cb.build().ok())
+                .and_then(|client| {
+                    datastream::Datastream::fetch_blocking(
+                        &client,
+                        &config_host,
+                        &tenant_name,
+                        &task_id,
+                    )
+                    .ok()
+                })
+        });
+        let datastream = if let Some(datastream) = fetched_datastreams {
+            datastream
+        } else {
+            warn!("Could not fetch datastreams.json, using local or default datastreams");
+            datastream::Datastream::load_local_datastreams().unwrap_or_default()
+        };
+        Self::new(config_host, task_id, tenant_name, datastream, certificates)
     }
 
     /// Get default RDKafka Consumer config to connect to Kafka on DSH.
@@ -330,6 +354,32 @@ impl Properties {
         Ok(client_builder)
     }
 
+    /// Get reqwest blocking client config to connect to DSH Schema Registry.
+    /// If certificates are present, it will use SSL to connect to Schema Registry.
+    ///
+    /// Use [schema_registry_converter](https://crates.io/crates/schema_registry_converter) to connect to Schema Registry.
+    ///
+    /// # Example
+    /// ```
+    /// # use dsh_sdk::Properties;
+    /// # use reqwest::blocking::Client;
+    /// # use dsh_sdk::error::DshError;
+    /// # fn main() -> Result<(), DshError> {
+    /// let dsh_properties = Properties::get();
+    /// let client = dsh_properties.reqwest_blocking_client_config()?.build()?;
+    /// #    Ok(())
+    /// # }
+    pub fn reqwest_blocking_client_config(
+        &self,
+    ) -> Result<reqwest::blocking::ClientBuilder, DshError> {
+        let mut client_builder: reqwest::blocking::ClientBuilder =
+            reqwest::blocking::Client::builder();
+        if let Ok(certificates) = &self.certificates() {
+            client_builder = certificates.reqwest_blocking_client_config()?;
+        }
+        Ok(client_builder)
+    }
+
     /// Get the certificates and private key. Returns an error when running on local machine.
     ///
     /// # Example
@@ -365,8 +415,58 @@ impl Properties {
     }
 
     /// Get the kafka properties provided by DSH (datastreams.json)
+    ///
+    /// This datastream is fetched at initialization of the properties, and can not be updated during runtime.
     pub fn datastream(&self) -> &datastream::Datastream {
         &self.datastream
+    }
+
+    /// High level method to fetch the kafka properties provided by DSH (datastreams.json)
+    /// This will fetch the datastream from DSH. This can be used to update the datastream during runtime.
+    ///
+    /// This method keeps the reqwest client in memory to prevent creating a new client for every request.
+    ///
+    /// # Panics
+    /// This method panics when it can't initialize a reqwest client.
+    ///
+    /// Use [datastream::Datastream::fetch] as a lowlevel method where you can provide your own client.
+    pub async fn fetch_datastream(&self) -> Result<datastream::Datastream, DshError> {
+        static ASYNC_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+        let client = ASYNC_CLIENT.get_or_init(|| {
+            self.reqwest_client_config()
+                .expect("Failed loading certificates into reqwest client config")
+                .build()
+                .expect("Could not build reqwest client for fetching datastream")
+        });
+        datastream::Datastream::fetch(client, &self.config_host, &self.tenant_name, &self.task_id)
+            .await
+    }
+
+    /// High level method to fetch the kafka properties provided by DSH (datastreams.json) in a blocking way.
+    /// This will fetch the datastream from DSH. This can be used to update the datastream during runtime.
+    ///
+    /// This method keeps the reqwest client in memory to prevent creating a new client for every request.
+    ///
+    /// # Panics
+    /// This method panics when it can't initialize a reqwest client.
+    ///
+    /// Use [datastream::Datastream::fetch_blocking] as a lowlevel method where you can provide your own client.
+    pub fn fetch_datastream_blocking(&self) -> Result<datastream::Datastream, DshError> {
+        static BLOCKING_CLIENT: OnceLock<reqwest::blocking::Client> = OnceLock::new();
+
+        let client = BLOCKING_CLIENT.get_or_init(|| {
+            self.reqwest_blocking_client_config()
+                .expect("Failed loading certificates into reqwest client config")
+                .build()
+                .expect("Could not build reqwest client for fetching datastream")
+        });
+        datastream::Datastream::fetch_blocking(
+            client,
+            &self.config_host,
+            &self.tenant_name,
+            &self.task_id,
+        )
     }
 
     /// Get schema host of DSH.
@@ -456,6 +556,7 @@ impl Default for Properties {
         Self {
             task_id: "local_task_id".to_string(),
             tenant_name: "local_tenant".to_string(),
+            config_host: "http://localhost/".to_string(),
             datastream,
             certificates: None,
         }
@@ -467,13 +568,36 @@ mod tests {
     use super::*;
     use crate::{VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE};
     use serial_test::serial;
+    use std::io::Read;
+
+    // maybe replace with local_datastreams.json?
+    fn datastreams_json() -> String {
+        std::fs::File::open("test_resources/valid_datastreams.json")
+            .map(|mut file| {
+                let mut contents = String::new();
+                file.read_to_string(&mut contents).unwrap();
+                contents
+            })
+            .unwrap()
+    }
+
+    // Define a reusable Properties instance
+    fn datastream() -> datastream::Datastream {
+        serde_json::from_str(datastreams_json().as_str()).unwrap()
+    }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_get_or_init() {
         let properties = Properties::get();
         assert_eq!(properties.client_id(), "local_task_id");
-        assert_eq!(properties.task_id(), "local_task_id");
-        assert_eq!(properties.tenant_name(), "local_tenant");
+        assert_eq!(properties.task_id, "local_task_id");
+        assert_eq!(properties.tenant_name, "local_tenant");
+        assert_eq!(
+            properties.config_host,
+            "https://pikachu.dsh.marathon.mesos:4443"
+        );
+        assert!(properties.certificates.is_none());
     }
 
     #[test]
@@ -510,6 +634,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_reqwest_client_config() {
         let properties = Properties::default();
         let config = properties.reqwest_client_config();
@@ -517,24 +642,28 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_client_id() {
         let properties = Properties::default();
         assert_eq!(properties.client_id(), "local_task_id");
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_tenant_name() {
         let properties = Properties::default();
         assert_eq!(properties.tenant_name(), "local_tenant");
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_task_id() {
         let properties = Properties::default();
         assert_eq!(properties.task_id(), "local_task_id");
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_schema_registry_host() {
         let properties = Properties::default();
         assert_eq!(
@@ -637,5 +766,50 @@ mod tests {
         env::set_var(VAR_KAFKA_AUTO_OFFSET_RESET, "end");
         assert_eq!(properties.kafka_auto_offset_reset(), "end");
         env::remove_var(VAR_KAFKA_AUTO_OFFSET_RESET);
+    }
+
+    #[tokio::test]
+    async fn test_fetch_datastream() {
+        let mut server = mockito::Server::new_async().await;
+        let tenant = "test-tenant";
+        let task_id = "test-task-id";
+        let host = server.url();
+        let prop = Properties::new(
+            host,
+            task_id.to_string(),
+            tenant.to_string(),
+            datastream::Datastream::default(),
+            None,
+        );
+        server
+            .mock("GET", "/kafka/config/test-tenant/test-task-id")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(datastreams_json())
+            .create();
+        let fetched_datastream = prop.fetch_datastream().await.unwrap();
+        assert_eq!(fetched_datastream, datastream());
+    }
+
+    #[test]
+    fn test_fetch_blocking_datastream() {
+        let mut dsh = mockito::Server::new();
+        let tenant = "test-tenant";
+        let task_id = "test-task-id";
+        let host = dsh.url();
+        let prop = Properties::new(
+            host,
+            task_id.to_string(),
+            tenant.to_string(),
+            datastream::Datastream::default(),
+            None,
+        );
+        dsh.mock("GET", "/kafka/config/test-tenant/test-task-id")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(datastreams_json())
+            .create();
+        let fetched_datastream = prop.fetch_datastream_blocking().unwrap();
+        assert_eq!(fetched_datastream, datastream());
     }
 }

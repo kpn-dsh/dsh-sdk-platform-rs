@@ -84,12 +84,11 @@ impl Cert {
     /// Build an async reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
     pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
-        let pem_identity = Cert::create_identity(
-            self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem().as_bytes(),
+        let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
+            self.dsh_kafka_certificate_pem(),
+            &self.private_key_pem(),
+            self.dsh_ca_certificate_pem(),
         )?;
-        let reqwest_cert =
-            reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
         Ok(reqwest::Client::builder()
             .add_root_certificate(reqwest_cert)
             .identity(pem_identity)
@@ -99,12 +98,11 @@ impl Cert {
     /// Build a reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
     pub fn reqwest_blocking_client_config(&self) -> Result<ClientBuilder, DshError> {
-        let pem_identity = Cert::create_identity(
-            self.dsh_kafka_certificate_pem().as_bytes(),
-            self.private_key_pem().as_bytes(),
+        let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
+            self.dsh_kafka_certificate_pem(),
+            &self.private_key_pem(),
+            self.dsh_ca_certificate_pem(),
         )?;
-        let reqwest_cert =
-            reqwest::tls::Certificate::from_pem(self.dsh_ca_certificate_pem().as_bytes())?;
         Ok(Client::builder()
             .add_root_certificate(reqwest_cert)
             .identity(pem_identity)
@@ -190,6 +188,17 @@ impl Cert {
         ident.extend_from_slice(b"\n");
         ident.extend_from_slice(cert);
         Identity::from_pem(&ident)
+    }
+
+    fn prepare_reqwest_client(
+        kafka_certificate: &str,
+        private_key: &str,
+        ca_certificate: &str,
+    ) -> Result<(reqwest::Identity, reqwest::tls::Certificate), DshError> {
+        let pem_identity =
+            Cert::create_identity(kafka_certificate.as_bytes(), private_key.as_bytes())?;
+        let reqwest_cert = reqwest::tls::Certificate::from_pem(ca_certificate.as_bytes())?;
+        Ok((pem_identity, reqwest_cert))
     }
 }
 
