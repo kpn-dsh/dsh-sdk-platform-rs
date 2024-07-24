@@ -304,10 +304,16 @@ impl Properties {
             config.set("batch.num.messages", batch_num_messages.to_string());
         }
         if let Some(queue_buffering_max_messages) = producer_config.queue_buffering_max_messages() {
-            config.set("queue.buffering.max.messages", queue_buffering_max_messages.to_string());
+            config.set(
+                "queue.buffering.max.messages",
+                queue_buffering_max_messages.to_string(),
+            );
         }
         if let Some(queue_buffering_max_kbytes) = producer_config.queue_buffering_max_kbytes() {
-            config.set("queue.buffering.max.kbytes", queue_buffering_max_kbytes.to_string());
+            config.set(
+                "queue.buffering.max.kbytes",
+                queue_buffering_max_kbytes.to_string(),
+            );
         }
         if let Some(queue_buffering_max_ms) = producer_config.queue_buffering_max_ms() {
             config.set("queue.buffering.max.ms", queue_buffering_max_ms.to_string());

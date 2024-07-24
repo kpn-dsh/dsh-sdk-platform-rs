@@ -153,17 +153,22 @@ mod tests {
         env::set_var(VAR_KAFKA_ENABLE_AUTO_COMMIT, "true");
         env::set_var(VAR_KAFKA_AUTO_OFFSET_RESET, "latest");
         env::set_var(VAR_KAFKA_CONSUMER_SESSION_TIMEOUT_MS, "1000");
-        env::set_var(VAR_KAFKA_CONSUMER_QUEUED_BUFFERING_MAX_MESSAGES_KBYTES, "1000");
+        env::set_var(
+            VAR_KAFKA_CONSUMER_QUEUED_BUFFERING_MAX_MESSAGES_KBYTES,
+            "1000",
+        );
         let consumer_config = ConsumerConfig::new();
         assert_eq!(consumer_config.enable_auto_commit(), true);
         assert_eq!(consumer_config.auto_offset_reset(), "latest");
         assert_eq!(consumer_config.session_timeout(), Some(1000));
-        assert_eq!(consumer_config.queued_buffering_max_messages_kbytes(), Some(1000));
+        assert_eq!(
+            consumer_config.queued_buffering_max_messages_kbytes(),
+            Some(1000)
+        );
         env::remove_var(VAR_KAFKA_ENABLE_AUTO_COMMIT);
         env::remove_var(VAR_KAFKA_AUTO_OFFSET_RESET);
         env::remove_var(VAR_KAFKA_CONSUMER_SESSION_TIMEOUT_MS);
         env::remove_var(VAR_KAFKA_CONSUMER_QUEUED_BUFFERING_MAX_MESSAGES_KBYTES);
-        
     }
 
     #[test]
