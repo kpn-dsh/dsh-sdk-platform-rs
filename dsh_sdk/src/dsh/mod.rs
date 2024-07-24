@@ -23,6 +23,7 @@
 //! ```
 mod bootstrap;
 pub mod certificates;
+mod config;
 pub mod datastream;
 mod pki_config_dir;
 pub mod properties;
