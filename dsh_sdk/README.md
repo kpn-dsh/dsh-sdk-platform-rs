@@ -70,41 +70,8 @@ The following features are available in this library and can be enabled/disabled
 See api documentation for more information on how to use these features including.
 
 ## Environment variables
-The default RDKafka config can be overwritten by setting the following environment variables:
+The default RDKafka config can be overwritten by setting environment variables. See [ENV_VARIABLES.md](ENV_VARIABLES.md) for more information.
 
-### `KAFKA_BOOTSTRAP_SERVERS`
-- Usage: Overwrite hostnames of brokers
-- Default: Brokers based on datastreams
-- Required: `false` (for local development or Kafka Proxy/VPN)
-
-### `KAFKA_CONSUMER_GROUP_TYPE`
-- Usage: Picks group_id based on type from datastreams
-- Default: Shared
-- Options: private, shared
-- Required: `false`
-
-### `KAFKA_GROUP_ID`
-- Usage: Custom group id
-- Default: NA
-- Required: `false`
-- Remark: Overrules `KAFKA_CONSUMER_GROUP_TYPE`. Mandatory to start with tenant name. (will prefix tenant name automatically if not set)
-
-### `KAFKA_ENABLE_AUTO_COMMIT`
-- Usage: Enable/Disable auto commit
-- Default: `false`
-- Required: `false`
-- Options: `true`, `false`
-
-### `KAFKA_AUTO_OFFSET_RESET`
-- Usage: Set the offset reset settings to start consuming from set option.
-- Default: earliest
-- Required: `false`
-- Options: smallest, earliest, beginning, largest, latest, end
-
-### `SCHEMA_REGISTRY_HOST`
-- Usage: Overwrite Schema Registry host
-- Default: Schema Registry based on datastreams
-- Required: `false`
 
 ## Api doc
 See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
