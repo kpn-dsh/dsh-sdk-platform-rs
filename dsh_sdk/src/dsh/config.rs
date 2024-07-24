@@ -139,6 +139,15 @@ mod tests {
     }
 
     #[test]
+    fn test_consumer_config_default() {
+        let consumer_config = ConsumerConfig::default();
+        assert_eq!(consumer_config.enable_auto_commit(), false);
+        assert_eq!(consumer_config.auto_offset_reset(), "earliest");
+        assert_eq!(consumer_config.session_timeout(), None);
+        assert_eq!(consumer_config.queued_buffering_max_messages_kbytes(), None);
+    }
+
+    #[test]
     #[serial(env_dependency)]
     fn test_consumer_config_env() {
         env::set_var(VAR_KAFKA_ENABLE_AUTO_COMMIT, "true");
@@ -160,6 +169,15 @@ mod tests {
     #[test]
     fn test_producer_config() {
         let producer_config = ProducerConfig::new();
+        assert_eq!(producer_config.batch_num_messages(), None);
+        assert_eq!(producer_config.queue_buffering_max_messages(), None);
+        assert_eq!(producer_config.queue_buffering_max_kbytes(), None);
+        assert_eq!(producer_config.queue_buffering_max_ms(), None);
+    }
+
+    #[test]
+    fn test_producer_config_default() {
+        let producer_config = ProducerConfig::default();
         assert_eq!(producer_config.batch_num_messages(), None);
         assert_eq!(producer_config.queue_buffering_max_messages(), None);
         assert_eq!(producer_config.queue_buffering_max_kbytes(), None);
