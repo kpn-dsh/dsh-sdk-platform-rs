@@ -18,12 +18,12 @@ async fn main() {
 pub async fn get_mqtt_token() -> (MqttToken, String) {
     let dsh_conf = Arc::new(DshConfig::new(DshEnv::Dev));
     let client_id = uuid::Uuid::new_v4().to_string();
-    let mqtt_topic_name = env::var("MQTT_TOPIC").unwrap();
+    let mqtt_stream = env::var("MQTT_STREAM").unwrap();
 
     let retrieve_request = RetrieveTokenRequest {
-        tenant: env::var("TENANT_NAME").unwrap().to_string(),
+        tenant: env::var("TENANT").unwrap().to_string(),
         api_key: env::var("API_KEY").unwrap().to_string(),
-        claims: get_claims(mqtt_topic_name, "#".to_string()), // check MQTT documentation for better understanding of wildcards
+        claims: get_claims(mqtt_stream, "#".to_string()), // Use `None` for fetching the token for all possible Claims
         client_id: client_id.clone(),
     };
     let service: DshAuthenticationServiceAdapter = DshAuthenticationServiceAdapter::new(dsh_conf);

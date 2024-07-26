@@ -12,6 +12,7 @@ mod fetch_token;
 #[tokio::main]
 async fn main() {
     let mqtt_env = MqttEnv::Dev;
+
     let mqtt_options = BaseMqttOptions::new(mqtt_env).await;
 
     let (mqtt_token, client_id) = get_mqtt_token().await;
@@ -20,12 +21,15 @@ async fn main() {
         mqtt_token: mqtt_token.raw_token,
         client_id,
     };
+
     let mut mqtt_client = MqttClient::new(mqtt_options, mqtt_credentials).await;
 
-    let mqtt_topic_name = env::var("MQTT_TOPIC").unwrap();
+    let mqtt_topic_name = env::var("MQTT_STREAM").unwrap();
+
     let message = subscribe_to_topic(&mut mqtt_client, &mqtt_topic_name)
         .await
         .expect("Subscribe - Connection error");
+
     println!("Recieved message: {:?}", message);
 }
 pub async fn subscribe_to_topic(
