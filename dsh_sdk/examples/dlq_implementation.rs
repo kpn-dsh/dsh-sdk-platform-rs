@@ -4,11 +4,11 @@
 // To run this example, run the following command:
 // cargo run --features dlq --example dlq_implementation
 
-use dsh_sdk::Properties;
 use dsh_sdk::dlq::{self, ErrorToDlq};
 use dsh_sdk::graceful_shutdown::Shutdown;
-use dsh_sdk::rdkafka::consumer::{StreamConsumer, Consumer};
+use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
 use dsh_sdk::rdkafka::Message;
+use dsh_sdk::Properties;
 use std::backtrace::Backtrace;
 use thiserror::Error;
 use tokio::sync::mpsc;
@@ -49,7 +49,9 @@ fn deserialize(msg: &dsh_sdk::rdkafka::message::OwnedMessage) -> Result<String, 
 
 // simple consumer function
 async fn consume(consumer: StreamConsumer, dlq_tx: &mut mpsc::Sender<dlq::SendToDlq>) {
-    consumer.subscribe(&["sub_to_your_topic"]).expect("Can't subscribe to topic");
+    consumer
+        .subscribe(&["sub_to_your_topic"])
+        .expect("Can't subscribe to topic");
     while let Ok(msg) = consumer.recv().await {
         let owned_msg = msg.detach();
         match deserialize(&owned_msg) {
@@ -97,4 +99,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     shutdown.complete().await; // wait for graceful shutdown to complete
     Ok(())
 }
-
