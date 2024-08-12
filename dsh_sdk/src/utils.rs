@@ -90,6 +90,32 @@ impl Platform {
         }
     }
 
+    /// Get the endpoint for fetching DSH Rest Authentication Token
+    ///
+    /// It will return the endpoint for DSH Rest authentication token based on the platform
+    pub fn endpoint_rest_token(&self) -> &str {
+        match self {
+            Self::Prod => "https://api.kpn-dsh.com/auth/v0/token",
+            Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/auth/v0/token",
+            Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/auth/v0/token",
+            Self::ProdAz => "https://api.az.kpn-dsh.com/auth/v0/token",
+            Self::Poc => "https://api.poc.kpn-dsh.com/auth/v0/token",
+        }
+    }
+
+    /// Get the endpoint for fetching DSH MQTT token
+    ///
+    /// It will return the endpoint for DSH MQTT Token based on the platform
+    pub fn endpoint_mqtt_token(&self) -> &str {
+        match self {
+            Self::Prod => "https://api.kpn-dsh.com/datastreams/v0/mqtt/token",
+            Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/datastreams/v0/mqtt/token",
+            Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/datastreams/v0/mqtt/token",
+            Self::ProdAz => "https://api.az.kpn-dsh.com/datastreams/v0/mqtt/token",
+            Self::Poc => "https://api.poc.kpn-dsh.com/datastreams/v0/mqtt/token",
+        }
+    }
+
     pub fn realm(&self) -> &str {
         match self {
             Self::Prod => "tt-dsh",
@@ -149,6 +175,29 @@ pub(crate) fn get_env_var(var_name: &str) -> Result<String, DshError> {
             Err(e.into())
         }
     }
+}
+
+pub(crate) fn extract_header_and_payload(raw_token: &str) -> Result<&str, DshError> {
+    let parts: Vec<&str> = raw_token.split('.').collect();
+    parts
+        .get(1)
+        .copied()
+        .ok_or_else(|| DshError::ParseDnError("Header and payload are missing".to_string()))
+}
+
+pub(crate) fn decode_payload(payload: &str) -> Result<Vec<u8>, DshError> {
+    use base64::{alphabet, engine, read};
+    use std::io::Read;
+
+    let engine = engine::GeneralPurpose::new(&alphabet::STANDARD, engine::general_purpose::NO_PAD);
+    let mut decoder = read::DecoderReader::new(payload.as_bytes(), &engine);
+
+    let mut decoded_token = Vec::new();
+    decoder
+        .read_to_end(&mut decoded_token)
+        .map_err(DshError::IoError)?;
+
+    Ok(decoded_token)
 }
 
 #[cfg(test)]

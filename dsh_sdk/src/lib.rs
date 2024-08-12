@@ -83,6 +83,8 @@ pub mod graceful_shutdown;
 pub mod metrics;
 #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
 pub use rdkafka;
+#[cfg(feature = "mqtt-token-fetcher")]
+pub mod mqtt_token_fetcher;
 #[cfg(feature = "rest-token-fetcher")]
 mod rest_api_token_fetcher;
 mod utils;
