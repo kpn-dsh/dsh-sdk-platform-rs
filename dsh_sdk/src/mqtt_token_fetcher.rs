@@ -245,13 +245,12 @@ impl MqttToken {
         serde_json::from_slice(decoded_token).map_err(DshError::JsonError)
     }
 
-    // add 5 sec margin  //check SystemTime vs Instance Time
     fn is_valid(&self) -> bool {
         let current_unixtime = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("SystemTime before UNIX EPOCH!")
             .as_secs() as i32;
-        self.exp >= current_unixtime
+        self.exp >= current_unixtime - 5
     }
 }
 
@@ -314,7 +313,7 @@ impl RestToken {
             .duration_since(UNIX_EPOCH)
             .expect("SystemTime before UNIX EPOCH!")
             .as_secs() as i64;
-        self.exp >= current_unixtime
+        self.exp >= current_unixtime - 5
     }
 
     fn parse_token_attributes(decoded_token: &[u8]) -> Result<RestTokenAttributes, DshError> {
