@@ -9,11 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};
 
-use crate::{
-    error::DshError,
-    utils::{decode_payload, extract_header_and_payload},
-    Platform,
-};
+use crate::{error::DshError, Platform};
 
 pub struct MqttTokenFetcher {
     tenant_name: String,
@@ -231,7 +227,7 @@ impl MqttToken {
     pub fn new(raw_token: String) -> Result<MqttToken, DshError> {
         let header_payload = extract_header_and_payload(&raw_token)?;
 
-        let decoded_token = decode_payload(header_payload)?;
+        let decoded_token = decode_base64(header_payload)?;
 
         let token_attributes = MqttToken::parse_token_attributes(&decoded_token)?;
         let token = MqttToken {
@@ -298,7 +294,7 @@ impl RestToken {
 
         let header_payload = extract_header_and_payload(&raw_token)?;
 
-        let decoded_token = decode_payload(header_payload)?;
+        let decoded_token = decode_base64(header_payload)?;
 
         let token_attributes = RestToken::parse_token_attributes(&decoded_token)?;
         let token = RestToken {
@@ -356,4 +352,27 @@ impl RestToken {
             }),
         }
     }
+}
+
+fn extract_header_and_payload(raw_token: &str) -> Result<&str, DshError> {
+    let parts: Vec<&str> = raw_token.split('.').collect();
+    parts
+        .get(1)
+        .copied()
+        .ok_or_else(|| DshError::ParseDnError("Header and payload are missing".to_string()))
+}
+
+fn decode_base64(payload: &str) -> Result<Vec<u8>, DshError> {
+    use base64::{alphabet, engine, read};
+    use std::io::Read;
+
+    let engine = engine::GeneralPurpose::new(&alphabet::STANDARD, engine::general_purpose::NO_PAD);
+    let mut decoder = read::DecoderReader::new(payload.as_bytes(), &engine);
+
+    let mut decoded_token = Vec::new();
+    decoder
+        .read_to_end(&mut decoded_token)
+        .map_err(DshError::IoError)?;
+
+    Ok(decoded_token)
 }
