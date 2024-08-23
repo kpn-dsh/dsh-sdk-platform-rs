@@ -120,23 +120,16 @@ impl MqttTokenFetcher {
             .header("Authorization", authorization_header)
             .json(payload)
             .send()
-            .await;
+            .await?;
 
-        match response {
-            Ok(response_success) => {
-                let status = response_success.status();
-                let body_text = response_success.text().await?;
-
-                match status {
-                    reqwest::StatusCode::OK => Ok(body_text),
-                    _ => Err(DshError::DshCallError {
-                        url: self.platform.endpoint_mqtt_token().to_string(),
-                        status_code: status,
-                        error_body: "Response NOT OK".to_string(),
-                    }),
-                }
-            }
-            Err(error) => Err(DshError::ReqwestError(error)),
+        if response.status().is_success() {
+            Ok(response.text().await?)
+        } else {
+            Err(DshError::DshCallError {
+                url: self.platform.endpoint_mqtt_token().to_string(),
+                status_code: response.status(),
+                error_body: response.text().await?,
+            })
         }
     }
 
