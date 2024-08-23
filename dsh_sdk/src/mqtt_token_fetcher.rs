@@ -1,6 +1,5 @@
 use std::{
-    sync::Mutex,
-    time::{Duration, SystemTime, UNIX_EPOCH},
+ sync::Mutex, time::{Duration, SystemTime, UNIX_EPOCH}
 };
 
 use dashmap::DashMap;
@@ -161,17 +160,23 @@ impl MqttTokenFetcher {
 /// * `action` - can be subscribe or publish
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Claims {
-    resource: Resource,
-    action: String,
+    pub resource: Resource,
+    pub action: String,
+}
+
+#[derive(derive_more::Display)]
+pub enum Actions {
+    Publish,
+    Subscribe
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Resource {
-    stream: String,
-    prefix: String,
-    topic: String,
-    type_: Option<String>,
+    pub stream: String,
+    pub prefix: String,
+    pub topic: String,
+    pub type_: Option<String>,
 }
 
 /// Represents attributes associated with a mqtt token.
