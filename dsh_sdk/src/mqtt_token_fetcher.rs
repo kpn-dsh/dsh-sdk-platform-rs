@@ -315,7 +315,7 @@ impl RestToken {
         let rest_client = reqwest_client;
         let response = rest_client
             .post(env.endpoint_rest_token())
-            .header("apikey", &api_key.to_string())
+            .header("apikey", api_key)
             .json(&json_body)
             .send()
             .await?;
