@@ -29,7 +29,7 @@ impl MqttTokenFetcher {
         platform: Platform,
         //token_lifetime: Option<i32>,
     ) -> Result<MqttTokenFetcher, DshError> {
-        let rest_token = RestToken::new(&tenant_name, &rest_api_key, &platform).await?;
+        let rest_token = RestToken::get(&tenant_name, &rest_api_key, &platform).await?;
         Ok(Self {
             tenant_name: tenant_name.clone(),
             rest_api_key: rest_api_key.clone(),
@@ -69,7 +69,7 @@ impl MqttTokenFetcher {
 
         if !rest_token.is_valid() {
             *rest_token =
-                RestToken::new(&self.tenant_name, &self.rest_api_key, &self.platform).await?
+                RestToken::get(&self.tenant_name, &self.rest_api_key, &self.platform).await?
         }
 
         let authorization_header = format!("Bearer {}", rest_token.raw_token);
@@ -273,7 +273,7 @@ impl RestToken {
     /// # Returns
     ///
     /// A Result containing the created RestToken or an error.
-    async fn new(tenant: &String, api_key: &String, env: &Platform) -> Result<RestToken, DshError> {
+    async fn get(tenant: &str, api_key: &str, env: &Platform) -> Result<RestToken, DshError> {
         let raw_token = Self::fetch_token(tenant, api_key, env).await.unwrap();
 
         let header_payload = extract_header_and_payload(&raw_token)?;
