@@ -1,5 +1,6 @@
 use std::{
- sync::Mutex, time::{Duration, SystemTime, UNIX_EPOCH}
+    sync::Mutex,
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
 use dashmap::DashMap;
@@ -173,7 +174,7 @@ impl Claims {
 #[derive(derive_more::Display)]
 pub enum Actions {
     Publish,
-    Subscribe
+    Subscribe,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

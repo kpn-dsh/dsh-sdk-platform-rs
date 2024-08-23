@@ -8,22 +8,11 @@ async fn main() {
     let api_key = env::var("API_KEY").unwrap().to_string();
     let stream = env::var("STREAM").unwrap().to_string();
     let topic = "#".to_string(); // check MQTT documentation for better understanding of wildcards
-    let resource = Resource::new(
-        stream,
-        "/tt".to_string(),
-        topic, 
-        Some("topic".to_string()),
-    );
+    let resource = Resource::new(stream, "/tt".to_string(), topic, Some("topic".to_string()));
 
-    let claims_sub = Claims::new(
-        resource.clone(),
-        Actions::Subscribe.to_string(),
-    );
+    let claims_sub = Claims::new(resource.clone(), Actions::Subscribe.to_string());
 
-    let claims_pub = Claims::new(
-        resource,
-        Actions::Publish.to_string(),
-    );
+    let claims_pub = Claims::new(resource, Actions::Publish.to_string());
 
     let claims_vector = vec![claims_pub, claims_sub];
 
