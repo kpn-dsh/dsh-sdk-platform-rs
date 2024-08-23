@@ -274,7 +274,7 @@ impl RestToken {
     ///
     /// A Result containing the created RestToken or an error.
     async fn new(tenant: &String, api_key: &String, env: &Platform) -> Result<RestToken, DshError> {
-        let raw_token = Self::create_rest_token(tenant, api_key, env).await.unwrap();
+        let raw_token = Self::fetch_token(tenant, api_key, env).await.unwrap();
 
         let header_payload = extract_header_and_payload(&raw_token)?;
 
@@ -297,11 +297,7 @@ impl RestToken {
         self.exp >= current_unixtime - 5
     }
 
-    async fn create_rest_token(
-        tenant: &String,
-        api_key: &String,
-        env: &Platform,
-    ) -> Result<String, DshError> {
+    async fn fetch_token(tenant: &str, api_key: &str, env: &Platform) -> Result<String, DshError> {
         let json_body = json!({"tenant": tenant});
 
         const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
