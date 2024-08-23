@@ -74,70 +74,13 @@ impl MqttTokenFetcher {
 
         let authorization_header = format!("Bearer {}", rest_token.raw_token);
 
-        let payload = self.construct_mqtt_request_payload(client_id, claims)?;
-
-        let response = self
-            .send_mqtt_token_request(&authorization_header, &payload)
+        let mqtt_token_request = MqttTokenRequest::new(client_id, &self.tenant_name, claims)?;
+        let payload = serde_json::to_value(&mqtt_token_request)?;
+        let response = mqtt_token_request
+            .send(&self.platform, &authorization_header, &payload)
             .await?;
 
         MqttToken::new(response)
-    }
-
-    fn construct_mqtt_request_payload(
-        &self,
-        client_id: &str,
-        claims: Option<&Claims>,
-    ) -> Result<serde_json::Value, DshError> {
-        let tenant = &self.tenant_name;
-        let client_id = self.hash_client_id(client_id);
-
-        use serde_json::Value;
-        Ok(json!({
-            "id": client_id,
-            "tenant": tenant.to_string(),
-            "claims": match &claims {
-                Some(claim) => serde_json::to_value(&claim)?,
-                None => Value::Null,
-            }
-        }))
-    }
-
-    async fn send_mqtt_token_request(
-        &self,
-        authorization_header: &str,
-        payload: &serde_json::Value,
-    ) -> Result<String, DshError> {
-        const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
-
-        let reqwest_client = Client::builder()
-            .timeout(DEFAULT_TIMEOUT)
-            .http1_only()
-            .build()
-            .expect("Failed to build reqwest client");
-
-        let response = reqwest_client
-            .post(self.platform.endpoint_mqtt_token())
-            .header("Authorization", authorization_header)
-            .json(payload)
-            .send()
-            .await?;
-
-        if response.status().is_success() {
-            Ok(response.text().await?)
-        } else {
-            Err(DshError::DshCallError {
-                url: self.platform.endpoint_mqtt_token().to_string(),
-                status_code: response.status(),
-                error_body: response.text().await?,
-            })
-        }
-    }
-
-    fn hash_client_id(&self, id: &str) -> String {
-        let mut hasher = Sha256::new();
-        hasher.update(id);
-        let result = hasher.finalize();
-        format!("{:x}", result)
     }
 }
 
@@ -177,6 +120,64 @@ impl Resource {
             prefix,
             topic,
             type_,
+        }
+    }
+}
+
+#[derive(Serialize)]
+struct MqttTokenRequest {
+    id: String,
+    tenant: String,
+    claims: Option<Claims>,
+}
+
+impl MqttTokenRequest {
+    fn new(
+        client_id: &str,
+        tenant: &str,
+        claims: Option<&Claims>,
+    ) -> Result<MqttTokenRequest, DshError> {
+        let mut hasher = Sha256::new();
+        hasher.update(client_id);
+        let result = hasher.finalize();
+        let id = format!("{:x}", result);
+
+        Ok(Self {
+            id,
+            tenant: tenant.to_string(),
+            claims: claims.cloned(),
+        })
+    }
+
+    async fn send(
+        &self,
+        platform: &Platform,
+        authorization_header: &str,
+        payload: &serde_json::Value,
+    ) -> Result<String, DshError> {
+        const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
+
+        let reqwest_client = Client::builder()
+            .timeout(DEFAULT_TIMEOUT)
+            .http1_only()
+            .build()
+            .expect("Failed to build reqwest client");
+
+        let response = reqwest_client
+            .post(platform.endpoint_mqtt_token())
+            .header("Authorization", authorization_header)
+            .json(payload)
+            .send()
+            .await?;
+
+        if response.status().is_success() {
+            Ok(response.text().await?)
+        } else {
+            Err(DshError::DshCallError {
+                url: platform.endpoint_mqtt_token().to_string(),
+                status_code: response.status(),
+                error_body: response.text().await?,
+            })
         }
     }
 }
