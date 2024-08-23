@@ -217,17 +217,13 @@ impl MqttToken {
 
         let decoded_token = decode_base64(header_payload)?;
 
-        let token_attributes = MqttToken::parse_token_attributes(&decoded_token)?;
+        let token_attributes: MqttTokenAttributes = serde_json::from_slice(&decoded_token)?;
         let token = MqttToken {
             exp: token_attributes.exp,
             raw_token,
         };
 
         Ok(token)
-    }
-
-    fn parse_token_attributes(decoded_token: &[u8]) -> Result<MqttTokenAttributes, DshError> {
-        serde_json::from_slice(decoded_token).map_err(DshError::JsonError)
     }
 
     fn is_valid(&self) -> bool {
@@ -284,7 +280,7 @@ impl RestToken {
 
         let decoded_token = decode_base64(header_payload)?;
 
-        let token_attributes = RestToken::parse_token_attributes(&decoded_token)?;
+        let token_attributes: RestTokenAttributes = serde_json::from_slice(&decoded_token)?;
         let token = RestToken {
             raw_token,
             exp: token_attributes.exp,
@@ -299,11 +295,6 @@ impl RestToken {
             .expect("SystemTime before UNIX EPOCH!")
             .as_secs() as i64;
         self.exp >= current_unixtime - 5
-    }
-
-    fn parse_token_attributes(decoded_token: &[u8]) -> Result<RestTokenAttributes, DshError> {
-        let res = serde_json::from_slice(decoded_token).map_err(DshError::JsonError);
-        res
     }
 
     async fn create_rest_token(
