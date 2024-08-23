@@ -78,14 +78,9 @@ impl MqttTokenFetcher {
 
         let response = self
             .send_mqtt_token_request(&authorization_header, &payload)
-            .await;
+            .await?;
 
-        let mqtt_token = response
-            .and_then(|raw_token| MqttToken::new(raw_token))
-            .unwrap();
-
-        //mqtt_token_map.insert(client_id, mqtt_token.clone());
-        Ok(mqtt_token)
+        MqttToken::new(response)
     }
 
     fn construct_mqtt_request_payload(
