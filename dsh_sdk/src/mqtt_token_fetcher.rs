@@ -160,8 +160,14 @@ impl MqttTokenFetcher {
 /// * `action` - can be subscribe or publish
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Claims {
-    pub resource: Resource,
-    pub action: String,
+    resource: Resource,
+    action: String,
+}
+
+impl Claims {
+    pub fn new(resource: Resource, action: String) -> Claims {
+        Claims { resource, action }
+    }
 }
 
 #[derive(derive_more::Display)]
@@ -173,10 +179,21 @@ pub enum Actions {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Resource {
-    pub stream: String,
-    pub prefix: String,
-    pub topic: String,
-    pub type_: Option<String>,
+    stream: String,
+    prefix: String,
+    topic: String,
+    type_: Option<String>,
+}
+
+impl Resource {
+    pub fn new(stream: String, prefix: String, topic: String, type_: Option<String>) -> Resource {
+        Resource {
+            stream,
+            prefix,
+            topic,
+            type_,
+        }
+    }
 }
 
 /// Represents attributes associated with a mqtt token.
