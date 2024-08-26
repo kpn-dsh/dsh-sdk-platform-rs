@@ -436,3 +436,78 @@ fn decode_base64(payload: &str) -> Result<Vec<u8>, DshError> {
 
     Ok(decoded_token)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_mqtt_token_fetcher_new() {
+        let tenant_name = "test_tenant".to_string();
+        let rest_api_key = "test_api_key".to_string();
+        let platform = Platform::NpLz;
+
+        let fetcher = MqttTokenFetcher::new(tenant_name, rest_api_key, platform).unwrap();
+
+        assert!(fetcher.mqtt_token.is_empty());
+    }
+
+    #[test]
+    fn test_claims_new() {
+        let resource = Resource::new(
+            "stream".to_string(),
+            "prefix".to_string(),
+            "topic".to_string(),
+            None,
+        );
+        let action = "publish".to_string();
+
+        let claims = Claims::new(resource.clone(), action.clone());
+
+        assert_eq!(claims.resource.stream, "stream");
+        assert_eq!(claims.action, "publish");
+    }
+
+    #[test]
+    fn test_resource_new() {
+        let resource = Resource::new(
+            "stream".to_string(),
+            "prefix".to_string(),
+            "topic".to_string(),
+            None,
+        );
+
+        assert_eq!(resource.stream, "stream");
+        assert_eq!(resource.prefix, "prefix");
+        assert_eq!(resource.topic, "topic");
+    }
+
+    #[test]
+    fn test_mqtt_token_is_valid() {
+        let raw_token = "valid.token.payload".to_string();
+        let token = MqttToken {
+            exp: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as i32
+                + 3600,
+            raw_token,
+        };
+
+        assert!(token.is_valid());
+    }
+
+    #[test]
+    fn test_rest_token_is_valid() {
+        let token = RestToken {
+            exp: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as i64
+                + 3600,
+            raw_token: "valid.token.payload".to_string(),
+        };
+
+        assert!(token.is_valid());
+    }
+}
