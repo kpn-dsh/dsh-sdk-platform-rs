@@ -1,4 +1,5 @@
 use std::{
+    fmt::{Display, Formatter},
     sync::Mutex,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
@@ -101,10 +102,18 @@ impl Claims {
     }
 }
 
-#[derive(derive_more::Display)]
 pub enum Actions {
     Publish,
     Subscribe,
+}
+
+impl Display for Actions {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            Actions::Publish => write!(f, "Publish"),
+            Actions::Subscribe => write!(f, "Subscribe"),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
