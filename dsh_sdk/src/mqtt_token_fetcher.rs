@@ -12,19 +12,32 @@ use sha2::{Digest, Sha256};
 
 use crate::{error::DshError, Platform};
 
-/// Fetch and store DSH MQTT Token
+/// `MqttTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
 ///
-/// Includes token validation and refreshing the token.
+/// It ensures that the tokens are valid, and if not, it refreshes them automatically. The struct
+/// is thread-safe and can be shared across multiple threads.   
+
 pub struct MqttTokenFetcher {
     tenant_name: String,
     rest_api_key: String,
     rest_token: Mutex<RestToken>,
-    mqtt_token: DashMap<String, MqttToken>, //Client_id, MqttToken
-    //token_lifetime: Option<i32>, // TODO Implement option of passing token lifetime to request token for specific duration
+    mqtt_token: DashMap<String, MqttToken>, // Mapping from Client ID to MqttToken
     platform: Platform,
-    // port: Port or connection_type: Connection // TODO Platform provides two connection options, current implemetation only provides connecting over SSL, enable WebSocket too
+    //token_lifetime: Option<i32>, // TODO: Implement option of passing token lifetime to request token for specific duration
+    // port: Port or connection_type: Connection // TODO: Platform provides two connection options, current implemetation only provides connecting over SSL, enable WebSocket too
 }
 
+/// Constructs a new `MqttTokenFetcher`.
+///
+/// # Arguments
+///
+/// * `tenant_name` - The tenant name in DSH.
+/// * `rest_api_key` - The REST API key used for authentication.
+/// * `platform` - The DSH platform environment
+///
+/// # Returns
+///
+/// Returns a `Result` containing a `MqttTokenFetcher` instance or a `DshError`.
 impl MqttTokenFetcher {
     pub fn new(
         tenant_name: String,
@@ -40,7 +53,18 @@ impl MqttTokenFetcher {
             platform,
         })
     }
-
+    /// Retrieves an MQTT token for the specified client ID.
+    ///
+    /// If the token is expired or does not exist, it fetches a new token.
+    ///
+    /// # Arguments
+    ///
+    /// * `client_id` - The identifier for the MQTT client.
+    /// * `claims` - Optional claims for the MQTT token.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing the `MqttToken` or a `DshError`.
     pub async fn get_token(
         &self,
         client_id: &str,
@@ -59,7 +83,9 @@ impl MqttTokenFetcher {
         };
         Ok(mqtt_token.clone())
     }
-
+    /// Fetches a new MQTT token from the platform.
+    ///
+    /// This method handles token validation and fetching the token
     async fn fetch_new_mqtt_token(
         &self,
         client_id: &str,
@@ -102,6 +128,7 @@ impl Claims {
     }
 }
 
+/// Enumeration representing possible actions in MQTT claims.
 pub enum Actions {
     Publish,
     Subscribe,
@@ -116,6 +143,9 @@ impl Display for Actions {
     }
 }
 
+/// Represents a resource in the MQTT claim.
+///
+/// The resource defines what the client can access in terms of stream, prefix, topic, and type.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Resource {
@@ -126,6 +156,19 @@ pub struct Resource {
 }
 
 impl Resource {
+    /// Creates a new `Resource` instance. Please check DSH MQTT Documentation for further explanation of the fields.
+    ///
+    /// # Arguments
+    ///
+    /// * `stream` - The data stream name.
+    /// * `prefix` - The prefix of the topic.
+    /// * `topic` - The topic name.
+    /// * `type_` - The optional type of the resource.
+    ///
+    ///
+    /// # Returns
+    ///
+    /// Returns a new `Resource` instance.
     pub fn new(stream: String, prefix: String, topic: String, type_: Option<String>) -> Resource {
         Resource {
             stream,
@@ -208,7 +251,7 @@ struct MqttTokenAttributes {
     tenant_id: String,
 }
 
-/// Represents a mqtt token with its raw value and attributes.
+/// Represents a token used for MQTT connections.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MqttToken {
     exp: i32,
@@ -272,20 +315,22 @@ struct DatastreamsData {}
 /// Represents a rest token with its raw value and attributes.
 #[derive(Serialize, Deserialize, Debug)]
 struct RestToken {
-    raw_token: String, //impl setter/getter
+    raw_token: String,
     exp: i64,
 }
 
 impl RestToken {
-    /// Creates a new instance of `RestToken` from a raw token string.
+    /// Retrieves a new REST token from the platform.
     ///
     /// # Arguments
     ///
-    /// * `raw_token` - The raw token string.
+    /// * `tenant` - The tenant name associated with the DSH platform.
+    /// * `api_key` - The REST API key used for authentication.
+    /// * `env` - The platform environment (e.g., production, staging).
     ///
     /// # Returns
     ///
-    /// A Result containing the created RestToken or an error.
+    /// A Result containing the created `RestToken` or a `DshError`.
     async fn get(tenant: &str, api_key: &str, env: &Platform) -> Result<RestToken, DshError> {
         let raw_token = Self::fetch_token(tenant, api_key, env).await.unwrap();
 
@@ -351,6 +396,15 @@ impl Default for RestToken {
     }
 }
 
+/// Extracts the header and payload part of a JWT token.
+///
+/// # Arguments
+///
+/// * `raw_token` - The raw JWT token string.
+///
+/// # Returns
+///
+/// A Result containing the header and payload part of the JWT token or a `DshError`.
 fn extract_header_and_payload(raw_token: &str) -> Result<&str, DshError> {
     let parts: Vec<&str> = raw_token.split('.').collect();
     parts
@@ -359,6 +413,15 @@ fn extract_header_and_payload(raw_token: &str) -> Result<&str, DshError> {
         .ok_or_else(|| DshError::ParseDnError("Header and payload are missing".to_string()))
 }
 
+/// Decodes a Base64-encoded string.
+///
+/// # Arguments
+///
+/// * `payload` - The Base64-encoded string.
+///
+/// # Returns
+///
+/// A Result containing the decoded byte vector or a `DshError`.
 fn decode_base64(payload: &str) -> Result<Vec<u8>, DshError> {
     use base64::{alphabet, engine, read};
     use std::io::Read;
