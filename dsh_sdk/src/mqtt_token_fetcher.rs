@@ -11,32 +11,31 @@ use sha2::{Digest, Sha256};
 
 use crate::{error::DshError, Platform};
 
+/// Fetch and store DSH MQTT Token
+///
+/// Includes token validation and refreshing the token.
 pub struct MqttTokenFetcher {
     tenant_name: String,
     rest_api_key: String,
-    claims: Option<Vec<Claims>>,
     rest_token: Mutex<RestToken>,
     mqtt_token: DashMap<String, MqttToken>, //Client_id, MqttToken
-    //token_lifetime: Option<i32>,
+    //token_lifetime: Option<i32>, // TODO Implement option of passing token lifetime to request token for specific duration
     platform: Platform,
+    // port: Port or connection_type: Connection // TODO Platform provides two connection options, current implemetation only provides connecting over SSL, enable WebSocket too
 }
 
 impl MqttTokenFetcher {
     pub fn new(
         tenant_name: String,
         rest_api_key: String,
-        claims: Option<Vec<Claims>>,
         platform: Platform,
-        //token_lifetime: Option<i32>,
     ) -> Result<MqttTokenFetcher, DshError> {
         let rest_token = RestToken::default();
         Ok(Self {
             tenant_name: tenant_name.clone(),
             rest_api_key: rest_api_key.clone(),
-            claims,
             rest_token: Mutex::new(rest_token),
             mqtt_token: DashMap::new(),
-            //token_lifetime,
             platform,
         })
     }
@@ -44,15 +43,18 @@ impl MqttTokenFetcher {
     pub async fn get_token(
         &self,
         client_id: &str,
-        claims: Option<&Claims>,
+        claims: Option<Vec<Claims>>,
     ) -> Result<MqttToken, DshError> {
         let mut mqtt_token = self
             .mqtt_token
             .entry(client_id.to_string())
-            .or_insert(self.fetch_new_mqtt_token(client_id, claims).await?);
+            .or_insert(self.fetch_new_mqtt_token(client_id, claims.clone()).await?);
 
         if !mqtt_token.is_valid() {
-            *mqtt_token = self.fetch_new_mqtt_token(client_id, claims).await.unwrap()
+            *mqtt_token = self
+                .fetch_new_mqtt_token(client_id, claims.clone())
+                .await
+                .unwrap()
         };
         Ok(mqtt_token.clone())
     }
@@ -60,7 +62,7 @@ impl MqttTokenFetcher {
     async fn fetch_new_mqtt_token(
         &self,
         client_id: &str,
-        claims: Option<&Claims>,
+        claims: Option<Vec<Claims>>,
     ) -> Result<MqttToken, DshError> {
         let mut rest_token = self
             .rest_token
@@ -76,6 +78,7 @@ impl MqttTokenFetcher {
 
         let mqtt_token_request = MqttTokenRequest::new(client_id, &self.tenant_name, claims)?;
         let payload = serde_json::to_value(&mqtt_token_request)?;
+        println!("payload: {:?}", payload);
         let response = mqtt_token_request
             .send(&self.platform, &authorization_header, &payload)
             .await?;
@@ -128,14 +131,14 @@ impl Resource {
 struct MqttTokenRequest {
     id: String,
     tenant: String,
-    claims: Option<Claims>,
+    claims: Option<Vec<Claims>>,
 }
 
 impl MqttTokenRequest {
     fn new(
         client_id: &str,
         tenant: &str,
-        claims: Option<&Claims>,
+        claims: Option<Vec<Claims>>,
     ) -> Result<MqttTokenRequest, DshError> {
         let mut hasher = Sha256::new();
         hasher.update(client_id);
@@ -145,7 +148,7 @@ impl MqttTokenRequest {
         Ok(Self {
             id,
             tenant: tenant.to_string(),
-            claims: claims.cloned(),
+            claims: claims,
         })
     }
 

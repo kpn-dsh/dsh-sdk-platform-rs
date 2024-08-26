@@ -14,18 +14,13 @@ async fn main() {
 
     let claims_pub = Claims::new(resource, Actions::Publish.to_string());
 
-    let claims_vector = vec![claims_pub, claims_sub];
+    let claims_vector = vec![claims_sub, claims_pub];
 
-    let mqtt_token_fetcher: MqttTokenFetcher = MqttTokenFetcher::new(
-        tenant_name,
-        api_key,
-        Some(claims_vector),
-        dsh_sdk::Platform::NpLz,
-    )
-    .unwrap();
+    let mqtt_token_fetcher: MqttTokenFetcher =
+        MqttTokenFetcher::new(tenant_name, api_key, dsh_sdk::Platform::NpLz).unwrap();
 
     let token: MqttToken = mqtt_token_fetcher
-        .get_token("Client-id", None)
+        .get_token("Client-id", Some(claims_vector))
         .await
         .unwrap();
     println!("MQTT Token: {:?}", token);
