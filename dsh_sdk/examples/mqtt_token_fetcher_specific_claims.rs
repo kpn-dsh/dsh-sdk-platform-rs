@@ -22,7 +22,6 @@ async fn main() {
         Some(claims_vector),
         dsh_sdk::Platform::NpLz,
     )
-    .await
     .unwrap();
 
     let token: MqttToken = mqtt_token_fetcher

@@ -22,14 +22,14 @@ pub struct MqttTokenFetcher {
 }
 
 impl MqttTokenFetcher {
-    pub async fn new(
+    pub fn new(
         tenant_name: String,
         rest_api_key: String,
         claims: Option<Vec<Claims>>,
         platform: Platform,
         //token_lifetime: Option<i32>,
     ) -> Result<MqttTokenFetcher, DshError> {
-        let rest_token = RestToken::get(&tenant_name, &rest_api_key, &platform).await?;
+        let rest_token = RestToken::default();
         Ok(Self {
             tenant_name: tenant_name.clone(),
             rest_api_key: rest_api_key.clone(),
@@ -326,6 +326,15 @@ impl RestToken {
                 status_code: status,
                 error_body: body_text,
             }),
+        }
+    }
+}
+
+impl Default for RestToken {
+    fn default() -> Self {
+        Self {
+            raw_token: "".to_string(),
+            exp: 0,
         }
     }
 }
