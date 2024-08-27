@@ -39,19 +39,15 @@ pub struct MqttTokenFetcher {
 ///
 /// Returns a `Result` containing a `MqttTokenFetcher` instance or a `DshError`.
 impl MqttTokenFetcher {
-    pub fn new(
-        tenant_name: String,
-        rest_api_key: String,
-        platform: Platform,
-    ) -> Result<MqttTokenFetcher, DshError> {
+    pub fn new(tenant_name: String, rest_api_key: String, platform: Platform) -> MqttTokenFetcher {
         let rest_token = RestToken::default();
-        Ok(Self {
-            tenant_name: tenant_name.clone(),
-            rest_api_key: rest_api_key.clone(),
+        Self {
+            tenant_name,
+            rest_api_key,
             rest_token: Mutex::new(rest_token),
             mqtt_token: DashMap::new(),
             platform,
-        })
+        }
     }
     /// Retrieves an MQTT token for the specified client ID.
     ///
@@ -447,7 +443,7 @@ mod tests {
         let rest_api_key = "test_api_key".to_string();
         let platform = Platform::NpLz;
 
-        let fetcher = MqttTokenFetcher::new(tenant_name, rest_api_key, platform).unwrap();
+        let fetcher = MqttTokenFetcher::new(tenant_name, rest_api_key, platform);
 
         assert!(fetcher.mqtt_token.is_empty());
     }
