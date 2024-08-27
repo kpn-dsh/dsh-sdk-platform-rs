@@ -105,7 +105,7 @@ impl MqttTokenFetcher {
 
         let mqtt_token_request = MqttTokenRequest::new(client_id, &self.tenant_name, claims)?;
         let payload = serde_json::to_value(&mqtt_token_request)?;
-        println!("payload: {:?}", payload);
+
         let response = mqtt_token_request
             .send(&self.platform, &authorization_header, &payload)
             .await?;
@@ -147,11 +147,11 @@ impl Display for Actions {
 ///
 /// The resource defines what the client can access in terms of stream, prefix, topic, and type.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct Resource {
     stream: String,
     prefix: String,
     topic: String,
+    #[serde(rename = "type")]
     type_: Option<String>,
 }
 
