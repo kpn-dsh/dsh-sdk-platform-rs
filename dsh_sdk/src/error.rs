@@ -9,7 +9,7 @@ pub enum DshError {
     EnvVarError(#[from] std::env::VarError),
     #[error("Convert bytes to utf8 error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
-    #[cfg(feature = "bootstrap")]
+    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
     #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]
     DshCallError {
         url: String,
@@ -22,17 +22,17 @@ pub enum DshError {
     #[cfg(feature = "bootstrap")]
     #[error("Invalid PEM certificate: {0}")]
     PemError(#[from] pem::PemError),
-    #[cfg(feature = "bootstrap")]
+    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
-    #[cfg(feature = "bootstrap")]
+    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
     #[error("Serde_json error: {0}")]
     JsonError(#[from] serde_json::Error),
     #[cfg(feature = "bootstrap")]
     #[error("Rcgen error: {0}")]
     PrivateKeyError(#[from] rcgen::Error),
-    #[cfg(feature = "bootstrap")]
-    #[error("Error parsing Distinguished Name: {0}")]
+    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
+    #[error("Error parsing: {0}")]
     ParseDnError(String),
     #[cfg(feature = "bootstrap")]
     #[error("Error getting group id, index out of bounds for {0}")]
