@@ -71,9 +71,7 @@ impl MqttTokenFetcher {
         client_id: &str,
         claims: Option<Vec<Claims>>,
     ) -> Result<MqttToken, DshError> {
-        let map = &self.mqtt_token;
-        let key = client_id.to_string();
-        match map.entry(key) {
+        match self.mqtt_token.entry(client_id.to_string()) {
             dashmap::Entry::Occupied(mut entry) => {
                 let mqtt_token = entry.get_mut();
                 if !mqtt_token.is_valid() {
