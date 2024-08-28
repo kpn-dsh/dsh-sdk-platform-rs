@@ -90,6 +90,32 @@ impl Platform {
         }
     }
 
+    /// Get the endpoint for fetching DSH Rest Authentication Token
+    ///
+    /// It will return the endpoint for DSH Rest authentication token based on the platform
+    pub fn endpoint_rest_token(&self) -> &str {
+        match self {
+            Self::Prod => "https://api.kpn-dsh.com/auth/v0/token",
+            Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/auth/v0/token",
+            Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/auth/v0/token",
+            Self::ProdAz => "https://api.az.kpn-dsh.com/auth/v0/token",
+            Self::Poc => "https://api.poc.kpn-dsh.com/auth/v0/token",
+        }
+    }
+
+    /// Get the endpoint for fetching DSH MQTT token
+    ///
+    /// It will return the endpoint for DSH MQTT Token based on the platform
+    pub fn endpoint_mqtt_token(&self) -> &str {
+        match self {
+            Self::Prod => "https://api.kpn-dsh.com/datastreams/v0/mqtt/token",
+            Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/datastreams/v0/mqtt/token",
+            Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/datastreams/v0/mqtt/token",
+            Self::ProdAz => "https://api.az.kpn-dsh.com/datastreams/v0/mqtt/token",
+            Self::Poc => "https://api.poc.kpn-dsh.com/datastreams/v0/mqtt/token",
+        }
+    }
+
     pub fn realm(&self) -> &str {
         match self {
             Self::Prod => "tt-dsh",
