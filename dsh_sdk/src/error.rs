@@ -1,3 +1,5 @@
+//! Error types for the DSH SDK
+
 use thiserror::Error;
 
 #[derive(Error, Debug)]
