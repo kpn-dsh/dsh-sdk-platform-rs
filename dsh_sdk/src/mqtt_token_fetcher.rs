@@ -590,7 +590,7 @@ mod tests {
         let raw = "header.payload";
         let result = extract_header_and_payload(raw).unwrap();
         assert_eq!(result, "payload");
-        
+
         let raw = "header";
         let result = extract_header_and_payload(raw);
         assert!(result.is_err());
