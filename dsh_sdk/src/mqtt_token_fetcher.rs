@@ -1,3 +1,6 @@
+//! # MQTT Token Fetcher
+//!
+//! `MqttTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
 use std::{
     fmt::{Display, Formatter},
     sync::Mutex,
@@ -21,8 +24,9 @@ pub struct MqttTokenFetcher {
     tenant_name: String,
     rest_api_key: String,
     rest_token: Mutex<RestToken>,
+    rest_auth_url: String,
     mqtt_token: DashMap<String, MqttToken>, // Mapping from Client ID to MqttToken
-    platform: Platform,
+    mqtt_auth_url: String,
     //token_lifetime: Option<i32>, // TODO: Implement option of passing token lifetime to request token for specific duration
     // port: Port or connection_type: Connection // TODO: Platform provides two connection options, current implemetation only provides connecting over SSL, enable WebSocket too
 }
@@ -45,8 +49,9 @@ impl MqttTokenFetcher {
             tenant_name,
             rest_api_key,
             rest_token: Mutex::new(rest_token),
+            rest_auth_url: platform.endpoint_rest_token().to_string(),
             mqtt_token: DashMap::new(),
-            platform,
+            mqtt_auth_url: platform.endpoint_mqtt_token().to_string(),
         }
     }
     /// Retrieves an MQTT token for the specified client ID.
@@ -66,18 +71,22 @@ impl MqttTokenFetcher {
         client_id: &str,
         claims: Option<Vec<Claims>>,
     ) -> Result<MqttToken, DshError> {
-        let mut mqtt_token = self
-            .mqtt_token
-            .entry(client_id.to_string())
-            .or_insert(self.fetch_new_mqtt_token(client_id, claims.clone()).await?);
-
-        if !mqtt_token.is_valid() {
-            *mqtt_token = self
-                .fetch_new_mqtt_token(client_id, claims.clone())
-                .await
-                .unwrap()
-        };
-        Ok(mqtt_token.clone())
+        let map = &self.mqtt_token;
+        let key = client_id.to_string();
+        match map.entry(key) {
+            dashmap::Entry::Occupied(mut entry) => {
+                let mqtt_token = entry.get_mut();
+                if !mqtt_token.is_valid() {
+                    *mqtt_token = self.fetch_new_mqtt_token(client_id, claims).await?;
+                };
+                Ok(mqtt_token.clone())
+            }
+            dashmap::Entry::Vacant(entry) => {
+                let mqtt_token = self.fetch_new_mqtt_token(client_id, claims).await?;
+                entry.insert(mqtt_token.clone());
+                Ok(mqtt_token)
+            }
+        }
     }
     /// Fetches a new MQTT token from the platform.
     ///
@@ -94,7 +103,7 @@ impl MqttTokenFetcher {
 
         if !rest_token.is_valid() {
             *rest_token =
-                RestToken::get(&self.tenant_name, &self.rest_api_key, &self.platform).await?
+                RestToken::get(&self.tenant_name, &self.rest_api_key, &self.rest_auth_url).await?
         }
 
         let authorization_header = format!("Bearer {}", rest_token.raw_token);
@@ -103,7 +112,7 @@ impl MqttTokenFetcher {
         let payload = serde_json::to_value(&mqtt_token_request)?;
 
         let response = mqtt_token_request
-            .send(&self.platform, &authorization_header, &payload)
+            .send(&self.mqtt_auth_url, &authorization_header, &payload)
             .await?;
 
         MqttToken::new(response)
@@ -202,7 +211,7 @@ impl MqttTokenRequest {
 
     async fn send(
         &self,
-        platform: &Platform,
+        mqtt_auth_url: &str,
         authorization_header: &str,
         payload: &serde_json::Value,
     ) -> Result<String, DshError> {
@@ -215,7 +224,7 @@ impl MqttTokenRequest {
             .expect("Failed to build reqwest client");
 
         let response = reqwest_client
-            .post(platform.endpoint_mqtt_token())
+            .post(mqtt_auth_url)
             .header("Authorization", authorization_header)
             .json(payload)
             .send()
@@ -225,7 +234,7 @@ impl MqttTokenRequest {
             Ok(response.text().await?)
         } else {
             Err(DshError::DshCallError {
-                url: platform.endpoint_mqtt_token().to_string(),
+                url: mqtt_auth_url.to_string(),
                 status_code: response.status(),
                 error_body: response.text().await?,
             })
@@ -283,7 +292,7 @@ impl MqttToken {
             .duration_since(UNIX_EPOCH)
             .expect("SystemTime before UNIX EPOCH!")
             .as_secs() as i32;
-        self.exp >= current_unixtime - 5
+        self.exp >= current_unixtime + 5
     }
 }
 
@@ -292,10 +301,10 @@ impl MqttToken {
 #[serde(rename_all = "kebab-case")]
 struct RestTokenAttributes {
     gen: i64,
-    pub endpoint: String,
+    endpoint: String,
     iss: String,
-    pub claims: RestClaims,
-    pub exp: i64,
+    claims: RestClaims,
+    exp: i32,
     tenant_id: String,
 }
 
@@ -312,7 +321,7 @@ struct DatastreamsData {}
 #[derive(Serialize, Deserialize, Debug)]
 struct RestToken {
     raw_token: String,
-    exp: i64,
+    exp: i32,
 }
 
 impl RestToken {
@@ -327,8 +336,8 @@ impl RestToken {
     /// # Returns
     ///
     /// A Result containing the created `RestToken` or a `DshError`.
-    async fn get(tenant: &str, api_key: &str, env: &Platform) -> Result<RestToken, DshError> {
-        let raw_token = Self::fetch_token(tenant, api_key, env).await.unwrap();
+    async fn get(tenant: &str, api_key: &str, auth_url: &str) -> Result<RestToken, DshError> {
+        let raw_token = Self::fetch_token(tenant, api_key, auth_url).await.unwrap();
 
         let header_payload = extract_header_and_payload(&raw_token)?;
 
@@ -347,11 +356,11 @@ impl RestToken {
         let current_unixtime = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("SystemTime before UNIX EPOCH!")
-            .as_secs() as i64;
-        self.exp >= current_unixtime - 5
+            .as_secs() as i32;
+        self.exp >= current_unixtime + 5
     }
 
-    async fn fetch_token(tenant: &str, api_key: &str, env: &Platform) -> Result<String, DshError> {
+    async fn fetch_token(tenant: &str, api_key: &str, auth_url: &str) -> Result<String, DshError> {
         let json_body = json!({"tenant": tenant});
 
         const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
@@ -364,7 +373,7 @@ impl RestToken {
 
         let rest_client = reqwest_client;
         let response = rest_client
-            .post(env.endpoint_rest_token())
+            .post(auth_url)
             .header("apikey", api_key)
             .json(&json_body)
             .send()
@@ -375,7 +384,7 @@ impl RestToken {
         match status {
             reqwest::StatusCode::OK => Ok(body_text),
             _ => Err(DshError::DshCallError {
-                url: env.endpoint_rest_api().to_string(),
+                url: auth_url.to_string(),
                 status_code: status,
                 error_body: body_text,
             }),
@@ -437,6 +446,33 @@ fn decode_base64(payload: &str) -> Result<Vec<u8>, DshError> {
 mod tests {
     use super::*;
 
+    fn create_valid_fetcher() -> MqttTokenFetcher {
+        let exp_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i32
+            + 3600;
+        println!("exp_time: {}", exp_time);
+        let rest_token: RestToken = RestToken {
+            exp: exp_time as i32,
+            raw_token: "valid.token.payload".to_string(),
+        };
+        let mqtt_token = MqttToken {
+            exp: exp_time,
+            raw_token: "valid.token.payload".to_string(),
+        };
+        let mqtt_token_map = DashMap::new();
+        mqtt_token_map.insert("test_client".to_string(), mqtt_token.clone());
+        MqttTokenFetcher {
+            tenant_name: "test_tenant".to_string(),
+            rest_api_key: "test_api_key".to_string(),
+            rest_token: Mutex::new(rest_token),
+            rest_auth_url: "test_auth_url".to_string(),
+            mqtt_token: mqtt_token_map,
+            mqtt_auth_url: "test_auth_url".to_string(),
+        }
+    }
+
     #[tokio::test]
     async fn test_mqtt_token_fetcher_new() {
         let tenant_name = "test_tenant".to_string();
@@ -446,6 +482,13 @@ mod tests {
         let fetcher = MqttTokenFetcher::new(tenant_name, rest_api_key, platform);
 
         assert!(fetcher.mqtt_token.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_mqtt_token_fetcher_get_token() {
+        let fetcher = create_valid_fetcher();
+        let token = fetcher.get_token("test_client", None).await.unwrap();
+        assert_eq!(token.raw_token, "valid.token.payload");
     }
 
     #[test]
@@ -492,6 +535,19 @@ mod tests {
 
         assert!(token.is_valid());
     }
+    #[test]
+    fn test_mqtt_token_is_invalid() {
+        let raw_token = "valid.token.payload".to_string();
+        let token = MqttToken {
+            exp: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as i32,
+            raw_token,
+        };
+
+        assert!(!token.is_valid());
+    }
 
     #[test]
     fn test_rest_token_is_valid() {
@@ -499,11 +555,46 @@ mod tests {
             exp: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()
-                .as_secs() as i64
+                .as_secs() as i32
                 + 3600,
             raw_token: "valid.token.payload".to_string(),
         };
 
         assert!(token.is_valid());
+    }
+
+    #[test]
+    fn test_rest_token_is_invalid() {
+        let token = RestToken {
+            exp: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as i32,
+            raw_token: "valid.token.payload".to_string(),
+        };
+
+        assert!(!token.is_valid());
+    }
+
+    #[test]
+    fn test_rest_token_default_is_invalid() {
+        let token = RestToken::default();
+
+        assert!(!token.is_valid());
+    }
+
+    #[test]
+    fn test_extract_header_and_payload() {
+        let raw = "header.payload.signature";
+        let result = extract_header_and_payload(raw).unwrap();
+        assert_eq!(result, "payload");
+
+        let raw = "header.payload";
+        let result = extract_header_and_payload(raw).unwrap();
+        assert_eq!(result, "payload");
+        
+        let raw = "header";
+        let result = extract_header_and_payload(raw);
+        assert!(result.is_err());
     }
 }
