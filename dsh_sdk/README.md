@@ -60,7 +60,8 @@ The following features are available in this library and can be enabled/disabled
 | **feature** | **default** | **Description** |
 |---|---|---|
 | `bootstrap` | &check; | Generate signed certificate and fetch datastreams info <br> Also makes certificates available, to be used as lowlevel API |
-| `rest-token-fetcher` | &check; | Fetch a token to use the DSH Rest API |
+| `rest-token-fetcher` | &cross; | Fetch tokens to use DSH Rest API |
+| `mqtt-token-fetcher` | &cross; | Fetch tokens to use DSH MQTT |
 | `metrics` | &check; | Enable (custom) metrics for your service |
 | `graceful_shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
 | `dlq` | &cross; | Dead Letter Queue implementation (experimental) |
