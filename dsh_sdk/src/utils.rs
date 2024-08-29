@@ -92,6 +92,8 @@ impl Platform {
 
     /// Get the endpoint for fetching DSH Rest Authentication Token
     ///
+    /// With this token you can authenticate for the mqtt token endpoint
+    ///
     /// It will return the endpoint for DSH Rest authentication token based on the platform
     pub fn endpoint_rest_token(&self) -> &str {
         match self {

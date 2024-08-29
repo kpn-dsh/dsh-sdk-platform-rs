@@ -1,4 +1,4 @@
-//! # DSH Properties
+//! # DSH
 //!
 //! This module contains logic to connect to Kafka on DSH and retreive all properties of your tenant.
 //!
