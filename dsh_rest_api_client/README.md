@@ -4,7 +4,14 @@ An OpenAPI Spec implementation for the DSH REST API.
 ## Description
 This crate is part of the [DSH_SDK](https://crates.io/crates/dsh_sdk). It provides a Rust client for the DSH REST API. This client is generated from the OpenAPI specification using [Progenitor](https://github.com/oxidecomputer/progenitor).
 
-Based on 
+### Versions
+The versions of this crate are tied to the versions of the OpenAPI spec and the Progenitor version used to generate the client.
+
+#### DSH Rest API Client: 0.2.0
+- OpenAPI spec: 1.8.0
+- Progenitor version: 0.7.0
+
+#### DSH Rest API Client: 0.1.0
 - OpenAPI spec: 1.7.0
 - Progenitor version: 0.7.0
 
@@ -26,7 +33,7 @@ It is recommended to use the Rest Token Fetcher from the `dsh_sdk` crate. To do 
 
 ```toml
 [dependencies]
-dsh_rest_api_client = "0.1.0"
+dsh_rest_api_client = "0.2.0"
 dsh_sdk = { version = "0.4", features = ["rest-token-fetcher"], default-features = false }
 tokio = { version = "1", features = ["full"] }
 ```
