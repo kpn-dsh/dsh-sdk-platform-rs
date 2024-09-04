@@ -7,13 +7,17 @@ def generate_operation_id(path, method, tag):
     path_parts = path.strip('/').split('/')
     # remove allocation from path
     path_parts = [part for part in path_parts if part != 'allocation']
-    operation_id = tag.lower() + method.capitalize() + ''.join(part.capitalize() if part[0] != '{' else 'By' + part[1:-1].capitalize() for part in path_parts)
+    # split tag by space and capitalize each word(except first one)
+    tag = tag.split(' ')
+    tag = ''.join([tag[0]] + [word.capitalize() for word in tag[1:]])
+    # Create operationId by combining tag, method and path parts
+    operation_id = tag + method.capitalize() + ''.join(part.capitalize() if part[0] != '{' else 'By' + part[1:-1].capitalize() for part in path_parts)
     return operation_id
 
 def add_mising_items(openapi_spec):
     paths = openapi_spec.get('paths', {})
     for path, methods in paths.items():
-        for method in ['get', 'post', 'put', 'delete', 'patch']:
+        for method in ['get', 'post', 'put', 'delete', 'patch', 'head']:
             if method in methods:
                 tag = methods[method].get('tags', [''])[0]
                 # Add operationId if missing

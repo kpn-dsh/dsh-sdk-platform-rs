@@ -2832,6 +2832,221 @@ pub mod types {
         }
     }
 
+    ///An internal stream.  A stream that can be shared between different
+    /// tenants, but is not accessible over the MQTT protocol adapter.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "An internal stream.  A stream that can be shared
+    /// between different tenants, but is not accessible over the MQTT protocol
+    /// adapter.\n",
+    ///  "examples": [
+    ///    {
+    ///      "$ref": "#/components/examples/managedInternalStream"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/Topic"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/InternalManagedStream_allOf"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct InternalManagedStream {
+        #[serde(
+            rename = "kafkaProperties",
+            default,
+            skip_serializing_if = "std::collections::HashMap::is_empty"
+        )]
+        pub kafka_properties: std::collections::HashMap<String, String>,
+        ///For internal streams, the value of `kind` must be `internal.`
+        pub kind: InternalManagedStreamKind,
+        pub partitions: i64,
+        #[serde(rename = "replicationFactor")]
+        pub replication_factor: i64,
+    }
+
+    impl From<&InternalManagedStream> for InternalManagedStream {
+        fn from(value: &InternalManagedStream) -> Self {
+            value.clone()
+        }
+    }
+
+    ///InternalManagedStreamAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "kind"
+    ///  ],
+    ///  "properties": {
+    ///    "kind": {
+    ///      "description": "For internal streams, the value of `kind` must be
+    /// `internal.`",
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "internal"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct InternalManagedStreamAllOf {
+        ///For internal streams, the value of `kind` must be `internal.`
+        pub kind: InternalManagedStreamAllOfKind,
+    }
+
+    impl From<&InternalManagedStreamAllOf> for InternalManagedStreamAllOf {
+        fn from(value: &InternalManagedStreamAllOf) -> Self {
+            value.clone()
+        }
+    }
+
+    ///For internal streams, the value of `kind` must be `internal.`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "For internal streams, the value of `kind` must be
+    /// `internal.`",
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "internal"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum InternalManagedStreamAllOfKind {
+        #[serde(rename = "internal")]
+        Internal,
+    }
+
+    impl From<&InternalManagedStreamAllOfKind> for InternalManagedStreamAllOfKind {
+        fn from(value: &InternalManagedStreamAllOfKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for InternalManagedStreamAllOfKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Internal => "internal".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for InternalManagedStreamAllOfKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "internal" => Ok(Self::Internal),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for InternalManagedStreamAllOfKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for InternalManagedStreamAllOfKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for InternalManagedStreamAllOfKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///For internal streams, the value of `kind` must be `internal.`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "For internal streams, the value of `kind` must be
+    /// `internal.`",
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "internal"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum InternalManagedStreamKind {
+        #[serde(rename = "internal")]
+        Internal,
+    }
+
+    impl From<&InternalManagedStreamKind> for InternalManagedStreamKind {
+        fn from(value: &InternalManagedStreamKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for InternalManagedStreamKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Internal => "internal".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for InternalManagedStreamKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "internal" => Ok(Self::Internal),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for InternalManagedStreamKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for InternalManagedStreamKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for InternalManagedStreamKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
     ///KafkaProxy
     ///
     /// <details><summary>JSON schema</summary>
@@ -2869,7 +3084,7 @@ pub mod types {
     ///          "subjectType": "subjectType"
     ///        }
     ///      ],
-    ///      "zone": "internal"
+    ///      "zone": "private"
     ///    }
     ///  ],
     ///  "type": "object",
@@ -2951,7 +3166,7 @@ pub mod types {
     ///      "description": "Available networks on this platform",
     ///      "type": "string",
     ///      "enum": [
-    ///        "internal",
+    ///        "private",
     ///        "public"
     ///      ]
     ///    }
@@ -3196,7 +3411,7 @@ pub mod types {
     ///  "description": "Available networks on this platform",
     ///  "type": "string",
     ///  "enum": [
-    ///    "internal",
+    ///    "private",
     ///    "public"
     ///  ]
     ///}
@@ -3204,8 +3419,8 @@ pub mod types {
     /// </details>
     #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
     pub enum KafkaProxyZone {
-        #[serde(rename = "internal")]
-        Internal,
+        #[serde(rename = "private")]
+        Private,
         #[serde(rename = "public")]
         Public,
     }
@@ -3219,7 +3434,7 @@ pub mod types {
     impl ToString for KafkaProxyZone {
         fn to_string(&self) -> String {
             match *self {
-                Self::Internal => "internal".to_string(),
+                Self::Private => "private".to_string(),
                 Self::Public => "public".to_string(),
             }
         }
@@ -3229,7 +3444,7 @@ pub mod types {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
             match value {
-                "internal" => Ok(Self::Internal),
+                "private" => Ok(Self::Private),
                 "public" => Ok(Self::Public),
                 _ => Err("invalid value".into()),
             }
@@ -4877,6 +5092,343 @@ pub mod types {
         }
     }
 
+    ///The id of a managed stream consists of a `internal.` prefix followed by
+    /// the name of the managing tenant and the name of the stream separated by
+    /// `---` (three hyphens). id's starting with `internal` indicate an
+    /// internal stream. For an internal stream called `maerts` for tenant
+    /// `tnanet` the full name would be  `internal.tnanet---maerts`.
+    /// Note that the regular expressions below don't cover all restrictions.
+    /// The tenant name part must still adhere to the rules for tenant names,
+    /// the stream name part must still adhere to the following rules: - Must
+    /// have a minimum length of 3 and a maximum length of 100, - Must only
+    /// contain lower case alphanumerical characters `[a-z0-9]` and hyphens `-`,
+    /// - Must not contain three sequential hyphens `---`, two sequential
+    /// hyphens is fine, - Must start with an lowercase letter `^[a-z]` - Must
+    /// end with a lowercase letter or digit `[a-z0-9]$`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The id of a managed stream consists of a `internal.`
+    /// prefix followed by the name of the managing tenant and the name of the
+    /// stream separated by `---` (three hyphens).  \nid's starting with
+    /// `internal` indicate an internal stream.\nFor an internal stream called
+    /// `maerts` for tenant `tnanet` the full name would be
+    /// `internal.tnanet---maerts`.\nNote that the regular expressions below
+    /// don't cover all restrictions.  The tenant name part must still adhere to
+    /// the rules for tenant names, the stream name part must still adhere to
+    /// the following rules: - Must have a minimum length of 3 and a maximum
+    /// length of 100, - Must only contain lower case alphanumerical characters
+    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
+    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
+    /// letter `^[a-z]` - Must end with a lowercase letter or digit
+    /// `[a-z0-9]$`\n",
+    ///  "type": "string",
+    ///  "pattern":
+    /// "^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,
+    /// 98}[a-z0-9]$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub struct ManagedInternalStreamId(String);
+    impl std::ops::Deref for ManagedInternalStreamId {
+        type Target = String;
+        fn deref(&self) -> &String {
+            &self.0
+        }
+    }
+
+    impl From<ManagedInternalStreamId> for String {
+        fn from(value: ManagedInternalStreamId) -> Self {
+            value.0
+        }
+    }
+
+    impl From<&ManagedInternalStreamId> for ManagedInternalStreamId {
+        fn from(value: &ManagedInternalStreamId) -> Self {
+            value.clone()
+        }
+    }
+
+    impl std::str::FromStr for ManagedInternalStreamId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            if regress::Regex::new(
+                "^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
+            )
+            .unwrap()
+            .find(value)
+            .is_none()
+            {
+                return Err ("doesn't match pattern \"^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for ManagedInternalStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for ManagedInternalStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for ManagedInternalStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl<'de> serde::Deserialize<'de> for ManagedInternalStreamId {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de>,
+        {
+            String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+
+    ///The id of a managed stream consists of a `stream.` or `internal.` prefix
+    /// followed by the name of the managing tenant and the name of the stream
+    /// separated by `---` (three hyphens). Id's starting with `stream`
+    /// indicate a public stream,  id's starting with `internal` indicate an
+    /// internal stream. For an internal stream called `maerts` for tenant
+    /// `tnanet` the full name would be  `internal.tnanet---maerts`. For a
+    /// public stream with the same name and tenant,  the full name would be
+    /// `stream.tnanet---maerts`. Note that the regular expressions below
+    /// don't cover all restrictions.  The tenant name part must still adhere to
+    /// the rules for tenant names, the stream name part must still adhere to
+    /// the following rules: - Must have a minimum length of 3 and a maximum
+    /// length of 100, - Must only contain lower case alphanumerical characters
+    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
+    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
+    /// letter `^[a-z]` - Must end with a lowercase letter or digit `[a-z0-9]$`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The id of a managed stream consists of a `stream.` or
+    /// `internal.` prefix followed by the name of the managing tenant and the
+    /// name of the stream separated by `---` (three hyphens).  \nId's starting
+    /// with `stream` indicate a public stream,  id's starting with `internal`
+    /// indicate an internal stream.\nFor an internal stream called `maerts` for
+    /// tenant `tnanet` the full name would be  `internal.tnanet---maerts`. For
+    /// a public stream with the same name and tenant,  the full name would be
+    /// `stream.tnanet---maerts`.\nNote that the regular expressions below don't
+    /// cover all restrictions.  The tenant name part must still adhere to the
+    /// rules for tenant names, the stream name part must still adhere to the
+    /// following rules: - Must have a minimum length of 3 and a maximum length
+    /// of 100, - Must only contain lower case alphanumerical characters
+    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
+    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
+    /// letter `^[a-z]` - Must end with a lowercase letter or digit
+    /// `[a-z0-9]$`\n",
+    ///  "type": "string",
+    ///  "pattern":
+    /// "^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub struct ManagedPublicStreamId(String);
+    impl std::ops::Deref for ManagedPublicStreamId {
+        type Target = String;
+        fn deref(&self) -> &String {
+            &self.0
+        }
+    }
+
+    impl From<ManagedPublicStreamId> for String {
+        fn from(value: ManagedPublicStreamId) -> Self {
+            value.0
+        }
+    }
+
+    impl From<&ManagedPublicStreamId> for ManagedPublicStreamId {
+        fn from(value: &ManagedPublicStreamId) -> Self {
+            value.clone()
+        }
+    }
+
+    impl std::str::FromStr for ManagedPublicStreamId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            if regress::Regex::new(
+                "^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
+            )
+            .unwrap()
+            .find(value)
+            .is_none()
+            {
+                return Err ("doesn't match pattern \"^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for ManagedPublicStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for ManagedPublicStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for ManagedPublicStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl<'de> serde::Deserialize<'de> for ManagedPublicStreamId {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de>,
+        {
+            String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+
+    ///The id of a managed stream consists of a `stream.` or `internal.` prefix
+    /// followed by the name of the managing tenant and the name of the stream
+    /// separated by `---` (three hyphens). Id's starting with `stream`
+    /// indicate a public stream,  id's starting with `internal` indicate an
+    /// internal stream. For an internal stream called `maerts` for tenant
+    /// `tnanet` the full name would be  `internal.tnanet---maerts`. For a
+    /// public stream with the same name and tenant,  the full name would be
+    /// `stream.tnanet---maerts`. Note that the regular expressions below
+    /// don't cover all restrictions.  The tenant name part must still adhere to
+    /// the rules for tenant names, the stream name part must still adhere to
+    /// the following rules: - Must have a minimum length of 3 and a maximum
+    /// length of 100, - Must only contain lower case alphanumerical characters
+    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
+    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
+    /// letter `^[a-z]` - Must end with a lowercase letter or digit `[a-z0-9]$`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The id of a managed stream consists of a `stream.` or
+    /// `internal.` prefix followed by the name of the managing tenant and the
+    /// name of the stream separated by `---` (three hyphens).  \nId's starting
+    /// with `stream` indicate a public stream,  id's starting with `internal`
+    /// indicate an internal stream.\nFor an internal stream called `maerts` for
+    /// tenant `tnanet` the full name would be  `internal.tnanet---maerts`. For
+    /// a public stream with the same name and tenant,  the full name would be
+    /// `stream.tnanet---maerts`.\nNote that the regular expressions below don't
+    /// cover all restrictions.  The tenant name part must still adhere to the
+    /// rules for tenant names, the stream name part must still adhere to the
+    /// following rules: - Must have a minimum length of 3 and a maximum length
+    /// of 100, - Must only contain lower case alphanumerical characters
+    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
+    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
+    /// letter `^[a-z]` - Must end with a lowercase letter or digit
+    /// `[a-z0-9]$`\n",
+    ///  "type": "string",
+    ///  "pattern":
+    /// "^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,
+    /// 98}[a-z0-9]$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub struct ManagedStreamId(String);
+    impl std::ops::Deref for ManagedStreamId {
+        type Target = String;
+        fn deref(&self) -> &String {
+            &self.0
+        }
+    }
+
+    impl From<ManagedStreamId> for String {
+        fn from(value: ManagedStreamId) -> Self {
+            value.0
+        }
+    }
+
+    impl From<&ManagedStreamId> for ManagedStreamId {
+        fn from(value: &ManagedStreamId) -> Self {
+            value.clone()
+        }
+    }
+
+    impl std::str::FromStr for ManagedStreamId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            if regress::Regex::new(
+                "^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
+            )
+            .unwrap()
+            .find(value)
+            .is_none()
+            {
+                return Err ("doesn't match pattern \"^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for ManagedStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for ManagedStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for ManagedStreamId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl<'de> serde::Deserialize<'de> for ManagedStreamId {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de>,
+        {
+            String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+
     ///ManagedTenant
     ///
     /// <details><summary>JSON schema</summary>
@@ -5674,6 +6226,573 @@ pub mod types {
     }
 
     impl std::convert::TryFrom<String> for PortMappingTls {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///A public stream.  A stream that can be shared between different tenants
+    /// within the DSH platform, and is accessible over the MQTT protocol
+    /// adapter. A public stream requires a stream contract.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A public stream.  A stream that can be shared between different tenants within the DSH platform, and is accessible over the MQTT protocol adapter. A public stream requires a stream contract.\n",
+    ///  "examples": [
+    ///    [
+    ///      {
+    ///        "$ref":
+    /// "#/components/examples/publicManagedStreamWithTopicLevelPartitioner"
+    ///      },
+    ///      {
+    ///        "$ref":
+    /// "#/components/examples/publicManagedStreamWithDefaultKafkaPartitioner"
+    ///      }
+    ///    ]
+    ///  ],
+    ///  "type": "object",
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/Topic"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/PublicManagedStream_allOf"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct PublicManagedStream {
+        pub contract: PublicManagedStreamContract,
+        #[serde(
+            rename = "kafkaProperties",
+            default,
+            skip_serializing_if = "std::collections::HashMap::is_empty"
+        )]
+        pub kafka_properties: std::collections::HashMap<String, String>,
+        ///For public streams, the value of `kind` must be `public`
+        pub kind: PublicManagedStreamKind,
+        pub partitions: i64,
+        #[serde(rename = "replicationFactor")]
+        pub replication_factor: i64,
+    }
+
+    impl From<&PublicManagedStream> for PublicManagedStream {
+        fn from(value: &PublicManagedStream) -> Self {
+            value.clone()
+        }
+    }
+
+    ///PublicManagedStreamAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "contract",
+    ///    "kind"
+    ///  ],
+    ///  "properties": {
+    ///    "contract": {
+    ///      "$ref": "#/components/schemas/PublicManagedStreamContract"
+    ///    },
+    ///    "kind": {
+    ///      "description": "For public streams, the value of `kind` must be
+    /// `public`",
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "public"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct PublicManagedStreamAllOf {
+        pub contract: PublicManagedStreamContract,
+        ///For public streams, the value of `kind` must be `public`
+        pub kind: PublicManagedStreamAllOfKind,
+    }
+
+    impl From<&PublicManagedStreamAllOf> for PublicManagedStreamAllOf {
+        fn from(value: &PublicManagedStreamAllOf) -> Self {
+            value.clone()
+        }
+    }
+
+    ///For public streams, the value of `kind` must be `public`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "For public streams, the value of `kind` must be
+    /// `public`",
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "public"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum PublicManagedStreamAllOfKind {
+        #[serde(rename = "public")]
+        Public,
+    }
+
+    impl From<&PublicManagedStreamAllOfKind> for PublicManagedStreamAllOfKind {
+        fn from(value: &PublicManagedStreamAllOfKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for PublicManagedStreamAllOfKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Public => "public".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for PublicManagedStreamAllOfKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "public" => Ok(Self::Public),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for PublicManagedStreamAllOfKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for PublicManagedStreamAllOfKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for PublicManagedStreamAllOfKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///The stream contract for a public stream.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The stream contract for a public stream.",
+    ///  "examples": [
+    ///    [
+    ///      {
+    ///        "$ref":
+    /// "#/components/examples/publicManagedStreamWithTopicLevelPartitioner"
+    ///      },
+    ///      {
+    ///        "$ref":
+    /// "#/components/examples/publicManagedStreamWithDefaultKafkaPartitioner"
+    ///      }
+    ///    ]
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "canBeRetained",
+    ///    "partitioner"
+    ///  ],
+    ///  "properties": {
+    ///    "canBeRetained": {
+    ///      "description": "Whether MQTT records can have the \"retained\"
+    /// flag.",
+    ///      "type": "boolean"
+    ///    },
+    ///    "partitioner": {
+    ///      "description": "The partitioner used to partition messages across
+    /// different kafka partitions.",
+    ///      "oneOf": [
+    ///        {
+    ///          "$ref":
+    /// "#/components/schemas/PublicManagedStreamTopicLevelPartitioner"
+    ///        },
+    ///        {
+    ///          "$ref":
+    /// "#/components/schemas/PublicManagedStreamKafkaDefaultPartitioner"
+    ///        }
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct PublicManagedStreamContract {
+        ///Whether MQTT records can have the "retained" flag.
+        #[serde(rename = "canBeRetained")]
+        pub can_be_retained: bool,
+        ///The partitioner used to partition messages across different kafka
+        /// partitions.
+        pub partitioner: PublicManagedStreamContractPartitioner,
+    }
+
+    impl From<&PublicManagedStreamContract> for PublicManagedStreamContract {
+        fn from(value: &PublicManagedStreamContract) -> Self {
+            value.clone()
+        }
+    }
+
+    ///The partitioner used to partition messages across different kafka
+    /// partitions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The partitioner used to partition messages across
+    /// different kafka partitions.",
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref":
+    /// "#/components/schemas/PublicManagedStreamTopicLevelPartitioner"
+    ///    },
+    ///    {
+    ///      "$ref":
+    /// "#/components/schemas/PublicManagedStreamKafkaDefaultPartitioner"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(untagged)]
+    pub enum PublicManagedStreamContractPartitioner {
+        TopicLevelPartitioner(PublicManagedStreamTopicLevelPartitioner),
+        KafkaDefaultPartitioner(PublicManagedStreamKafkaDefaultPartitioner),
+    }
+
+    impl From<&PublicManagedStreamContractPartitioner> for PublicManagedStreamContractPartitioner {
+        fn from(value: &PublicManagedStreamContractPartitioner) -> Self {
+            value.clone()
+        }
+    }
+
+    impl From<PublicManagedStreamTopicLevelPartitioner> for PublicManagedStreamContractPartitioner {
+        fn from(value: PublicManagedStreamTopicLevelPartitioner) -> Self {
+            Self::TopicLevelPartitioner(value)
+        }
+    }
+
+    impl From<PublicManagedStreamKafkaDefaultPartitioner> for PublicManagedStreamContractPartitioner {
+        fn from(value: PublicManagedStreamKafkaDefaultPartitioner) -> Self {
+            Self::KafkaDefaultPartitioner(value)
+        }
+    }
+
+    ///PublicManagedStreamKafkaDefaultPartitioner
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    {
+    ///      "$ref": "#/components/examples/defaultKafkaPartitioner"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "kind"
+    ///  ],
+    ///  "properties": {
+    ///    "kind": {
+    ///      "examples": [
+    ///        "kafkaDefault"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "kafkaDefault"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct PublicManagedStreamKafkaDefaultPartitioner {
+        pub kind: PublicManagedStreamKafkaDefaultPartitionerKind,
+    }
+
+    impl From<&PublicManagedStreamKafkaDefaultPartitioner>
+        for PublicManagedStreamKafkaDefaultPartitioner
+    {
+        fn from(value: &PublicManagedStreamKafkaDefaultPartitioner) -> Self {
+            value.clone()
+        }
+    }
+
+    ///PublicManagedStreamKafkaDefaultPartitionerKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "kafkaDefault"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "kafkaDefault"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum PublicManagedStreamKafkaDefaultPartitionerKind {
+        #[serde(rename = "kafkaDefault")]
+        KafkaDefault,
+    }
+
+    impl From<&PublicManagedStreamKafkaDefaultPartitionerKind>
+        for PublicManagedStreamKafkaDefaultPartitionerKind
+    {
+        fn from(value: &PublicManagedStreamKafkaDefaultPartitionerKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for PublicManagedStreamKafkaDefaultPartitionerKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::KafkaDefault => "kafkaDefault".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for PublicManagedStreamKafkaDefaultPartitionerKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "kafkaDefault" => Ok(Self::KafkaDefault),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for PublicManagedStreamKafkaDefaultPartitionerKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for PublicManagedStreamKafkaDefaultPartitionerKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for PublicManagedStreamKafkaDefaultPartitionerKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///For public streams, the value of `kind` must be `public`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "For public streams, the value of `kind` must be
+    /// `public`",
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "public"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum PublicManagedStreamKind {
+        #[serde(rename = "public")]
+        Public,
+    }
+
+    impl From<&PublicManagedStreamKind> for PublicManagedStreamKind {
+        fn from(value: &PublicManagedStreamKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for PublicManagedStreamKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::Public => "public".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for PublicManagedStreamKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "public" => Ok(Self::Public),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for PublicManagedStreamKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for PublicManagedStreamKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for PublicManagedStreamKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///PublicManagedStreamTopicLevelPartitioner
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    {
+    ///      "$ref": "#/components/examples/topicLevelPartitioner"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "kind",
+    ///    "topicLevel"
+    ///  ],
+    ///  "properties": {
+    ///    "kind": {
+    ///      "examples": [
+    ///        "topicLevel"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "topicLevel"
+    ///      ]
+    ///    },
+    ///    "topicLevel": {
+    ///      "examples": [
+    ///        2
+    ///      ],
+    ///      "type": "integer"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct PublicManagedStreamTopicLevelPartitioner {
+        pub kind: PublicManagedStreamTopicLevelPartitionerKind,
+        #[serde(rename = "topicLevel")]
+        pub topic_level: i64,
+    }
+
+    impl From<&PublicManagedStreamTopicLevelPartitioner> for PublicManagedStreamTopicLevelPartitioner {
+        fn from(value: &PublicManagedStreamTopicLevelPartitioner) -> Self {
+            value.clone()
+        }
+    }
+
+    ///PublicManagedStreamTopicLevelPartitionerKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "topicLevel"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "topicLevel"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    pub enum PublicManagedStreamTopicLevelPartitionerKind {
+        #[serde(rename = "topicLevel")]
+        TopicLevel,
+    }
+
+    impl From<&PublicManagedStreamTopicLevelPartitionerKind>
+        for PublicManagedStreamTopicLevelPartitionerKind
+    {
+        fn from(value: &PublicManagedStreamTopicLevelPartitionerKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ToString for PublicManagedStreamTopicLevelPartitionerKind {
+        fn to_string(&self) -> String {
+            match *self {
+                Self::TopicLevel => "topicLevel".to_string(),
+            }
+        }
+    }
+
+    impl std::str::FromStr for PublicManagedStreamTopicLevelPartitionerKind {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+            match value {
+                "topicLevel" => Ok(Self::TopicLevel),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl std::convert::TryFrom<&str> for PublicManagedStreamTopicLevelPartitionerKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<&String> for PublicManagedStreamTopicLevelPartitionerKind {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl std::convert::TryFrom<String> for PublicManagedStreamTopicLevelPartitionerKind {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
@@ -6810,7 +7929,7 @@ pub mod types {
 ///
 ///Resource management API for DSH
 ///
-///Version: 1.7.0
+///Version: 1.8.0
 pub struct Client {
     pub(crate) baseurl: String,
     pub(crate) client: reqwest::Client,
@@ -6863,7 +7982,7 @@ impl Client {
     /// This string is pulled directly from the source OpenAPI
     /// document and may be in any format the API selects.
     pub fn api_version(&self) -> &'static str {
-        "1.7.0"
+        "1.8.0"
     }
 }
 
@@ -9524,12 +10643,12 @@ impl Client {
 
     ///generate new client secret for a tenant
     ///
-    ///Sends a `GET` request to `/robot/{tenant}/generate-secret`
+    ///Sends a `POST` request to `/robot/{tenant}/generate-secret`
     ///
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn robot_get_robot_by_tenant_generate_secret<'a>(
+    pub async fn robot_post_robot_by_tenant_generate_secret<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
@@ -9544,7 +10663,7 @@ impl Client {
         #[allow(unused_mut)]
         let mut request = self
             .client
-            .get(url)
+            .post(url)
             .header(
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
@@ -11344,6 +12463,616 @@ impl Client {
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
             400u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of streams managed by the managing tenant
+    ///
+    ///Sends a `GET` request to `/manage/{manager}/stream`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_get_manage_by_manager_stream<'a>(
+        &'a self,
+        manager: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<Vec<types::ManagedStreamId>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Get the configuration for a public managed stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/public/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_get_manage_by_manager_stream_public_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedPublicStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::PublicManagedStream>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Create a public managed stream
+    ///
+    ///Sends a `POST` request to
+    /// `/manage/{manager}/stream/public/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`
+    pub async fn managed_streams_post_manage_by_manager_stream_public_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedPublicStreamId,
+        authorization: &'a str,
+        body: &'a types::PublicManagedStream,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .post(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            400u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Delete a public managed stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/public/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_delete_manage_by_manager_stream_public_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedPublicStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Get the configuration for an internal managed stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_get_manage_by_manager_stream_internal_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedInternalStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::InternalManagedStream>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Create an internal managed stream
+    ///
+    ///Sends a `POST` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`
+    pub async fn managed_streams_post_manage_by_manager_stream_internal_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedInternalStreamId,
+        authorization: &'a str,
+        body: &'a types::InternalManagedStream,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .post(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            400u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Delete an internal managed stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_delete_manage_by_manager_stream_internal_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedInternalStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of all tenants that have write access to the stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/{streamId}/access/write`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_get_manage_by_manager_stream_by_streamid_access_write<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/{}/access/write",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Grant the tenant write access to the stream
+    ///
+    ///Sends a `PUT` request to
+    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_put_manage_by_manager_stream_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.put(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Revoke write access for the tenant on the stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Check whether the tenant has write access to the stream
+    ///
+    ///Sends a `HEAD` request to
+    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_head_manage_by_manager_stream_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.head(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            204u16 => Ok(ResponseValue::empty(response)),
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of all tenants that have read access to the stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/{streamId}/access/read`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_get_manage_by_manager_stream_by_streamid_access_read<'a>(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/{}/access/read",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Grant the tenant write access to the stream
+    ///
+    ///Sends a `PUT` request to
+    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_put_manage_by_manager_stream_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.put(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Revoke read access for the tenant on the stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Check whether the tenant has read access to the stream
+    ///
+    ///Sends a `HEAD` request to
+    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_head_manage_by_manager_stream_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.head(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            204u16 => Ok(ResponseValue::empty(response)),
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
             _ => Err(Error::UnexpectedResponse(response)),
         }
     }
