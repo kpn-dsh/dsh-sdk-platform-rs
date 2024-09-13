@@ -78,13 +78,13 @@ impl Platform {
     /// # use dsh_sdk::Platform;
     /// let platform = Platform::NpLz;
     /// let endpoint = platform.endpoint_rest_access_token();
-    /// assert_eq!(endpoint, "https://auth.lz.lz-cp.dsh.np.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token");
+    /// assert_eq!(endpoint, "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token");
     /// ```
     pub fn endpoint_rest_access_token(&self) -> &str {
         match self {
             Self::Prod =>   "https://auth.prod.cp.kpn-dsh.com/auth/realms/tt-dsh/protocol/openid-connect/token",
-            Self::NpLz =>   "https://auth.lz.lz-cp.dsh.np.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token",
-            Self::ProdLz => "https://auth.lz.lz-cp.dsh.np.aws.kpn.com/auth/realms/prod-lz-dsh/protocol/openid-connect/token",
+            Self::NpLz =>   "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token",
+            Self::ProdLz => "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token",
             Self::ProdAz => "https://auth.prod.cp.kpn-dsh.com/auth/realms/prod-azure-dsh/protocol/openid-connect/token",
             Self::Poc =>    "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token", 
         }
