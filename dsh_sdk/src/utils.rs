@@ -2,7 +2,7 @@
 
 use super::{VAR_APP_ID, VAR_DSH_TENANT_NAME};
 use crate::error::DshError;
-use log::{debug, warn};
+use log::{debug, info, warn};
 use std::env;
 
 /// Available DSH platforms plus it's related metadata
@@ -173,7 +173,7 @@ pub(crate) fn get_env_var(var_name: &str) -> Result<String, DshError> {
     match env::var(var_name) {
         Ok(value) => Ok(value),
         Err(e) => {
-            warn!("{} is not set", var_name);
+            info!("{} is not set", var_name);
             Err(e.into())
         }
     }
