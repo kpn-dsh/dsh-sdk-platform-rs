@@ -38,7 +38,7 @@ tokio-util = { version = "0.7", default-features = false, optional = true }
 [features]
 default = ["bootstrap", "graceful_shutdown", "metrics", "rdkafka-ssl"]
 
-bootstrap = ["rcgen", "serde_json", "reqwest", "tokio/rt-multi-thread"]
+bootstrap = ["rcgen", "serde_json", "reqwest", "tokio"]
 metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-ssl", "graceful_shutdown"]
 graceful_shutdown = ["tokio", "tokio-util"]
