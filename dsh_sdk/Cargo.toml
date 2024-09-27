@@ -32,13 +32,13 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", optional = true }
 sha2 = { version = "0.10", optional = true}
 thiserror = "1.0"
-tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros", "rt-multi-thread"], optional = true }
+tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], optional = true }
 tokio-util = { version = "0.7", default-features = false, optional = true }
 
 [features]
 default = ["bootstrap", "graceful_shutdown", "metrics", "rdkafka-ssl"]
 
-bootstrap = ["rcgen", "serde_json", "reqwest", "tokio"]
+bootstrap = ["rcgen", "serde_json", "reqwest", "tokio/rt-multi-thread"]
 metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-ssl", "graceful_shutdown"]
 graceful_shutdown = ["tokio", "tokio-util"]
