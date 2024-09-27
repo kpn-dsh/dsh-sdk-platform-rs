@@ -116,7 +116,7 @@ impl Properties {
     /// # }
     /// ```
     pub fn get() -> &'static Self {
-        PROPERTIES.get_or_init(Self::init)
+        PROPERTIES.get_or_init(|| tokio::task::block_in_place(|| Self::init()))
     }
 
     /// Initialize the properties and bootstrap to DSH
