@@ -151,6 +151,39 @@ impl RestTokenFetcher {
         }
     }
 
+    /// Create a new instance of the token fetcher with custom reqwest client
+    ///
+    /// ## Example
+    /// ```no_run
+    /// use dsh_sdk::{RestTokenFetcher, Platform};
+    /// use dsh_rest_api_client::Client;
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let platform = Platform::NpLz;
+    ///     let client_id = platform.rest_client_id("my-tenant");
+    ///     let client_secret = "my-secret".to_string();
+    ///     let client = reqwest::Client::new();
+    ///     let token_fetcher = RestTokenFetcher::new_with_client(client_id, client_secret, platform.endpoint_rest_access_token().to_string(), client);
+    ///     let token = token_fetcher.get_token().await.unwrap();
+    /// }
+    /// ```
+    pub fn new_with_client(
+        client_id: String,
+        client_secret: String,
+        auth_url: String,
+        client: reqwest::Client,
+    ) -> Self {
+        Self {
+            access_token: Mutex::new(AccessToken::default()),
+            fetched_at: Mutex::new(Instant::now()),
+            client_id,
+            client_secret,
+            client,
+            auth_url,
+        }
+    }
+
     /// Get token from the token fetcher
     ///
     /// If the cached token is not valid, it will fetch a new token from the server.
@@ -236,6 +269,7 @@ impl Debug for RestTokenFetcher {
 
 /// Builder for the token fetcher
 pub struct RestTokenFetcherBuilder {
+    client: Option<reqwest::Client>,
     client_id: Option<String>,
     client_secret: Option<String>,
     platform: Platform,
@@ -246,6 +280,7 @@ impl RestTokenFetcherBuilder {
     /// Get a new instance of the ClientBuilder
     pub fn new(platform: Platform) -> Self {
         Self {
+            client: None,
             client_id: None,
             client_secret: None,
             platform,
@@ -274,6 +309,12 @@ impl RestTokenFetcherBuilder {
     /// `Tenant_name` does have precedence over `client_id`.
     pub fn tenant_name(mut self, tenant_name: String) -> Self {
         self.tenant_name = Some(tenant_name);
+        self
+    }
+
+    /// Use a custom reqwest client for the token fetcher client
+    pub fn client(mut self, client: reqwest::Client) -> Self {
+        self.client = Some(client);
         self
     }
 
@@ -306,10 +347,12 @@ impl RestTokenFetcherBuilder {
                     .map(|tenant_name| self.platform.rest_client_id(tenant_name))
             })
             .ok_or(DshRestTokenError::UnknownClientId)?;
-        let token_fetcher = RestTokenFetcher::new(
+        let client = self.client.unwrap_or_else(|| reqwest::Client::new());
+        let token_fetcher = RestTokenFetcher::new_with_client(
             client_id,
             client_secret,
             self.platform.endpoint_rest_access_token().to_string(),
+            client,
         );
         Ok(token_fetcher)
     }
