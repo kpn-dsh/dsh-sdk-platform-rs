@@ -43,19 +43,22 @@ jobs:
         run: cargo test --all-features -- --ignored || true
         env:
           RUST_BACKTRACE: 1
-        if: matrix.version == 'nightly'
       - name: check formatting
         run: cargo fmt -- --check
       - name: install audit
         run: cargo install cargo-audit
+        if: matrix.version == 'stable'
       - name: audit check
         run: cargo audit
+        if: matrix.version == 'stable'
       - name: cargo build doc
         run: cargo doc --all-features
       - name: install cargo-hack
         run: cargo install cargo-hack --locked
+        if: matrix.version == 'stable'
       - name: cargo check all features
         run: cargo hack check --feature-powerset --no-dev-deps
+        if: matrix.version == 'stable'
   coverage:
     runs-on: ubuntu-latest
     name: ubuntu / stable / coverage
