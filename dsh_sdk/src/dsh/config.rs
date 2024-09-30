@@ -112,7 +112,6 @@ impl ProducerConfig {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -45,7 +45,7 @@ graceful_shutdown = ["tokio", "tokio-util"]
 rdkafka-ssl-vendored = ["rdkafka", "rdkafka/ssl-vendored"]
 rdkafka-ssl = ["rdkafka", "rdkafka/ssl"]
 rest-token-fetcher = ["reqwest"] 
-mqtt-token-fetcher = ["base64","dashmap","reqwest","serde_json","sha2"]
+mqtt-token-fetcher = ["base64","dashmap","reqwest","serde_json","sha2","tokio/sync"]
 
 [dev-dependencies]
 mockito = "1.1.1"
