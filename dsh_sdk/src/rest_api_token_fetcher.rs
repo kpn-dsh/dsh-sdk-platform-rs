@@ -544,6 +544,23 @@ mod test {
     }
 
     #[test]
+    fn test_token_fetcher_builder_custom_client() {
+        let platform = Platform::NpLz;
+        let client_id = "robot:dev-lz-dsh:my-tenant";
+        let client_secret = "secret";
+        let custom_client = reqwest::Client::builder().use_rustls_tls().build().unwrap();
+        let tf = RestTokenFetcherBuilder::new(platform)
+            .client_id(client_id.to_string())
+            .client_secret(client_secret.to_string())
+            .client(custom_client.clone())
+            .build()
+            .unwrap();
+        assert_eq!(tf.client_id, client_id);
+        assert_eq!(tf.client_secret, client_secret);
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+    }
+
+    #[test]
     fn test_token_fetcher_builder_client_id_precedence() {
         let platform = Platform::NpLz;
         let tenant = "my-tenant";
