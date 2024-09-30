@@ -407,8 +407,7 @@ impl RestToken {
         api_key: &str,
         auth_url: &str,
     ) -> Result<RestToken, DshError> {
-        let raw_token = Self::fetch_token(client, tenant, api_key, auth_url)
-            .await?;
+        let raw_token = Self::fetch_token(client, tenant, api_key, auth_url).await?;
 
         let header_payload = extract_header_and_payload(&raw_token)?;
 
@@ -513,8 +512,8 @@ fn decode_base64(payload: &str) -> Result<Vec<u8>, DshError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio::sync::Mutex;
     use mockito::Matcher;
+    use tokio::sync::Mutex;
 
     fn create_valid_fetcher() -> MqttTokenFetcher {
         let exp_time = SystemTime::now()
@@ -592,14 +591,12 @@ mod tests {
             tenant_name: "test_tenant".to_string(),
             rest_api_key: "test_api_key".to_string(),
             mqtt_token: DashMap::new(),
-            rest_auth_url:  mockito_server.url() + "/rest_auth_url",
-            mqtt_auth_url:  mockito_server.url() + "/mqtt_auth_url",
+            rest_auth_url: mockito_server.url() + "/rest_auth_url",
+            mqtt_auth_url: mockito_server.url() + "/mqtt_auth_url",
             rest_token: Mutex::new(rest_token),
         };
 
-        let result = fetcher
-            .fetch_new_mqtt_token("test_client_id", None)
-            .await;
+        let result = fetcher.fetch_new_mqtt_token("test_client_id", None).await;
         println!("{:?}", result);
         assert!(result.is_ok());
         let mqtt_token = result.unwrap();
@@ -631,7 +628,8 @@ mod tests {
     #[tokio::test]
     async fn test_send_success() {
         let mut mockito_server = mockito::Server::new_async().await;
-        let _m = mockito_server.mock("POST", "/mqtt_auth_url")
+        let _m = mockito_server
+            .mock("POST", "/mqtt_auth_url")
             .match_header("Authorization", "Bearer test_token")
             .match_body(Matcher::Json(json!({"key": "value"})))
             .with_status(200)
@@ -641,13 +639,14 @@ mod tests {
         let client = reqwest::Client::new();
         let payload = json!({"key": "value"});
         let request = MqttTokenRequest::new("test_client", "test_tenant", None).unwrap();
-        let result = request.send(
-            &client,
-            &format!("{}/mqtt_auth_url", mockito_server.url()),
-            "Bearer test_token",
-            &payload,
-        )
-        .await;
+        let result = request
+            .send(
+                &client,
+                &format!("{}/mqtt_auth_url", mockito_server.url()),
+                "Bearer test_token",
+                &payload,
+            )
+            .await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "success_response");
@@ -656,7 +655,8 @@ mod tests {
     #[tokio::test]
     async fn test_send_failure() {
         let mut mockito_server = mockito::Server::new_async().await;
-        let _m = mockito_server.mock("POST", "/mqtt_auth_url")
+        let _m = mockito_server
+            .mock("POST", "/mqtt_auth_url")
             .match_header("Authorization", "Bearer test_token")
             .match_body(Matcher::Json(json!({"key": "value"})))
             .with_status(400)
@@ -666,16 +666,22 @@ mod tests {
         let client = reqwest::Client::new();
         let payload = json!({"key": "value"});
         let request = MqttTokenRequest::new("test_client", "test_tenant", None).unwrap();
-        let result = request.send(
-            &client,
-            &format!("{}/mqtt_auth_url", mockito_server.url()),
-            "Bearer test_token",
-            &payload,
-        )
-        .await;
+        let result = request
+            .send(
+                &client,
+                &format!("{}/mqtt_auth_url", mockito_server.url()),
+                "Bearer test_token",
+                &payload,
+            )
+            .await;
 
         assert!(result.is_err());
-        if let Err(DshError::DshCallError { url, status_code, error_body }) = result {
+        if let Err(DshError::DshCallError {
+            url,
+            status_code,
+            error_body,
+        }) = result
+        {
             assert_eq!(url, format!("{}/mqtt_auth_url", mockito_server.url()));
             assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
             assert_eq!(error_body, "error_response");
@@ -683,8 +689,6 @@ mod tests {
             panic!("Expected DshCallError");
         }
     }
-
-
 
     #[test]
     fn test_claims_new() {
@@ -793,11 +797,11 @@ mod tests {
         assert!(result.is_err());
     }
 
-
     #[tokio::test]
     async fn test_fetch_token_success() {
         let mut mockito_server = mockito::Server::new_async().await;
-        let _m = mockito_server.mock("POST", "/auth_url")
+        let _m = mockito_server
+            .mock("POST", "/auth_url")
             .match_header("apikey", "test_api_key")
             .match_body(Matcher::Json(json!({"tenant": "test_tenant"})))
             .with_status(200)
@@ -820,13 +824,13 @@ mod tests {
     #[tokio::test]
     async fn test_fetch_token_failure() {
         let mut mockito_server = mockito::Server::new_async().await;
-        let _m = mockito_server.mock("POST", "/auth_url")
+        let _m = mockito_server
+            .mock("POST", "/auth_url")
             .match_header("apikey", "test_api_key")
             .match_body(Matcher::Json(json!({"tenant": "test_tenant"})))
             .with_status(400)
             .with_body("error_response")
             .create();
-
 
         let client = reqwest::Client::new();
         let result = RestToken::fetch_token(
@@ -838,7 +842,12 @@ mod tests {
         .await;
 
         assert!(result.is_err());
-        if let Err(DshError::DshCallError { url, status_code, error_body }) = result {
+        if let Err(DshError::DshCallError {
+            url,
+            status_code,
+            error_body,
+        }) = result
+        {
             assert_eq!(url, format!("{}/auth_url", mockito_server.url()));
             assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
             assert_eq!(error_body, "error_response");
