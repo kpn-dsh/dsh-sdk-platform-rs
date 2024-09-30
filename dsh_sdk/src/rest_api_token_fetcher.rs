@@ -141,14 +141,12 @@ impl RestTokenFetcher {
     /// }
     /// ```
     pub fn new(client_id: String, client_secret: String, auth_url: String) -> Self {
-        Self {
-            access_token: Mutex::new(AccessToken::default()),
-            fetched_at: Mutex::new(Instant::now()),
+        Self::new_with_client(
             client_id,
             client_secret,
-            client: reqwest::Client::new(),
             auth_url,
-        }
+            reqwest::Client::default(),
+        )
     }
 
     /// Create a new instance of the token fetcher with custom reqwest client
@@ -242,10 +240,10 @@ impl RestTokenFetcher {
             .await
             .map_err(DshRestTokenError::FailureTokenFetch)?;
         if !response.status().is_success() {
-            return Err(DshRestTokenError::StatusCode {
+            Err(DshRestTokenError::StatusCode {
                 status_code: response.status(),
                 error_body: response,
-            });
+            })
         } else {
             response
                 .json::<AccessToken>()
@@ -278,6 +276,9 @@ pub struct RestTokenFetcherBuilder {
 
 impl RestTokenFetcherBuilder {
     /// Get a new instance of the ClientBuilder
+    ///
+    /// # Arguments
+    /// * `platform` - The target platform to use for the token fetcher
     pub fn new(platform: Platform) -> Self {
         Self {
             client: None,
@@ -312,7 +313,9 @@ impl RestTokenFetcherBuilder {
         self
     }
 
-    /// Use a custom reqwest client for the token fetcher client
+    /// Provide a custom configured Reqwest client for the token
+    ///
+    /// This is optional, if not provided, a default client will be used.
     pub fn client(mut self, client: reqwest::Client) -> Self {
         self.client = Some(client);
         self
@@ -347,7 +350,7 @@ impl RestTokenFetcherBuilder {
                     .map(|tenant_name| self.platform.rest_client_id(tenant_name))
             })
             .ok_or(DshRestTokenError::UnknownClientId)?;
-        let client = self.client.unwrap_or_else(|| reqwest::Client::new());
+        let client = self.client.unwrap_or_default();
         let token_fetcher = RestTokenFetcher::new_with_client(
             client_id,
             client_secret,

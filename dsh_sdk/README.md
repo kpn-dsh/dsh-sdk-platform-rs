@@ -10,6 +10,7 @@ This library can be used to interact with the DSH Platform. It is intended to be
 - Connect to DSH 
 - Fetch Kafka Properties and certificates
 - Rest API Token Fetcher (to be used with [dsh_rest_api_client](https://crates.io/crates/dsh_rest_api_client))
+- MQTT Token Fetcher
 - Common functions 
   - Preconfigured RDKafka client config
   - Preconfigured Reqwest client config (for schema store)

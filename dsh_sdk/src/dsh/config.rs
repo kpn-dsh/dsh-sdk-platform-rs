@@ -20,7 +20,7 @@ pub struct ConsumerConfig {
 /// ## Environment variables
 /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
 /// configuring the producer via environment variables.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ProducerConfig {
     batch_num_messages: Option<i32>,
     queue_buffering_max_messages: Option<i32>,
@@ -109,17 +109,6 @@ impl ProducerConfig {
     }
     pub fn queue_buffering_max_ms(&self) -> Option<i32> {
         self.queue_buffering_max_ms
-    }
-}
-
-impl Default for ProducerConfig {
-    fn default() -> Self {
-        ProducerConfig {
-            batch_num_messages: None,
-            queue_buffering_max_messages: None,
-            queue_buffering_max_kbytes: None,
-            queue_buffering_max_ms: None,
-        }
     }
 }
 

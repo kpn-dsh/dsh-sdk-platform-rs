@@ -1,14 +1,11 @@
 //! # MQTT Token Fetcher
 //!
 //! `MqttTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
-use std::{
-    fmt::{Display, Formatter},
-    sync::Mutex,
-    time::{Duration, SystemTime, UNIX_EPOCH},
-};
+use std::fmt::{Display, Formatter};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tokio::sync::Mutex;
 
 use dashmap::DashMap;
-use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};
@@ -27,6 +24,7 @@ pub struct MqttTokenFetcher {
     rest_auth_url: String,
     mqtt_token: DashMap<String, MqttToken>, // Mapping from Client ID to MqttToken
     mqtt_auth_url: String,
+    client: reqwest::Client,
     //token_lifetime: Option<i32>, // TODO: Implement option of passing token lifetime to request token for specific duration
     // port: Port or connection_type: Connection // TODO: Platform provides two connection options, current implemetation only provides connecting over SSL, enable WebSocket too
 }
@@ -43,15 +41,82 @@ pub struct MqttTokenFetcher {
 ///
 /// Returns a `Result` containing a `MqttTokenFetcher` instance or a `DshError`.
 impl MqttTokenFetcher {
-    pub fn new(tenant_name: String, rest_api_key: String, platform: Platform) -> MqttTokenFetcher {
+    /// Constructs a new `MqttTokenFetcher`.
+    ///
+    /// # Arguments
+    ///
+    /// * `tenant_name` - The tenant name of DSH.
+    /// * `api_key` - The realted API key of tenant used for authentication to fetech Token for MQTT.
+    /// * `platform` - The target DSH platform environment.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use dsh_sdk::mqtt_token_fetcher::MqttTokenFetcher;
+    /// use dsh_sdk::Platform;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() {
+    /// let tenant_name = "test_tenant".to_string();
+    /// let api_key = "aAbB123".to_string();
+    /// let platform = Platform::NpLz;
+    ///
+    /// let fetcher = MqttTokenFetcher::new(tenant_name, api_key, platform);
+    /// let token = fetcher.get_token("test_client", None).await.unwrap();
+    /// # }
+    /// ```
+    pub fn new(tenant_name: String, api_key: String, platform: Platform) -> MqttTokenFetcher {
+        const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
+
+        let reqwest_client = reqwest::Client::builder()
+            .timeout(DEFAULT_TIMEOUT)
+            .http1_only()
+            .build()
+            .expect("Failed to build reqwest client");
+        Self::new_with_client(tenant_name, api_key, platform, reqwest_client)
+    }
+
+    /// Constructs a new `MqttTokenFetcher` with a custom reqwest client.
+    /// On this Reqwest client, you can set custom timeouts, headers, Rustls etc.
+    ///
+    /// # Arguments
+    ///
+    /// * `tenant_name` - The tenant name of DSH.
+    /// * `api_key` - The realted API key of tenant used for authentication to fetech Token for MQTT.
+    /// * `platform` - The target DSH platform environment.
+    /// * `client` - User configured reqwest client to be used for fetching tokens
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use dsh_sdk::mqtt_token_fetcher::MqttTokenFetcher;
+    /// use dsh_sdk::Platform;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() {
+    /// let tenant_name = "test_tenant".to_string();
+    /// let api_key = "aAbB123".to_string();
+    /// let platform = Platform::NpLz;
+    /// let client = reqwest::Client::new();
+    /// let fetcher = MqttTokenFetcher::new_with_client(tenant_name, api_key, platform, client);
+    /// let token = fetcher.get_token("test_client", None).await.unwrap();
+    /// # }
+    /// ```
+    pub fn new_with_client(
+        tenant_name: String,
+        api_key: String,
+        platform: Platform,
+        client: reqwest::Client,
+    ) -> MqttTokenFetcher {
         let rest_token = RestToken::default();
         Self {
             tenant_name,
-            rest_api_key,
+            rest_api_key: api_key,
             rest_token: Mutex::new(rest_token),
             rest_auth_url: platform.endpoint_rest_token().to_string(),
             mqtt_token: DashMap::new(),
             mqtt_auth_url: platform.endpoint_mqtt_token().to_string(),
+            client,
         }
     }
     /// Retrieves an MQTT token for the specified client ID.
@@ -86,6 +151,7 @@ impl MqttTokenFetcher {
             }
         }
     }
+
     /// Fetches a new MQTT token from the platform.
     ///
     /// This method handles token validation and fetching the token
@@ -94,14 +160,16 @@ impl MqttTokenFetcher {
         client_id: &str,
         claims: Option<Vec<Claims>>,
     ) -> Result<MqttToken, DshError> {
-        let mut rest_token = self
-            .rest_token
-            .lock()
-            .expect("Error during reading saved Rest Token");
+        let mut rest_token = self.rest_token.lock().await;
 
         if !rest_token.is_valid() {
-            *rest_token =
-                RestToken::get(&self.tenant_name, &self.rest_api_key, &self.rest_auth_url).await?
+            *rest_token = RestToken::get(
+                &self.client,
+                &self.tenant_name,
+                &self.rest_api_key,
+                &self.rest_auth_url,
+            )
+            .await?
         }
 
         let authorization_header = format!("Bearer {}", rest_token.raw_token);
@@ -110,7 +178,12 @@ impl MqttTokenFetcher {
         let payload = serde_json::to_value(&mqtt_token_request)?;
 
         let response = mqtt_token_request
-            .send(&self.mqtt_auth_url, &authorization_header, &payload)
+            .send(
+                &self.client,
+                &self.mqtt_auth_url,
+                &authorization_header,
+                &payload,
+            )
             .await?;
 
         MqttToken::new(response)
@@ -203,24 +276,17 @@ impl MqttTokenRequest {
         Ok(Self {
             id,
             tenant: tenant.to_string(),
-            claims: claims,
+            claims,
         })
     }
 
     async fn send(
         &self,
+        reqwest_client: &reqwest::Client,
         mqtt_auth_url: &str,
         authorization_header: &str,
         payload: &serde_json::Value,
     ) -> Result<String, DshError> {
-        const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
-
-        let reqwest_client = Client::builder()
-            .timeout(DEFAULT_TIMEOUT)
-            .http1_only()
-            .build()
-            .expect("Failed to build reqwest client");
-
         let response = reqwest_client
             .post(mqtt_auth_url)
             .header("Authorization", authorization_header)
@@ -247,7 +313,7 @@ struct MqttTokenAttributes {
     gen: i32,
     endpoint: String,
     iss: String,
-    claims: Vec<Claims>,
+    claims: Option<Vec<Claims>>,
     exp: i32,
     client_id: String,
     iat: i32,
@@ -285,6 +351,7 @@ impl MqttToken {
         Ok(token)
     }
 
+    /// Checks if the MQTT token is still valid.
     fn is_valid(&self) -> bool {
         let current_unixtime = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -334,8 +401,13 @@ impl RestToken {
     /// # Returns
     ///
     /// A Result containing the created `RestToken` or a `DshError`.
-    async fn get(tenant: &str, api_key: &str, auth_url: &str) -> Result<RestToken, DshError> {
-        let raw_token = Self::fetch_token(tenant, api_key, auth_url).await.unwrap();
+    async fn get(
+        client: &reqwest::Client,
+        tenant: &str,
+        api_key: &str,
+        auth_url: &str,
+    ) -> Result<RestToken, DshError> {
+        let raw_token = Self::fetch_token(client, tenant, api_key, auth_url).await?;
 
         let header_payload = extract_header_and_payload(&raw_token)?;
 
@@ -350,6 +422,7 @@ impl RestToken {
         Ok(token)
     }
 
+    // Checks if the REST token is still valid.
     fn is_valid(&self) -> bool {
         let current_unixtime = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -358,19 +431,15 @@ impl RestToken {
         self.exp >= current_unixtime + 5
     }
 
-    async fn fetch_token(tenant: &str, api_key: &str, auth_url: &str) -> Result<String, DshError> {
+    async fn fetch_token(
+        client: &reqwest::Client,
+        tenant: &str,
+        api_key: &str,
+        auth_url: &str,
+    ) -> Result<String, DshError> {
         let json_body = json!({"tenant": tenant});
 
-        const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
-
-        let reqwest_client = Client::builder()
-            .timeout(DEFAULT_TIMEOUT)
-            .http1_only()
-            .build()
-            .expect("Failed to build reqwest client");
-
-        let rest_client = reqwest_client;
-        let response = rest_client
+        let response = client
             .post(auth_url)
             .header("apikey", api_key)
             .json(&json_body)
@@ -443,6 +512,8 @@ fn decode_base64(payload: &str) -> Result<Vec<u8>, DshError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use mockito::Matcher;
+    use tokio::sync::Mutex;
 
     fn create_valid_fetcher() -> MqttTokenFetcher {
         let exp_time = SystemTime::now()
@@ -467,6 +538,7 @@ mod tests {
             rest_token: Mutex::new(rest_token),
             rest_auth_url: "test_auth_url".to_string(),
             mqtt_token: mqtt_token_map,
+            client: reqwest::Client::new(),
             mqtt_auth_url: "test_auth_url".to_string(),
         }
     }
@@ -483,10 +555,139 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_mqtt_token_fetcher_new_with_client() {
+        let tenant_name = "test_tenant".to_string();
+        let rest_api_key = "test_api_key".to_string();
+        let platform = Platform::NpLz;
+
+        let client = reqwest::Client::builder().use_rustls_tls().build().unwrap();
+        let fetcher =
+            MqttTokenFetcher::new_with_client(tenant_name, rest_api_key, platform, client);
+
+        assert!(fetcher.mqtt_token.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_fetch_new_mqtt_token() {
+        let mut mockito_server = mockito::Server::new_async().await;
+        let _m = mockito_server.mock("POST", "/rest_auth_url")
+            .with_status(200)
+            .with_body(r#"{"raw_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJnZW4iOjEsImVuZHBvaW50IjoidGVzdF9lbmRwb2ludCIsImlzcyI6IlN0cmluZyIsImNsYWltcyI6W3sicmVzb3VyY2UiOiJ0ZXN0IiwiYWN0aW9uIjoicHVzaCJ9XSwiZXhwIjoxLCJjbGllbnQtaWQiOiJ0ZXN0X2NsaWVudCIsImlhdCI6MCwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQifQ.WCf03qyxV1NwxXpzTYF7SyJYwB3uAkQZ7u-TVrDRJgE"}"#)
+            .create_async()
+            .await;
+        let _m2 = mockito_server.mock("POST", "/mqtt_auth_url")
+            .with_status(200)
+            .with_body(r#"{"mqtt_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJnZW4iOjEsImVuZHBvaW50IjoidGVzdF9lbmRwb2ludCIsImlzcyI6IlN0cmluZyIsImV4cCI6MSwiY2xpZW50LWlkIjoidGVzdF9jbGllbnQiLCJpYXQiOjAsInRlbmFudC1pZCI6InRlc3RfdGVuYW50In0.VwlKomR4OnLtLX-NwI-Fpol8b6t-kmptRS_vPnwNd3A"}"#)
+            .create();
+
+        let client = reqwest::Client::new();
+        let rest_token = RestToken {
+            raw_token: "initial_token".to_string(),
+            exp: 0,
+        };
+
+        let fetcher = MqttTokenFetcher {
+            client,
+            tenant_name: "test_tenant".to_string(),
+            rest_api_key: "test_api_key".to_string(),
+            mqtt_token: DashMap::new(),
+            rest_auth_url: mockito_server.url() + "/rest_auth_url",
+            mqtt_auth_url: mockito_server.url() + "/mqtt_auth_url",
+            rest_token: Mutex::new(rest_token),
+        };
+
+        let result = fetcher.fetch_new_mqtt_token("test_client_id", None).await;
+        println!("{:?}", result);
+        assert!(result.is_ok());
+        let mqtt_token = result.unwrap();
+        assert_eq!(mqtt_token.exp, 1);
+    }
+
+    #[tokio::test]
     async fn test_mqtt_token_fetcher_get_token() {
         let fetcher = create_valid_fetcher();
         let token = fetcher.get_token("test_client", None).await.unwrap();
         assert_eq!(token.raw_token, "valid.token.payload");
+    }
+
+    #[test]
+    fn test_actions_display() {
+        let action = Actions::Publish;
+        assert_eq!(action.to_string(), "Publish");
+        let action = Actions::Subscribe;
+        assert_eq!(action.to_string(), "Subscribe");
+    }
+
+    #[test]
+    fn test_token_request_new() {
+        let request = MqttTokenRequest::new("test_client", "test_tenant", None).unwrap();
+        assert_eq!(request.id.len(), 64);
+        assert_eq!(request.tenant, "test_tenant");
+    }
+
+    #[tokio::test]
+    async fn test_send_success() {
+        let mut mockito_server = mockito::Server::new_async().await;
+        let _m = mockito_server
+            .mock("POST", "/mqtt_auth_url")
+            .match_header("Authorization", "Bearer test_token")
+            .match_body(Matcher::Json(json!({"key": "value"})))
+            .with_status(200)
+            .with_body("success_response")
+            .create();
+
+        let client = reqwest::Client::new();
+        let payload = json!({"key": "value"});
+        let request = MqttTokenRequest::new("test_client", "test_tenant", None).unwrap();
+        let result = request
+            .send(
+                &client,
+                &format!("{}/mqtt_auth_url", mockito_server.url()),
+                "Bearer test_token",
+                &payload,
+            )
+            .await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "success_response");
+    }
+
+    #[tokio::test]
+    async fn test_send_failure() {
+        let mut mockito_server = mockito::Server::new_async().await;
+        let _m = mockito_server
+            .mock("POST", "/mqtt_auth_url")
+            .match_header("Authorization", "Bearer test_token")
+            .match_body(Matcher::Json(json!({"key": "value"})))
+            .with_status(400)
+            .with_body("error_response")
+            .create();
+
+        let client = reqwest::Client::new();
+        let payload = json!({"key": "value"});
+        let request = MqttTokenRequest::new("test_client", "test_tenant", None).unwrap();
+        let result = request
+            .send(
+                &client,
+                &format!("{}/mqtt_auth_url", mockito_server.url()),
+                "Bearer test_token",
+                &payload,
+            )
+            .await;
+
+        assert!(result.is_err());
+        if let Err(DshError::DshCallError {
+            url,
+            status_code,
+            error_body,
+        }) = result
+        {
+            assert_eq!(url, format!("{}/mqtt_auth_url", mockito_server.url()));
+            assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
+            assert_eq!(error_body, "error_response");
+        } else {
+            panic!("Expected DshCallError");
+        }
     }
 
     #[test]
@@ -594,5 +795,64 @@ mod tests {
         let raw = "header";
         let result = extract_header_and_payload(raw);
         assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_fetch_token_success() {
+        let mut mockito_server = mockito::Server::new_async().await;
+        let _m = mockito_server
+            .mock("POST", "/auth_url")
+            .match_header("apikey", "test_api_key")
+            .match_body(Matcher::Json(json!({"tenant": "test_tenant"})))
+            .with_status(200)
+            .with_body("test_token")
+            .create();
+
+        let client = reqwest::Client::new();
+        let result = RestToken::fetch_token(
+            &client,
+            "test_tenant",
+            "test_api_key",
+            &format!("{}/auth_url", mockito_server.url()),
+        )
+        .await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "test_token");
+    }
+
+    #[tokio::test]
+    async fn test_fetch_token_failure() {
+        let mut mockito_server = mockito::Server::new_async().await;
+        let _m = mockito_server
+            .mock("POST", "/auth_url")
+            .match_header("apikey", "test_api_key")
+            .match_body(Matcher::Json(json!({"tenant": "test_tenant"})))
+            .with_status(400)
+            .with_body("error_response")
+            .create();
+
+        let client = reqwest::Client::new();
+        let result = RestToken::fetch_token(
+            &client,
+            "test_tenant",
+            "test_api_key",
+            &format!("{}/auth_url", mockito_server.url()),
+        )
+        .await;
+
+        assert!(result.is_err());
+        if let Err(DshError::DshCallError {
+            url,
+            status_code,
+            error_body,
+        }) = result
+        {
+            assert_eq!(url, format!("{}/auth_url", mockito_server.url()));
+            assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
+            assert_eq!(error_body, "error_response");
+        } else {
+            panic!("Expected DshCallError");
+        }
     }
 }
