@@ -194,14 +194,8 @@ impl Dlq {
             .generate_dlq_headers(dlq_message)
             .to_owned_headers();
         let topic = self.dlq_topic(dlq_message.retryable);
-        let key: &[u8] = match orignal_kafka_msg.key() {
-            Some(key) => key,
-            None => &[],
-        };
-        let payload = match orignal_kafka_msg.payload() {
-            Some(payload) => payload,
-            None => &[],
-        };
+        let key: &[u8] = orignal_kafka_msg.key().unwrap_or_default();
+        let payload = orignal_kafka_msg.payload().unwrap_or_default();
         debug!("Sending message to DLQ topic: {}", topic);
         let record = FutureRecord::to(topic)
             .payload(payload)
@@ -315,13 +309,10 @@ impl HashMapToKafkaHeaders for HashMap<&str, Option<Vec<u8>>> {
         // Convert to OwnedHeaders
         let mut owned_headers = OwnedHeaders::new_with_capacity(self.len());
         for header in self {
-            let value = match header.1 {
-                Some(value) => Some(value.as_slice()),
-                None => None,
-            };
+            let value = header.1.as_ref().map(|value| value.as_slice());
             owned_headers = owned_headers.insert(Header {
                 key: header.0,
-                value: value,
+                value,
             });
         }
         owned_headers
