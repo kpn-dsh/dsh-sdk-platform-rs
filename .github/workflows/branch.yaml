@@ -42,14 +42,18 @@ jobs:
         run: cargo test --all-features -- --ignored || true
         env:
           RUST_BACKTRACE: 1
-        if: matrix.version == 'nightly'
       - name: check formatting
         run: cargo fmt -- --check
+        if: matrix.version == 'stable'
       - name: install audit
         run: cargo install cargo-audit
+        if: matrix.version == 'stable'
       - name: audit check
         run: cargo audit
+        if: matrix.version == 'stable'
       - name: install cargo-hack
         run: cargo install cargo-hack --locked
+        if: matrix.version == 'stable'
       - name: cargo check all features
         run: cargo hack check --feature-powerset --no-dev-deps
+        if: matrix.version == 'stable'
