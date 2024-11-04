@@ -1,0 +1,165 @@
+tags:
+  - name: data catalog
+    description: Manage opt-in for data catalog assets.
+
+# /resources/v0/allocation/:tenant/datacatalog/asset/:kind/:name/configuration
+
+components:
+  parameters:
+    Tenant:
+      in: path
+      name: tenant
+      schema:
+        type: string
+      required: true
+      description: tenant name
+    DataCatalogAssetKind:
+      in: path
+      name: kind
+      schema:
+        type: string
+        enum : ["bucket","writablestream"]
+      required: true
+      description: data catalog asset kind
+    DataCatalogAssetName:
+      in: path
+      name: name
+      schema:
+        type: string
+      required: true
+      description: data catalog asset name
+      example: my-bucket
+
+  examples:
+    dataCatalogAssetBucket:
+      description: an example data catalog asset for a bucket
+      value:
+        kind: bucket
+        name: my-bucket
+    dataCatalogAssetWritableStream:
+      description: an example data catalog asset for a public writablestream
+      value:
+        kind: writablestream
+        name: stream.my-stream
+
+    dataCatalogAssetStatus:
+      description: an example DataCatalogAssetStatus
+      value:
+        configuration:
+          versioned: false
+          encrypted: true
+        actual:
+          versioned: false
+          encrypted: true
+        status:
+          provisioned: true
+          notifications: [ ]
+
+  schemas:
+    AllocationStatus:
+      $ref: "openapi-common.yml#/components/schemas/AllocationStatus"
+    DataCatalogAsset:
+      type: object
+      properties:
+        kind:
+          type: string
+        name:
+          type: string
+      required: [ kind, name ]
+    DataCatalogAssetStatus:
+      type: object
+      properties:
+        configuration:
+          $ref: "#/components/schemas/DataCatalogAsset"
+        actual:
+          $ref: "#/components/schemas/DataCatalogAsset"
+        status:
+          $ref: "#/components/schemas/AllocationStatus"
+      required: [ status ]
+
+paths:
+  #######################################
+  # DATACATALOGASSETS                   #
+  #######################################
+  allTenantDataCatalogAssets:  # /allocation/{tenant}/datacatalog/asset/{kind}:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/DataCatalogAssetKind"
+    get:
+      summary: lists all data catalog assets of a tenant for the given kind
+      tags:
+        - data catalog
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-ChildList'
+
+  dataCatalogAssetOfTenant:  # /allocation/{tenant}/datacatalog/asset/{kind}/{name}:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/DataCatalogAssetKind"
+      - $ref: "#/components/parameters/DataCatalogAssetName"
+    get:
+      summary: shows overall status of a datacatalog asset allocation
+      tags:
+        - data catalog
+      responses:
+        '200':
+          description: the overall status of a specific data catalog asset allocation along with the asset's configured and actual state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataCatalogAssetStatus"
+              examples:
+                dataCatalogAssetStatus:
+                  $ref: "#/components/examples/dataCatalogAssetStatus"
+
+  dataCatalogAssetConfiguration:  # /allocation/{tenant}/datacatalog/asset/{kind}/{name}/configuration:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/DataCatalogAssetKind"
+      - $ref: "#/components/parameters/DataCatalogAssetName"
+
+    get:
+      summary: gets configuration of a data catalog asset allocation
+      tags:
+        - data catalog
+      responses:
+        '200':
+          description: configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataCatalogAsset"
+              examples:
+                bucket:
+                  $ref: '#/components/examples/dataCatalogAssetBucket'
+                writablestream:
+                  $ref: '#/components/examples/dataCatalogAssetWritableStream'
+
+    delete:
+      tags:
+        - data catalog
+      summary: deletes a dataCatalogAsset
+      responses:
+        '202':
+          description: delete request has been accepted
+
+    put:
+      tags:
+        - data catalog
+      summary: creates dataCatalogAsset configuration.
+      requestBody:
+        description: the JSON representation of the resource
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataCatalogAsset'
+            examples:
+              bucket:
+                $ref: '#/components/examples/dataCatalogAssetBucket'
+              writablestream:
+                $ref: '#/components/examples/dataCatalogAssetWritableStream'
+      responses:
+        '202':
+          description: create/update request has been accepted

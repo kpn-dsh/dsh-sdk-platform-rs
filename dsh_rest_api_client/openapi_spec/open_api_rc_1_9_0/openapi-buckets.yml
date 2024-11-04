@@ -1,0 +1,731 @@
+tags:
+  - name: bucket
+    description: Manage object store resources.
+
+  - name: bucket watch
+    description: Manage object store change events.
+
+  - name: bucket access
+    description: Manage the sharing of object stores with other tenants and with the outside world.
+
+  - name: third party bucket
+    description: Manage access to the object stores of other tenants.
+
+components:
+
+  parameters:
+    Tenant:
+      in: path
+      name: tenant
+      schema:
+        type: string
+      required: true
+      description: tenant name
+    BucketAccessName:
+      in: path
+      name: name
+      schema:
+        type: string
+      required: true
+      description: bucket access name
+      example: twitter-app-bucket-readonly
+    BucketId:
+      in: path
+      name: id
+      schema:
+        type: string
+      required: true
+      description: bucket name
+      example: twitter-app-bucket
+    ThirdPartyBucketId:
+      in: path
+      name: id
+      schema:
+        type: string
+      required: true
+      description: your name of choice for the third party bucket
+      example: bucket-shared-with-me
+
+
+  examples:
+    bucket:
+      description: an example bucket
+      value:
+        versioned: false
+        encrypted: true
+    bucketStatus:
+      description: an example BucketStatus
+      value:
+        configuration:
+          versioned: false
+          encrypted: true
+        actual:
+          versioned: false
+          encrypted: true
+        status:
+          provisioned: true
+          notifications: [ ]
+    bucketWatchStatus:
+      description: an example BucketWatchStatus
+      value:
+        configuration:
+          bucket: twitter-app-bucket
+        actual:
+          bucket: twitter-app-bucket
+        status:
+          provisioned: true
+          notifications: []
+    bucketaccesswanted:
+      description: an example BucketAccess allocation request
+      value:
+        name: baz-shared
+        bucket: baz
+        readable: true
+        writable: true
+    bucketaccessactual:
+      description: a example BucketAccess as actually deployed
+      value:
+        name: baz-shared
+        bucket: baz
+        readable: true
+        writable: true
+        credentialidentifierref: bucketaccess_baz-shared_identifier
+        credentialsecretref: bucketaccess_baz-shared_secret
+    thirdpartybucketConcession:
+      description: an example ThirdPartyBucketConcession
+      value:
+        name: bucket-imported-from-foo
+        readable: true
+        writable: true
+        credentialidentifierref: receivedbucketaccess_bucket-imported-from-foo_identifier
+        credentialsecretref: receivedbucketaccess_bucket-imported-from-foo_secret
+        shareidentifier: "allocation/foo/bucketaccess/baz-shared"
+    thirdpartybucketConcessionStatus:
+      description: an example ThirdPartyBucketConcessionStatus
+      value:
+        configuration:
+          name: bucket-imported-from-foo
+          credentialidentifierref: receivedbucketaccess_bucket-imported-from-foo_identifier
+          credentialsecretref: receivedbucketaccess_bucket-imported-from-foo_secret
+          shareidentifier: "allocation/foo/bucketaccess/baz-shared"
+        actual:
+          name: bucket-imported-from-foo
+          readable: true
+          writable: true
+          credentialidentifierref: receivedbucketaccess_bucket-imported-from-foo_identifier
+          credentialsecretref: receivedbucketaccess_bucket-imported-from-foo_secret
+          shareidentifier: "allocation/foo/bucketaccess/baz-shared"
+        status:
+          provisioned: true
+          notifications: []
+    thirdpartybucketRegistration:
+      description: an example thirdpartybucketregistration
+      value:
+        name: bucket-imported-from-foo
+        shareidentifier: "allocation/foo/bucketaccess/baz-shared"
+        credentialidentifierplaintext: "AIKAsomething"
+        credentialsecretplaintext: "longseeminglyrandomsecretvalue"
+
+  schemas:
+    AllocationStatus:
+      $ref: "openapi-common.yml#/components/schemas/AllocationStatus"
+    Bucket:
+      type: object
+      properties:
+        versioned:
+          type: boolean
+        encrypted:
+          type: boolean
+      required: [ encrypted, versioned ]
+    BucketStatus:
+      type: object
+      properties:
+        configuration:
+          $ref: "#/components/schemas/Bucket"
+        actual:
+          $ref: "#/components/schemas/Bucket"
+        status:
+          $ref: "#/components/schemas/AllocationStatus"
+      required: [ status ]
+    BucketAccessConfiguration:
+      type: object
+      properties:
+        name:
+          type: string
+        bucket:
+          type: string
+        readable:
+          type: boolean
+        writable:
+          type: boolean
+      required: [ name, bucket, readable, writable]
+    BucketAccess:
+      type: object
+      properties:
+        name:
+          type: string
+        bucket:
+          type: string
+        readable:
+          type: boolean
+        writable:
+          type: boolean
+        credentialidentifierref:
+          type: string
+        credentialsecretref:
+          type: string
+      required: [ name, bucket, readable, writable, credentialidentifierref, credentialsecretref]
+    BucketAccessStatus:
+      type: object
+      properties:
+        configuration:
+          $ref: "#/components/schemas/BucketAccessConfiguration"
+        actual:
+          $ref: "#/components/schemas/BucketAccess"
+        status:
+          $ref: "#/components/schemas/AllocationStatus"
+      required: [ status ]
+    BucketWatch:
+      type: object
+      properties:
+        bucket:
+          type: string
+      required: [ bucket ]
+    BucketWatchStatus:
+      type: object
+      properties:
+        configuration:
+          $ref: "#/components/schemas/BucketWatch"
+        actual:
+          $ref: "#/components/schemas/BucketWatch"
+        status:
+          $ref: "#/components/schemas/AllocationStatus"
+      required: [ status ]
+    ReceivedBucketAccess:
+      $ref: "#/components/schemas/ThirdPartyBucketConcession"
+    ThirdPartyBucketConcession:
+      type: object
+      properties:
+        name:
+          type: string
+          description: your name for this bucket owned by a third party
+        # for convenience of ui, we enriched the allocation with readable and writable. also expose here for consistency.
+        readable:
+          type: boolean
+        writable:
+          type: boolean
+      # will not enrich, this field is on the derived bucket on actual
+       # address:
+       #   type: string
+        credentialidentifierref:
+          type: string
+        credentialsecretref:
+          type: string
+        # should we even expose the share identifier after initial registration?
+        shareidentifier:
+          type: string
+      required: [name, readable, writable, credentialidentifierref, credentialsecretref, shareidentifier]
+    ThirdPartyBucketConcessionConfiguration:
+      type: object
+      properties:
+        name:
+          type: string
+          description: your name for this bucket owned by a third party
+        shareidentifier:
+          type: string
+      required: [name, shareidentifier]
+    ReceivedBucketAccessStatus:
+      $ref: "#/components/schemas/ThirdPartyBucketConcessionStatus"
+    ThirdPartyBucketConcessionStatus:
+      type: object
+      properties:
+        configuration:
+          $ref: "#/components/schemas/ThirdPartyBucketConcessionConfiguration"
+        actual:
+          $ref: "#/components/schemas/ThirdPartyBucketConcession"
+        status:
+          $ref: "#/components/schemas/AllocationStatus"
+      required: [ status ]
+
+    ThirdPartyBucketConcessionRegistration:
+      type: object
+      properties:
+        name:
+          type: string
+          description: the name you give to the third party bucket you are registering
+        shareidentifier:
+          type: string
+          description: provided to you by the third party
+        credentialidentifierplaintext:
+          type: string
+          description: plaintext credential identifier provided to you by the third party
+        credentialsecretplaintext:
+          type: string
+          description: plaintext secret value provided to you by the third party
+      required: [ name, shareidentifier, credentialidentifierplaintext, credentialsecretplaintext ]
+
+
+paths:
+  #######################################
+  # BUCKETWATCHES                       #
+  #######################################
+  allTenantBucketWatches:  # /allocation/{tenant}/bucketwatch:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+    get:
+      summary: lists all bucketwatches of a tenant
+      tags:
+        - bucket watch
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-ChildList'
+
+  bucketWatchOfBucket:  # /allocation/{tenant}/bucket/{id}/bucketwatch:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: shows overall status of a bucketwatch allocation
+      tags:
+        - bucket watch
+      responses:
+        '200':
+          description: the overall status of a specific bucketwatch allocation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BucketWatchStatus"
+              examples:
+                bucketWatchStatus:
+                  $ref: "#/components/examples/bucketWatchStatus"
+
+  bucketWatchConfigOfBucket:  # /allocation/{tenant}/bucket/{id}/bucketwatch/configuration:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: gets configuration of a bucketwatch allocation
+      tags:
+        - bucket watch
+      responses:
+        '200':
+          description: configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BucketWatch"
+
+    delete:
+      tags:
+        - bucket watch
+      summary: deletes a bucketwatch
+      responses:
+        '202':
+          description: delete request has been accepted
+    put:
+      tags:
+        - bucket watch
+      summary: creates bucketwatch configuration.
+      responses:
+        '202':
+          description: create/update request has been accepted
+
+  bucketWatchActualOfBucket:  # /allocation/{tenant}/bucket/{id}/bucketwatch/actual:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: gets actual configuration of a bucketwatch allocation
+      tags:
+        - bucket watch
+      responses:
+        '200':
+          description: configuration of a bucketwatch allocation as it is actually deployed. This may differ from the wanted configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BucketWatch"
+
+  bucketWatchAllocStatusOfBucket:  # /allocation/{tenant}/bucket/{id}/bucketwatch/status:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: gets status description of a bucketwatch allocation
+      tags:
+        - bucket watch
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-AllocationStatus'
+
+
+  #######################################
+  # BUCKETS                             #
+  #######################################
+  allTenantBuckets:  # /allocation/{tenant}/bucket:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+    get:
+      summary: lists all bucket names of a tenant
+      tags:
+        - bucket
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-ChildList'
+
+  bucketOfTenant:  # /allocation/{tenant}/bucket/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: shows overall status of a bucket allocation
+      tags:
+        - bucket
+      responses:
+        '200':
+          description: the overall status of a specific bucket allocation along with the bucket's configured and actual state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BucketStatus"
+              examples:
+                bucketStatus:
+                  $ref: "#/components/examples/bucketStatus"
+
+  bucketConfiguration:  # /allocation/{tenant}/bucket/{id}/configuration:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: gets configuration of a bucket allocation
+      tags:
+        - bucket
+      responses:
+        '200':
+          description: configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bucket"
+              examples:
+                bucket:
+                  $ref: '#/components/examples/bucket'
+
+    delete:
+      tags:
+        - bucket
+      summary: deletes a bucket
+      responses:
+        '202':
+          description: delete request has been accepted
+    put:
+      tags:
+        - bucket
+      summary: creates bucket configuration.It is impossible to update an existing bucket. This requires a delete of the existing bucket and creation of a new one with the wanted configuration.
+      requestBody:
+        description: the JSON representation of the resource
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bucket'
+            examples:
+              bucket:
+                $ref: '#/components/examples/bucket'
+      responses:
+        '202':
+          description: create/update request has been accepted
+
+  bucketActual:  # /allocation/{tenant}/bucket/{id}/actual:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: gets actual configuration of a bucket allocation
+      tags:
+        - bucket
+      responses:
+        '200':
+          description: configuration of a bucket allocation as it is actually deployed. This may differ from the wanted configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bucket"
+              examples:
+                bucket:
+                  $ref: '#/components/examples/bucket'
+
+  bucketAllocStatus:  # /allocation/{tenant}/bucket/{id}/status:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: gets status description of a bucket allocation
+
+      tags:
+        - bucket
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-AllocationStatus'
+
+  #######################################
+  # BUCKETACCESSES                      #
+  #######################################
+
+  allTenantBucketAccesses:  # /allocation/{tenant}/bucketaccess:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+    get:
+      summary: lists all bucketaccesses of a tenant
+      tags:
+        - bucket access
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-ChildList'
+
+  bucketAccessesOfBucket:  # /allocation/{tenant}/bucket/{id}/bucketaccess:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+    get:
+      summary: shows bucketaccesses about a specific bucket
+      tags:
+        - bucket access
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-ChildList'
+
+  bucketAccessOfBucket:  # /allocation/{tenant}/bucket/{id}/bucketaccess/{name}:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+      - $ref: "#/components/parameters/BucketAccessName"
+    get:
+      summary: shows overall status of a third party bucket
+      tags:
+        - bucket access
+      responses:
+        '200':
+          description: the overall status of a specific bucketaccess allocation along with the its configured and actual state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BucketAccessStatus"
+
+  bucketAccessConfigOfBucketAccess:  # /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+      - $ref: "#/components/parameters/BucketAccessName"
+    get:
+      summary: gets configuration of a bucketaccess allocation
+      tags:
+        - bucket access
+      responses:
+        '200':
+          description: configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BucketAccessConfiguration"
+
+    delete:
+      tags:
+        - bucket access
+      summary: deletes a bucketaccess
+      responses:
+        '202':
+          description: delete request has been accepted
+    put:
+      tags:
+        - bucket access
+      summary: creates bucketaccess configuration.
+      requestBody:
+        description: the wanted config of the (new) bucketaccess allocation
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BucketAccessConfiguration'
+            examples:
+              request:
+                $ref: '#/components/examples/bucketaccesswanted'
+      responses:
+        '202':
+          description: create/update request has been accepted
+
+  bucketAccessActualOfBucketAccess:  # /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/actual:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+      - $ref: "#/components/parameters/BucketAccessName"
+    get:
+      summary: gets actual configuration of a bucketaccess allocation
+      tags:
+        - bucket access
+      responses:
+        '200':
+          description: configuration of a bucketaccess allocation as it is actually deployed. This may differ from the wanted configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BucketAccess"
+              examples:
+                bucketaccess:
+                  $ref: '#/components/examples/bucketaccessactual'
+
+  bucketAccessAllocStatusOfBucketAccess:  # /allocation/{tenant}/bucket/{id}/bucketaccess/{name}/status:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/BucketId"
+      - $ref: "#/components/parameters/BucketAccessName"
+    get:
+      summary: gets status description of a bucketaccess allocation
+      tags:
+        - bucket access
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-AllocationStatus'
+
+
+  #######################################
+  # THIRD PARTY BUCKETS / BUCKET CONCESSION / RECEIVED bucket access
+  #######################################
+
+  onlyTenantBucketsFromThirdPartyConcessions:  # /allocation/{tenant}/bucket/fromthirdparty:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+    get:
+      summary: lists only bucket names of a tenant that originated from a third party bucket
+      tags:
+        - third party bucket
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-ChildList'
+
+  allTenantThirdPartyBucketConcessions:  # /allocation/{tenant}/thirdpartybucketconcession:
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+    get:
+      summary: list summaries of third party buckets, registered using credentials shared to you by a third party
+      tags:
+        - third party bucket
+      responses:
+        '200':
+          $ref: "openapi-common.yml#/components/responses/200-ChildList"
+
+
+    post:
+      summary: register a new bucket concession for which credentials were shared to you by a third party
+      tags:
+        - third party bucket
+      requestBody:
+        description: the secret value
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThirdPartyBucketConcessionRegistration'
+            examples:
+              registration:
+                $ref: '#/components/examples/thirdpartybucketRegistration'
+      responses:
+        '201':
+          description: the third party bucket has been registered, and should soon be listable together with the resulting bucket.
+
+  thirdPartyBucketConcession:  # /allocation/{tenant}/thirdpartybucketconsession/{id}
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/ThirdPartyBucketId"
+    get:
+      summary: shows overall status of a third party bucket
+      tags:
+        - third party bucket
+      responses:
+        '200':
+          description: the overall status of a specific third party bucket along with the concession's configured and actual state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThirdPartyBucketConcessionStatus"
+              examples:
+                bucketStatus:
+                  $ref: "#/components/examples/thirdpartybucketConcessionStatus"
+
+  thirdPartyBucketConcessionConfig:  # /allocation/{tenant}/thirdpartybucketconcession/{id}/configuration
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/ThirdPartyBucketId"
+    get:
+      summary: gets configuration of a third party bucket (received bucket access) allocation
+      tags:
+        - third party bucket
+      responses:
+        '200':
+          description: configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThirdPartyBucketConcession"
+              examples:
+                bucket:
+                  $ref: '#/components/examples/thirdpartybucketConcession'
+
+    delete:
+      tags:
+        - third party bucket
+      summary: unregisters a third party bucket. This will also remove the virtual bucket.
+      responses:
+        '202':
+          description: delete request has been accepted
+
+#    we don't allow a PUT which would let the user choose their own secret references.
+#    instead use a POST of a registration with the secrets in plaintext.
+#    put:
+#      tags:
+#        - third party bucket
+#      summary: Impossible. POST to /allocation/{tenant}/thirdpartybucketconcession instead to register a new third party bucket.
+#      requestBody:
+#        description: the JSON representation of the resource
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/ThirdPartyBucketConcession'
+#            examples:
+#              bucket:
+#                $ref: '#/components/examples/thirdpartybucketConcessionStatus'
+#      responses:
+#        '202':
+#          description: create/update request has been accepted
+
+  thirdPartyBucketConcessionActual:  # /allocation/{tenant}/thirdpartybucketconcession/{id}/actual
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/ThirdPartyBucketId"
+    get:
+      summary: gets actual configuration of a third party bucket (received bucket access) allocation
+      tags:
+        - third party bucket
+      responses:
+        '200':
+          description: configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThirdPartyBucketConcession"
+              examples:
+                bucket:
+                  $ref: '#/components/examples/thirdpartybucketConcession'
+
+  thirdPartyBucketConcessionAllocStatus:  # /allocation/{tenant}/thirdpartybucketconcession/{id}/status
+    parameters:
+      - $ref: "#/components/parameters/Tenant"
+      - $ref: "#/components/parameters/ThirdPartyBucketId"
+    get:
+      summary: gets status description of third party bucket (received bucket access) allocation
+      tags:
+        - third party bucket
+      responses:
+        '200':
+          $ref: 'openapi-common.yml#/components/responses/200-AllocationStatus'
