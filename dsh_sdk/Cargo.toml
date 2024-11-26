@@ -27,7 +27,7 @@ pem = "3"
 prometheus = { version = "0.13", features = ["process"], optional = true }
 rcgen = { version = "0.13", optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "blocking"], optional = true }
-rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
+rdkafka = { version = "0.37", features = ["cmake-build"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", optional = true }
 sha2 = { version = "0.10", optional = true}
