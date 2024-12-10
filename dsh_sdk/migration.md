@@ -9,8 +9,8 @@
         - [Current SDK usage](#current-sdk-usage)
         - [Expected SDK usage](#expected-sdk-usage)
 - [Migration process](#migration-process)
-    - [v0.5.0 (expected release date: 2024-01-01)](#v050-expected-release-date-2024-01-01)
-    - [v0.6.0 (expected release date: 2024-02-01)](#v060-expected-release-date-2024-02-01)
+    - [v0.5.0 (expected release date: 2025-01-01)](#v050-expected-release-date-2025-01-01)
+    - [v0.6.0 (expected release date: 2025-02-01)](#v060-expected-release-date-2025-02-01)
 
 ## Why restructuring?
 The SDK was initially built around the Kafka protocol and easily connect to DSH. Meanwhile, we also want to support other protocols (e.g. MQTT and Http) and add extra utilities to the SDK to make it more easier for developer to work with DSH. 
@@ -93,7 +93,7 @@ use rdkafka::ClientConfig; // Import RDKafka directly
 use rdkafka::consumer::{Consumer, StreamConsumer}; // Import RDKafka directly
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{
-    let consumer: StreamConsumer =     let consumer: StreamConsumer = ClientConfig::new()
+    let consumer: StreamConsumer = ClientConfig::new()
         .dsh_config() // Comes from the DshKafkaConfig trait
         .create();?;
     Ok(())
