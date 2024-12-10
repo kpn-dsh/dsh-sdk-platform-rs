@@ -58,8 +58,11 @@ crate dsh_sdk
 │   ├── mod mqtt_protocol: pub (new, to be build)
 │   ├── mod http_protocol: pub (new, to be build)
 │   └── mod token_fetcher: pub (renamed from mqtt_token_fetcher)
+├── mod Deserializers
+│   └── DshEnvelope
 ├── mod management_api: pub
 |   └── mod token_fetcher: pub (renamed from rest_api_token_fetcher)
+├── mod SchemaStoreApi
 └── mod utils: pub 
     ├── mod dlq: pub
     ├── mod graceful_shutdown: pub
@@ -85,13 +88,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
 #### Expected SDK usage
 In v0.5.X / v0.6.X the SDK should be used something like this:
 ```rust
-use dsh_sdk::KafkaProtocol; // Import the trait that extends the RDKafka ClientConfig
+use dsh_sdk::DshKafkaConfig; // Import the trait that extends the RDKafka ClientConfig
 use rdkafka::ClientConfig; // Import RDKafka directly
 use rdkafka::consumer::{Consumer, StreamConsumer}; // Import RDKafka directly
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{
     let consumer: StreamConsumer =     let consumer: StreamConsumer = ClientConfig::new()
-        .dsh_config() // Comes from the KafkaProtocol trait
+        .dsh_config() // Comes from the DshKafkaConfig trait
         .create();?;
     Ok(())
 }
