@@ -58,11 +58,11 @@ crate dsh_sdk
 │   ├── mod mqtt_protocol: pub (new, to be build)
 │   ├── mod http_protocol: pub (new, to be build)
 │   └── mod token_fetcher: pub (renamed from mqtt_token_fetcher)
-├── mod Deserializers
-│   └── DshEnvelope
+├── mod deserializers
+│   └── mod dsh_envelope
 ├── mod management_api: pub
 |   └── mod token_fetcher: pub (renamed from rest_api_token_fetcher)
-├── mod SchemaStoreApi
+├── mod schema_store_api
 └── mod utils: pub 
     ├── mod dlq: pub
     ├── mod graceful_shutdown: pub
@@ -103,14 +103,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
 ## Migration process
 The migration process will be done in multiple steps. V0.5.0 will be firt made available as a Release Candidate to test the new API in some of the UniBox products. Here we want to check if the new API is easy to use and to gather some feedback.
 
-### v0.5.0 (expected release date: 2024-01-01)
+### v0.5.0 (expected release date: 2025-01-01)
 v0.5.0 will be the first release with the new structure parallel to the old structure. 
 - Old API will be aliases to the new API, so YOUR current code is still valid.
 - Old API will have deprecated warnings with explaination how to migrate to the new API
 - Re-exports of RDkafka are still available, but will have a deprecation warning
 - Additional features will be added (e.g. MQTT and HTTP protocol adapters)
 
-### v0.6.0 (expected release date: 2024-02-01)
+### v0.6.0 (expected release date: 2025-02-01)
 v0.6.0 will be the first release with the old API removed.
 - Old API will be removed
 - Re-exports will be removed
