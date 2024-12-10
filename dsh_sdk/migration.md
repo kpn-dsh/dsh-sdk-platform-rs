@@ -95,7 +95,7 @@ use rdkafka::consumer::{Consumer, StreamConsumer}; // Import RDKafka directly
 fn main() -> Result<(), Box<dyn std::error::Error>>{
     let consumer: StreamConsumer = ClientConfig::new()
         .dsh_config() // Comes from the DshKafkaConfig trait
-        .create();?;
+        .create()?;
     Ok(())
 }
 ```
