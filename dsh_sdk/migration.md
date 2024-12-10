@@ -19,7 +19,7 @@ The SDK was initially built around the Kafka protocol and easily connect to DSH.
 To support the other protocols and new features, the current structure of the API of the SDK is not ideal to extend, as the API currently is focussed on RDKafka. To add the other features we noticed it will be fairly hard to maintain the codebase.
 
 ### Breaking changes due to re-exports
-Also, some external libraries are re-exported, we would like to minimize these dependencies to avoid breaking changes. For example RDKafka is fully re-exported and recently RDKakfka released a major version, which will be technically a breaking change for the SDK. The idea is to move away from the `re-exports` and the DSH_SDK will implement a Trait to extend RDKakfka client configuration to create. See [Expected Changes and Impact](#expected-changes-and-impact)
+Also, some external libraries are re-exported, we would like to minimize these dependencies to avoid breaking changes. For example RDKafka is fully re-exported and recently RDKakfka released a major version, which will be technically a breaking change for the SDK. The idea is to move away from the `re-exports` and the DSH_SDK will implement a Trait to extend RDKakfka client configuration to create. See [Impact](#impact)
 
 ## Expected Changes and Impact
 These expected changes will have impact on your code as well. Below is a high-level overview of the current and expected API structure.
