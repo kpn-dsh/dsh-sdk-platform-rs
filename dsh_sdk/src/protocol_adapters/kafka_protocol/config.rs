@@ -118,6 +118,7 @@ mod tests {
     use std::env;
 
     #[test]
+    #[serial(env_dependency)]
     fn test_kafka_config() {
         let consumer_config = KafkaConfig::new();
         assert_eq!(consumer_config.enable_auto_commit(), false);
@@ -131,6 +132,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_kafka_config_default() {
         let consumer_config = KafkaConfig::default();
         assert_eq!(consumer_config.enable_auto_commit(), false);
