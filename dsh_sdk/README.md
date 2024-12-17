@@ -64,7 +64,7 @@ The following features are available in this library and can be enabled/disabled
 | `rest-token-fetcher` | &cross; | Fetch tokens to use DSH Rest API |
 | `mqtt-token-fetcher` | &cross; | Fetch tokens to use DSH MQTT |
 | `metrics` | &check; | Enable (custom) metrics for your service |
-| `graceful_shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
+| `graceful-shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
 | `dlq` | &cross; | Dead Letter Queue implementation (experimental) |
 | `rdkafka-ssl` | &check; | Dynamically link to librdkafka to a locally installed OpenSSL |
 | `rdkafka-ssl-vendored` | &cross; | Build OpenSSL during compile and statically link librdkafka <br> (No initial install required in environment, slower compile time) |

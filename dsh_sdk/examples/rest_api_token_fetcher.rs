@@ -8,6 +8,7 @@
 use dsh_rest_api_client::Client;
 use dsh_sdk::{Platform, RestTokenFetcherBuilder};
 use std::env;
+
 #[tokio::main]
 async fn main() {
     let platform = Platform::NpLz;
@@ -15,7 +16,6 @@ async fn main() {
         env::var("CLIENT_SECRET").expect("CLIENT_SECRET must be set as environment variable");
     let tenant = env::var("TENANT").expect("TENANT must be set as environment variable");
     let client = Client::new(platform.endpoint_rest_api());
-
     let tf = RestTokenFetcherBuilder::new(platform)
         .tenant_name(tenant.clone())
         .client_secret(client_secret)

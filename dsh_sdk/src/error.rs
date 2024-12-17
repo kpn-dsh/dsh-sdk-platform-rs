@@ -7,8 +7,8 @@ use thiserror::Error;
 pub enum DshError {
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
-    #[error("Env var error: {0}")]
-    EnvVarError(#[from] std::env::VarError),
+    #[error("Env variable {0} error: {1}")]
+    EnvVarError(String, std::env::VarError),
     #[error("Convert bytes to utf8 error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
     #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
@@ -38,7 +38,7 @@ pub enum DshError {
     ParseDnError(String),
     #[cfg(feature = "bootstrap")]
     #[error("Error getting group id, index out of bounds for {0}")]
-    IndexGroupIdError(crate::dsh::datastream::GroupType),
+    IndexGroupIdError(crate::datastream::GroupType),
     #[error("No tenant name found")]
     NoTenantName,
     #[cfg(feature = "bootstrap")]
@@ -46,7 +46,7 @@ pub enum DshError {
     NotFoundTopicError(String),
     #[cfg(feature = "bootstrap")]
     #[error("Error in topic permissions: {0} does not have {1:?} permissions.")]
-    TopicPermissionsError(String, crate::dsh::datastream::ReadWriteAccess),
+    TopicPermissionsError(String, crate::datastream::ReadWriteAccess),
     #[cfg(feature = "metrics")]
     #[error("Prometheus error: {0}")]
     Prometheus(#[from] prometheus::Error),
@@ -55,7 +55,7 @@ pub enum DshError {
     HyperError(#[from] hyper::http::Error),
 }
 
-#[cfg(feature = "rest-token-fetcher")]
+#[cfg(feature = "management-api")]
 #[derive(Error, Debug)]
 #[non_exhaustive]
 pub enum DshRestTokenError {
