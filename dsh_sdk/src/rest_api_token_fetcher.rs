@@ -1,4 +1,3 @@
-
 /// Fetch and store access tokens to be used in the DSH Rest API client
 ///
 /// This struct will fetch and store access tokens to be used in the DSH Rest API client.

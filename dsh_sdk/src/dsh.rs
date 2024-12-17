@@ -678,8 +678,7 @@ mod tests {
         );
         assert_eq!(
             config.get("group.id").unwrap(),
-            dsh
-                .datastream()
+            dsh.datastream()
                 .get_group_id(crate::datastream::GroupType::from_env())
                 .unwrap()
         );

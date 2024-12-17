@@ -183,15 +183,15 @@ fn full<T: Into<Bytes>>(chunk: T) -> BoxBody {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use http_body_util::Empty;
     use hyper::body::Body;
     use hyper::client::conn;
     use hyper::client::conn::http1::{Connection, SendRequest};
     use hyper::http::HeaderValue;
     use hyper::Uri;
-    use tokio::net::TcpStream;
     use serial_test::serial;
-    use super::*;
+    use tokio::net::TcpStream;
 
     lazy_static! {
         pub static ref HIGH_FIVE_COUNTER_OLD: IntCounter =
