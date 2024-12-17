@@ -31,7 +31,6 @@ use log::{info, warn};
 use rcgen::KeyPair;
 use reqwest::blocking::{Client, ClientBuilder};
 
-
 use crate::error::DshError;
 use crate::utils;
 use crate::{DEFAULT_CONFIG_HOST, VAR_KAFKA_CONFIG_HOST, VAR_PKI_CONFIG_DIR, VAR_TASK_ID};
@@ -222,7 +221,10 @@ impl Cert {
         Ok(())
     }
 
-    fn create_identity(cert: &[u8], private_key: &[u8]) -> Result<reqwest::Identity, reqwest::Error> {
+    fn create_identity(
+        cert: &[u8],
+        private_key: &[u8],
+    ) -> Result<reqwest::Identity, reqwest::Error> {
         let mut ident = private_key.to_vec();
         ident.extend_from_slice(b"\n");
         ident.extend_from_slice(cert);

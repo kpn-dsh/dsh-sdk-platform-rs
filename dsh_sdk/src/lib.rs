@@ -75,15 +75,15 @@
 #![allow(deprecated)]
 
 // to be kept in v0.6.0
-#[cfg(feature = "bootstrap")]
-pub mod dsh;
 #[cfg(feature = "certificate")]
 pub mod certificates;
 #[cfg(feature = "bootstrap")]
 pub mod datastream;
+#[cfg(feature = "bootstrap")]
+pub mod dsh;
+pub mod error;
 #[cfg(feature = "management-api")]
 pub mod management_api;
-pub mod error;
 pub mod protocol_adapters;
 pub mod utils;
 
@@ -131,7 +131,7 @@ pub mod metrics;
 
 #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
 pub use rdkafka;
-#[cfg(feature = "mqtt-token-fetcher")]
+#[cfg(feature = "protocol-token-fetcher")]
 #[deprecated(
     since = "0.5.0",
     note = "`dsh_sdk::mqtt_token_fetcher` is moved to `dsh_sdk::protocol_adapters::token_fetcher`"
