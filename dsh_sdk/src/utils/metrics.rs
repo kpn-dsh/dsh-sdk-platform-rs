@@ -190,8 +190,10 @@ mod tests {
     use hyper::http::HeaderValue;
     use hyper::Uri;
     use tokio::net::TcpStream;
-
+    use serial_test::serial;
     use super::*;
+
+    const PORT:u16 = 9090;
 
     lazy_static! {
         pub static ref HIGH_FIVE_COUNTER: IntCounter =
@@ -205,7 +207,7 @@ mod tests {
         Connection<TokioIo<TcpStream>, Empty<Bytes>>,
     ) {
         let host = url.host().expect("uri has no host");
-        let port = url.port_u16().unwrap_or(80);
+        let port = url.port_u16().unwrap_or(PORT);
         let addr = format!("{}:{}", host, port);
 
         let stream = TcpStream::connect(addr).await.unwrap();
@@ -247,9 +249,10 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial(port_usage)]
     async fn test_start_http_server() {
         // Start HTTP server
-        let server = start_http_server(8080);
+        let server = start_http_server(PORT);
 
         // increment the counter
         HIGH_FIVE_COUNTER.inc();
@@ -257,7 +260,7 @@ mod tests {
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-        let url: Uri = "http://localhost:8080/metrics".parse().unwrap();
+        let url: Uri = format!("http://localhost:{PORT}/metrics").parse().unwrap();
         let (mut request_sender, connection) = create_client(&url).await;
         tokio::task::spawn(async move {
             if let Err(err) = connection.await {
@@ -288,14 +291,15 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial(port_usage)]
     async fn test_unknown_path() {
         // Start HTTP server
-        let server = start_http_server(9900);
+        let server = start_http_server(PORT);
 
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-        let url: Uri = "http://localhost:9900".parse().unwrap();
+        let url: Uri = format!("http://localhost:{PORT}").parse().unwrap();
         let (mut request_sender, connection) = create_client(&url).await;
         tokio::task::spawn(async move {
             if let Err(err) = connection.await {

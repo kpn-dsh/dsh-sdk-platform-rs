@@ -190,12 +190,12 @@ mod tests {
     use hyper::http::HeaderValue;
     use hyper::Uri;
     use tokio::net::TcpStream;
-
+    use serial_test::serial;
     use super::*;
 
     lazy_static! {
-        pub static ref HIGH_FIVE_COUNTER: IntCounter =
-            register_int_counter!("highfives", "Number of high fives recieved").unwrap();
+        pub static ref HIGH_FIVE_COUNTER_OLD: IntCounter =
+            register_int_counter!("highfives_old", "Number of high fives recieved").unwrap();
     }
 
     async fn create_client(
@@ -224,9 +224,10 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial(port_usage)]
     async fn test_http_metric_response() {
         // Increment the counter
-        HIGH_FIVE_COUNTER.inc();
+        HIGH_FIVE_COUNTER_OLD.inc();
 
         // Call the function
         let res = get_metrics();
@@ -247,12 +248,13 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial(port_usage)]
     async fn test_start_http_server() {
         // Start HTTP server
         let server = start_http_server(8080);
 
         // increment the counter
-        HIGH_FIVE_COUNTER.inc();
+        HIGH_FIVE_COUNTER_OLD.inc();
 
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
@@ -288,6 +290,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial(port_usage)]
     async fn test_unknown_path() {
         // Start HTTP server
         let server = start_http_server(9900);
@@ -323,7 +326,7 @@ mod tests {
 
     #[test]
     fn test_metrics_to_string() {
-        HIGH_FIVE_COUNTER.inc();
+        HIGH_FIVE_COUNTER_OLD.inc();
         let res = metrics_to_string().unwrap();
         assert!(res.contains("highfives"));
     }
