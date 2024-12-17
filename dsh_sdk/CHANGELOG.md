@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - unreleased
+### Added
+- New public functions `dsh_sdk::certificates::Cert`
+  - Bootstrap to DSH
+  - Read certificates from PKI_CONFIG_DIR
+  - Add support reading private key in DER format when reading from PKI_CONFIG_DIR
+
+### Changed
+- Moved `dsh_sdk::dsh::properties` to `dsh_sdk::propeties`
+- Moved `dsh_sdk::rest_api_token_fetcher` to `dsh_sdk::management_api::token_fetcher` and renamed `RestApiTokenFetcher` to `ManagementApiTokenFetcher`
+  - **NOTE** Cargo.toml feature flag falls now under `management_api` (`rest-token-fetcher` will be removed in v0.6.0)
+- Moved `dsh_sdk::dsh::datastreams` to `dsh_sdk::datastreams` 
+- Moved `dsh_sdk::dsh::certificates` to `dsh_sdk::certificates`
+  - Private module `dsh_sdk::dsh::bootstrap` and `dsh_sdk::dsh::pki_config_dir` are now part of `certificates` module
+- Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token_fetcher` where it is renamed to `ProtocolTokenFetcher`
+  - **NOTE** Cargo.toml feature flag falls now under `mqtt-protocol` (`mqtt_token_fetcher` will be removed in v0.6.0)
+- Moved `dsh_sdk::dlq` to `dsh_sdk::utils::dlq` 
+- Moved `dsh_sdk::graceful_shutdown` to `dsh_sdk::utils::graceful_shutdown`
+- Moved `dsh_sdk::metrics` to `dsh_sdk::utils::metrics`
+
+### Removed
+- Removed `Default` trait for `Dsh` (original `Properties`) struct as this should be public
+
+### Fixed
+
+
 ## [0.4.10] -2024-09-30
 ### Added
 - Add new with client methods to REST and MQTTT token fetcher

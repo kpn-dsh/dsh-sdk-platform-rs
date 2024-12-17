@@ -20,7 +20,7 @@ use std::env;
 use std::fs::File;
 use std::io::Read;
 
-use log::{debug, error, info, warn};
+use log::{debug, error, info};
 use serde::{Deserialize, Serialize};
 
 use crate::error::DshError;
@@ -151,7 +151,7 @@ impl Datastream {
     ///
     /// # Example
     /// ```no_run
-    /// # use dsh_sdk::dsh::datastream::Datastream;
+    /// # use dsh_sdk::datastream::Datastream;
     /// # let datastream = Datastream::default();
     /// let path = std::path::PathBuf::from("/path/to/directory");
     /// datastream.to_file(&path).unwrap();
@@ -402,7 +402,7 @@ impl GroupType {
                 GroupType::Shared(0)
             }
             Err(_) => {
-                warn!("KAFKA_CONSUMER_GROUP_TYPE is not set, defaulting to shared group type.");
+                debug!("KAFKA_CONSUMER_GROUP_TYPE is not set, defaulting to shared group type.");
                 GroupType::Shared(0)
             }
         }

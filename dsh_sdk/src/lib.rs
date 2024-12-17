@@ -72,28 +72,82 @@
 //! The DLQ is implemented by running the `Dlq` struct to push messages towards the DLQ topics.
 //! The `ErrorToDlq` trait can be implemented on your defined errors, to be able to send messages towards the DLQ Struct.
 
-#[cfg(feature = "dlq")]
-pub mod dlq;
+#![allow(deprecated)]
+
+// to be kept in v0.6.0
+#[cfg(feature = "certificate")]
+pub mod certificates;
+#[cfg(feature = "bootstrap")]
+pub mod datastream;
 #[cfg(feature = "bootstrap")]
 pub mod dsh;
 pub mod error;
-#[cfg(feature = "graceful_shutdown")]
-pub mod graceful_shutdown;
-#[cfg(feature = "metrics")]
-pub mod metrics;
-#[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
-pub use rdkafka;
-#[cfg(feature = "mqtt-token-fetcher")]
-pub mod mqtt_token_fetcher;
-#[cfg(feature = "rest-token-fetcher")]
-mod rest_api_token_fetcher;
-mod utils;
+#[cfg(feature = "management-api")]
+pub mod management_api;
+pub mod protocol_adapters;
+pub mod utils;
 
 #[cfg(feature = "bootstrap")]
-pub use dsh::Properties;
-#[cfg(feature = "rest-token-fetcher")]
-pub use rest_api_token_fetcher::{RestTokenFetcher, RestTokenFetcherBuilder};
+#[doc(inline)]
+pub use dsh::Dsh;
+
+#[cfg(feature = "management-api")]
+pub use management_api::token_fetcher::{
+    ManagementApiTokenFetcher, ManagementApiTokenFetcherBuilder,
+};
+
+#[doc(inline)]
 pub use utils::Platform;
+
+// TODO: to be removed in v0.6.0
+#[cfg(feature = "dlq")]
+#[deprecated(since = "0.5.0", note = "The DLQ is moved to `dsh_sdk::utils::dlq`")]
+pub mod dlq;
+
+#[cfg(feature = "bootstrap")]
+#[deprecated(
+    since = "0.5.0",
+    note = "The `dsh` as module is phased out. Use
+    `dsh_sdk::Dsh` for all info about your running container;
+    `dsh_sdk::certificates` for all certificate related info;
+    `dsh_sdk::datastream` for all datastream related info;
+    "
+)]
+pub mod dsh_old;
+
+#[cfg(feature = "graceful-shutdown")]
+#[deprecated(
+    since = "0.5.0",
+    note = "`dsh_sdk::graceful_shutdown` is moved to `dsh_sdk::utils::graceful_shutdown`"
+)]
+pub mod graceful_shutdown;
+
+#[cfg(feature = "metrics")]
+#[deprecated(
+    since = "0.5.0",
+    note = "`dsh_sdk::metrics` is moved to `dsh_sdk::utils::metrics`"
+)]
+pub mod metrics;
+
+#[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
+pub use rdkafka;
+#[cfg(feature = "protocol-token-fetcher")]
+#[deprecated(
+    since = "0.5.0",
+    note = "`dsh_sdk::mqtt_token_fetcher` is moved to `dsh_sdk::protocol_adapters::token_fetcher`"
+)]
+pub mod mqtt_token_fetcher;
+#[cfg(feature = "bootstrap")]
+pub use dsh_old::Properties;
+
+#[cfg(feature = "management-api")]
+#[deprecated(
+    since = "0.5.0",
+    note = "`RestTokenFetcher` and `RestTokenFetcherBuilder` are renamed to `ManagementApiTokenFetcher` and `ManagementApiTokenFetcherBuilder`"
+)]
+mod rest_api_token_fetcher;
+#[cfg(feature = "management-api")]
+pub use rest_api_token_fetcher::{RestTokenFetcher, RestTokenFetcherBuilder};
 
 // Environment variables
 const VAR_APP_ID: &str = "MARATHON_APP_ID";

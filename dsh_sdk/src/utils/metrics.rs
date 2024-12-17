@@ -193,9 +193,11 @@ mod tests {
     use serial_test::serial;
     use tokio::net::TcpStream;
 
+    const PORT: u16 = 9090;
+
     lazy_static! {
-        pub static ref HIGH_FIVE_COUNTER_OLD: IntCounter =
-            register_int_counter!("highfives_old", "Number of high fives recieved").unwrap();
+        pub static ref HIGH_FIVE_COUNTER: IntCounter =
+            register_int_counter!("highfives", "Number of high fives recieved").unwrap();
     }
 
     async fn create_client(
@@ -205,7 +207,7 @@ mod tests {
         Connection<TokioIo<TcpStream>, Empty<Bytes>>,
     ) {
         let host = url.host().expect("uri has no host");
-        let port = url.port_u16().unwrap_or(80);
+        let port = url.port_u16().unwrap_or(PORT);
         let addr = format!("{}:{}", host, port);
 
         let stream = TcpStream::connect(addr).await.unwrap();
@@ -224,10 +226,9 @@ mod tests {
     }
 
     #[tokio::test]
-    #[serial(port_usage)]
     async fn test_http_metric_response() {
         // Increment the counter
-        HIGH_FIVE_COUNTER_OLD.inc();
+        HIGH_FIVE_COUNTER.inc();
 
         // Call the function
         let res = get_metrics();
@@ -251,15 +252,15 @@ mod tests {
     #[serial(port_usage)]
     async fn test_start_http_server() {
         // Start HTTP server
-        let server = start_http_server(8080);
+        let server = start_http_server(PORT);
 
         // increment the counter
-        HIGH_FIVE_COUNTER_OLD.inc();
+        HIGH_FIVE_COUNTER.inc();
 
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-        let url: Uri = "http://localhost:8080/metrics".parse().unwrap();
+        let url: Uri = format!("http://localhost:{PORT}/metrics").parse().unwrap();
         let (mut request_sender, connection) = create_client(&url).await;
         tokio::task::spawn(async move {
             if let Err(err) = connection.await {
@@ -293,12 +294,12 @@ mod tests {
     #[serial(port_usage)]
     async fn test_unknown_path() {
         // Start HTTP server
-        let server = start_http_server(9900);
+        let server = start_http_server(PORT);
 
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-        let url: Uri = "http://localhost:9900".parse().unwrap();
+        let url: Uri = format!("http://localhost:{PORT}").parse().unwrap();
         let (mut request_sender, connection) = create_client(&url).await;
         tokio::task::spawn(async move {
             if let Err(err) = connection.await {
@@ -326,7 +327,7 @@ mod tests {
 
     #[test]
     fn test_metrics_to_string() {
-        HIGH_FIVE_COUNTER_OLD.inc();
+        HIGH_FIVE_COUNTER.inc();
         let res = metrics_to_string().unwrap();
         assert!(res.contains("highfives"));
     }

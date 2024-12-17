@@ -1,9 +1,19 @@
-//! Utility functions for the SDK
+//! Utilities for DSH
+//!
+//! This module contains helpful functions and utilities for interacting with DSH.
+use std::env;
+
+use log::{debug, info, warn};
 
 use super::{VAR_APP_ID, VAR_DSH_TENANT_NAME};
 use crate::error::DshError;
-use log::{debug, info, warn};
-use std::env;
+
+#[cfg(feature = "dlq")]
+pub mod dlq;
+#[cfg(feature = "graceful-shutdown")]
+pub mod graceful_shutdown;
+#[cfg(feature = "metrics")]
+pub mod metrics;
 
 /// Available DSH platforms plus it's related metadata
 ///
@@ -131,8 +141,21 @@ impl Platform {
 
 /// Get the configured topics from the environment variable TOPICS
 /// Topics can be delimited by a comma
+///
+/// ## Example
+/// ```
+/// # use dsh_sdk::utils::get_configured_topics;
+/// std::env::set_var("TOPICS", "topic1, topic2, topic3");
+///
+/// let topics = get_configured_topics().unwrap();
+///
+/// assert_eq!(topics[0], "topic1");
+/// assert_eq!(topics[1], "topic2");
+/// assert_eq!(topics[2], "topic3");
+/// # std::env::remove_var("TOPICS");
+/// ```
 pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
-    let kafka_topic_string = env::var("TOPICS")?;
+    let kafka_topic_string = get_env_var("TOPICS")?;
     Ok(kafka_topic_string
         .split(',')
         .map(str::trim)
@@ -142,9 +165,30 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
 
 /// Get the tenant name from the environment variables
 ///
-/// Derive the tenant name from the MARATHON_APP_ID or DSH_TENANT_NAME environment variables.
+/// Derive the tenant name from the `MARATHON_APP_ID` or `DSH_TENANT_NAME` environment variables.
 /// Returns `NoTenantName` error if neither of the environment variables are set.
-pub(crate) fn tenant_name() -> Result<String, DshError> {
+///
+/// ## Example
+/// ```
+/// # use dsh_sdk::utils::tenant_name;
+/// # use dsh_sdk::error::DshError;
+/// std::env::set_var("MARATHON_APP_ID", "/dsh-tenant-name/app-name"); // Injected by DSH by default
+///
+/// let tenant = tenant_name().unwrap();
+/// assert_eq!(&tenant, "dsh-tenant-name");
+/// # std::env::remove_var("MARATHON_APP_ID");
+///
+/// std::env::set_var("DSH_TENANT_NAME", "your-tenant-name"); // Set by user, useful when running outside of DSH together with Kafka Proxy or VPN
+/// let tenant = tenant_name().unwrap();
+/// assert_eq!(&tenant, "your-tenant-name");
+/// # std::env::remove_var("DSH_TENANT_NAME");
+///
+/// // If neither of the environment variables are set, it will return an error
+/// let result = tenant_name();
+/// assert!(matches!(result, Err(DshError::NoTenantName)));
+/// ```
+
+pub fn tenant_name() -> Result<String, DshError> {
     if let Ok(app_id) = get_env_var(VAR_APP_ID) {
         let tenant_name = app_id.split('/').nth(1);
         match tenant_name {
@@ -160,6 +204,7 @@ pub(crate) fn tenant_name() -> Result<String, DshError> {
     } else if let Ok(tenant_name) = get_env_var(VAR_DSH_TENANT_NAME) {
         Ok(tenant_name)
     } else {
+        log::error!("{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster!. Please set one of these environment variables.", VAR_DSH_TENANT_NAME, VAR_APP_ID);
         Err(DshError::NoTenantName)
     }
 }
@@ -174,7 +219,7 @@ pub(crate) fn get_env_var(var_name: &str) -> Result<String, DshError> {
         Ok(value) => Ok(value),
         Err(e) => {
             info!("{} is not set", var_name);
-            Err(e.into())
+            Err(DshError::EnvVarError(var_name.to_string(), e))
         }
     }
 }

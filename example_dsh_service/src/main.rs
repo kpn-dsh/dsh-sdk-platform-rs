@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Validate your configured topic if it has read access (optional)
     dsh_properties
         .datastream()
-        .verify_list_of_topics(&topics, dsh_sdk::dsh::datastream::ReadWriteAccess::Read)?;
+        .verify_list_of_topics(&topics, dsh_sdk::dsh_old::datastream::ReadWriteAccess::Read)?;
 
     // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals, and you can act on them)
     let shutdown = Shutdown::new();

@@ -11,32 +11,28 @@
 //! To create the ca.crt, client.pem, and client.key files in a desired directory, use the
 //! `to_files` method.
 //! ```no_run
-//! use dsh_sdk::Properties;
+//! use dsh_sdk::certificates::Cert;
 //! use std::path::PathBuf;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! let dsh_properties = Properties::get();
-//! let directory = PathBuf::from("dir");
-//! dsh_properties.certificates()?.to_files(&directory)?;
+//! let certificates = Cert::from_env()?;
+//! let directory = PathBuf::from("path/to/dir");
+//! certificates.to_files(&directory)?;
 //! # Ok(())
 //! # }
 //! ```
 //!
 //! ## Reqwest Client
 //! With this request client we can retrieve datastreams.json and connect to Schema Registry.
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use log::info;
+use rcgen::KeyPair;
 use reqwest::blocking::{Client, ClientBuilder};
 use reqwest::Identity;
-use std::path::PathBuf;
-
-use super::bootstrap::{Dn, DshBootstapCall, DshConfig};
 
 use crate::error::DshError;
-
-use pem;
-use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
 
 /// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
 #[derive(Debug, Clone)]
@@ -47,40 +43,6 @@ pub struct Cert {
 }
 
 impl Cert {
-    /// Create new `Cert` struct
-    pub(crate) fn new(
-        dsh_ca_certificate_pem: String,
-        dsh_client_certificate_pem: String,
-        key_pair: KeyPair,
-    ) -> Cert {
-        Self {
-            dsh_ca_certificate_pem,
-            dsh_client_certificate_pem,
-            key_pair: Arc::new(key_pair),
-        }
-    }
-    /// Generate private key and call for a signed certificate to DSH.
-    pub(crate) fn get_signed_client_cert(
-        dn: Dn,
-        dsh_config: &DshConfig,
-        client: &Client,
-    ) -> Result<Self, DshError> {
-        let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
-        let csr = Self::generate_csr(&key_pair, dn)?;
-        let client_certificate = DshBootstapCall::CertificateSignRequest {
-            config: dsh_config,
-            csr: &csr.pem()?,
-        }
-        .perform_call(client)?;
-        let ca_cert = pem::parse_many(dsh_config.dsh_ca_certificate())?;
-        let client_cert = pem::parse_many(client_certificate)?;
-        Ok(Self::new(
-            pem::encode_many(&ca_cert),
-            pem::encode_many(&client_cert),
-            key_pair,
-        ))
-    }
-
     /// Build an async reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
     pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
@@ -164,19 +126,6 @@ impl Cert {
         Ok(())
     }
 
-    /// Generate the certificate signing request.
-    fn generate_csr(key_pair: &KeyPair, dn: Dn) -> Result<CertificateSigningRequest, DshError> {
-        let mut params = CertificateParams::default();
-        params.distinguished_name.push(DnType::CommonName, dn.cn());
-        params
-            .distinguished_name
-            .push(DnType::OrganizationalUnitName, dn.ou());
-        params
-            .distinguished_name
-            .push(DnType::OrganizationName, dn.o());
-        Ok(params.serialize_request(key_pair)?)
-    }
-
     fn create_file<C: AsRef<[u8]>>(path: PathBuf, contents: C) -> Result<(), DshError> {
         std::fs::write(&path, contents)?;
         info!("File created ({})", path.display());
@@ -202,6 +151,15 @@ impl Cert {
     }
 }
 
+/// Helper function to ensure that the host starts with `https://` (or `http://`)
+fn ensure_https_prefix(host: String) -> String {
+    if host.starts_with("https://") || host.starts_with("http://") {
+        host
+    } else {
+        format!("https://{}", host)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -209,7 +167,6 @@ mod tests {
     use std::sync::OnceLock;
 
     use openssl::pkey::PKey;
-    use openssl::x509::X509Req;
 
     static TEST_CERTIFICATES: OnceLock<Cert> = OnceLock::new();
 
@@ -217,12 +174,11 @@ mod tests {
         let subject_alt_names = vec!["hello.world.example".to_string(), "localhost".to_string()];
         let CertifiedKey { cert, key_pair } =
             generate_simple_self_signed(subject_alt_names).unwrap();
-        Cert::new(cert.pem(), cert.pem(), key_pair)
-        //Cert {
-        //    dsh_ca_certificate_pem: CA_CERT.to_string(),
-        //    dsh_client_certificate_pem: KAFKA_CERT.to_string(),
-        //    key_pair: Arc::new(KeyPair::generate().unwrap()),
-        //}
+        Cert {
+            dsh_ca_certificate_pem: cert.pem(),
+            dsh_client_certificate_pem: cert.pem(),
+            key_pair: Arc::new(key_pair),
+        }
     }
 
     #[test]
@@ -297,37 +253,6 @@ mod tests {
     }
 
     #[test]
-    fn test_dsh_certificate_sign_request() {
-        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
-        let csr = Cert::generate_csr(&cert.key_pair, dn).unwrap();
-        let req = csr.pem().unwrap();
-        assert!(req.starts_with("-----BEGIN CERTIFICATE REQUEST-----"));
-        assert!(req.trim().ends_with("-----END CERTIFICATE REQUEST-----"));
-    }
-
-    #[test]
-    fn test_verify_csr() {
-        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
-        let csr = Cert::generate_csr(&cert.key_pair, dn).unwrap();
-        let csr_pem = csr.pem().unwrap();
-        let key = cert.private_key_pkcs8();
-        let pkey = PKey::private_key_from_der(&key).unwrap();
-
-        let req = X509Req::from_pem(csr_pem.as_bytes()).unwrap();
-        req.verify(&pkey).unwrap();
-        let subject = req
-            .subject_name()
-            .entries()
-            .into_iter()
-            .map(|e| e.data().as_utf8().unwrap().to_string())
-            .collect::<Vec<String>>()
-            .join(",");
-        assert_eq!(subject, "Test CN,Test OU,Test Org");
-    }
-
-    #[test]
     fn test_create_identity() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let identity = Cert::create_identity(
@@ -360,5 +285,20 @@ mod tests {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let client = cert.reqwest_blocking_client_config();
         assert!(client.is_ok());
+    }
+
+    #[test]
+    fn test_ensure_https_prefix() {
+        let host = "http://example.com".to_string();
+        let result = ensure_https_prefix(host);
+        assert_eq!(result, "http://example.com");
+
+        let host = "https://example.com".to_string();
+        let result = ensure_https_prefix(host);
+        assert_eq!(result, "https://example.com");
+
+        let host = "example.com".to_string();
+        let result = ensure_https_prefix(host);
+        assert_eq!(result, "https://example.com");
     }
 }

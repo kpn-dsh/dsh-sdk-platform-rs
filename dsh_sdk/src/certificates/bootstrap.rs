@@ -1,18 +1,19 @@
-//! Module for bootstrapping the DSH client.
+//! Module for bootstrapping to DSH.
 //!
 //! This module contains the logic to connect to DSH and retrieve the certificates and datastreams.json
 //! to create the properties struct. It follows the certificate signing request pattern as normally
 //! used in the get_signed_certificates_json.sh script.
 //!
 //! ## Note
-//! This module is not intended to be used directly, but through the `Properties` struct. It will
-//! always be used when getting a `Properties` struct via dsh::Properties::get().
+//! This module is NOT intended to be used directly, but through [Cert] or indirectly via [Properties](crate::Properties).
 use log::{debug, info};
 use reqwest::blocking::Client;
 
+use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
+
 use crate::error::DshError;
 
-use super::certificates::Cert;
+use super::Cert;
 use crate::utils;
 use crate::{VAR_DSH_CA_CERTIFICATE, VAR_DSH_SECRET_TOKEN, VAR_DSH_SECRET_TOKEN_PATH};
 
@@ -22,11 +23,11 @@ pub(crate) fn bootstrap(
     tenant_name: &str,
     task_id: &str,
 ) -> Result<Cert, DshError> {
-    let dsh_config = DshConfig::new(config_host, tenant_name, task_id)?;
+    let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id)?;
     let client = reqwest_ca_client(dsh_config.dsh_ca_certificate.as_bytes())?;
     let dn = DshBootstapCall::Dn(&dsh_config).perform_call(&client)?;
     let dn = Dn::parse_string(&dn)?;
-    let certificates = Cert::get_signed_client_cert(dn, &dsh_config, &client)?;
+    let certificates = get_signed_client_cert(dn, &dsh_config, &client)?;
     info!("Successfully connected to DSH");
     Ok(certificates)
 }
@@ -40,16 +41,51 @@ fn reqwest_ca_client(dsh_ca_certificate: &[u8]) -> Result<Client, reqwest::Error
     Ok(client)
 }
 
+/// Generate private key and call for a signed certificate to DSH.
+fn get_signed_client_cert(
+    dn: Dn,
+    dsh_config: &DshBootstrapConfig,
+    client: &Client,
+) -> Result<Cert, DshError> {
+    let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
+    let csr = generate_csr(&key_pair, dn)?;
+    let client_certificate = DshBootstapCall::CertificateSignRequest {
+        config: dsh_config,
+        csr: &csr.pem()?,
+    }
+    .perform_call(client)?;
+    let ca_cert = pem::parse_many(&dsh_config.dsh_ca_certificate)?;
+    let client_cert = pem::parse_many(client_certificate)?;
+    Ok(Cert::new(
+        pem::encode_many(&ca_cert),
+        pem::encode_many(&client_cert),
+        key_pair,
+    ))
+}
+
+/// Generate the certificate signing request.
+fn generate_csr(key_pair: &KeyPair, dn: Dn) -> Result<CertificateSigningRequest, DshError> {
+    let mut params = CertificateParams::default();
+    params.distinguished_name.push(DnType::CommonName, dn.cn);
+    params
+        .distinguished_name
+        .push(DnType::OrganizationalUnitName, dn.ou);
+    params
+        .distinguished_name
+        .push(DnType::OrganizationName, dn.o);
+    Ok(params.serialize_request(key_pair)?)
+}
+
 /// Helper struct to store the config needed for bootstrapping to DSH
 #[derive(Debug)]
-pub(crate) struct DshConfig<'a> {
+struct DshBootstrapConfig<'a> {
     config_host: &'a str,
     tenant_name: &'a str,
     task_id: &'a str,
     dsh_secret_token: String,
     dsh_ca_certificate: String,
 }
-impl<'a> DshConfig<'a> {
+impl<'a> DshBootstrapConfig<'a> {
     fn new(config_host: &'a str, tenant_name: &'a str, task_id: &'a str) -> Result<Self, DshError> {
         let dsh_secret_token = match utils::get_env_var(VAR_DSH_SECRET_TOKEN) {
             Ok(token) => token,
@@ -62,7 +98,7 @@ impl<'a> DshConfig<'a> {
             }
         };
         let dsh_ca_certificate = utils::get_env_var(VAR_DSH_CA_CERTIFICATE)?;
-        Ok(DshConfig {
+        Ok(DshBootstrapConfig {
             config_host,
             task_id,
             tenant_name,
@@ -70,24 +106,20 @@ impl<'a> DshConfig<'a> {
             dsh_ca_certificate,
         })
     }
-
-    pub(crate) fn dsh_ca_certificate(&self) -> &str {
-        &self.dsh_ca_certificate
-    }
 }
 
-pub(crate) enum DshBootstapCall<'a> {
+enum DshBootstapCall<'a> {
     /// Call to retreive distinguished name.
-    Dn(&'a DshConfig<'a>),
+    Dn(&'a DshBootstrapConfig<'a>),
     /// Call to post the certificate signing request.
     CertificateSignRequest {
-        config: &'a DshConfig<'a>,
+        config: &'a DshBootstrapConfig<'a>,
         csr: &'a str,
     },
 }
 
 impl DshBootstapCall<'_> {
-    fn url_for_call(&self) -> String {
+    fn url(&self) -> String {
         match self {
             DshBootstapCall::Dn(config) => {
                 format!(
@@ -105,7 +137,7 @@ impl DshBootstapCall<'_> {
     }
 
     fn request_builder(&self, client: &Client) -> reqwest::blocking::RequestBuilder {
-        let url = self.url_for_call();
+        let url = self.url();
         match self {
             DshBootstapCall::Dn(..) => client.get(url),
             DshBootstapCall::CertificateSignRequest { config, csr, .. } => client
@@ -115,11 +147,11 @@ impl DshBootstapCall<'_> {
         }
     }
 
-    pub(crate) fn perform_call(&self, client: &Client) -> Result<String, DshError> {
+    fn perform_call(&self, client: &Client) -> Result<String, DshError> {
         let response = self.request_builder(client).send()?;
         if !response.status().is_success() {
             return Err(DshError::DshCallError {
-                url: self.url_for_call(),
+                url: self.url(),
                 status_code: response.status(),
                 error_body: response.text().unwrap_or_default(),
             });
@@ -131,7 +163,7 @@ impl DshBootstapCall<'_> {
 /// Struct to parse DN string into separate fields.
 /// Needed for Picky solution.
 #[derive(Debug)]
-pub(crate) struct Dn {
+struct Dn {
     cn: String,
     ou: String,
     o: String,
@@ -139,7 +171,7 @@ pub(crate) struct Dn {
 
 impl Dn {
     /// Parse the DN string into Dn struct.
-    pub(crate) fn parse_string(dn_string: &str) -> Result<Self, DshError> {
+    fn parse_string(dn_string: &str) -> Result<Self, DshError> {
         let mut cn = None;
         let mut ou = None;
         let mut o = None;
@@ -168,17 +200,6 @@ impl Dn {
             ))?,
         })
     }
-    pub(crate) fn cn(&self) -> &str {
-        &self.cn
-    }
-
-    pub(crate) fn ou(&self) -> &str {
-        &self.ou
-    }
-
-    pub(crate) fn o(&self) -> &str {
-        &self.o
-    }
 }
 
 #[cfg(test)]
@@ -188,9 +209,24 @@ mod tests {
     use std::env;
     use std::str::from_utf8;
 
+    use rcgen::{generate_simple_self_signed, CertifiedKey};
+    use std::sync::OnceLock;
+
+    use openssl::pkey::PKey;
+    use openssl::x509::X509Req;
+
+    static TEST_CERTIFICATES: OnceLock<Cert> = OnceLock::new();
+
+    fn set_test_cert() -> Cert {
+        let subject_alt_names = vec!["hello.world.example".to_string(), "localhost".to_string()];
+        let CertifiedKey { cert, key_pair } =
+            generate_simple_self_signed(subject_alt_names).unwrap();
+        Cert::new(cert.pem(), cert.pem(), key_pair)
+    }
+
     #[test]
     fn test_dsh_call_request_builder() {
-        let dsh_config = DshConfig {
+        let dsh_config = DshBootstrapConfig {
             config_host: "https://test_host",
             tenant_name: "test_tenant_name",
             task_id: "test_task_id",
@@ -234,8 +270,8 @@ mod tests {
             .create();
         // simple reqwest client
         let client = Client::new();
-        // create a DshConfig struct
-        let dsh_config = DshConfig {
+        // create a DshBootstrapConfig struct
+        let dsh_config = DshBootstrapConfig {
             config_host: &dsh.url(),
             tenant_name: "tenant",
             task_id: "test_task_id",
@@ -259,6 +295,37 @@ mod tests {
     }
 
     #[test]
+    fn test_dsh_certificate_sign_request() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
+        let csr = generate_csr(&cert.key_pair, dn).unwrap();
+        let req = csr.pem().unwrap();
+        assert!(req.starts_with("-----BEGIN CERTIFICATE REQUEST-----"));
+        assert!(req.trim().ends_with("-----END CERTIFICATE REQUEST-----"));
+    }
+
+    #[test]
+    fn test_verify_csr() {
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
+        let csr = generate_csr(&cert.key_pair, dn).unwrap();
+        let csr_pem = csr.pem().unwrap();
+        let key = cert.private_key_pkcs8();
+        let pkey = PKey::private_key_from_der(&key).unwrap();
+
+        let req = X509Req::from_pem(csr_pem.as_bytes()).unwrap();
+        req.verify(&pkey).unwrap();
+        let subject = req
+            .subject_name()
+            .entries()
+            .into_iter()
+            .map(|e| e.data().as_utf8().unwrap().to_string())
+            .collect::<Vec<String>>()
+            .join(",");
+        assert_eq!(subject, "Test CN,Test OU,Test Org");
+    }
+
+    #[test]
     #[serial(env_dependency)]
     fn test_dsh_config_new() {
         // normal situation where DSH variables are set
@@ -267,7 +334,7 @@ mod tests {
         let config_host = "https://test_host";
         let tenant_name = "test_tenant";
         let task_id = "test_task_id";
-        let dsh_config = DshConfig::new(config_host, tenant_name, task_id).unwrap();
+        let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id).unwrap();
         assert_eq!(dsh_config.config_host, "https://test_host");
         assert_eq!(dsh_config.task_id, "test_task_id");
         assert_eq!(dsh_config.tenant_name, "test_tenant");
@@ -280,14 +347,14 @@ mod tests {
         let test_token_dir = format!("{}/test_token", test_token_dir);
         let _ = std::fs::remove_file(&test_token_dir);
         env::set_var(VAR_DSH_SECRET_TOKEN_PATH, &test_token_dir);
-        let result = DshConfig::new(config_host, tenant_name, task_id);
+        let result = DshBootstrapConfig::new(config_host, tenant_name, task_id);
         assert!(result.is_err());
         std::fs::write(test_token_dir.as_str(), "test_token_from_file").unwrap();
-        let dsh_config = DshConfig::new(config_host, tenant_name, task_id).unwrap();
+        let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id).unwrap();
         assert_eq!(dsh_config.dsh_secret_token, "test_token_from_file");
         // fail if DSH_CA_CERTIFICATE is not set
         env::remove_var(VAR_DSH_CA_CERTIFICATE);
-        let result = DshConfig::new(config_host, tenant_name, task_id);
+        let result = DshBootstrapConfig::new(config_host, tenant_name, task_id);
         assert!(result.is_err());
         env::remove_var(VAR_DSH_SECRET_TOKEN);
         env::remove_var(VAR_DSH_CA_CERTIFICATE);
