@@ -2,9 +2,11 @@ name: Branch
 
 on:
   push:
-    branches: [ "*", "!main" ]
+    branches-ignore:
+      - main
   pull_request:
-    branches: [ "*", "!main" ]
+    branches-ignore:
+      - main
 
 env:
   CARGO_TERM_COLOR: always
