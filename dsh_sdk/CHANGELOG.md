@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token_fetcher` where it is renamed to `ProtocolTokenFetcher`
   - **NOTE** Cargo.toml feature flag falls now under `mqtt-protocol` (`mqtt_token_fetcher` will be removed in v0.6.0)
 - Moved `dsh_sdk::dlq` to `dsh_sdk::utils::dlq` 
+- Moved `dsh_sdk::graceful_shutdown` to `dsh_sdk::utils::graceful_shutdown`
+- Moved `dsh_sdk::metrics` to `dsh_sdk::utils::metrics`
 
 ### Removed
 - Removed `Default` trait for `Dsh` (original `Properties`) struct as this should be public

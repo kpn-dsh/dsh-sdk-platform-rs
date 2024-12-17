@@ -11,7 +11,7 @@ pub enum DshError {
     EnvVarError(String, std::env::VarError),
     #[error("Convert bytes to utf8 error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
-    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
+    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
     #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]
     DshCallError {
         url: String,
@@ -21,19 +21,19 @@ pub enum DshError {
     #[cfg(feature = "bootstrap")]
     #[error("Certificates are not set")]
     NoCertificates,
-    #[cfg(feature = "bootstrap")]
+    #[cfg(any(feature = "bootstrap", feature = "pki-config-dir"))]
     #[error("Invalid PEM certificate: {0}")]
     PemError(#[from] pem::PemError),
-    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
+    #[cfg(any(feature = "certificate", feature = "protocol-token-fetcher"))]
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
-    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
+    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
     #[error("Serde_json error: {0}")]
     JsonError(#[from] serde_json::Error),
     #[cfg(feature = "bootstrap")]
     #[error("Rcgen error: {0}")]
     PrivateKeyError(#[from] rcgen::Error),
-    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
+    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
     #[error("Error parsing: {0}")]
     ParseDnError(String),
     #[cfg(feature = "bootstrap")]

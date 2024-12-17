@@ -72,17 +72,22 @@
 //! The DLQ is implemented by running the `Dlq` struct to push messages towards the DLQ topics.
 //! The `ErrorToDlq` trait can be implemented on your defined errors, to be able to send messages towards the DLQ Struct.
 
+#![allow(deprecated)]
+
 // to be kept in v0.6.0
+#[cfg(feature = "bootstrap")]
+pub mod dsh;
+#[cfg(feature = "certificate")]
 pub mod certificates;
+#[cfg(feature = "bootstrap")]
 pub mod datastream;
 #[cfg(feature = "management-api")]
 pub mod management_api;
-
-pub mod dsh;
 pub mod error;
 pub mod protocol_adapters;
 pub mod utils;
 
+#[cfg(feature = "bootstrap")]
 #[doc(inline)]
 pub use dsh::Dsh;
 

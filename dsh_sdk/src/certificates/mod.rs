@@ -30,13 +30,15 @@ use std::sync::Arc;
 use log::{info, warn};
 use rcgen::KeyPair;
 use reqwest::blocking::{Client, ClientBuilder};
-use reqwest::Identity;
+
 
 use crate::error::DshError;
 use crate::utils;
 use crate::{DEFAULT_CONFIG_HOST, VAR_KAFKA_CONFIG_HOST, VAR_PKI_CONFIG_DIR, VAR_TASK_ID};
 
+#[cfg(feature = "bootstrap")]
 mod bootstrap;
+#[cfg(feature = "bootstrap")]
 mod pki_config_dir;
 
 /// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
@@ -73,6 +75,7 @@ impl Cert {
     /// * `config_host` - The DSH config host where the CSR can be send to. (default: `"https://pikachu.dsh.marathon.mesos:4443"`)
     /// * `tenant_name` - The tenant name.
     /// * `task_id` - The task id of running container.
+    #[cfg(feature = "bootstrap")]
     pub fn from_bootstrap(
         config_host: &str,
         tenant_name: &str,
@@ -88,6 +91,7 @@ impl Cert {
     ///
     /// Else it will check `KAFKA_CONFIG_HOST`, `MESOS_TASK_ID` and `MARATHON_APP_ID` environment variables to bootstrap to DSH and sign the certificates.
     /// These environment variables are injected by DSH.
+    #[cfg(feature = "bootstrap")]
     pub fn from_env() -> Result<Self, DshError> {
         if let Ok(path) = utils::get_env_var(VAR_PKI_CONFIG_DIR) {
             Self::from_pki_config_dir(Some(path))
@@ -121,6 +125,7 @@ impl Cert {
     /// ## Note
     /// Only certificates in PEM format are supported.
     /// Key files should be in PKCS8 format and can be DER or PEM files.
+    #[cfg(feature = "bootstrap")]
     pub fn from_pki_config_dir<P>(path: Option<P>) -> Result<Self, DshError>
     where
         P: AsRef<std::path::Path>,
@@ -217,11 +222,11 @@ impl Cert {
         Ok(())
     }
 
-    fn create_identity(cert: &[u8], private_key: &[u8]) -> Result<Identity, reqwest::Error> {
+    fn create_identity(cert: &[u8], private_key: &[u8]) -> Result<reqwest::Identity, reqwest::Error> {
         let mut ident = private_key.to_vec();
         ident.extend_from_slice(b"\n");
         ident.extend_from_slice(cert);
-        Identity::from_pem(&ident)
+        reqwest::Identity::from_pem(&ident)
     }
 
     fn prepare_reqwest_client(
