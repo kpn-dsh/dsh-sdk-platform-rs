@@ -127,6 +127,8 @@ impl Hash for SubjectName {
 
 #[cfg(test)]
 mod tests {
+    use openssl::hash;
+
     use super::*;
     use std::hash::DefaultHasher;
 
@@ -266,6 +268,7 @@ mod tests {
 
     #[test]
     fn test_subject_name_hash() {
+
         let subject1 = SubjectName::TopicNameStrategy {
             topic: "scratch.example.tenant".to_string(),
             key: false,
@@ -274,10 +277,14 @@ mod tests {
             topic: "scratch.example.tenant".to_string(),
             key: false,
         };
-        assert_eq!(
-            subject1.hash(&mut DefaultHasher::new()),
-            subject2.hash(&mut DefaultHasher::new())
-        );
+        let mut hasher = DefaultHasher::new();
+        subject1.hash(&mut hasher);
+        let hash1 = hasher.finish();
+        let mut hasher = DefaultHasher::new();
+        subject2.hash(&mut hasher);
+        let hash2 = hasher.finish();
+        assert_eq!(hash1, hash2);
+        
 
         let subject1 = SubjectName::TopicNameStrategy {
             topic: "scratch.example.tenant".to_string(),
@@ -287,10 +294,13 @@ mod tests {
             topic: "scratch.example.tenant".to_string(),
             key: true,
         };
-        assert_eq!(
-            subject1.hash(&mut DefaultHasher::new()),
-            subject2.hash(&mut DefaultHasher::new())
-        );
+        let mut hasher = DefaultHasher::new();
+        subject1.hash(&mut hasher);
+        let hash1 = hasher.finish();
+        let mut hasher = DefaultHasher::new();
+        subject2.hash(&mut hasher);
+        let hash2 = hasher.finish();
+        assert_eq!(hash1, hash2);
 
         let subject1 = SubjectName::TopicNameStrategy {
             topic: "scratch.example.tenant".to_string(),
@@ -300,9 +310,12 @@ mod tests {
             topic: "scratch.example.tenant".to_string(),
             key: true,
         };
-        assert_ne!(
-            subject1.hash(&mut DefaultHasher::new()),
-            subject2.hash(&mut DefaultHasher::new())
-        );
+        let mut hasher = DefaultHasher::new();
+        subject1.hash(&mut hasher);
+        let hash1 = hasher.finish();
+        let mut hasher = DefaultHasher::new();
+        subject2.hash(&mut hasher);
+        let hash2 = hasher.finish();
+        assert_ne!(hash1, hash2);
     }
 }
