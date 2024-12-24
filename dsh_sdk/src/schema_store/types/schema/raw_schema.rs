@@ -79,7 +79,8 @@ impl TryFrom<&str> for RawSchemaWithType {
     }
 }
 
-impl TryFrom<apache_avro::Schema> for RawSchemaWithType {type Error = SchemaStoreError;
+impl TryFrom<apache_avro::Schema> for RawSchemaWithType {
+    type Error = SchemaStoreError;
 
     fn try_from(value: apache_avro::Schema) -> Result<Self, Self::Error> {
         Ok(Self {
@@ -92,7 +93,7 @@ impl TryFrom<apache_avro::Schema> for RawSchemaWithType {type Error = SchemaStor
 impl TryFrom<serde_json::Value> for RawSchemaWithType {
     type Error = SchemaStoreError;
 
-    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error>  {
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
         Ok(if let Ok(avro) = apache_avro::Schema::parse(&value) {
             Self {
                 schema_type: SchemaType::AVRO,
@@ -118,15 +119,18 @@ where
         let raw_schema = value.0.as_ref();
         let raw_schema = match schema_type {
             SchemaType::JSON => {
-                let _ = serde_json::from_str::<serde_json::Value>(raw_schema).map_err(|_| SchemaStoreError::FailedToParseSchema(Some(schema_type)))?;
+                let _ = serde_json::from_str::<serde_json::Value>(raw_schema)
+                    .map_err(|_| SchemaStoreError::FailedToParseSchema(Some(schema_type)))?;
                 raw_schema
             }
             SchemaType::AVRO => {
-                let _ = apache_avro::Schema::parse_str(raw_schema).map_err(|_| SchemaStoreError::FailedToParseSchema(Some(schema_type)))?;
+                let _ = apache_avro::Schema::parse_str(raw_schema)
+                    .map_err(|_| SchemaStoreError::FailedToParseSchema(Some(schema_type)))?;
                 raw_schema
             }
             SchemaType::PROTOBUF => {
-                let _ = protofish::context::Context::parse(&[raw_schema]).map_err(|_| SchemaStoreError::FailedToParseSchema(Some(schema_type)))?;
+                let _ = protofish::context::Context::parse(&[raw_schema])
+                    .map_err(|_| SchemaStoreError::FailedToParseSchema(Some(schema_type)))?;
                 raw_schema
             }
         };
@@ -145,7 +149,8 @@ mod tests {
 
     #[test]
     fn test_parse_avro() {
-        let raw_schema = r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
+        let raw_schema =
+            r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let schema = RawSchemaWithType::parse(raw_schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
         assert_eq!(schema.schema(), raw_schema);
@@ -180,7 +185,8 @@ mod tests {
 
     #[test]
     fn test_try_from_avro() {
-        let raw_schema = r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
+        let raw_schema =
+            r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let schema = apache_avro::Schema::parse_str(raw_schema).unwrap();
         let schema = RawSchemaWithType::try_from(schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
@@ -214,7 +220,8 @@ mod tests {
 
     #[test]
     fn test_try_from_tuple_avro() {
-        let raw_schema = r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
+        let raw_schema =
+            r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let schema = RawSchemaWithType::try_from((raw_schema, SchemaType::AVRO)).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
         assert_eq!(schema.schema(), raw_schema);
@@ -254,7 +261,8 @@ mod tests {
         assert_eq!(schema.schema_type(), SchemaType::JSON);
         assert_eq!(schema.schema(), raw_schema);
 
-        let raw_schema = r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
+        let raw_schema =
+            r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let schema = RawSchemaWithType::try_from(raw_schema.to_string()).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
         assert_eq!(schema.schema(), raw_schema);
@@ -269,7 +277,6 @@ mod tests {
         assert!(schema.is_err());
     }
 
-
     #[test]
     fn test_try_from_string_invalid() {
         let raw_schema = r#"{"name":"User","fields":[{"name":"name","type":"string"}"#;
@@ -283,7 +290,8 @@ mod tests {
 
     #[test]
     fn test_from_subject() {
-        let raw_schema = r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
+        let raw_schema =
+            r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let subject = crate::schema_store::types::Subject {
             version: 1,
             id: 1,
@@ -307,7 +315,8 @@ mod tests {
 
     #[test]
     fn test_try_from_json_value_avro() {
-        let raw_schema = r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
+        let raw_schema =
+            r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let schema = AvroSchema::parse_str(raw_schema).unwrap();
         let schema = RawSchemaWithType::try_from(schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);

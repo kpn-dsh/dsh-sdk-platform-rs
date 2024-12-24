@@ -48,9 +48,15 @@ impl SubjectName {
         }
     }
 
-    pub fn topic(self) -> String {
+    pub fn topic(&self) -> &str {
         match self {
             Self::TopicNameStrategy { topic, .. } => topic,
+        }
+    }
+
+    pub fn key(&self) -> bool {
+        match self {
+            Self::TopicNameStrategy { key, .. } => *key,
         }
     }
 }
@@ -71,15 +77,9 @@ impl From<&str> for SubjectName {
     }
 }
 
-impl From<&String> for SubjectName {
-    fn from(value: &String) -> Self {
-        value.into()
-    }
-}
-
 impl From<String> for SubjectName {
     fn from(value: String) -> Self {
-        value.into()
+        value.as_str().into()
     }
 }
 
@@ -122,5 +122,188 @@ impl PartialEq for SubjectName {
 impl Hash for SubjectName {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.to_string().hash(state);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::hash::DefaultHasher;
+
+    #[test]
+    fn test_subject_name_funcitons() {
+        let subject = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: false,
+        };
+        assert_eq!(subject.topic(), "scratch.example.tenant");
+        assert_eq!(subject.key(), false);
+        assert_eq!(subject.name(), "scratch.example.tenant-value");
+
+        let subject = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: true,
+        };
+        assert_eq!(subject.topic(), "scratch.example.tenant");
+        assert_eq!(subject.key(), true);
+        assert_eq!(subject.name(), "scratch.example.tenant-key");
+    }
+
+    #[test]
+    fn test_subject_name_new() {
+        let subject = SubjectName::new("scratch.example.tenant", false);
+        assert_eq!(
+            subject,
+            SubjectName::TopicNameStrategy {
+                topic: "scratch.example.tenant".to_string(),
+                key: false
+            }
+        );
+    }
+
+    #[test]
+    fn test_subject_name_from_string() {
+        let subject: SubjectName = "scratch.example.tenant-value".into();
+        assert_eq!(
+            subject,
+            SubjectName::TopicNameStrategy {
+                topic: "scratch.example.tenant".to_string(),
+                key: false
+            }
+        );
+
+        let subject: SubjectName = "scratch.example.tenant-key".into();
+        assert_eq!(
+            subject,
+            SubjectName::TopicNameStrategy {
+                topic: "scratch.example.tenant".to_string(),
+                key: true
+            }
+        );
+    }
+
+    #[test]
+    fn test_subject_name_from_tuple() {
+        let subject: SubjectName = ("scratch.example.tenant".to_string(), false).into();
+        assert_eq!(
+            subject,
+            SubjectName::TopicNameStrategy {
+                topic: "scratch.example.tenant".to_string(),
+                key: false
+            }
+        );
+
+        let subject: SubjectName = ("scratch.example.tenant".to_string(), true).into();
+        assert_eq!(
+            subject,
+            SubjectName::TopicNameStrategy {
+                topic: "scratch.example.tenant".to_string(),
+                key: true
+            }
+        );
+    }
+
+    #[test]
+    fn test_subject_name_from_string_ref() {
+        let string = "scratch.example.tenant-value".to_string();
+        let subject: SubjectName = string.into();
+        assert_eq!(
+            subject,
+            SubjectName::TopicNameStrategy {
+                topic: "scratch.example.tenant".to_string(),
+                key: false
+            }
+        );
+  
+    }
+
+    #[test]
+    fn test_subject_name_display() {
+        let subject = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: false,
+        };
+        assert_eq!(subject.to_string(), "scratch.example.tenant-value");
+
+        let subject = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: true,
+        };
+        assert_eq!(subject.to_string(), "scratch.example.tenant-key");
+    }
+
+    #[test]
+    fn test_subject_name_eq() {
+        let subject1 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: false,
+        };
+        let subject2 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: false,
+        };
+        assert_eq!(subject1, subject2);
+
+        let subject1 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: true,
+        };
+        let subject2 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: true,
+        };
+        assert_eq!(subject1, subject2);
+
+        let subject1 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: false,
+        };
+        let subject2 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: true,
+        };
+        assert_ne!(subject1, subject2);
+    }
+
+    #[test]
+    fn test_subject_name_hash() {
+        let subject1 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: false,
+        };
+        let subject2 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: false,
+        };
+        assert_eq!(
+            subject1.hash(&mut DefaultHasher::new()),
+            subject2.hash(&mut DefaultHasher::new())
+        );
+
+        let subject1 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: true,
+        };
+        let subject2 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: true,
+        };
+        assert_eq!(
+            subject1.hash(&mut DefaultHasher::new()),
+            subject2.hash(&mut DefaultHasher::new())
+        );
+
+        let subject1 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: false,
+        };
+        let subject2 = SubjectName::TopicNameStrategy {
+            topic: "scratch.example.tenant".to_string(),
+            key: true,
+        };
+        assert_ne!(
+            subject1.hash(&mut DefaultHasher::new()),
+            subject2.hash(&mut DefaultHasher::new())
+        );
     }
 }
