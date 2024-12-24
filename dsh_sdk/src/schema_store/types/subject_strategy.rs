@@ -268,7 +268,6 @@ mod tests {
 
     #[test]
     fn test_subject_name_hash() {
-
         let subject1 = SubjectName::TopicNameStrategy {
             topic: "scratch.example.tenant".to_string(),
             key: false,
@@ -284,7 +283,6 @@ mod tests {
         subject2.hash(&mut hasher);
         let hash2 = hasher.finish();
         assert_eq!(hash1, hash2);
-        
 
         let subject1 = SubjectName::TopicNameStrategy {
             topic: "scratch.example.tenant".to_string(),
