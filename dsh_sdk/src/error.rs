@@ -21,7 +21,7 @@ pub enum DshError {
     #[cfg(feature = "bootstrap")]
     #[error("Certificates are not set")]
     NoCertificates,
-    #[cfg(any(feature = "bootstrap", feature = "pki-config-dir"))]
+    #[cfg(feature = "bootstrap")]
     #[error("Invalid PEM certificate: {0}")]
     PemError(#[from] pem::PemError),
     #[cfg(any(feature = "certificate", feature = "protocol-token-fetcher"))]

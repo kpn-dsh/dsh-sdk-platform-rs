@@ -9,43 +9,51 @@ license.workspace = true
 name = "dsh_sdk"
 readme = 'README.md'
 repository.workspace = true
-version = "0.4.10"
+version = "0.5.0"
 
 [package.metadata.docs.rs]
 all-features = true
 
 [dependencies]
+apache-avro = {version = "0.17", optional = true }
 base64 = {version = "0.22", optional = true }
 bytes = { version = "1.6", optional = true }
 http-body-util = { version = "0.1", optional = true }
-hyper = { version = "1.3", features = ["server", "http1"], optional = true }
-hyper-util = { version = "0.1", features = ["tokio"], optional = true }
+hyper = { version = "1.5", features = ["client", "http1"], optional = true }
+hyper-util = { version = "0.1", features = ["tokio","client-legacy"], optional = true }
+hyper-rustls = { version = "0.27",features = ["ring","http1", "native-tokio", "logging"], default-features = false, optional = true }
+http = { version = "1.2", optional = true }
+rustls = { version = "0.23", features = ["ring", "tls12", "logging"], default-features = false, optional = true }
+rustls-pemfile = { version = "2.2", optional = true }
 lazy_static = { version = "1.5", optional = true }
 log = "0.4"
 pem = {version = "3", optional = true }
 prometheus = { version = "0.13", features = ["process"], optional = true }
+protofish = { version = "0.5.2", optional = true }
 rcgen = { version = "0.13", optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "blocking"], optional = true }
 rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0", optional = true }
+serde_json = { version = "1.0", features = ["preserve_order"], optional = true }
 sha2 = { version = "0.10", optional = true}
 thiserror = "2.0"
 tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], optional = true }
 tokio-util = { version = "0.7", default-features = false, optional = true }
 
 [features]
-default = ["bootstrap", "graceful-shutdown", "metrics", "rdkafka-ssl"]
+default = ["bootstrap", "graceful-shutdown", "metrics", "rdkafka-ssl", "schema-store"]
 
 bootstrap = ["certificate", "serde_json", "tokio/rt-multi-thread"] 
 certificate = ["rcgen", "reqwest", "pem"]
-metrics = ["prometheus", "hyper", "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
+schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
+metrics = ["prometheus", "hyper/server", "hyper/http1" , "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-ssl", "graceful-shutdown"]
 graceful-shutdown = ["tokio", "tokio-util"]
 management-api = ["reqwest"]
 protocol-token-fetcher = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
 # http-protocol-adapter = ["protocol-token-fetcher"]
 # mqtt-protocol-adapter = ["protocol-token-fetcher"]
+# hyper-client = ["hyper", "hyper-util", "hyper-rustls", "rustls", "http", "rustls-pemfile"]
 
 # TODO: Remove the following features at v0.6.0
 rdkafka-ssl-vendored = ["rdkafka", "rdkafka/ssl-vendored", "rdkafka/cmake-build"]
@@ -61,3 +69,4 @@ hyper = { version = "1.3", features = ["full"]}
 serial_test = "3.1.0"
 dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.2.0"}
 dsh_sdk = { features = ["dlq"], path = "." }
+env_logger = "0.11"

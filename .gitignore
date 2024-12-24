@@ -23,3 +23,5 @@ test_files/
 *.iws
 *.iml
 *.ipr
+
+.env

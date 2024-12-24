@@ -151,8 +151,8 @@ impl Dsh {
         };
         let fetched_datastreams = certificates.as_ref().and_then(|cert| {
             cert.reqwest_blocking_client_config()
+                .build()
                 .ok()
-                .and_then(|cb| cb.build().ok())
                 .and_then(|client| {
                     Datastream::fetch_blocking(&client, &config_host, &tenant_name, &task_id).ok()
                 })
@@ -169,8 +169,6 @@ impl Dsh {
     /// Get reqwest async client config to connect to DSH Schema Registry.
     /// If certificates are present, it will use SSL to connect to Schema Registry.
     ///
-    /// Use [schema_registry_converter](https://crates.io/crates/schema_registry_converter) to connect to Schema Registry.
-    ///
     /// # Example
     /// ```
     /// # use dsh_sdk::Dsh;
@@ -178,16 +176,20 @@ impl Dsh {
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh_properties = Dsh::get();
-    /// let client = dsh_properties.reqwest_client_config()?.build()?;
+    /// let client = dsh_properties.reqwest_client_config().build()?;
     /// #    Ok(())
     /// # }
     /// ```
-    pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
-        let mut client_builder = reqwest::Client::builder();
+    #[deprecated(
+        since = "0.5.0",
+        note = "Reqwest client is not used in DSH SDK, use `dsh_sdk::schema_store::SchemaStoreClient` instead"
+    )]
+    pub fn reqwest_client_config(&self) -> reqwest::ClientBuilder {
         if let Ok(certificates) = &self.certificates() {
-            client_builder = certificates.reqwest_client_config()?;
+            certificates.reqwest_client_config()
+        } else {
+            reqwest::Client::builder()
         }
-        Ok(client_builder)
     }
 
     /// Get reqwest blocking client config to connect to DSH Schema Registry.
@@ -202,18 +204,20 @@ impl Dsh {
     /// # use dsh_sdk::error::DshError;
     /// # fn main() -> Result<(), DshError> {
     /// let dsh_properties = Dsh::get();
-    /// let client = dsh_properties.reqwest_blocking_client_config()?.build()?;
+    /// let client = dsh_properties.reqwest_blocking_client_config().build()?;
     /// #    Ok(())
     /// # }
-    pub fn reqwest_blocking_client_config(
-        &self,
-    ) -> Result<reqwest::blocking::ClientBuilder, DshError> {
-        let mut client_builder: reqwest::blocking::ClientBuilder =
-            reqwest::blocking::Client::builder();
+    /// ```
+    #[deprecated(
+        since = "0.5.0",
+        note = "Reqwest client is not used in DSH SDK, use `dsh_sdk::schema_store::SchemaStoreClient` instead"
+    )]
+    pub fn reqwest_blocking_client_config(&self) -> reqwest::blocking::ClientBuilder {
         if let Ok(certificates) = &self.certificates() {
-            client_builder = certificates.reqwest_blocking_client_config()?;
+            certificates.reqwest_blocking_client_config()
+        } else {
+            reqwest::blocking::Client::builder()
         }
-        Ok(client_builder)
     }
 
     /// Get the certificates and private key. Returns an error when running on local machine.
@@ -227,6 +231,7 @@ impl Dsh {
     /// let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();
     /// #    Ok(())
     /// # }
+    /// ```
     pub fn certificates(&self) -> Result<&Cert, DshError> {
         if let Some(cert) = &self.certificates {
             Ok(cert)
@@ -271,7 +276,6 @@ impl Dsh {
 
         let client = ASYNC_CLIENT.get_or_init(|| {
             self.reqwest_client_config()
-                .expect("Failed loading certificates into reqwest client config")
                 .build()
                 .expect("Could not build reqwest client for fetching datastream")
         });
@@ -292,7 +296,6 @@ impl Dsh {
 
         let client = BLOCKING_CLIENT.get_or_init(|| {
             self.reqwest_blocking_client_config()
-                .expect("Failed loading certificates into reqwest client config")
                 .build()
                 .expect("Could not build reqwest client for fetching datastream")
         });
@@ -511,8 +514,8 @@ mod tests {
     #[serial(env_dependency)]
     fn test_reqwest_client_config() {
         let properties = Dsh::default();
-        let config = properties.reqwest_client_config();
-        assert!(config.is_ok());
+        let _ = properties.reqwest_client_config();
+        assert!(true)
     }
 
     #[test]

@@ -242,6 +242,9 @@ impl Datastream {
         if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
             datastream.brokers = brokers.split(',').map(|s| s.to_string()).collect();
         }
+        if let Ok(schema_store) = utils::get_env_var(VAR_SCHEMA_REGISTRY_HOST) {
+            datastream.schema_store = schema_store;
+        }
         Ok(datastream)
     }
 }

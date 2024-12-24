@@ -134,30 +134,38 @@ impl Cert {
 
     /// Build an async reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
-    pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
+    #[deprecated(
+        since = "0.5.0",
+        note = "Reqwest client is not used in DSH SDK, use `dsh_sdk::schema_store::SchemaStoreClient` instead"
+    )]
+    pub fn reqwest_client_config(&self) -> reqwest::ClientBuilder {
         let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
             self.dsh_kafka_certificate_pem(),
             &self.private_key_pem(),
             self.dsh_ca_certificate_pem(),
-        )?;
-        Ok(reqwest::Client::builder()
+        );
+        reqwest::Client::builder()
             .add_root_certificate(reqwest_cert)
             .identity(pem_identity)
-            .use_rustls_tls())
+            .use_rustls_tls()
     }
 
     /// Build a reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
-    pub fn reqwest_blocking_client_config(&self) -> Result<ClientBuilder, DshError> {
+    #[deprecated(
+        since = "0.5.0",
+        note = "Reqwest client is not used in DSH SDK, use `dsh_sdk::schema_store::SchemaStoreClient` instead"
+    )]
+    pub fn reqwest_blocking_client_config(&self) -> ClientBuilder {
         let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
             self.dsh_kafka_certificate_pem(),
             &self.private_key_pem(),
             self.dsh_ca_certificate_pem(),
-        )?;
-        Ok(Client::builder()
+        );
+        Client::builder()
             .add_root_certificate(reqwest_cert)
             .identity(pem_identity)
-            .use_rustls_tls())
+            .use_rustls_tls()
     }
 
     /// Get the root certificate as PEM string. Equivalent to ca.crt.
@@ -231,15 +239,21 @@ impl Cert {
         reqwest::Identity::from_pem(&ident)
     }
 
+    /// Panics when the certificate or key is not valid.
+    /// However, these are already validated during the creation of the `Cert` struct and converted if nedded.
     fn prepare_reqwest_client(
         kafka_certificate: &str,
         private_key: &str,
         ca_certificate: &str,
-    ) -> Result<(reqwest::Identity, reqwest::tls::Certificate), DshError> {
+    ) -> (reqwest::Identity, reqwest::tls::Certificate) {
         let pem_identity =
-            Cert::create_identity(kafka_certificate.as_bytes(), private_key.as_bytes())?;
-        let reqwest_cert = reqwest::tls::Certificate::from_pem(ca_certificate.as_bytes())?;
-        Ok((pem_identity, reqwest_cert))
+            Cert::create_identity(kafka_certificate.as_bytes(), private_key.as_bytes()).expect(
+                "Error creating identity. The kafka certificate or key is not valid. Please check the certificate and key.",
+            );
+        let reqwest_cert = reqwest::tls::Certificate::from_pem(ca_certificate.as_bytes()).expect(
+            "Error parsing CA certificate as PEM to be used in Reqwest. The certificate is not valid. Please check the certificate.",
+        );
+        (pem_identity, reqwest_cert)
     }
 }
 
@@ -358,21 +372,18 @@ mod tests {
             &cert.private_key_pem(),
             cert.dsh_ca_certificate_pem(),
         );
-        assert!(result.is_ok());
     }
 
     #[test]
     fn test_reqwest_client_config() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let client = cert.reqwest_client_config();
-        assert!(client.is_ok());
     }
 
     #[test]
     fn test_reqwest_blocking_client_config() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let client = cert.reqwest_blocking_client_config();
-        assert!(client.is_ok());
     }
 
     #[test]
