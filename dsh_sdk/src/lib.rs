@@ -85,6 +85,7 @@ pub mod management_api;
 pub mod protocol_adapters;
 pub mod utils;
 
+#[cfg(feature = "schema-store")]
 pub mod schema_store;
 
 #[cfg(feature = "bootstrap")]

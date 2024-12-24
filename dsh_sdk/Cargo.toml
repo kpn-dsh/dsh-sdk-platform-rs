@@ -45,7 +45,7 @@ default = ["bootstrap", "graceful-shutdown", "metrics", "rdkafka-ssl", "schema-s
 
 bootstrap = ["certificate", "serde_json", "tokio/rt-multi-thread"] 
 certificate = ["rcgen", "reqwest", "pem"]
-schema-store = ["reqwest", "serde_json", "apache-avro", "protofish"]
+schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
 metrics = ["prometheus", "hyper/server", "hyper/http1" , "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-ssl", "graceful-shutdown"]
 graceful-shutdown = ["tokio", "tokio-util"]
