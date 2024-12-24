@@ -149,8 +149,8 @@ impl Properties {
         };
         let fetched_datastreams = certificates.as_ref().and_then(|cert| {
             cert.reqwest_blocking_client_config()
+                .build()
                 .ok()
-                .and_then(|cb| cb.build().ok())
                 .and_then(|client| {
                     datastream::Datastream::fetch_blocking(
                         &client,
@@ -189,7 +189,7 @@ impl Properties {
     pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
         let mut client_builder = reqwest::Client::builder();
         if let Ok(certificates) = &self.certificates() {
-            client_builder = certificates.reqwest_client_config()?;
+            client_builder = certificates.reqwest_client_config();
         }
         Ok(client_builder)
     }
@@ -215,7 +215,7 @@ impl Properties {
         let mut client_builder: reqwest::blocking::ClientBuilder =
             reqwest::blocking::Client::builder();
         if let Ok(certificates) = &self.certificates() {
-            client_builder = certificates.reqwest_blocking_client_config()?;
+            client_builder = certificates.reqwest_blocking_client_config();
         }
         Ok(client_builder)
     }

@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add support reading private key in DER format when reading from PKI_CONFIG_DIR
 
 ### Changed
+- **Breaking change:** `dsh_sdk::Dsh::reqwest_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
+- **Breaking change:** `dsh_sdk::Dsh::reqwest_blocking_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
+
+### Moved
 - Moved `dsh_sdk::dsh::properties` to `dsh_sdk::propeties`
 - Moved `dsh_sdk::rest_api_token_fetcher` to `dsh_sdk::management_api::token_fetcher` and renamed `RestApiTokenFetcher` to `ManagementApiTokenFetcher`
   - **NOTE** Cargo.toml feature flag falls now under `management_api` (`rest-token-fetcher` will be removed in v0.6.0)
