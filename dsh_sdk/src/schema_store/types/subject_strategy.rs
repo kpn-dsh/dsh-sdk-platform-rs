@@ -214,7 +214,6 @@ mod tests {
                 key: false
             }
         );
-  
     }
 
     #[test]
