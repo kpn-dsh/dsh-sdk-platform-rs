@@ -9,7 +9,7 @@ license.workspace = true
 name = "dsh_sdk"
 readme = 'README.md'
 repository.workspace = true
-version = "0.5.0"
+version = "0.5.0-rc.1"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -46,23 +46,20 @@ default = ["bootstrap", "kafka"]
 
 bootstrap = ["certificate", "serde_json", "tokio/rt-multi-thread"] 
 kafka = ["bootstrap"]
+rdkafka-config = ["rdkafka", "kafka"] # Impl of config trait only
+
 certificate = ["rcgen", "reqwest", "pem"]
 schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
 metrics = ["prometheus", "hyper/server", "hyper/http1" , "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 graceful-shutdown = ["tokio", "tokio-util"]
-management-api = ["reqwest"]
-
-rdkafka-config = ["rdkafka", "kafka"] # Impl of config trait only
-
+management-api-token-fetcher = ["reqwest"]
 protocol-token-fetcher = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
+
 # http-protocol-adapter = ["protocol-token-fetcher"]
 # mqtt-protocol-adapter = ["protocol-token-fetcher"]
 # hyper-client = ["hyper", "hyper-util", "hyper-rustls", "rustls", "http", "rustls-pemfile"]
 
-# TODO: Remove the following features at v0.6.0
-mqtt-token-fetcher = ["protocol-token-fetcher"]
-rest-token-fetcher = ["management-api"] 
 
 [dev-dependencies]
 mockito = "1.1.1"

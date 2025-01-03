@@ -1,5 +1,5 @@
-use dsh_sdk::graceful_shutdown::Shutdown;
-use dsh_sdk::Properties;
+use dsh_sdk::utils::graceful_shutdown::Shutdown;
+use dsh_sdk::Dsh;
 use rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
 use rdkafka::message::{BorrowedMessage, Message};
 
@@ -52,19 +52,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
-    dsh_sdk::metrics::start_http_server(8080);
+    dsh_sdk::utils::metrics::start_http_server(8080);
 
     // Create a new properties instance (connects to the DSH server and fetches the datastream)
-    let dsh_properties = Properties::get();
+    let dsh_properties = Dsh::get();
 
     // Get the configured topics from env variable TOPICS (comma separated)
     let topics_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
     let topics = topics_string.split(',').collect::<Vec<&str>>();
 
-    // Validate your configured topic if it has read access (optional)
-    dsh_properties
-        .datastream()
-        .verify_list_of_topics(&topics, dsh_sdk::dsh_old::datastream::ReadWriteAccess::Read)?;
 
     // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals, and you can act on them)
     let shutdown = Shutdown::new();
@@ -73,7 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut consumer_client_config = dsh_properties.consumer_rdkafka_config();
 
     // Override some default values (optional)
-    consumer_client_config.set("auto.offset.reset", "latest");
+    consumer_client_config.set("auto.offset.reset", "earliest");
 
     // Create a new consumer instance
     let consumer: StreamConsumer = consumer_client_config.create()?;

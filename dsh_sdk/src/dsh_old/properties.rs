@@ -402,7 +402,7 @@ impl Properties {
     /// ## Environment variables
     /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
     /// configuring the consmer via environment variables.
-    #[cfg(feature = "rdkafka")]
+    #[cfg(feature = "rdkafka-config")]
     pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         crate::Dsh::get().consumer_rdkafka_config()
     }
@@ -444,7 +444,7 @@ impl Properties {
     /// ## Environment variables
     /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
     /// configuring the producer via environment variables.
-    #[cfg(feature = "rdkafka")]
+    #[cfg(feature = "rdkafka-config")]
     pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         crate::Dsh::get().producer_rdkafka_config()
     }
