@@ -1,14 +1,10 @@
-// make sure to use the dlq feature in your Cargo.toml
-// dsh_sdk = { version = "0.4", features = ["dlq"] }
-//
-// To run this example, run the following command:
-// cargo run --features dlq --example dlq_implementation
+use dsh_sdk::utils::dlq::{self, DlqChannel, ErrorToDlq};
+use dsh_sdk::utils::graceful_shutdown::Shutdown;
+use dsh_sdk::DshKafkaConfig;
 
-use dsh_sdk::dlq::{self, ErrorToDlq};
-use dsh_sdk::graceful_shutdown::Shutdown;
-use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
-use dsh_sdk::rdkafka::Message;
-use dsh_sdk::Properties;
+use rdkafka::consumer::{Consumer, StreamConsumer};
+use rdkafka::message::{BorrowedMessage, Message, OwnedMessage};
+use rdkafka::ClientConfig;
 use std::backtrace::Backtrace;
 use thiserror::Error;
 use tokio::sync::mpsc;
@@ -20,9 +16,9 @@ enum ConsumerError {
     DeserializeError(#[from] std::string::FromUtf8Error),
 }
 
-// implement the ErrorToDlq trait for your custom error type (or exusting error types)
-impl dlq::ErrorToDlq for ConsumerError {
-    fn to_dlq(&self, kafka_message: rdkafka::message::OwnedMessage) -> dlq::SendToDlq {
+// implement the `ErrorToDlq` trait for your custom error type (or existing error types)
+impl ErrorToDlq for ConsumerError {
+    fn to_dlq(&self, kafka_message: OwnedMessage) -> dlq::SendToDlq {
         let backtrace = Backtrace::force_capture(); // this is optional as it is heavy on performance
         dlq::SendToDlq::new(
             kafka_message,
@@ -31,7 +27,7 @@ impl dlq::ErrorToDlq for ConsumerError {
             Some(backtrace.to_string()),
         )
     }
-    // Definition if error is retryable or not
+    // Define if error is retryable or not
     fn retryable(&self) -> dlq::Retryable {
         match self {
             ConsumerError::DeserializeError(_) => dlq::Retryable::NonRetryable,
@@ -40,62 +36,81 @@ impl dlq::ErrorToDlq for ConsumerError {
 }
 
 // simple deserialization function, that returns a Result of string or defined ConsumerError
-fn deserialize(msg: &dsh_sdk::rdkafka::message::OwnedMessage) -> Result<String, ConsumerError> {
+fn deserialize(msg: &BorrowedMessage) -> Result<String, ConsumerError> {
     match msg.payload() {
         Some(payload) => Ok(String::from_utf8(payload.to_vec())?),
         None => Ok("".to_string()),
     }
 }
 
-// simple consumer function
-async fn consume(consumer: StreamConsumer, dlq_tx: &mut mpsc::Sender<dlq::SendToDlq>) {
+// simple consumer function with shutdown function
+async fn consume(
+    consumer: StreamConsumer,
+    topic: &str,
+    mut dlq_channel: DlqChannel,
+    shutdown: Shutdown,
+) {
     consumer
-        .subscribe(&["sub_to_your_topic"])
+        .subscribe(&[topic])
         .expect("Can't subscribe to topic");
-    while let Ok(msg) = consumer.recv().await {
-        let owned_msg = msg.detach();
-        match deserialize(&owned_msg) {
-            // send message to dlq if error occurs
-            Err(e) => e.to_dlq(owned_msg).send(dlq_tx).await,
-            // process message, in this case print payload
-            Ok(payload) => {
-                println!("Payload: {}", payload)
+
+    loop {
+        tokio::select! {
+        msg = consumer.recv() => match msg {
+            Ok(msg) => {
+                match deserialize(&msg) {
+                    // send message to dlq if error occurs
+                    Err(e) => e.to_dlq(msg.detach()).send(&mut dlq_channel).await,
+                    // process message, in this case print payload
+                    Ok(payload) => {
+                        println!("Payload: {}", payload)
+                    }
+                }
             }
+            Err(e) => {
+                eprintln!("Error while receiving message: {}", e);
+            }
+        },
+        _ = shutdown.signal_listener() => {
+            println!("Shutting down consumer");
+            break;
+        }
         }
     }
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // set the dlq topics
+    // set the dlq topics (required)
     std::env::set_var("DLQ_DEAD_TOPIC", "scratch.dlq.local-tenant");
     std::env::set_var("DLQ_RETRY_TOPIC", "scratch.dlq.local-tenant");
-    let dsh = Properties::get();
-    let shutdown = Shutdown::new();
-    let consumer: StreamConsumer = dsh.consumer_rdkafka_config().create()?;
 
-    let mut dlq = dlq::Dlq::new(dsh, shutdown.clone())?;
-    // get the dlq channel sender to send messages to the dlq
-    // for example in your consumer
-    let mut dlq_tx = dlq.dlq_records_tx();
+    // Topic to subscribe to (change to your topic)
+    let topic = "your_topic_name";
+
+    let shutdown = Shutdown::new();
+    let consumer: StreamConsumer = ClientConfig::new().dsh_consumer_config().create()?;
+
+    // Start the `dlq` service, returns a sender to send messages to the dlq
+    let dlq_channel = dlq::Dlq::start(shutdown.clone())?;
+
+    // run the `consumer` in a separate tokio task
+    let shutdown_clone = shutdown.clone();
     let consumer_handle = tokio::spawn(async move {
-        consume(consumer, &mut dlq_tx).await;
+        consume(consumer, topic, dlq_channel, shutdown_clone).await;
     });
-    // run the dlq in a separate tokio task
-    let dlq_handle = tokio::spawn(async move {
-        dlq.run().await;
-    });
+
+    // wait for `consumer` or `dlq` to finish or for shutdown signal
     tokio::select! {
         _ = consumer_handle => {
             println!("Consumer finished");
-        }
-        _ = dlq_handle => {
-            println!("DLQ finished");
         }
         _ = shutdown.signal_listener() => {
             println!("Shutting down");
         }
     }
-    shutdown.complete().await; // wait for graceful shutdown to complete
+
+    // wait for graceful shutdown to complete
+    shutdown.complete().await;
     Ok(())
 }

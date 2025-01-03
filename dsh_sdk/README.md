@@ -5,6 +5,14 @@
 [![dependency status](https://deps.rs/repo/github/kpn-dsh/dsh-sdk-platform-rs/status.svg)](https://deps.rs/repo/github/kpn-dsh/dsh-sdk-platform-rs)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+# NOTE
+As this is a release candidate it may contain bugs and/or incomplete features and incorrect documentation and future updates may contain breaking changes.
+
+Please report any issues you encounter.
+
+## Migration guide 0.4.X -> 0.5.X
+See [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for more information on how to migrate from 0.4.X to 0.5.X.
+
 ## Description
 This library can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. Features include:
 - Connect to DSH 
@@ -27,27 +35,28 @@ To use this SDK with the default features in your project, add the following to 
   
 ```toml
 [dependencies]
-dsh_sdk = "0.4"
+dsh_sdk = "0.5"
 ```
 
 However, if you would like to use only specific features, you can specify them in your Cargo.toml file. For example, if you would like to use only the bootstrap feature, add the following to your Cargo.toml file:
   
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.4", default-features = false, features = ["bootstrap"] }
+dsh_sdk = { version = "0.5", default-features = false, features = ["rdkafka"] }
+rdkafka = { version =  "0.37", features = ["cmake-buld", "ssl-vendored"] }
 ```
 
 See [feature flags](#feature-flags) for more information on the available features.
 
 To use this SDK in your project
 ```rust
-use dsh_sdk::Properties;
-use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+use dsh_sdk::DshKafkaConfig;
+use rdkafka::consumer::{Consumer, StreamConsumer};
+use rdkafka::ClientConfig;
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{
-    let dsh_properties = Properties::get();
     // get a rdkafka consumer config for example
-    let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
+    let consumer: StreamConsumer = ClientConfig::new().dsh_consumer_config().create()?;
 }
 ```
 
@@ -56,18 +65,22 @@ The SDK is compatible with running in a container on a DSH tenant, on DSH System
 See [CONNECT_PROXY_VPN_LOCAL](CONNECT_PROXY_VPN_LOCAL.md) for more info.
 
 ## Feature flags
-The following features are available in this library and can be enabled/disabled in your Cargo.toml file.:
+See the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for more information on the changes in feature flags since the v0.5.X update.
+
+The following features are available in this library and can be enabled/disabled in your Cargo.toml file:
 
 | **feature** | **default** | **Description** |
 |---|---|---|
-| `bootstrap` | &check; | Generate signed certificate and fetch datastreams info <br> Also makes certificates available, to be used as lowlevel API |
-| `rest-token-fetcher` | &cross; | Fetch tokens to use DSH Rest API |
-| `mqtt-token-fetcher` | &cross; | Fetch tokens to use DSH MQTT |
-| `metrics` | &check; | Enable (custom) metrics for your service |
-| `graceful-shutdown` | &check; | Create a signal handler for implementing a graceful shutdown |
-| `dlq` | &cross; | Dead Letter Queue implementation (experimental) |
-| `rdkafka-ssl` | &check; | Dynamically link to librdkafka to a locally installed OpenSSL |
-| `rdkafka-ssl-vendored` | &cross; | Build OpenSSL during compile and statically link librdkafka <br> (No initial install required in environment, slower compile time) |
+| `bootstrap` | &check; | Generate signed certificate and fetch datastreams info |
+| `kafka` |  &check; | Enable `DshKafkaConfig` trait and Config struct to connect to DSH |
+| `rdkafka-config` | &check; | Enable `DshKafkaConfig` implementation for RDKafka |
+| `protocol-token-fetcher` | &cross; | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP) |
+| `management-api-token-fetcher` | &cross; | Fetch tokens to use DSH Management API |
+| `metrics` | &cross; | Enable prometheus metrics including http server |
+| `graceful-shutdown` | &cross; | Tokio based gracefull shutdown handler |
+| `dlq` | &cross; | Dead Letter Queue implementation |
+| `rest-token-fetcher` | &cross; | Replaced by `management-api-token-fetcher` |
+| `mqtt-token-fetcher` | &cross; | Replaced by `protocol-token-fetcher` |
 
 See api documentation for more information on how to use these features including.
 

@@ -55,7 +55,7 @@ pub enum DshError {
     HyperError(#[from] hyper::http::Error),
 }
 
-#[cfg(feature = "management-api")]
+#[cfg(feature = "management-api-token-fetcher")]
 #[derive(Error, Debug)]
 #[non_exhaustive]
 pub enum DshRestTokenError {

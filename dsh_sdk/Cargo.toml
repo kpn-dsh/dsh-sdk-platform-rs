@@ -9,7 +9,7 @@ license.workspace = true
 name = "dsh_sdk"
 readme = 'README.md'
 repository.workspace = true
-version = "0.5.0"
+version = "0.5.0-rc.1"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -32,7 +32,7 @@ prometheus = { version = "0.13", features = ["process"], optional = true }
 protofish = { version = "0.5.2", optional = true }
 rcgen = { version = "0.13", optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "blocking"], optional = true }
-rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
+rdkafka = { version = ">=0.36", default-features = false, optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"], optional = true }
 sha2 = { version = "0.10", optional = true}
@@ -41,32 +41,33 @@ tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], op
 tokio-util = { version = "0.7", default-features = false, optional = true }
 
 [features]
-default = ["bootstrap", "graceful-shutdown", "metrics", "rdkafka-ssl", "schema-store"]
+# default = ["bootstrap", "graceful-shutdown", "metrics", "rdkafka-ssl", "schema-store"]
+default = ["bootstrap", "kafka"]
 
 bootstrap = ["certificate", "serde_json", "tokio/rt-multi-thread"] 
+kafka = ["bootstrap"]
+rdkafka-config = ["rdkafka", "kafka"] # Impl of config trait only
+
 certificate = ["rcgen", "reqwest", "pem"]
 schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
 metrics = ["prometheus", "hyper/server", "hyper/http1" , "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
-dlq = ["tokio", "bootstrap", "rdkafka-ssl", "graceful-shutdown"]
+dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 graceful-shutdown = ["tokio", "tokio-util"]
-management-api = ["reqwest"]
+management-api-token-fetcher = ["reqwest"]
 protocol-token-fetcher = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
+
 # http-protocol-adapter = ["protocol-token-fetcher"]
 # mqtt-protocol-adapter = ["protocol-token-fetcher"]
 # hyper-client = ["hyper", "hyper-util", "hyper-rustls", "rustls", "http", "rustls-pemfile"]
 
-# TODO: Remove the following features at v0.6.0
-rdkafka-ssl-vendored = ["rdkafka", "rdkafka/ssl-vendored", "rdkafka/cmake-build"]
-rdkafka-ssl = ["rdkafka", "rdkafka/ssl", "rdkafka/cmake-build"]
-#mqtt-token-fetcher = ["protocol-token-fetcher"]
-#rest-token-fetcher = ["management-api"] 
 
 [dev-dependencies]
 mockito = "1.1.1"
 openssl = "0.10"
 tokio = { version = "^1.35", features = ["full"] }
-hyper = { version = "1.3", features = ["full"]}
+hyper = { version = "1.3", features = ["full"] }
 serial_test = "3.1.0"
 dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.2.0"}
 dsh_sdk = { features = ["dlq"], path = "." }
 env_logger = "0.11"
+rdkafka = { version = ">=0.36", features = ["cmake-build", "ssl-vendored"], default-features = true }
