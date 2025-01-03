@@ -82,7 +82,7 @@ pub mod datastream;
 #[cfg(feature = "bootstrap")]
 pub mod dsh;
 pub mod error;
-#[cfg(feature = "management-api")]
+#[cfg(feature = "management-api-token-fetcher")]
 pub mod management_api;
 pub mod protocol_adapters;
 pub mod utils;
@@ -98,7 +98,7 @@ pub use dsh::Dsh;
 #[doc(inline)]
 pub use protocol_adapters::kafka_protocol::DshKafkaConfig;
 
-#[cfg(feature = "management-api")]
+#[cfg(feature = "management-api-token-fetcher")]
 pub use management_api::token_fetcher::{
     ManagementApiTokenFetcher, ManagementApiTokenFetcherBuilder,
 };
@@ -145,13 +145,13 @@ pub mod mqtt_token_fetcher;
 #[cfg(feature = "bootstrap")]
 pub use dsh_old::Properties;
 
-#[cfg(feature = "management-api")]
+#[cfg(feature = "management-api-token-fetcher")]
 #[deprecated(
     since = "0.5.0",
     note = "`RestTokenFetcher` and `RestTokenFetcherBuilder` are renamed to `ManagementApiTokenFetcher` and `ManagementApiTokenFetcherBuilder`"
 )]
 mod rest_api_token_fetcher;
-#[cfg(feature = "management-api")]
+#[cfg(feature = "management-api-token-fetcher")]
 pub use rest_api_token_fetcher::{RestTokenFetcher, RestTokenFetcherBuilder};
 
 // Environment variables
