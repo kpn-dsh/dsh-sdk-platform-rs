@@ -27,7 +27,7 @@
 //! ```
 use log::{error, warn};
 use std::env;
-use std::sync::{OnceLock, Arc};
+use std::sync::{Arc, OnceLock};
 
 use crate::certificates::Cert;
 use crate::datastream::Datastream;

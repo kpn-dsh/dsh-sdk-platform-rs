@@ -12,7 +12,10 @@ impl DshKafkaConfig for ClientConfig {
         self.set("bootstrap.servers", config.kafka_brokers())
             .set("group.id", config.group_id())
             .set("client.id", client_id)
-            .set("enable.auto.commit", config.enable_auto_commit().to_string())
+            .set(
+                "enable.auto.commit",
+                config.enable_auto_commit().to_string(),
+            )
             .set("auto.offset.reset", config.auto_offset_reset());
         if let Some(session_timeout) = config.session_timeout() {
             self.set("session.timeout.ms", session_timeout.to_string());
@@ -39,9 +42,7 @@ impl DshKafkaConfig for ClientConfig {
         if let Some(batch_num_messages) = config.batch_num_messages() {
             self.set("batch.num.messages", batch_num_messages.to_string());
         }
-        if let Some(queue_buffering_max_messages) =
-            config.queue_buffering_max_messages()
-        {
+        if let Some(queue_buffering_max_messages) = config.queue_buffering_max_messages() {
             self.set(
                 "queue.buffering.max.messages",
                 queue_buffering_max_messages.to_string(),

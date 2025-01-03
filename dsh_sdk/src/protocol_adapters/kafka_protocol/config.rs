@@ -3,8 +3,8 @@
 //! This module contains the configuration for the Kafka protocol adapter.
 use std::sync::Arc;
 
-use crate::utils::get_env_var;
 use crate::datastream::Datastream;
+use crate::utils::get_env_var;
 use crate::*;
 
 /// Kafka config
@@ -30,7 +30,8 @@ pub struct KafkaConfig {
 
 impl KafkaConfig {
     pub fn new(datastream: Option<Arc<Datastream>>) -> Self {
-        let datastream = datastream.unwrap_or_else(|| Arc::new(Datastream::load_local_datastreams().unwrap_or_default()));
+        let datastream = datastream
+            .unwrap_or_else(|| Arc::new(Datastream::load_local_datastreams().unwrap_or_default()));
         let enable_auto_commit = get_env_var(VAR_KAFKA_ENABLE_AUTO_COMMIT)
             .ok()
             .and_then(|v| v.parse().ok())
@@ -151,10 +152,10 @@ impl KafkaConfig {
     }
 
     /// Session timeout in milliseconds for consuming messages
-    /// 
+    ///
     /// ## Environment variable
     /// You can set the following environment variable to overwrite the default value.
-    /// 
+    ///
     /// ### `KAFKA_CONSUMER_SESSION_TIMEOUT_MS`
     /// - Usage: Set the session timeout in milliseconds
     /// - Default: LibRdKafka default
@@ -165,10 +166,10 @@ impl KafkaConfig {
     }
 
     /// Queued buffering max messages kbytes while consiuming
-    /// 
+    ///
     /// ## Environment variable
     /// You can set the following environment variable to overwrite the default value.
-    /// 
+    ///
     /// ### `KAFKA_CONSUMER_QUEUED_BUFFERING_MAX_MESSAGES_KBYTES`
     /// - Usage: Set the queued buffering max messages kbytes
     /// - Default: LibRdKafka default
@@ -179,10 +180,10 @@ impl KafkaConfig {
     }
 
     /// Batch number of messages to be produced
-    /// 
+    ///
     /// ## Environment variable
     /// You can set the following environment variable to overwrite the default value.
-    /// 
+    ///
     /// ### `KAFKA_PRODUCER_BATCH_NUM_MESSAGES`
     /// - Usage: Set the batch number of messages to be produced
     /// - Default: LibRdKafka default
@@ -193,10 +194,10 @@ impl KafkaConfig {
     }
 
     /// Maximum number of messages allowed on the producer queue
-    /// 
+    ///
     /// ## Environment variable
     /// You can set the following environment variable to overwrite the default value.
-    /// 
+    ///
     /// ### `KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES`
     /// - Usage: Set the maximum number of messages allowed on the producer queue
     /// - Default: LibRdKafka default
@@ -207,24 +208,24 @@ impl KafkaConfig {
     }
 
     /// Maximum total message size in KBYTES sum allowed on the producer queue
-    /// 
+    ///
     /// ## Environment variable
     /// You can set the following environment variable to overwrite the default value.
-    /// 
+    ///
     /// ### `KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_KBYTES`
     /// - Usage: Set the maximum total message size in KBYTES sum allowed on the producer queue
     /// - Default: LibRdKafka default
     /// - Required: `false`
-    /// - Options: Any integer 
+    /// - Options: Any integer
     pub fn queue_buffering_max_kbytes(&self) -> Option<i32> {
         self.queue_buffering_max_kbytes
     }
 
     /// Delay in milliseconds to wait for messages in the producer queue to accumulate before sending in batch
-    /// 
+    ///
     /// ## Environment variable
     /// You can set the following environment variable to overwrite the default value.
-    /// 
+    ///
     /// ### `KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS`
     /// - Usage: Set the delay in milliseconds to wait for messages in the producer queue to accumulate before sending in batch
     /// - Default: LibRdKafka default

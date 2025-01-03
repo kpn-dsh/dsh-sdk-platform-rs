@@ -12,7 +12,7 @@
 //! more information configuring the consmer or producer via environment variables.
 use log::{error, warn};
 use std::env;
-use std::sync::{OnceLock, Arc};
+use std::sync::{Arc, OnceLock};
 
 use crate::certificates::Cert;
 use crate::datastream;
@@ -353,7 +353,9 @@ impl Properties {
     /// - Required: `false`
     /// - Options: smallest, earliest, beginning, largest, latest, end
     pub fn kafka_auto_offset_reset(&self) -> String {
-        config::KafkaConfig::new(Some(self.datastream.clone())).auto_offset_reset().to_string()
+        config::KafkaConfig::new(Some(self.datastream.clone()))
+            .auto_offset_reset()
+            .to_string()
     }
 
     /// Get default RDKafka Consumer config to connect to Kafka on DSH.
@@ -452,7 +454,8 @@ impl Properties {
 
 impl Default for Properties {
     fn default() -> Self {
-        let datastream = Arc::new(datastream::Datastream::load_local_datastreams().unwrap_or_default());
+        let datastream =
+            Arc::new(datastream::Datastream::load_local_datastreams().unwrap_or_default());
         Self {
             task_id: "local_task_id".to_string(),
             tenant_name: "local_tenant".to_string(),

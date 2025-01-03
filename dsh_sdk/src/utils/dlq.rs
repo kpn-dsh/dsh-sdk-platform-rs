@@ -192,9 +192,7 @@ impl Dlq {
     ///     shutdown.complete().await;
     /// }
     /// ```
-    pub fn start(
-        shutdown: Shutdown,
-    ) -> Result<DlqChannel, Box<dyn std::error::Error>> {
+    pub fn start(shutdown: Shutdown) -> Result<DlqChannel, Box<dyn std::error::Error>> {
         let (dlq_tx, dlq_rx) = mpsc::channel(200);
         let dlq_producer: FutureProducer<DefaultClientContext, rdkafka::util::TokioRuntime> =
             ClientConfig::new().dsh_producer_config().create()?;

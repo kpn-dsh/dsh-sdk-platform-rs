@@ -61,7 +61,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let topics_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
     let topics = topics_string.split(',').collect::<Vec<&str>>();
 
-
     // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals, and you can act on them)
     let shutdown = Shutdown::new();
 

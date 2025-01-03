@@ -1,4 +1,4 @@
-use dsh_sdk::utils::dlq::{self, ErrorToDlq, DlqChannel};
+use dsh_sdk::utils::dlq::{self, DlqChannel, ErrorToDlq};
 use dsh_sdk::utils::graceful_shutdown::Shutdown;
 use dsh_sdk::DshKafkaConfig;
 
