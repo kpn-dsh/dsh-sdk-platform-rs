@@ -1,4 +1,4 @@
-use dsh_sdk::metrics::*;
+use dsh_sdk::utils::metrics::*;
 
 lazy_static! {
     pub static ref HIGH_FIVE_COUNTER: IntCounter =

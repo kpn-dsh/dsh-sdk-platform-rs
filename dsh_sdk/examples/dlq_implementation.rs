@@ -7,7 +7,6 @@ use rdkafka::message::{BorrowedMessage, Message, OwnedMessage};
 use rdkafka::ClientConfig;
 use std::backtrace::Backtrace;
 use thiserror::Error;
-use tokio::sync::mpsc;
 
 // Define your custom error type
 #[derive(Error, Debug)]

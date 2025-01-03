@@ -199,8 +199,8 @@ pub struct Claims {
 }
 
 impl Claims {
-    pub fn new(resource: Resource, action: String) -> Claims {
-        Claims { resource, action }
+    pub fn new(resource: Resource, action: Actions) -> Claims {
+        Claims { resource, action: action.to_string() }
     }
 }
 
@@ -700,9 +700,9 @@ mod tests {
             "topic".to_string(),
             None,
         );
-        let action = "publish".to_string();
+        let action = Actions::Publish;
 
-        let claims = Claims::new(resource.clone(), action.clone());
+        let claims = Claims::new(resource.clone(), action);
 
         assert_eq!(claims.resource.stream, "stream");
         assert_eq!(claims.action, "publish");

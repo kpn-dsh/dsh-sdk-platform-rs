@@ -1,4 +1,4 @@
-use dsh_sdk::graceful_shutdown::Shutdown;
+use dsh_sdk::utils::graceful_shutdown::Shutdown;
 
 // your process task
 async fn process_task(shutdown: Shutdown) {
@@ -20,14 +20,13 @@ async fn process_task(shutdown: Shutdown) {
 #[tokio::main]
 async fn main() {
     // Create shutdown handle
-    let shutdown = dsh_sdk::graceful_shutdown::Shutdown::new();
+    let shutdown = Shutdown::new();
     // Create your process task with a cloned shutdown handle
     let process_task = process_task(shutdown.clone());
     // Spawn your process task in a tokio runtime
     let process_task_handle = tokio::spawn(async move {
         process_task.await;
     });
-
     // Listen for shutdown request or if process task stopped
     // If your process stops, start shutdown procedure to stop other tasks (if any)
     tokio::select! {
@@ -35,6 +34,6 @@ async fn main() {
         _ = process_task_handle => {println!("process_task stopped"); shutdown.start()},
     }
     // Wait till shutdown procedures is finished
-    let _ = shutdown.complete().await;
+    shutdown.complete().await;
     println!("Exiting main...")
 }
