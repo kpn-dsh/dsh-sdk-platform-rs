@@ -17,7 +17,7 @@ use std::sync::{Arc, OnceLock};
 use crate::certificates::Cert;
 use crate::datastream;
 use crate::error::DshError;
-use crate::protocol_adapters::kafka_protocol::config;
+
 use crate::utils;
 use crate::*;
 
@@ -328,6 +328,7 @@ impl Properties {
         }
     }
 
+    #[cfg(feature = "kafka")]
     /// Get the confifured kafka auto commit setinngs.
     ///
     /// ## Environment variables
@@ -339,9 +340,13 @@ impl Properties {
     /// - Required: `false`
     /// - Options: `true`, `false`
     pub fn kafka_auto_commit(&self) -> bool {
-        config::KafkaConfig::new(Some(self.datastream.clone())).enable_auto_commit()
+        crate::protocol_adapters::kafka_protocol::config::KafkaConfig::new(Some(
+            self.datastream.clone(),
+        ))
+        .enable_auto_commit()
     }
 
+    #[cfg(feature = "kafka")]
     /// Get the kafka auto offset reset settings.
     ///
     /// ## Environment variables
@@ -353,9 +358,11 @@ impl Properties {
     /// - Required: `false`
     /// - Options: smallest, earliest, beginning, largest, latest, end
     pub fn kafka_auto_offset_reset(&self) -> String {
-        config::KafkaConfig::new(Some(self.datastream.clone()))
-            .auto_offset_reset()
-            .to_string()
+        crate::protocol_adapters::kafka_protocol::config::KafkaConfig::new(Some(
+            self.datastream.clone(),
+        ))
+        .auto_offset_reset()
+        .to_string()
     }
 
     /// Get default RDKafka Consumer config to connect to Kafka on DSH.
