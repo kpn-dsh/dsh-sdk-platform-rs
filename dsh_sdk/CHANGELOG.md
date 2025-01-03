@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Breaking change:** `dsh_sdk::Dsh::reqwest_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
 - **Breaking change:** `dsh_sdk::Dsh::reqwest_blocking_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
+- **Breaking change:** `dsh_sdk::utils::Dlq` does not require `Dsh`/`Properties` as argument anymore
 
 ### Moved
 - Moved `dsh_sdk::dsh::properties` to `dsh_sdk::propeties`
@@ -30,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved `dsh_sdk::metrics` to `dsh_sdk::utils::metrics`
 
 ### Removed
+- Removed `dsh_sdk::rdkafka` public re-export, import `rdkafka` directly
+  - **NOTE** Feature-flag `rdkafka-ssl` and `rdkafka-ssl-vendored` are removed!
 - Removed `Default` trait for `Dsh` (original `Properties`) struct as this should be public
 
 ### Fixed

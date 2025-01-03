@@ -12,13 +12,13 @@
 //!
 //! ### Example:
 //! ```
-//! use dsh_sdk::Properties;
-//! use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
+//! use dsh_sdk::DshKafkaConfig;
+//! use rdkafka::ClientConfig;
+//! use rdkafka::consumer::stream_consumer::StreamConsumer;
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! let dsh_properties = Properties::get();
-//! let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
+//! let consumer: StreamConsumer = ClientConfig::new().dsh_consumer_config().create()?;
 //! # Ok(())
 //! # }
 //! ```
@@ -28,14 +28,14 @@
 //!
 //! ### Example:
 //! ```no_run
-//! # use dsh_sdk::Properties;
-//! # use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
+//! use dsh_sdk::Dsh;
+
 //! # fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! #    let dsh_properties = Properties::get();
+//! let dsh = Dsh::get();
 //! // check for write access to topic
-//! let write_access = dsh_properties.datastream().get_stream("scratch.local.local-tenant").expect("Topic not found").write_access();
+//! let write_access = dsh.datastream().get_stream("scratch.local.local-tenant").expect("Topic not found").write_access();
 //! // get the certificates, for example DSH_KAFKA_CERTIFICATE
-//! let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();
+//! let dsh_kafka_certificate = dsh.certificates()?.dsh_kafka_certificate_pem();
 //! #     Ok(())
 //! # }
 //! ```
@@ -72,6 +72,8 @@
 //! The DLQ is implemented by running the `Dlq` struct to push messages towards the DLQ topics.
 //! The `ErrorToDlq` trait can be implemented on your defined errors, to be able to send messages towards the DLQ Struct.
 
+#![allow(deprecated)]
+
 // to be kept in v0.6.0
 #[cfg(feature = "certificate")]
 pub mod certificates;
@@ -91,6 +93,10 @@ pub mod schema_store;
 #[cfg(feature = "bootstrap")]
 #[doc(inline)]
 pub use dsh::Dsh;
+
+#[cfg(feature = "kafka")]
+#[doc(inline)]
+pub use protocol_adapters::kafka_protocol::DshKafkaConfig;
 
 #[cfg(feature = "management-api")]
 pub use management_api::token_fetcher::{
@@ -130,8 +136,6 @@ pub mod graceful_shutdown;
 )]
 pub mod metrics;
 
-#[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
-pub use rdkafka;
 #[cfg(feature = "protocol-token-fetcher")]
 #[deprecated(
     since = "0.5.0",

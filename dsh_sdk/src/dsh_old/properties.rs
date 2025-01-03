@@ -10,24 +10,9 @@
 //! ## Environment variables
 //! See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for
 //! more information configuring the consmer or producer via environment variables.
-//!
-//! # Example
-//! ```
-//! use dsh_sdk::Properties;
-//! use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
-//!
-//! # #[tokio::main]
-//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! let dsh_properties = Properties::get();
-//! let consumer_config = dsh_properties.consumer_rdkafka_config();
-//! let consumer: StreamConsumer = consumer_config.create()?;
-//!
-//! # Ok(())
-//! # }
-//! ```
 use log::{error, warn};
 use std::env;
-use std::sync::OnceLock;
+use std::sync::{OnceLock, Arc};
 
 use crate::certificates::Cert;
 use crate::datastream;
@@ -44,22 +29,6 @@ use crate::*;
 /// ## Environment variables
 /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for
 /// more information configuring the consmer or producer via environment variables.
-///
-/// # Example
-/// ```
-/// use dsh_sdk::Properties;
-/// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
-///
-/// #[tokio::main]
-/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let dsh_properties = Properties::get();
-///     
-///     let consumer_config = dsh_properties.consumer_rdkafka_config();
-///     let consumer: StreamConsumer = consumer_config.create()?;
-///
-///     Ok(())
-/// }
-/// ```
 
 #[deprecated(since = "0.5.0", note = "`Properties` is renamed to `dsh_sdk::Dsh`")]
 #[derive(Debug, Clone)]
@@ -67,7 +36,7 @@ pub struct Properties {
     config_host: String,
     task_id: String,
     tenant_name: String,
-    datastream: datastream::Datastream,
+    datastream: Arc<datastream::Datastream>,
     certificates: Option<certificates::Cert>,
 }
 
@@ -80,6 +49,7 @@ impl Properties {
         datastream: datastream::Datastream,
         certificates: Option<certificates::Cert>,
     ) -> Self {
+        let datastream = Arc::new(datastream);
         Self {
             config_host,
             task_id,
@@ -105,7 +75,7 @@ impl Properties {
     /// # Example
     /// ```
     /// use dsh_sdk::Properties;
-    /// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+    /// use rdkafka::consumer::{Consumer, StreamConsumer};
     ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -369,7 +339,7 @@ impl Properties {
     /// - Required: `false`
     /// - Options: `true`, `false`
     pub fn kafka_auto_commit(&self) -> bool {
-        config::KafkaConfig::get().enable_auto_commit()
+        config::KafkaConfig::new(Some(self.datastream.clone())).enable_auto_commit()
     }
 
     /// Get the kafka auto offset reset settings.
@@ -383,7 +353,7 @@ impl Properties {
     /// - Required: `false`
     /// - Options: smallest, earliest, beginning, largest, latest, end
     pub fn kafka_auto_offset_reset(&self) -> String {
-        config::KafkaConfig::get().auto_offset_reset()
+        config::KafkaConfig::new(Some(self.datastream.clone())).auto_offset_reset().to_string()
     }
 
     /// Get default RDKafka Consumer config to connect to Kafka on DSH.
@@ -400,8 +370,7 @@ impl Properties {
     /// # Example
     /// ```
     /// use dsh_sdk::Properties;
-    /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
-    /// use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
+    /// use rdkafka::consumer::stream_consumer::StreamConsumer;
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -433,42 +402,9 @@ impl Properties {
     /// ## Environment variables
     /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
     /// configuring the consmer via environment variables.
-    #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
+    #[cfg(feature = "rdkafka")]
     pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
-        let consumer_config = crate::protocol_adapters::kafka_protocol::config::KafkaConfig::get();
-        let mut config = rdkafka::config::ClientConfig::new();
-        config
-            .set("bootstrap.servers", self.kafka_brokers())
-            .set("group.id", self.kafka_group_id())
-            .set("client.id", self.client_id())
-            .set("enable.auto.commit", self.kafka_auto_commit().to_string())
-            .set("auto.offset.reset", self.kafka_auto_offset_reset());
-        if let Some(session_timeout) = consumer_config.session_timeout() {
-            config.set("session.timeout.ms", session_timeout.to_string());
-        }
-        if let Some(queued_buffering_max_messages_kbytes) =
-            consumer_config.queued_buffering_max_messages_kbytes()
-        {
-            config.set(
-                "queued.max.messages.kbytes",
-                queued_buffering_max_messages_kbytes.to_string(),
-            );
-        }
-        log::debug!("Consumer config: {:#?}", config);
-        // Set SSL if certificates are present
-        if let Ok(certificates) = &self.certificates() {
-            config
-                .set("security.protocol", "ssl")
-                .set("ssl.key.pem", certificates.private_key_pem())
-                .set(
-                    "ssl.certificate.pem",
-                    certificates.dsh_kafka_certificate_pem(),
-                )
-                .set("ssl.ca.pem", certificates.dsh_ca_certificate_pem());
-        } else {
-            config.set("security.protocol", "plaintext");
-        }
-        config
+        crate::Dsh::get().consumer_rdkafka_config()
     }
 
     /// Get default RDKafka Producer config to connect to Kafka on DSH.
@@ -479,8 +415,7 @@ impl Properties {
     ///
     /// # Example
     /// ```
-    /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
-    /// use dsh_sdk::rdkafka::producer::FutureProducer;
+    /// use rdkafka::producer::FutureProducer;
     /// use dsh_sdk::Properties;
     ///
     /// #[tokio::main]
@@ -509,53 +444,15 @@ impl Properties {
     /// ## Environment variables
     /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
     /// configuring the producer via environment variables.
-    #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
+    #[cfg(feature = "rdkafka")]
     pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
-        let producer_config = crate::protocol_adapters::kafka_protocol::config::KafkaConfig::get();
-        let mut config = rdkafka::config::ClientConfig::new();
-        config
-            .set("bootstrap.servers", self.kafka_brokers())
-            .set("client.id", self.client_id());
-        if let Some(batch_num_messages) = producer_config.batch_num_messages() {
-            config.set("batch.num.messages", batch_num_messages.to_string());
-        }
-        if let Some(queue_buffering_max_messages) = producer_config.queue_buffering_max_messages() {
-            config.set(
-                "queue.buffering.max.messages",
-                queue_buffering_max_messages.to_string(),
-            );
-        }
-        if let Some(queue_buffering_max_kbytes) = producer_config.queue_buffering_max_kbytes() {
-            config.set(
-                "queue.buffering.max.kbytes",
-                queue_buffering_max_kbytes.to_string(),
-            );
-        }
-        if let Some(queue_buffering_max_ms) = producer_config.queue_buffering_max_ms() {
-            config.set("queue.buffering.max.ms", queue_buffering_max_ms.to_string());
-        }
-        log::debug!("Producer config: {:#?}", config);
-
-        // Set SSL if certificates are present
-        if let Ok(certificates) = self.certificates() {
-            config
-                .set("security.protocol", "ssl")
-                .set("ssl.key.pem", certificates.private_key_pem())
-                .set(
-                    "ssl.certificate.pem",
-                    certificates.dsh_kafka_certificate_pem(),
-                )
-                .set("ssl.ca.pem", certificates.dsh_ca_certificate_pem());
-        } else {
-            config.set("security.protocol", "plaintext");
-        }
-        config
+        crate::Dsh::get().producer_rdkafka_config()
     }
 }
 
 impl Default for Properties {
     fn default() -> Self {
-        let datastream = datastream::Datastream::load_local_datastreams().unwrap_or_default();
+        let datastream = Arc::new(datastream::Datastream::load_local_datastreams().unwrap_or_default());
         Self {
             task_id: "local_task_id".to_string(),
             tenant_name: "local_tenant".to_string(),

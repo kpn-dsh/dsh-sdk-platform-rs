@@ -10,7 +10,7 @@
 //! # Example
 //! ```
 //! use dsh_sdk::Properties;
-//! use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+//! use rdkafka::consumer::{Consumer, StreamConsumer};
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,7 +21,6 @@
 //! # Ok(())
 //! # }
 //! ```
-
 #[deprecated(
     since = "0.5.0",
     note = "`dsh_sdk::dsh::certificates` is moved to `dsh_sdk::certificates`"

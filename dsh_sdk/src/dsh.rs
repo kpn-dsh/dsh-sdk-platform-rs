@@ -27,16 +27,18 @@
 //! ```
 use log::{error, warn};
 use std::env;
-use std::sync::OnceLock;
+use std::sync::{OnceLock, Arc};
 
 use crate::certificates::Cert;
 use crate::datastream::Datastream;
 use crate::error::DshError;
-use crate::protocol_adapters::kafka_protocol::config;
 use crate::utils;
 use crate::*;
 
-// TODP: Remove at v0.6.0
+#[cfg(feature = "kafka")]
+use crate::protocol_adapters::kafka_protocol::config::KafkaConfig;
+
+// TODO: Remove at v0.6.0
 pub use crate::dsh_old::*;
 
 /// DSH properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
@@ -47,30 +49,16 @@ pub use crate::dsh_old::*;
 /// ## Environment variables
 /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for
 /// more information configuring the consmer or producer via environment variables.
-///
-/// # Example
-/// ```
-/// use dsh_sdk::Dsh;
-/// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
-///
-/// #[tokio::main]
-/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let dsh_properties = Dsh::get();
-///     
-///     let consumer_config = dsh_properties.consumer_rdkafka_config();
-///     let consumer: StreamConsumer = consumer_config.create()?;
-///
-///     Ok(())
-/// }
-/// ```
 
 #[derive(Debug, Clone)]
 pub struct Dsh {
     config_host: String,
     task_id: String,
     tenant_name: String,
-    datastream: Datastream,
+    datastream: Arc<Datastream>,
     certificates: Option<Cert>,
+    #[cfg(feature = "kafka")]
+    kafka_config: KafkaConfig,
 }
 
 impl Dsh {
@@ -82,12 +70,15 @@ impl Dsh {
         datastream: Datastream,
         certificates: Option<Cert>,
     ) -> Self {
+        let datastream = Arc::new(datastream);
         Self {
             config_host,
             task_id,
             tenant_name,
-            datastream,
+            datastream: datastream.clone(),
             certificates,
+            #[cfg(feature = "kafka")]
+            kafka_config: KafkaConfig::new(Some(datastream)),
         }
     }
     /// Get the DSH Dsh on a lazy way. If not already initialized, it will initialize the properties
@@ -107,12 +98,11 @@ impl Dsh {
     /// # Example
     /// ```
     /// use dsh_sdk::Dsh;
-    /// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
     ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let dsh_properties = Dsh::get();
-    /// let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
+    /// let dsh = Dsh::get();
+    /// let datastreams = dsh.datastream();
     /// # Ok(())
     /// # }
     /// ```
@@ -259,7 +249,7 @@ impl Dsh {
     ///
     /// This datastream is fetched at initialization of the properties, and can not be updated during runtime.
     pub fn datastream(&self) -> &Datastream {
-        &self.datastream
+        self.datastream.as_ref()
     }
 
     /// High level method to fetch the kafka properties provided by DSH (datastreams.json)
@@ -307,6 +297,11 @@ impl Dsh {
         self.datastream().schema_store()
     }
 
+    #[cfg(feature = "kafka")]
+    #[deprecated(
+        since = "0.5.0",
+        note = "Moved to `Dsh::kafka_config().kafka_brokers()` and is part of the `kafka` feature"
+    )]
     /// Get the Kafka brokers.
     ///
     /// ## Environment variables
@@ -320,6 +315,11 @@ impl Dsh {
         self.datastream().get_brokers_string()
     }
 
+    #[cfg(feature = "kafka")]
+    #[deprecated(
+        since = "0.5.0",
+        note = "Moved to `Dsh::kafka_config().group_id()` and is part of the `kafka` feature"
+    )]
     /// Get the kafka_group_id based.
     ///
     /// ## Environment variables
@@ -351,6 +351,11 @@ impl Dsh {
         }
     }
 
+    #[cfg(feature = "kafka")]
+    #[deprecated(
+        since = "0.5.0",
+        note = "Moved to `Dsh::kafka_config().enable_auto_commit()` and is part of the `kafka` feature"
+    )]
     /// Get the confifured kafka auto commit setinngs.
     ///
     /// ## Environment variables
@@ -362,9 +367,14 @@ impl Dsh {
     /// - Required: `false`
     /// - Options: `true`, `false`
     pub fn kafka_auto_commit(&self) -> bool {
-        config::KafkaConfig::get().enable_auto_commit()
+        self.kafka_config.enable_auto_commit()
     }
 
+    #[cfg(feature = "kafka")]
+    #[deprecated(
+        since = "0.5.0",
+        note = "Moved to `Dsh::kafka_config().auto_offset_reset()` and is part of the `kafka` feature"
+    )]
     /// Get the kafka auto offset reset settings.
     ///
     /// ## Environment variables
@@ -376,86 +386,36 @@ impl Dsh {
     /// - Required: `false`
     /// - Options: smallest, earliest, beginning, largest, latest, end
     pub fn kafka_auto_offset_reset(&self) -> String {
-        config::KafkaConfig::get().auto_offset_reset()
+        self.kafka_config.auto_offset_reset().to_string()
     }
-    #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
+
+    #[cfg(feature = "kafka")]
+    /// Get the kafka config from initiated Dsh struct.
+    pub fn kafka_config(&self) -> &KafkaConfig {
+        &self.kafka_config
+    }
+
+    #[deprecated(
+        since = "0.5.0",
+        note = "Use `Dsh::DshKafkaConfig` trait instead, see https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)"
+    )]
+    #[cfg(feature = "rdkafka-config")]
     pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
-        let consumer_config = crate::protocol_adapters::kafka_protocol::config::KafkaConfig::get();
+        use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
         let mut config = rdkafka::config::ClientConfig::new();
-        config
-            .set("bootstrap.servers", self.kafka_brokers())
-            .set("group.id", self.kafka_group_id())
-            .set("client.id", self.client_id())
-            .set("enable.auto.commit", self.kafka_auto_commit().to_string())
-            .set("auto.offset.reset", self.kafka_auto_offset_reset());
-        if let Some(session_timeout) = consumer_config.session_timeout() {
-            config.set("session.timeout.ms", session_timeout.to_string());
-        }
-        if let Some(queued_buffering_max_messages_kbytes) =
-            consumer_config.queued_buffering_max_messages_kbytes()
-        {
-            config.set(
-                "queued.max.messages.kbytes",
-                queued_buffering_max_messages_kbytes.to_string(),
-            );
-        }
-        log::debug!("Consumer config: {:#?}", config);
-        // Set SSL if certificates are present
-        if let Ok(certificates) = &self.certificates() {
-            config
-                .set("security.protocol", "ssl")
-                .set("ssl.key.pem", certificates.private_key_pem())
-                .set(
-                    "ssl.certificate.pem",
-                    certificates.dsh_kafka_certificate_pem(),
-                )
-                .set("ssl.ca.pem", certificates.dsh_ca_certificate_pem());
-        } else {
-            config.set("security.protocol", "plaintext");
-        }
+        config.dsh_consumer_config();
         config
     }
 
-    #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
+    #[deprecated(
+        since = "0.5.0",
+        note = "Use `Dsh::DshKafkaConfig` trait instead, see https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)"
+    )]
+    #[cfg(feature = "rdkafka-config")]
     pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
-        let producer_config = crate::protocol_adapters::kafka_protocol::config::KafkaConfig::get();
+        use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
         let mut config = rdkafka::config::ClientConfig::new();
-        config
-            .set("bootstrap.servers", self.kafka_brokers())
-            .set("client.id", self.client_id());
-        if let Some(batch_num_messages) = producer_config.batch_num_messages() {
-            config.set("batch.num.messages", batch_num_messages.to_string());
-        }
-        if let Some(queue_buffering_max_messages) = producer_config.queue_buffering_max_messages() {
-            config.set(
-                "queue.buffering.max.messages",
-                queue_buffering_max_messages.to_string(),
-            );
-        }
-        if let Some(queue_buffering_max_kbytes) = producer_config.queue_buffering_max_kbytes() {
-            config.set(
-                "queue.buffering.max.kbytes",
-                queue_buffering_max_kbytes.to_string(),
-            );
-        }
-        if let Some(queue_buffering_max_ms) = producer_config.queue_buffering_max_ms() {
-            config.set("queue.buffering.max.ms", queue_buffering_max_ms.to_string());
-        }
-        log::debug!("Producer config: {:#?}", config);
-
-        // Set SSL if certificates are present
-        if let Ok(certificates) = self.certificates() {
-            config
-                .set("security.protocol", "ssl")
-                .set("ssl.key.pem", certificates.private_key_pem())
-                .set(
-                    "ssl.certificate.pem",
-                    certificates.dsh_kafka_certificate_pem(),
-                )
-                .set("ssl.ca.pem", certificates.dsh_ca_certificate_pem());
-        } else {
-            config.set("security.protocol", "plaintext");
-        }
+        config.dsh_producer_config();
         config
     }
 }
@@ -469,13 +429,15 @@ mod tests {
 
     impl Default for Dsh {
         fn default() -> Self {
-            let datastream = Datastream::load_local_datastreams().unwrap_or_default();
+            let datastream = Arc::new(Datastream::load_local_datastreams().unwrap_or_default());
             Self {
                 task_id: "local_task_id".to_string(),
                 tenant_name: "local_tenant".to_string(),
                 config_host: "http://localhost/".to_string(),
                 datastream,
                 certificates: None,
+                #[cfg(feature = "kafka")]
+                kafka_config: KafkaConfig::default(),
             }
         }
     }

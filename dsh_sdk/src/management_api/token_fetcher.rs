@@ -5,10 +5,10 @@
 //! The TokenFetcher will fetch and store access tokens to be used in the DSH Rest API client.
 //!
 //! ## Example
-//! Recommended usage is to use the [RestTokenFetcherBuilder] to create a new instance of the token fetcher.
+//! Recommended usage is to use the [ManagementApiTokenFetcherBuilder] to create a new instance of the token fetcher.
 //! However, you can also create a new instance of the token fetcher directly.
 //! ```no_run
-//! use dsh_sdk::{RestTokenFetcherBuilder, Platform};
+//! use dsh_sdk::{ManagementApiTokenFetcherBuilder, Platform};
 //! use dsh_rest_api_client::Client;
 //!
 //! const CLIENT_SECRET: &str = "";
@@ -19,7 +19,7 @@
 //!     let platform = Platform::NpLz;
 //!     let client = Client::new(platform.endpoint_rest_api());
 //!
-//!     let tf = RestTokenFetcherBuilder::new(platform)
+//!     let tf = ManagementApiTokenFetcherBuilder::new(platform)
 //!         .tenant_name(TENANT.to_string())
 //!         .client_secret(CLIENT_SECRET.to_string())
 //!         .build()

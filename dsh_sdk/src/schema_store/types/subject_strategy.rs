@@ -127,8 +127,6 @@ impl Hash for SubjectName {
 
 #[cfg(test)]
 mod tests {
-    use openssl::hash;
-
     use super::*;
     use std::hash::DefaultHasher;
 
