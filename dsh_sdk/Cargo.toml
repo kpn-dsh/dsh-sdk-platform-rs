@@ -42,7 +42,7 @@ tokio-util = { version = "0.7", default-features = false, optional = true }
 
 [features]
 # default = ["bootstrap", "graceful-shutdown", "metrics", "rdkafka-ssl", "schema-store"]
-default = ["bootstrap", "kafka"]
+default = ["bootstrap", "kafka", "rdkafka-config"]
 
 bootstrap = ["certificate", "serde_json", "tokio/rt-multi-thread"] 
 kafka = ["bootstrap"]
