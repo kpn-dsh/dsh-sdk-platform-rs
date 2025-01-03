@@ -42,8 +42,8 @@ However, if you would like to use only specific features, you can specify them i
   
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.5", default-features = false, features = ["rdkafka"] }
-rdkafka = { version =  "0.37", features = ["cmake-buld", "ssl-vendored"] }
+dsh_sdk = { version = "0.5", default-features = false, features = ["rdkafka-config"] }
+rdkafka = { version =  "0.37", features = ["cmake-build", "ssl-vendored"] }
 ```
 
 See [feature flags](#feature-flags) for more information on the available features.
@@ -79,8 +79,12 @@ The following features are available in this library and can be enabled/disabled
 | `metrics` | &cross; | Enable prometheus metrics including http server |
 | `graceful-shutdown` | &cross; | Tokio based gracefull shutdown handler |
 | `dlq` | &cross; | Dead Letter Queue implementation |
-| `rest-token-fetcher` | &cross; | Replaced by `management-api-token-fetcher` |
-| `mqtt-token-fetcher` | &cross; | Replaced by `protocol-token-fetcher` |
+
+The following features are renamed or replaced:
+| **feature** | **replacement** |
+|---|---|---|
+| `rest-token-fetcher` | Replaced by `management-api-token-fetcher` |
+| `mqtt-token-fetcher` | Replaced by `protocol-token-fetcher` |
 
 See api documentation for more information on how to use these features including.
 
