@@ -24,7 +24,7 @@ pub enum DshError {
     #[cfg(feature = "bootstrap")]
     #[error("Invalid PEM certificate: {0}")]
     PemError(#[from] pem::PemError),
-    #[cfg(any(feature = "certificate", feature = "protocol-token-fetcher"))]
+    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
     #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]

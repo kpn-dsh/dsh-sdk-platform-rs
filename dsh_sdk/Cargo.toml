@@ -44,17 +44,15 @@ tokio-util = { version = "0.7", default-features = false, optional = true }
 # default = ["bootstrap", "graceful-shutdown", "metrics", "rdkafka-ssl", "schema-store"]
 default = ["bootstrap", "kafka", "rdkafka-config"]
 
-bootstrap = ["certificate", "serde_json", "tokio/rt-multi-thread"] 
+bootstrap = ["rcgen", "reqwest", "pem", "serde_json", "tokio/rt-multi-thread"] 
 kafka = ["bootstrap"]
 rdkafka-config = ["rdkafka", "kafka"] # Impl of config trait only
-
-certificate = ["rcgen", "reqwest", "pem"]
 schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
-metrics = ["prometheus", "hyper/server", "hyper/http1" , "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
-dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 graceful-shutdown = ["tokio", "tokio-util"]
 management-api-token-fetcher = ["reqwest"]
 protocol-token-fetcher = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
+metrics = ["prometheus", "hyper/server", "hyper/http1" , "hyper-util", "http-body-util", "lazy_static", "tokio", "bytes"]
+dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 
 # http-protocol-adapter = ["protocol-token-fetcher"]
 # mqtt-protocol-adapter = ["protocol-token-fetcher"]
@@ -67,7 +65,7 @@ openssl = "0.10"
 tokio = { version = "^1.35", features = ["full"] }
 hyper = { version = "1.3", features = ["full"] }
 serial_test = "3.1.0"
-dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.2.0"}
+dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.2.0" }
 dsh_sdk = { features = ["dlq"], path = "." }
 env_logger = "0.11"
 rdkafka = { version = ">=0.36", features = ["cmake-build", "ssl-vendored"], default-features = true }

@@ -37,7 +37,7 @@ use crate::{DEFAULT_CONFIG_HOST, VAR_KAFKA_CONFIG_HOST, VAR_PKI_CONFIG_DIR, VAR_
 
 #[cfg(feature = "bootstrap")]
 mod bootstrap;
-#[cfg(feature = "certificate")]
+#[cfg(feature = "bootstrap")]
 mod pki_config_dir;
 
 /// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
@@ -124,7 +124,7 @@ impl Cert {
     /// ## Note
     /// Only certificates in PEM format are supported.
     /// Key files should be in PKCS8 format and can be DER or PEM files.
-    #[cfg(feature = "certificate")]
+    #[cfg(feature = "bootstrap")]
     pub fn from_pki_config_dir<P>(path: Option<P>) -> Result<Self, DshError>
     where
         P: AsRef<std::path::Path>,

@@ -75,7 +75,7 @@
 #![allow(deprecated)]
 
 // to be kept in v0.6.0
-#[cfg(feature = "certificate")]
+#[cfg(feature = "bootstrap")]
 pub mod certificates;
 #[cfg(feature = "bootstrap")]
 pub mod datastream;
