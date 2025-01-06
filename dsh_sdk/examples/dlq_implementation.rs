@@ -8,6 +8,11 @@ use rdkafka::ClientConfig;
 use std::backtrace::Backtrace;
 use thiserror::Error;
 
+// Required environment variables for DLQ
+const DLQ_DEAD_TOPIC: &str = "scratch.dlq.local-tenant"; // Topic to send non-retryable messages to
+const DLQ_RETRY_TOPIC: &str = "scratch.dlq.local-tenant"; // Topic to send retryable messages to (can be the same as DLQ_DEAD_TOPIC)
+const TOPIC: &str = "scratch.topic-name.local-tenant"; // topic to consume from
+
 // Define your custom error type
 #[derive(Error, Debug)]
 enum ConsumerError {
@@ -80,26 +85,24 @@ async fn consume(
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // set the dlq topics (required)
-    std::env::set_var("DLQ_DEAD_TOPIC", "scratch.dlq.local-tenant");
-    std::env::set_var("DLQ_RETRY_TOPIC", "scratch.dlq.local-tenant");
-
-    // Topic to subscribe to (change to your topic)
-    let topic = "your_topic_name";
+    // Set the dlq topics (required)
+    // Normally injected via DSH Config 
+    std::env::set_var("DLQ_DEAD_TOPIC", DLQ_DEAD_TOPIC);
+    std::env::set_var("DLQ_RETRY_TOPIC", DLQ_RETRY_TOPIC);
 
     let shutdown = Shutdown::new();
-    let consumer: StreamConsumer = ClientConfig::new().dsh_consumer_config().create()?;
+    let consumer: StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
 
-    // Start the `dlq` service, returns a sender to send messages to the dlq
+    // Start the `Dlq` service, returns a sender to send messages to the dlq
     let dlq_channel = dlq::Dlq::start(shutdown.clone())?;
 
     // run the `consumer` in a separate tokio task
     let shutdown_clone = shutdown.clone();
     let consumer_handle = tokio::spawn(async move {
-        consume(consumer, topic, dlq_channel, shutdown_clone).await;
+        consume(consumer, TOPIC, dlq_channel, shutdown_clone).await;
     });
 
-    // wait for `consumer` or `dlq` to finish or for shutdown signal
+    // wait for `consumer` to shutdown for shutdown signal
     tokio::select! {
         _ = consumer_handle => {
             println!("Consumer finished");

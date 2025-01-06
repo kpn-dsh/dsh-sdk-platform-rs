@@ -1,3 +1,9 @@
+//! Simple producer and consumer example that sends and receives messages from a Kafka topic
+//! 
+//! Run the example with:
+//! ```bash
+//! cargo run --example kafka_example features=rdkafka-config
+//! ```
 use dsh_sdk::DshKafkaConfig;
 use rdkafka::consumer::CommitMode;
 use rdkafka::consumer::{Consumer, StreamConsumer};
@@ -38,19 +44,20 @@ async fn consume(consumer: StreamConsumer, topic: &str) {
     }
 }
 
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Define your topic
     let topic = "test";
 
     // Create a new producer from the RDkafka Client Config together with dsh_prodcer_config form DshKafkaConfig trait
-    let producer: FutureProducer = ClientConfig::new().dsh_producer_config().create()?;
+    let producer: FutureProducer = ClientConfig::new().set_dsh_producer_config().create()?;
 
     // Produce messages towards topic
     produce(producer, topic).await;
 
     // Create a new consumer from the RDkafka Client Config together with dsh_consumer_config form DshKafkaConfig trait
-    let consumer: StreamConsumer = ClientConfig::new().dsh_consumer_config().create()?;
+    let consumer: StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
 
     consume(consumer, topic).await;
     Ok(())

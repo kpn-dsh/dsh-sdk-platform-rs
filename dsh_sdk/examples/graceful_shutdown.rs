@@ -1,3 +1,10 @@
+//! Example on how to implement a graceful shutdown in a tokio application.
+//! 
+//! Run the example with:
+//! ```bash
+//! cargo run --example graceful_shutdown
+//! ```
+
 use dsh_sdk::utils::graceful_shutdown::Shutdown;
 
 // your process task
@@ -6,7 +13,7 @@ async fn process_task(shutdown: Shutdown) {
         tokio::select! {
             _ = tokio::time::sleep(tokio::time::Duration::from_secs(1)) => {
                 // Do something here, e.g. consume messages from Kafka
-                println!("Still processing the task, press Ctrl+C to exit")
+                println!("Still processing the task, press Ctrl+C or send SIGTERM to exit")
             },
             _ = shutdown.recv() => {
                 // shutdown request received, include your shutdown procedure here e.g. close db connection

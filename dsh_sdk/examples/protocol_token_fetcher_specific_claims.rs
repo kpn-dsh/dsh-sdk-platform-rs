@@ -18,7 +18,8 @@ async fn main() {
 
     let claims = vec![claims_sub, claims_pub];
 
-    let mqtt_token_fetcher = ProtocolTokenFetcher::new(tenant_name, api_key, dsh_sdk::Platform::NpLz);
+    let mqtt_token_fetcher =
+        ProtocolTokenFetcher::new(tenant_name, api_key, dsh_sdk::Platform::NpLz);
 
     let token: MqttToken = mqtt_token_fetcher
         .get_token("Client-id", Some(claims))

@@ -6,7 +6,7 @@
 //! CLIENT_SECRET=your_client_secret TENANT=your_tenant cargo run --features rest-token-fetcher --example rest_api_token_fetcher
 //! ```
 use dsh_rest_api_client::Client;
-use dsh_sdk::{Platform, ManagementApiTokenFetcherBuilder};
+use dsh_sdk::{ManagementApiTokenFetcherBuilder, Platform};
 use std::env;
 
 #[tokio::main]
