@@ -1,18 +1,21 @@
 use dsh_sdk::utils::graceful_shutdown::Shutdown;
-use dsh_sdk::Dsh;
+use dsh_sdk::DshKafkaConfig;
+
 use rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
 use rdkafka::message::{BorrowedMessage, Message};
+use rdkafka::ClientConfig;
 
 use log::{error, info};
 
 mod custom_metrics;
 
+/// Deserialize and print the message
 fn deserialize_and_print(msg: &BorrowedMessage) {
     let payload = String::from_utf8_lossy(msg.payload().unwrap_or(b""));
     let key = String::from_utf8_lossy(msg.key().unwrap_or(b""));
 
-    info!(
-        "Received message from topic {} partition {} offset {} with key {:?} and payload {}",
+    println!(
+        "Received message from topic: {}, partition: {}, offset: {}, key: {}, and payload:\n{}",
         msg.topic(),
         msg.partition(),
         msg.offset(),
@@ -21,6 +24,7 @@ fn deserialize_and_print(msg: &BorrowedMessage) {
     );
 }
 
+/// Simple consumer that consumes messages from Kafka and prints them
 async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
     loop {
         tokio::select! {
@@ -54,9 +58,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
     dsh_sdk::utils::metrics::start_http_server(8080);
 
-    // Create a new properties instance (connects to the DSH server and fetches the datastream)
-    let dsh_properties = Dsh::get();
-
     // Get the configured topics from env variable TOPICS (comma separated)
     let topics_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
     let topics = topics_string.split(',').collect::<Vec<&str>>();
@@ -64,11 +65,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the shutdown handler (This will handle SIGTERM and SIGINT signals, and you can act on them)
     let shutdown = Shutdown::new();
 
-    // Get the consumer config from the Properties instance
-    let mut consumer_client_config = dsh_properties.consumer_rdkafka_config();
+    // Create RDKafka Client config
+    let mut consumer_client_config = ClientConfig::new();
 
-    // Override some default values (optional)
-    consumer_client_config.set("auto.offset.reset", "earliest");
+    // Load the Kafka configuration from the SDK (this method comes from the `DshKafkaConfig` trait)
+    consumer_client_config.set_dsh_consumer_config();
+
 
     // Create a new consumer instance
     let consumer: StreamConsumer = consumer_client_config.create()?;
@@ -93,7 +95,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    // Wait till the shutdown is complete
+    // Wait till the graceful shutdown is finished
     shutdown.complete().await;
     Ok(())
 }

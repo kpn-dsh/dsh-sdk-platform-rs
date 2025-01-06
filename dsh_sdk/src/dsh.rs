@@ -403,7 +403,7 @@ impl Dsh {
     pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
         let mut config = rdkafka::config::ClientConfig::new();
-        config.dsh_consumer_config();
+        config.set_dsh_consumer_config();
         config
     }
 
@@ -415,7 +415,7 @@ impl Dsh {
     pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
         let mut config = rdkafka::config::ClientConfig::new();
-        config.dsh_producer_config();
+        config.set_dsh_producer_config();
         config
     }
 }

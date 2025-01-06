@@ -195,7 +195,7 @@ impl Dlq {
     pub fn start(shutdown: Shutdown) -> Result<DlqChannel, Box<dyn std::error::Error>> {
         let (dlq_tx, dlq_rx) = mpsc::channel(200);
         let dlq_producer: FutureProducer<DefaultClientContext, rdkafka::util::TokioRuntime> =
-            ClientConfig::new().dsh_producer_config().create()?;
+            ClientConfig::new().set_dsh_producer_config().create()?;
         let dlq_dead_topic = get_env_var("DLQ_DEAD_TOPIC")?;
         let dlq_retry_topic = get_env_var("DLQ_RETRY_TOPIC")?;
         let dlq = Self {

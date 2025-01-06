@@ -22,7 +22,6 @@ pub enum SchemaStoreError {
     FailedToDecode(String),
     #[error("Failed to parse value onto struct")]
     FailedParseToStruct,
-
     #[error("Protobuf to struct not (yet) implemented")]
     NotImplementedProtobufDeserialize,
 }

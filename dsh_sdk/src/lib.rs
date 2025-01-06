@@ -18,7 +18,7 @@
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! let consumer: StreamConsumer = ClientConfig::new().dsh_consumer_config().create()?;
+//! let consumer: StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
 //! # Ok(())
 //! # }
 //! ```

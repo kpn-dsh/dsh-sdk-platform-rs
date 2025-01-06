@@ -17,7 +17,7 @@ pub trait DshKafkaConfig {
     /// | `ssl.key.pem`             | private key                      | Generated when sdk is initiated                                        |
     /// | `ssl.certificate.pem`     | dsh kafka certificate            | Signed certificate to connect to kafka cluster                         |
     /// | `ssl.ca.pem`              | CA certifacte                    | CA certificate, provided by DSH.                                       |
-    fn dsh_consumer_config(&mut self) -> &mut Self;
+    fn set_dsh_consumer_config(&mut self) -> &mut Self;
     /// Set all required configurations to produce messages to DSH Kafka Cluster.
     ///
     /// ## Configurations
@@ -29,7 +29,7 @@ pub trait DshKafkaConfig {
     /// | ssl.key.pem         | private key                    | Generated when bootstrap is initiated                                                   |
     /// | ssl.certificate.pem | dsh kafka certificate          | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated) |
     /// | ssl.ca.pem          | CA certifacte                  | CA certificate, provided by DSH.                                                        |
-    fn dsh_producer_config(&mut self) -> &mut Self;
+    fn set_dsh_producer_config(&mut self) -> &mut Self;
     /// Set a DSH compatible group id.
     ///
     /// DSH Requires a group id with the prefix of the tenant name.
