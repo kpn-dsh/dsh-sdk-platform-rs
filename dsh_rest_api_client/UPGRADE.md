@@ -28,7 +28,7 @@ python3 update_openapi_spec.py path/to/openapi.json
 To generate the client run the following command:
 
 ```shell
-cargo +nightly  progenitor -i /Users/frankhol/Git/dsh-sdk-platform-rs/dsh_rest_api_client/openapi_spec/openapi_1_8_0.json -o tmp_dsh_rest_api_client -n dsh_rest_api_client --version 0.2.0 --include-client true
+cargo +nightly  progenitor -i dsh_rest_api_client/openapi_spec/openapi_1_8_0.json -o tmp_dsh_rest_api_client -n dsh_rest_api_client --version 0.2.0 --include-client true
 ```
 
 ## Update the client

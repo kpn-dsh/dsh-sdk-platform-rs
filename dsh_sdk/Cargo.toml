@@ -53,5 +53,5 @@ openssl = "0.10"
 tokio = { version = "^1.35", features = ["full"] }
 hyper = { version = "1.2.0", features = ["full"]}
 serial_test = "3.1.0"
-dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.2.0"}
+dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.3.0-rc.1" }
 dsh_sdk = { features = ["dlq"], path = "." }
