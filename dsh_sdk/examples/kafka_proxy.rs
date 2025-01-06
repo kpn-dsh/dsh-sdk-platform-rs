@@ -8,7 +8,7 @@ use rdkafka::Message;
 // Enter your details here
 const KAFKA_BOOTSTRAP_SERVERS: &str = "kafkaproxy urls"; // example "broker-0.kafka.tenant.kpn-dsh.com:9091,broker-1.kafka.tenant.kpn-dsh.com:9091,broker-2.kafka.tenant.kpn-dsh.com:9091"
 const PKI_CONFIG_DIR: &str = "path/to/pki/config/dir"; // example /Documents/pki_config_dir/tenant
-const DSH_TENANT_NAME: &str = "tenant";  // enter your tenant name (required for creating group id)
+const DSH_TENANT_NAME: &str = "tenant"; // enter your tenant name (required for creating group id)
 const TOPIC: &str = "scratch.topic-name.tenant"; // enter your topic name
 
 /// Simple consumer that consumes messages from a Kafka topic
@@ -17,7 +17,11 @@ async fn consume(consumer: StreamConsumer) {
     loop {
         let msg = consumer.recv().await.unwrap();
         let payload = String::from_utf8_lossy(msg.payload().unwrap());
-        println!("Received message: key: {:?}, payload: {}", msg.key(), payload);
+        println!(
+            "Received message: key: {:?}, payload: {}",
+            msg.key(),
+            payload
+        );
     }
 }
 

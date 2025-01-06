@@ -86,7 +86,7 @@ async fn consume(
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Set the dlq topics (required)
-    // Normally injected via DSH Config 
+    // Normally injected via DSH Config
     std::env::set_var("DLQ_DEAD_TOPIC", DLQ_DEAD_TOPIC);
     std::env::set_var("DLQ_RETRY_TOPIC", DLQ_RETRY_TOPIC);
 

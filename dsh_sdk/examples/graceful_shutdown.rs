@@ -1,5 +1,5 @@
 //! Example on how to implement a graceful shutdown in a tokio application.
-//! 
+//!
 //! Run the example with:
 //! ```bash
 //! cargo run --example graceful_shutdown

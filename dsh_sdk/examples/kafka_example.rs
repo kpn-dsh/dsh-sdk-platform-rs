@@ -1,5 +1,5 @@
 //! Simple producer and consumer example that sends and receives messages from a Kafka topic
-//! 
+//!
 //! Run the example with:
 //! ```bash
 //! cargo run --example kafka_example features=rdkafka-config
@@ -43,7 +43,6 @@ async fn consume(consumer: StreamConsumer, topic: &str) {
         i += 1;
     }
 }
-
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -71,7 +71,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load the Kafka configuration from the SDK (this method comes from the `DshKafkaConfig` trait)
     consumer_client_config.set_dsh_consumer_config();
 
-
     // Create a new consumer instance
     let consumer: StreamConsumer = consumer_client_config.create()?;
 

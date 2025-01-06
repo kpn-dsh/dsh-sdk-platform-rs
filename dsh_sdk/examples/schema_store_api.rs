@@ -1,10 +1,8 @@
-use dsh_sdk::schema_store::SchemaStoreClient;
 use dsh_sdk::schema_store::types::*;
+use dsh_sdk::schema_store::SchemaStoreClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-
-    
     // Create a new SchemaStoreClient, connects to the Schema Registry based on datastreams.json
     // However, you can overwrite it by setting the environment variable SCHEMA_REGISTRY_HOST or SchemaStoreClient::new_with_base_url("http://localhost:8081")
     let client = SchemaStoreClient::new();
@@ -33,11 +31,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("List all registred subjects: {:#?}\n", schemas);
 
     // List all schemas for a subject
-    let schemas_for_subject= client.subject_all_schemas("scratch.topic-name.tenant-name-value").await?;
+    let schemas_for_subject = client
+        .subject_all_schemas("scratch.topic-name.tenant-name-value")
+        .await?;
     println!("List all schemas for subject: {:#?}\n", schemas_for_subject);
 
     // Get the latest schema for a subject
-    let latest_schema = client.subject_raw_schema("scratch.topic-name.tenant-name-value", SubjectVersion::Latest).await?;
+    let latest_schema = client
+        .subject_raw_schema(
+            "scratch.topic-name.tenant-name-value",
+            SubjectVersion::Latest,
+        )
+        .await?;
     println!("Latest schema for subject: {:#?}\n", latest_schema);
 
     Ok(())
