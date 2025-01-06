@@ -56,36 +56,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/Certificate"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "distinguishedName",
-    ///        "dnsNames",
-    ///        "notAfter",
-    ///        "notBefore",
-    ///        "serialNumber"
-    ///      ],
-    ///      "properties": {
-    ///        "distinguishedName": {
-    ///          "type": "string"
-    ///        },
-    ///        "dnsNames": {
-    ///          "type": "array",
-    ///          "items": {
-    ///            "type": "string"
-    ///          }
-    ///        },
-    ///        "notAfter": {
-    ///          "type": "string",
-    ///          "format": "date-time"
-    ///        },
-    ///        "notBefore": {
-    ///          "type": "string",
-    ///          "format": "date-time"
-    ///        },
-    ///        "serialNumber": {
-    ///          "type": "string"
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/ActualCertificate_allOf"
     ///    }
     ///  ]
     ///}
@@ -121,12 +92,93 @@ pub mod types {
         }
     }
 
+    ///ActualCertificateAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "distinguishedName",
+    ///    "dnsNames",
+    ///    "notAfter",
+    ///    "notBefore",
+    ///    "serialNumber"
+    ///  ],
+    ///  "properties": {
+    ///    "distinguishedName": {
+    ///      "type": "string"
+    ///    },
+    ///    "dnsNames": {
+    ///      "type": "array",
+    ///      "items": {
+    ///        "type": "string"
+    ///      }
+    ///    },
+    ///    "notAfter": {
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "notBefore": {
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "serialNumber": {
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct ActualCertificateAllOf {
+        #[serde(rename = "distinguishedName")]
+        pub distinguished_name: String,
+        #[serde(rename = "dnsNames")]
+        pub dns_names: Vec<String>,
+        #[serde(rename = "notAfter")]
+        pub not_after: chrono::DateTime<chrono::offset::Utc>,
+        #[serde(rename = "notBefore")]
+        pub not_before: chrono::DateTime<chrono::offset::Utc>,
+        #[serde(rename = "serialNumber")]
+        pub serial_number: String,
+    }
+
+    impl From<&ActualCertificateAllOf> for ActualCertificateAllOf {
+        fn from(value: &ActualCertificateAllOf) -> Self {
+            value.clone()
+        }
+    }
+
     ///AllocationStatus
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "derivedFrom": "derivedFrom",
+    ///      "notifications": [
+    ///        {
+    ///          "args": {
+    ///            "key": "args"
+    ///          },
+    ///          "message": "message",
+    ///          "remove": true
+    ///        },
+    ///        {
+    ///          "args": {
+    ///            "key": "args"
+    ///          },
+    ///          "message": "message",
+    ///          "remove": true
+    ///        }
+    ///      ],
+    ///      "provisioned": true
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "notifications",
@@ -174,12 +226,59 @@ pub mod types {
         }
     }
 
+    ///AllocationStatus1
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "$ref": "#/components/schemas/AllocationStatus"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct AllocationStatus1(pub AllocationStatus);
+    impl std::ops::Deref for AllocationStatus1 {
+        type Target = AllocationStatus;
+        fn deref(&self) -> &AllocationStatus {
+            &self.0
+        }
+    }
+
+    impl From<AllocationStatus1> for AllocationStatus {
+        fn from(value: AllocationStatus1) -> Self {
+            value.0
+        }
+    }
+
+    impl From<&AllocationStatus1> for AllocationStatus1 {
+        fn from(value: &AllocationStatus1) -> Self {
+            value.clone()
+        }
+    }
+
+    impl From<AllocationStatus> for AllocationStatus1 {
+        fn from(value: AllocationStatus) -> Self {
+            Self(value)
+        }
+    }
+
     ///AppCatalogApp
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "configuration": "configuration",
+    ///      "manifestUrn": "manifestUrn",
+    ///      "name": "name",
+    ///      "resources": {
+    ///        "key": ""
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "manifestUrn",
@@ -252,6 +351,16 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "configuration": {
+    ///        "key": "configuration"
+    ///      },
+    ///      "manifestUrn": "manifestUrn",
+    ///      "name": "name",
+    ///      "stopped": true
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "configuration",
@@ -395,6 +504,13 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "draft": true,
+    ///      "lastModified": 0.8008281904610115,
+    ///      "payload": "payload"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "draft",
@@ -436,6 +552,89 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "cpus": 0.8008281904610115,
+    ///      "env": {
+    ///        "key": "env"
+    ///      },
+    ///      "exposedPorts": {
+    ///        "key": {
+    ///          "auth": "auth",
+    ///          "mode": "mode",
+    ///          "paths": [
+    ///            {
+    ///              "prefix": "prefix"
+    ///            },
+    ///            {
+    ///              "prefix": "prefix"
+    ///            }
+    ///          ],
+    ///          "serviceGroup": "serviceGroup",
+    ///          "tls": "auto",
+    ///          "vhost": "vhost",
+    ///          "whitelist": "whitelist"
+    ///        }
+    ///      },
+    ///      "healthCheck": {
+    ///        "path": "/",
+    ///        "port": 0,
+    ///        "protocol": "http"
+    ///      },
+    ///      "image": "image",
+    ///      "instances": 0,
+    ///      "mem": 0,
+    ///      "metrics": {
+    ///        "path": "/metrics",
+    ///        "port": 0
+    ///      },
+    ///      "needsToken": true,
+    ///      "readableStreams": [
+    ///        "readableStreams",
+    ///        "readableStreams"
+    ///      ],
+    ///      "secrets": [
+    ///        {
+    ///          "injections": [
+    ///            {
+    ///              "key": "injections"
+    ///            },
+    ///            {
+    ///              "key": "injections"
+    ///            }
+    ///          ],
+    ///          "name": "name"
+    ///        },
+    ///        {
+    ///          "injections": [
+    ///            {
+    ///              "key": "injections"
+    ///            },
+    ///            {
+    ///              "key": "injections"
+    ///            }
+    ///          ],
+    ///          "name": "name"
+    ///        }
+    ///      ],
+    ///      "singleInstance": false,
+    ///      "spreadGroup": "spreadGroup",
+    ///      "topics": [
+    ///        "topics",
+    ///        "topics"
+    ///      ],
+    ///      "user": "user",
+    ///      "volumes": {
+    ///        "key": {
+    ///          "name": "name"
+    ///        }
+    ///      },
+    ///      "writableStreams": [
+    ///        "writableStreams",
+    ///        "writableStreams"
+    ///      ]
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "cpus",
@@ -546,17 +745,7 @@ pub mod types {
     /// dictionary key is the mount point.",
     ///      "type": "object",
     ///      "additionalProperties": {
-    ///        "type": "object",
-    ///        "required": [
-    ///          "name"
-    ///        ],
-    ///        "properties": {
-    ///          "name": {
-    ///            "description": "the full name of the volume that needs to be
-    /// mounted in the container.",
-    ///            "type": "string"
-    ///          }
-    ///        }
+    ///        "$ref": "#/components/schemas/Application_volumes"
     ///      }
     ///    },
     ///    "writableStreams": {
@@ -641,7 +830,7 @@ pub mod types {
         ///The volumes to be mounted in the container. The dictionary key is
         /// the mount point.
         #[serde(default, skip_serializing_if = "std::collections::HashMap::is_empty")]
-        pub volumes: std::collections::HashMap<String, ApplicationVolumesValue>,
+        pub volumes: std::collections::HashMap<String, ApplicationVolumes>,
         ///names of streams to which the application needs write access.
         #[serde(
             rename = "writableStreams",
@@ -665,6 +854,19 @@ pub mod types {
     ///{
     ///  "description": "a secret to be injected as an environment variable in
     /// the application",
+    ///  "examples": [
+    ///    {
+    ///      "injections": [
+    ///        {
+    ///          "key": "injections"
+    ///        },
+    ///        {
+    ///          "key": "injections"
+    ///        }
+    ///      ],
+    ///      "name": "name"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "injections",
@@ -709,12 +911,17 @@ pub mod types {
         }
     }
 
-    ///ApplicationVolumesValue
+    ///ApplicationVolumes
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "name": "name"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "name"
@@ -730,14 +937,14 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct ApplicationVolumesValue {
+    pub struct ApplicationVolumes {
         ///the full name of the volume that needs to be mounted in the
         /// container.
         pub name: String,
     }
 
-    impl From<&ApplicationVolumesValue> for ApplicationVolumesValue {
-        fn from(value: &ApplicationVolumesValue) -> Self {
+    impl From<&ApplicationVolumes> for ApplicationVolumes {
+        fn from(value: &ApplicationVolumes) -> Self {
             value.clone()
         }
     }
@@ -892,6 +1099,12 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "encrypted": true,
+    ///      "versioned": true
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "encrypted",
@@ -926,6 +1139,16 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "bucket": "bucket",
+    ///      "credentialidentifierref": "credentialidentifierref",
+    ///      "credentialsecretref": "credentialsecretref",
+    ///      "name": "name",
+    ///      "readable": true,
+    ///      "writable": true
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "bucket",
@@ -980,6 +1203,14 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "bucket": "bucket",
+    ///      "name": "name",
+    ///      "readable": true,
+    ///      "writable": true
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "bucket",
@@ -1024,6 +1255,44 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "bucket": "bucket",
+    ///        "credentialidentifierref": "credentialidentifierref",
+    ///        "credentialsecretref": "credentialsecretref",
+    ///        "name": "name",
+    ///        "readable": true,
+    ///        "writable": true
+    ///      },
+    ///      "configuration": {
+    ///        "bucket": "bucket",
+    ///        "name": "name",
+    ///        "readable": true,
+    ///        "writable": true
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -1063,6 +1332,38 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "encrypted": true,
+    ///        "versioned": true
+    ///      },
+    ///      "configuration": {
+    ///        "encrypted": true,
+    ///        "versioned": true
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -1102,6 +1403,11 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "bucket": "bucket"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "bucket"
@@ -1131,6 +1437,36 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "bucket": "bucket"
+    ///      },
+    ///      "configuration": {
+    ///        "bucket": "bucket"
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -1173,6 +1509,13 @@ pub mod types {
     ///{
     ///  "description": "information on a certificate which is wanted on the
     /// platform but may not yet be provisioned",
+    ///  "examples": [
+    ///    {
+    ///      "certChainSecret": "certChainSecret",
+    ///      "keySecret": "keySecret",
+    ///      "passphraseSecret": "passphraseSecret"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "certChainSecret",
@@ -1218,6 +1561,36 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": null,
+    ///      "configuration": {
+    ///        "certChainSecret": "certChainSecret",
+    ///        "keySecret": "keySecret",
+    ///        "passphraseSecret": "passphraseSecret"
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -1297,6 +1670,12 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "createdDate": 0.8008281904610115,
+    ///      "value": "value"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "value"
@@ -1338,6 +1717,12 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "kind": "kind",
+    ///      "name": "name"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "kind",
@@ -1372,6 +1757,38 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "kind": "kind",
+    ///        "name": "name"
+    ///      },
+    ///      "configuration": {
+    ///        "kind": "kind",
+    ///        "name": "name"
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -1405,7 +1822,7 @@ pub mod types {
         }
     }
 
-    ///DataCatalogDeleteDatacatalogassetconfigurationKind
+    ///DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1420,22 +1837,24 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum DataCatalogDeleteDatacatalogassetconfigurationKind {
+    pub enum DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
         #[serde(rename = "bucket")]
         Bucket,
         #[serde(rename = "writablestream")]
         Writablestream,
     }
 
-    impl From<&DataCatalogDeleteDatacatalogassetconfigurationKind>
-        for DataCatalogDeleteDatacatalogassetconfigurationKind
+    impl From<&DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind>
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
-        fn from(value: &DataCatalogDeleteDatacatalogassetconfigurationKind) -> Self {
+        fn from(
+            value: &DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        ) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for DataCatalogDeleteDatacatalogassetconfigurationKind {
+    impl ToString for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
         fn to_string(&self) -> String {
             match *self {
                 Self::Bucket => "bucket".to_string(),
@@ -1444,7 +1863,7 @@ pub mod types {
         }
     }
 
-    impl std::str::FromStr for DataCatalogDeleteDatacatalogassetconfigurationKind {
+    impl std::str::FromStr for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
             match value {
@@ -1455,28 +1874,34 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for DataCatalogDeleteDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<&str>
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for DataCatalogDeleteDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<&String>
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for DataCatalogDeleteDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<String>
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    ///DataCatalogGetAlltenantdatacatalogassetsKind
+    ///DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1491,22 +1916,24 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum DataCatalogGetAlltenantdatacatalogassetsKind {
+    pub enum DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
         #[serde(rename = "bucket")]
         Bucket,
         #[serde(rename = "writablestream")]
         Writablestream,
     }
 
-    impl From<&DataCatalogGetAlltenantdatacatalogassetsKind>
-        for DataCatalogGetAlltenantdatacatalogassetsKind
+    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
-        fn from(value: &DataCatalogGetAlltenantdatacatalogassetsKind) -> Self {
+        fn from(
+            value: &DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        ) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for DataCatalogGetAlltenantdatacatalogassetsKind {
+    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
         fn to_string(&self) -> String {
             match *self {
                 Self::Bucket => "bucket".to_string(),
@@ -1515,7 +1942,7 @@ pub mod types {
         }
     }
 
-    impl std::str::FromStr for DataCatalogGetAlltenantdatacatalogassetsKind {
+    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
             match value {
@@ -1526,28 +1953,34 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for DataCatalogGetAlltenantdatacatalogassetsKind {
+    impl std::convert::TryFrom<&str>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for DataCatalogGetAlltenantdatacatalogassetsKind {
+    impl std::convert::TryFrom<&String>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for DataCatalogGetAlltenantdatacatalogassetsKind {
+    impl std::convert::TryFrom<String>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    ///DataCatalogGetDatacatalogassetconfigurationKind
+    ///DataCatalogGetByTenantDatacatalogAssetByKindByNameKind
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1562,22 +1995,22 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum DataCatalogGetDatacatalogassetconfigurationKind {
+    pub enum DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         #[serde(rename = "bucket")]
         Bucket,
         #[serde(rename = "writablestream")]
         Writablestream,
     }
 
-    impl From<&DataCatalogGetDatacatalogassetconfigurationKind>
-        for DataCatalogGetDatacatalogassetconfigurationKind
+    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindByNameKind>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind
     {
-        fn from(value: &DataCatalogGetDatacatalogassetconfigurationKind) -> Self {
+        fn from(value: &DataCatalogGetByTenantDatacatalogAssetByKindByNameKind) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for DataCatalogGetDatacatalogassetconfigurationKind {
+    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         fn to_string(&self) -> String {
             match *self {
                 Self::Bucket => "bucket".to_string(),
@@ -1586,7 +2019,7 @@ pub mod types {
         }
     }
 
-    impl std::str::FromStr for DataCatalogGetDatacatalogassetconfigurationKind {
+    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
             match value {
@@ -1597,28 +2030,28 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for DataCatalogGetDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<&str> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for DataCatalogGetDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<&String> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         type Error = self::error::ConversionError;
         fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for DataCatalogGetDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<String> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    ///DataCatalogGetDatacatalogassetoftenantKind
+    ///DataCatalogGetByTenantDatacatalogAssetByKindKind
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1633,22 +2066,22 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum DataCatalogGetDatacatalogassetoftenantKind {
+    pub enum DataCatalogGetByTenantDatacatalogAssetByKindKind {
         #[serde(rename = "bucket")]
         Bucket,
         #[serde(rename = "writablestream")]
         Writablestream,
     }
 
-    impl From<&DataCatalogGetDatacatalogassetoftenantKind>
-        for DataCatalogGetDatacatalogassetoftenantKind
+    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindKind>
+        for DataCatalogGetByTenantDatacatalogAssetByKindKind
     {
-        fn from(value: &DataCatalogGetDatacatalogassetoftenantKind) -> Self {
+        fn from(value: &DataCatalogGetByTenantDatacatalogAssetByKindKind) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for DataCatalogGetDatacatalogassetoftenantKind {
+    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         fn to_string(&self) -> String {
             match *self {
                 Self::Bucket => "bucket".to_string(),
@@ -1657,7 +2090,7 @@ pub mod types {
         }
     }
 
-    impl std::str::FromStr for DataCatalogGetDatacatalogassetoftenantKind {
+    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
             match value {
@@ -1668,28 +2101,28 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for DataCatalogGetDatacatalogassetoftenantKind {
+    impl std::convert::TryFrom<&str> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for DataCatalogGetDatacatalogassetoftenantKind {
+    impl std::convert::TryFrom<&String> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         type Error = self::error::ConversionError;
         fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for DataCatalogGetDatacatalogassetoftenantKind {
+    impl std::convert::TryFrom<String> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    ///DataCatalogPutDatacatalogassetconfigurationKind
+    ///DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1704,22 +2137,24 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum DataCatalogPutDatacatalogassetconfigurationKind {
+    pub enum DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
         #[serde(rename = "bucket")]
         Bucket,
         #[serde(rename = "writablestream")]
         Writablestream,
     }
 
-    impl From<&DataCatalogPutDatacatalogassetconfigurationKind>
-        for DataCatalogPutDatacatalogassetconfigurationKind
+    impl From<&DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind>
+        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
-        fn from(value: &DataCatalogPutDatacatalogassetconfigurationKind) -> Self {
+        fn from(
+            value: &DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        ) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for DataCatalogPutDatacatalogassetconfigurationKind {
+    impl ToString for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
         fn to_string(&self) -> String {
             match *self {
                 Self::Bucket => "bucket".to_string(),
@@ -1728,7 +2163,7 @@ pub mod types {
         }
     }
 
-    impl std::str::FromStr for DataCatalogPutDatacatalogassetconfigurationKind {
+    impl std::str::FromStr for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
             match value {
@@ -1739,21 +2174,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for DataCatalogPutDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<&str>
+        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for DataCatalogPutDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<&String>
+        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for DataCatalogPutDatacatalogassetconfigurationKind {
+    impl std::convert::TryFrom<String>
+        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
@@ -1766,6 +2207,21 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "cpus": 1.0,
+    ///      "extensions": [
+    ///        "postgis",
+    ///        "postgres_fdw",
+    ///        "uuid-ossp"
+    ///      ],
+    ///      "instances": 3,
+    ///      "mem": 3072,
+    ///      "snapshotInterval": 3600,
+    ///      "version": "2.11.1.0-8",
+    ///      "volumeSize": 10
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "cpus",
@@ -1863,6 +2319,56 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "cpus": 1.0,
+    ///        "extensions": [
+    ///          "postgis",
+    ///          "postgres_fdw",
+    ///          "uuid-ossp"
+    ///        ],
+    ///        "instances": 3,
+    ///        "mem": 3072,
+    ///        "snapshotInterval": 3600,
+    ///        "version": "2.11.1.0-8",
+    ///        "volumeSize": 10
+    ///      },
+    ///      "configuration": {
+    ///        "cpus": 1.0,
+    ///        "extensions": [
+    ///          "postgis",
+    ///          "postgres_fdw",
+    ///          "uuid-ossp"
+    ///        ],
+    ///        "instances": 3,
+    ///        "mem": 3072,
+    ///        "snapshotInterval": 3600,
+    ///        "version": "2.11.1.0-8",
+    ///        "volumeSize": 10
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -1922,6 +2428,21 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "jobManager": {
+    ///        "cpus": 0.3,
+    ///        "mem": 1024
+    ///      },
+    ///      "taskManager": {
+    ///        "cpus": 0.3,
+    ///        "instances": 2,
+    ///        "mem": 3072
+    ///      },
+    ///      "version": "version",
+    ///      "zone": "zone"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "version",
@@ -1981,6 +2502,56 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "jobManager": {
+    ///          "cpus": 0.3,
+    ///          "mem": 1024
+    ///        },
+    ///        "taskManager": {
+    ///          "cpus": 0.3,
+    ///          "instances": 2,
+    ///          "mem": 3072
+    ///        },
+    ///        "version": "version",
+    ///        "zone": "zone"
+    ///      },
+    ///      "configuration": {
+    ///        "jobManager": {
+    ///          "cpus": 0.3,
+    ///          "mem": 1024
+    ///        },
+    ///        "taskManager": {
+    ///          "cpus": 0.3,
+    ///          "instances": 2,
+    ///          "mem": 3072
+    ///        },
+    ///        "version": "version",
+    ///        "zone": "zone"
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -2020,6 +2591,12 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "cpus": 0.3,
+    ///      "mem": 1024
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "cpus",
@@ -2067,6 +2644,13 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "cpus": 0.3,
+    ///      "instances": 2,
+    ///      "mem": 3072
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "cpus",
@@ -2125,6 +2709,13 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "path": "/",
+    ///      "port": 0,
+    ///      "protocol": "http"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "properties": {
     ///    "path": {
@@ -2235,133 +2826,6 @@ pub mod types {
     }
 
     impl std::convert::TryFrom<String> for HealthCheckProtocol {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    ///An internal stream.  A stream that can be shared between different
-    /// tenants, but is not accessible over the MQTT protocol adapter.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "An internal stream.  A stream that can be shared
-    /// between different tenants, but is not accessible over the MQTT protocol
-    /// adapter.\n",
-    ///  "examples": [
-    ///    {
-    ///      "$ref": "#/components/examples/managedInternalStream"
-    ///    }
-    ///  ],
-    ///  "type": "object",
-    ///  "allOf": [
-    ///    {
-    ///      "$ref": "#/components/schemas/Topic"
-    ///    },
-    ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "kind"
-    ///      ],
-    ///      "properties": {
-    ///        "kind": {
-    ///          "description": "For internal streams, the value of `kind` must
-    /// be `internal.`",
-    ///          "type": "string",
-    ///          "enum": [
-    ///            "internal"
-    ///          ]
-    ///        }
-    ///      }
-    ///    }
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct InternalManagedStream {
-        #[serde(
-            rename = "kafkaProperties",
-            default,
-            skip_serializing_if = "Option::is_none"
-        )]
-        pub kafka_properties: Option<KafkaProperties>,
-        ///For internal streams, the value of `kind` must be `internal.`
-        pub kind: InternalManagedStreamKind,
-        pub partitions: i64,
-        #[serde(rename = "replicationFactor")]
-        pub replication_factor: i64,
-    }
-
-    impl From<&InternalManagedStream> for InternalManagedStream {
-        fn from(value: &InternalManagedStream) -> Self {
-            value.clone()
-        }
-    }
-
-    ///For internal streams, the value of `kind` must be `internal.`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "For internal streams, the value of `kind` must be
-    /// `internal.`",
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "internal"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum InternalManagedStreamKind {
-        #[serde(rename = "internal")]
-        Internal,
-    }
-
-    impl From<&InternalManagedStreamKind> for InternalManagedStreamKind {
-        fn from(value: &InternalManagedStreamKind) -> Self {
-            value.clone()
-        }
-    }
-
-    impl ToString for InternalManagedStreamKind {
-        fn to_string(&self) -> String {
-            match *self {
-                Self::Internal => "internal".to_string(),
-            }
-        }
-    }
-
-    impl std::str::FromStr for InternalManagedStreamKind {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            match value {
-                "internal" => Ok(Self::Internal),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-
-    impl std::convert::TryFrom<&str> for InternalManagedStreamKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for InternalManagedStreamKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for InternalManagedStreamKind {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
@@ -2867,6 +3331,41 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "certificate": "certificate",
+    ///      "cpus": 0.3,
+    ///      "enableKafkaAclGroups": true,
+    ///      "instances": 2,
+    ///      "mem": 3072,
+    ///      "name": "name",
+    ///      "schemaStore": true,
+    ///      "schemaStoreCpus": 0.1,
+    ///      "schemaStoreMem": 256,
+    ///      "secretNameCaChain": "secretNameCaChain",
+    ///      "validations": [
+    ///        {
+    ///          "commonName": "commonName",
+    ///          "country": "country",
+    ///          "locality": "locality",
+    ///          "organization": "organization",
+    ///          "organizationalUnit": "organizationalUnit",
+    ///          "province": "province",
+    ///          "subjectType": "subjectType"
+    ///        },
+    ///        {
+    ///          "commonName": "commonName",
+    ///          "country": "country",
+    ///          "locality": "locality",
+    ///          "organization": "organization",
+    ///          "organizationalUnit": "organizationalUnit",
+    ///          "province": "province",
+    ///          "subjectType": "subjectType"
+    ///        }
+    ///      ],
+    ///      "zone": "private"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "certificate",
@@ -3400,19 +3899,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The number of certificates available for the
-    /// managed tenant",
-    ///          "type": "integer",
-    ///          "maximum": 40.0,
-    ///          "minimum": 1.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueCertificateCount_allOf"
     ///    }
     ///  ]
     ///}
@@ -3427,6 +3914,40 @@ pub mod types {
 
     impl From<&LimitValueCertificateCount> for LimitValueCertificateCount {
         fn from(value: &LimitValueCertificateCount) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueCertificateCountAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The number of certificates available for the
+    /// managed tenant",
+    ///      "type": "integer",
+    ///      "maximum": 40.0,
+    ///      "minimum": 1.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueCertificateCountAllOf {
+        ///The number of certificates available for the managed tenant
+        pub value: i64,
+    }
+
+    impl From<&LimitValueCertificateCountAllOf> for LimitValueCertificateCountAllOf {
+        fn from(value: &LimitValueCertificateCountAllOf) -> Self {
             value.clone()
         }
     }
@@ -3546,18 +4067,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The maximum allowed consumer rate (bytes/sec)",
-    ///          "type": "integer",
-    ///          "maximum": 1250000000.0,
-    ///          "minimum": 1048576.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueConsumerRate_allOf"
     ///    }
     ///  ]
     ///}
@@ -3572,6 +4082,39 @@ pub mod types {
 
     impl From<&LimitValueConsumerRate> for LimitValueConsumerRate {
         fn from(value: &LimitValueConsumerRate) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueConsumerRateAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The maximum allowed consumer rate (bytes/sec)",
+    ///      "type": "integer",
+    ///      "maximum": 1250000000.0,
+    ///      "minimum": 1048576.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueConsumerRateAllOf {
+        ///The maximum allowed consumer rate (bytes/sec)
+        pub value: i64,
+    }
+
+    impl From<&LimitValueConsumerRateAllOf> for LimitValueConsumerRateAllOf {
+        fn from(value: &LimitValueConsumerRateAllOf) -> Self {
             value.clone()
         }
     }
@@ -3691,20 +4234,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The number of CPUs to provision for the managed
-    /// tenant (factions of a vCPU core, 1.0 equals 1 vCPU)",
-    ///          "type": "number",
-    ///          "multipleOf": 0.01,
-    ///          "maximum": 16.0,
-    ///          "minimum": 0.01
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueCpu_allOf"
     ///    }
     ///  ]
     ///}
@@ -3718,6 +4248,40 @@ pub mod types {
 
     impl From<&LimitValueCpu> for LimitValueCpu {
         fn from(value: &LimitValueCpu) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueCpuAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The number of CPUs to provision for the managed
+    /// tenant (factions of a vCPU core, 1.0 equals 1 vCPU)",
+    ///      "type": "number",
+    ///      "multipleOf": 0.01,
+    ///      "maximum": 16.0,
+    ///      "minimum": 0.01
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueCpuAllOf {
+        pub value: f64,
+    }
+
+    impl From<&LimitValueCpuAllOf> for LimitValueCpuAllOf {
+        fn from(value: &LimitValueCpuAllOf) -> Self {
             value.clone()
         }
     }
@@ -3837,19 +4401,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The number of Kafka ACL groups available for
-    /// the managed tenant",
-    ///          "type": "integer",
-    ///          "maximum": 50.0,
-    ///          "minimum": 0.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueKafkaAclGroupCount_allOf"
     ///    }
     ///  ]
     ///}
@@ -3864,6 +4416,40 @@ pub mod types {
 
     impl From<&LimitValueKafkaAclGroupCount> for LimitValueKafkaAclGroupCount {
         fn from(value: &LimitValueKafkaAclGroupCount) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueKafkaAclGroupCountAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The number of Kafka ACL groups available for the
+    /// managed tenant",
+    ///      "type": "integer",
+    ///      "maximum": 50.0,
+    ///      "minimum": 0.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueKafkaAclGroupCountAllOf {
+        ///The number of Kafka ACL groups available for the managed tenant
+        pub value: i64,
+    }
+
+    impl From<&LimitValueKafkaAclGroupCountAllOf> for LimitValueKafkaAclGroupCountAllOf {
+        fn from(value: &LimitValueKafkaAclGroupCountAllOf) -> Self {
             value.clone()
         }
     }
@@ -3983,19 +4569,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The amount of memory available for the managed
-    /// tenant (MiB)",
-    ///          "type": "integer",
-    ///          "maximum": 131072.0,
-    ///          "minimum": 1.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueMem_allOf"
     ///    }
     ///  ]
     ///}
@@ -4010,6 +4584,40 @@ pub mod types {
 
     impl From<&LimitValueMem> for LimitValueMem {
         fn from(value: &LimitValueMem) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueMemAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The amount of memory available for the managed
+    /// tenant (MiB)",
+    ///      "type": "integer",
+    ///      "maximum": 131072.0,
+    ///      "minimum": 1.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueMemAllOf {
+        ///The amount of memory available for the managed tenant (MiB)
+        pub value: i64,
+    }
+
+    impl From<&LimitValueMemAllOf> for LimitValueMemAllOf {
+        fn from(value: &LimitValueMemAllOf) -> Self {
             value.clone()
         }
     }
@@ -4129,19 +4737,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The number of partitions available for the
-    /// managed tenant",
-    ///          "type": "integer",
-    ///          "maximum": 40.0,
-    ///          "minimum": 1.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValuePartitionCount_allOf"
     ///    }
     ///  ]
     ///}
@@ -4156,6 +4752,40 @@ pub mod types {
 
     impl From<&LimitValuePartitionCount> for LimitValuePartitionCount {
         fn from(value: &LimitValuePartitionCount) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValuePartitionCountAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The number of partitions available for the managed
+    /// tenant",
+    ///      "type": "integer",
+    ///      "maximum": 40.0,
+    ///      "minimum": 1.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValuePartitionCountAllOf {
+        ///The number of partitions available for the managed tenant
+        pub value: i64,
+    }
+
+    impl From<&LimitValuePartitionCountAllOf> for LimitValuePartitionCountAllOf {
+        fn from(value: &LimitValuePartitionCountAllOf) -> Self {
             value.clone()
         }
     }
@@ -4275,18 +4905,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The maximum allowed producer rate (bytes/sec)",
-    ///          "type": "integer",
-    ///          "maximum": 1250000000.0,
-    ///          "minimum": 1048576.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueProducerRate_allOf"
     ///    }
     ///  ]
     ///}
@@ -4301,6 +4920,39 @@ pub mod types {
 
     impl From<&LimitValueProducerRate> for LimitValueProducerRate {
         fn from(value: &LimitValueProducerRate) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueProducerRateAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The maximum allowed producer rate (bytes/sec)",
+    ///      "type": "integer",
+    ///      "maximum": 1250000000.0,
+    ///      "minimum": 1048576.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueProducerRateAllOf {
+        ///The maximum allowed producer rate (bytes/sec)
+        pub value: i64,
+    }
+
+    impl From<&LimitValueProducerRateAllOf> for LimitValueProducerRateAllOf {
+        fn from(value: &LimitValueProducerRateAllOf) -> Self {
             value.clone()
         }
     }
@@ -4420,18 +5072,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The maximum allowed request rate (%)",
-    ///          "type": "integer",
-    ///          "maximum": 100.0,
-    ///          "minimum": 1.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueRequestRate_allOf"
     ///    }
     ///  ]
     ///}
@@ -4446,6 +5087,39 @@ pub mod types {
 
     impl From<&LimitValueRequestRate> for LimitValueRequestRate {
         fn from(value: &LimitValueRequestRate) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueRequestRateAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The maximum allowed request rate (%)",
+    ///      "type": "integer",
+    ///      "maximum": 100.0,
+    ///      "minimum": 1.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueRequestRateAllOf {
+        ///The maximum allowed request rate (%)
+        pub value: i64,
+    }
+
+    impl From<&LimitValueRequestRateAllOf> for LimitValueRequestRateAllOf {
+        fn from(value: &LimitValueRequestRateAllOf) -> Self {
             value.clone()
         }
     }
@@ -4565,19 +5239,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The number of secrets available for the managed
-    /// tenant",
-    ///          "type": "integer",
-    ///          "maximum": 40.0,
-    ///          "minimum": 1.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueSecretCount_allOf"
     ///    }
     ///  ]
     ///}
@@ -4592,6 +5254,40 @@ pub mod types {
 
     impl From<&LimitValueSecretCount> for LimitValueSecretCount {
         fn from(value: &LimitValueSecretCount) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueSecretCountAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The number of secrets available for the managed
+    /// tenant",
+    ///      "type": "integer",
+    ///      "maximum": 40.0,
+    ///      "minimum": 1.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueSecretCountAllOf {
+        ///The number of secrets available for the managed tenant
+        pub value: i64,
+    }
+
+    impl From<&LimitValueSecretCountAllOf> for LimitValueSecretCountAllOf {
+        fn from(value: &LimitValueSecretCountAllOf) -> Self {
             value.clone()
         }
     }
@@ -4711,19 +5407,7 @@ pub mod types {
     ///      "$ref": "#/components/schemas/BaseLimitValue"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "value"
-    ///      ],
-    ///      "properties": {
-    ///        "value": {
-    ///          "description": "The number of topics available for the managed
-    /// tenant",
-    ///          "type": "integer",
-    ///          "maximum": 40.0,
-    ///          "minimum": 1.0
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/LimitValueTopicCount_allOf"
     ///    }
     ///  ]
     ///}
@@ -4738,6 +5422,40 @@ pub mod types {
 
     impl From<&LimitValueTopicCount> for LimitValueTopicCount {
         fn from(value: &LimitValueTopicCount) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueTopicCountAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The number of topics available for the managed
+    /// tenant",
+    ///      "type": "integer",
+    ///      "maximum": 40.0,
+    ///      "minimum": 1.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct LimitValueTopicCountAllOf {
+        ///The number of topics available for the managed tenant
+        pub value: i64,
+    }
+
+    impl From<&LimitValueTopicCountAllOf> for LimitValueTopicCountAllOf {
+        fn from(value: &LimitValueTopicCountAllOf) -> Self {
             value.clone()
         }
     }
@@ -4846,281 +5564,77 @@ pub mod types {
         }
     }
 
-    ///The id of a managed stream consists of a `internal.` prefix followed by
-    /// the name of the managing tenant and the name of the stream separated by
-    /// `---` (three hyphens). id's starting with `internal` indicate an
-    /// internal stream. For an internal stream called `maerts` for tenant
-    /// `tnanet` with an assigned managing prefix `tna` the full name would be
-    /// `internal.tna---maerts` For a public stream with the same name and
-    /// tenant,  the full name would be `stream.tna---maerts`. Note that the
-    /// regular expressions below don't cover all restrictions.  The tenant name
-    /// part must still adhere to the rules for tenant names, the stream name
-    /// part must still adhere to the following rules: - Must have a minimum
-    /// length of 3 and a maximum length of 100, - Must only contain lower case
-    /// alphanumerical characters `[a-z0-9]` and hyphens `-`, - Must not contain
-    /// three sequential hyphens `---`, two sequential hyphens is fine, - Must
-    /// start with an lowercase letter `^[a-z]` - Must end with a lowercase
-    /// letter or digit `[a-z0-9]$`
+    ///ManagedStream
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "The id of a managed stream consists of a `internal.`
-    /// prefix followed by the name of the managing tenant and the name of the
-    /// stream separated by `---` (three hyphens).  \nid's starting with
-    /// `internal` indicate an internal stream.\nFor an internal stream called
-    /// `maerts` for tenant `tnanet` with an assigned managing prefix `tna` the
-    /// full name would be `internal.tna---maerts`\nFor a public stream with the
-    /// same name and tenant,  the full name would be
-    /// `stream.tna---maerts`.\nNote that the regular expressions below don't
-    /// cover all restrictions.  The tenant name part must still adhere to the
-    /// rules for tenant names, the stream name part must still adhere to the
-    /// following rules: - Must have a minimum length of 3 and a maximum length
-    /// of 100, - Must only contain lower case alphanumerical characters
-    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
-    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
-    /// letter `^[a-z]` - Must end with a lowercase letter or digit
-    /// `[a-z0-9]$`\n",
-    ///  "type": "string",
-    ///  "pattern":
-    /// "^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,
-    /// 98}[a-z0-9]$"
+    ///  "description": "An internal stream.  A stream that can be shared
+    /// between different tenants, but is not accessible over the MQTT protocol
+    /// adapter.\n",
+    ///  "type": "object",
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/Topic"
+    ///    },
+    ///    {
+    ///      "type": "object"
+    ///    }
+    ///  ]
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub struct ManagedInternalStreamId(String);
-    impl std::ops::Deref for ManagedInternalStreamId {
-        type Target = String;
-        fn deref(&self) -> &String {
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct ManagedStream(pub Topic);
+    impl std::ops::Deref for ManagedStream {
+        type Target = Topic;
+        fn deref(&self) -> &Topic {
             &self.0
         }
     }
 
-    impl From<ManagedInternalStreamId> for String {
-        fn from(value: ManagedInternalStreamId) -> Self {
+    impl From<ManagedStream> for Topic {
+        fn from(value: ManagedStream) -> Self {
             value.0
         }
     }
 
-    impl From<&ManagedInternalStreamId> for ManagedInternalStreamId {
-        fn from(value: &ManagedInternalStreamId) -> Self {
+    impl From<&ManagedStream> for ManagedStream {
+        fn from(value: &ManagedStream) -> Self {
             value.clone()
         }
     }
 
-    impl std::str::FromStr for ManagedInternalStreamId {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            if regress::Regex::new(
-                "^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
-            )
-            .unwrap()
-            .find(value)
-            .is_none()
-            {
-                return Err ("doesn't match pattern \"^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
-            }
-            Ok(Self(value.to_string()))
+    impl From<Topic> for ManagedStream {
+        fn from(value: Topic) -> Self {
+            Self(value)
         }
     }
 
-    impl std::convert::TryFrom<&str> for ManagedInternalStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for ManagedInternalStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for ManagedInternalStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl<'de> serde::Deserialize<'de> for ManagedInternalStreamId {
-        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de>,
-        {
-            String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as serde::de::Error>::custom(e.to_string())
-                })
-        }
-    }
-
-    ///The id of a managed stream consists of a `stream.` or `internal.` prefix
-    /// followed by a managing prefix set specifically as a limit for each
-    /// managing tenant, and name of the stream. The managing prefix and the
-    /// name are separated by `---` (three hyphens). Id's starting with
-    /// `stream` indicate a public stream,  id's starting with `internal`
-    /// indicate an internal stream. For an internal stream called `maerts`
-    /// for tenant `tnanet` with an assigned managing prefix `tna` the full name
-    /// would be `internal.tna---maerts` For a public stream with the same
-    /// name and tenant,  the full name would be `stream.tna---maerts`. Note
-    /// that the regular expressions below don't cover all restrictions.  The
-    /// tenant name part must still adhere to the rules for tenant names, the
-    /// stream name part must still adhere to the following rules: - Must have a
-    /// minimum length of 3 and a maximum length of 100, - Must only contain
-    /// lower case alphanumerical characters `[a-z0-9]` and hyphens `-`, - Must
-    /// not contain three sequential hyphens `---`, two sequential hyphens is
-    /// fine, - Must start with an lowercase letter `^[a-z]` - Must end with a
-    /// lowercase letter or digit `[a-z0-9]$`
+    ///The id of a managed stream consists of a managing prefix set
+    /// specifically as a limit  for each managing tenant, and name of the
+    /// stream. The managing prefix and the name are separated by `---` (three
+    /// hyphens). For an stream called `maerts` for a tenant with an
+    /// assigned managing prefix `tnanet` the full name would be
+    /// `tnanet---maerts`. The public or internal type of the particular stream
+    /// is set by using the corresponding `/public/` or `/internal/` methods in
+    /// the managed streams API.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "The id of a managed stream consists of a `stream.` or
-    /// `internal.` prefix followed by a managing prefix set specifically as a
-    /// limit for each managing tenant, and name of the stream. The managing
-    /// prefix and the name are separated by `---` (three hyphens).  \nId's
-    /// starting with `stream` indicate a public stream,  id's starting with
-    /// `internal` indicate an internal stream.\nFor an internal stream called
-    /// `maerts` for tenant `tnanet` with an assigned managing prefix `tna` the
-    /// full name would be `internal.tna---maerts`\nFor a public stream with the
-    /// same name and tenant,  the full name would be
-    /// `stream.tna---maerts`.\nNote that the regular expressions below don't
-    /// cover all restrictions.  The tenant name part must still adhere to the
-    /// rules for tenant names, the stream name part must still adhere to the
-    /// following rules: - Must have a minimum length of 3 and a maximum length
-    /// of 100, - Must only contain lower case alphanumerical characters
-    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
-    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
-    /// letter `^[a-z]` - Must end with a lowercase letter or digit
-    /// `[a-z0-9]$`\n",
+    ///  "description": "The id of a managed stream consists of a managing
+    /// prefix set specifically as a limit  for each managing tenant, and name
+    /// of the stream. The managing prefix and the name are separated by `---`
+    /// (three hyphens).\nFor an stream called `maerts` for a tenant with an
+    /// assigned managing prefix `tnanet` the full name would be
+    /// `tnanet---maerts`. The public or internal type of the particular stream
+    /// is set by using the corresponding `/public/` or `/internal/` methods in
+    /// the managed streams API.\n",
     ///  "type": "string",
-    ///  "pattern":
-    /// "^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub struct ManagedPublicStreamId(String);
-    impl std::ops::Deref for ManagedPublicStreamId {
-        type Target = String;
-        fn deref(&self) -> &String {
-            &self.0
-        }
-    }
-
-    impl From<ManagedPublicStreamId> for String {
-        fn from(value: ManagedPublicStreamId) -> Self {
-            value.0
-        }
-    }
-
-    impl From<&ManagedPublicStreamId> for ManagedPublicStreamId {
-        fn from(value: &ManagedPublicStreamId) -> Self {
-            value.clone()
-        }
-    }
-
-    impl std::str::FromStr for ManagedPublicStreamId {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            if regress::Regex::new(
-                "^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
-            )
-            .unwrap()
-            .find(value)
-            .is_none()
-            {
-                return Err ("doesn't match pattern \"^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
-            }
-            Ok(Self(value.to_string()))
-        }
-    }
-
-    impl std::convert::TryFrom<&str> for ManagedPublicStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for ManagedPublicStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for ManagedPublicStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl<'de> serde::Deserialize<'de> for ManagedPublicStreamId {
-        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de>,
-        {
-            String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as serde::de::Error>::custom(e.to_string())
-                })
-        }
-    }
-
-    ///The id of a managed stream consists of a `stream.` or `internal.` prefix
-    /// followed by a managing prefix set specifically as a limit for each
-    /// managing tenant, and name of the stream. The managing prefix and the
-    /// name are separated by `---` (three hyphens). Id's starting with
-    /// `stream` indicate a public stream,  id's starting with `internal`
-    /// indicate an internal stream. For an internal stream called `maerts`
-    /// for tenant `tnanet` with an assigned managing prefix `tna` the full name
-    /// would be `internal.tna---maerts` For a public stream with the same
-    /// name and tenant,  the full name would be `stream.tna---maerts`. Note
-    /// that the regular expressions below don't cover all restrictions.  The
-    /// tenant name part must still adhere to the rules for tenant names, the
-    /// stream name part must still adhere to the following rules: - Must have a
-    /// minimum length of 3 and a maximum length of 100, - Must only contain
-    /// lower case alphanumerical characters `[a-z0-9]` and hyphens `-`, - Must
-    /// not contain three sequential hyphens `---`, two sequential hyphens is
-    /// fine, - Must start with an lowercase letter `^[a-z]` - Must end with a
-    /// lowercase letter or digit `[a-z0-9]$`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The id of a managed stream consists of a `stream.` or
-    /// `internal.` prefix followed by a managing prefix set specifically as a
-    /// limit for each managing tenant, and name of the stream. The managing
-    /// prefix and the name are separated by `---` (three hyphens).  \nId's
-    /// starting with `stream` indicate a public stream,  id's starting with
-    /// `internal` indicate an internal stream.\nFor an internal stream called
-    /// `maerts` for tenant `tnanet` with an assigned managing prefix `tna` the
-    /// full name would be `internal.tna---maerts`\nFor a public stream with the
-    /// same name and tenant,  the full name would be
-    /// `stream.tna---maerts`.\nNote that the regular expressions below don't
-    /// cover all restrictions.  The tenant name part must still adhere to the
-    /// rules for tenant names, the stream name part must still adhere to the
-    /// following rules: - Must have a minimum length of 3 and a maximum length
-    /// of 100, - Must only contain lower case alphanumerical characters
-    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
-    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
-    /// letter `^[a-z]` - Must end with a lowercase letter or digit
-    /// `[a-z0-9]$`\n",
-    ///  "type": "string",
-    ///  "pattern":
-    /// "^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,
-    /// 98}[a-z0-9]$"
+    ///  "pattern": "^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$"
     ///}
     /// ```
     /// </details>
@@ -5148,14 +5662,12 @@ pub mod types {
     impl std::str::FromStr for ManagedStreamId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            if regress::Regex::new(
-                "^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
-            )
-            .unwrap()
-            .find(value)
-            .is_none()
+            if regress::Regex::new("^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$")
+                .unwrap()
+                .find(value)
+                .is_none()
             {
-                return Err ("doesn't match pattern \"^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
+                return Err ("doesn't match pattern \"^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
             }
             Ok(Self(value.to_string()))
         }
@@ -5201,6 +5713,22 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "manager": "manager",
+    ///      "name": "name",
+    ///      "services": [
+    ///        {
+    ///          "enabled": true,
+    ///          "name": "vpn"
+    ///        },
+    ///        {
+    ///          "enabled": true,
+    ///          "name": "vpn"
+    ///        }
+    ///      ]
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "manager",
@@ -5241,24 +5769,7 @@ pub mod types {
     ///      ],
     ///      "type": "array",
     ///      "items": {
-    ///        "type": "object",
-    ///        "required": [
-    ///          "enabled",
-    ///          "name"
-    ///        ],
-    ///        "properties": {
-    ///          "enabled": {
-    ///            "type": "boolean"
-    ///          },
-    ///          "name": {
-    ///            "type": "string",
-    ///            "enum": [
-    ///              "vpn",
-    ///              "tracing",
-    ///              "monitoring"
-    ///            ]
-    ///          }
-    ///        }
+    ///        "$ref": "#/components/schemas/ManagedTenant_services"
     ///      }
     ///    }
     ///  }
@@ -5280,7 +5791,7 @@ pub mod types {
         /// platforms.  Requesting it on a platform that doesn't support it will
         /// cause the request to be rejected.
         #[serde(default = "defaults::managed_tenant_services")]
-        pub services: Vec<ManagedTenantServicesItem>,
+        pub services: Vec<ManagedTenantServices>,
     }
 
     impl From<&ManagedTenant> for ManagedTenant {
@@ -5295,6 +5806,7 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "type": "string",
     ///  "enum": [
     ///    "cpu",
     ///    "mem",
@@ -5408,6 +5920,7 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "type": "string",
     ///  "enum": [
     ///    "cpu",
     ///    "mem",
@@ -5515,12 +6028,18 @@ pub mod types {
         }
     }
 
-    ///ManagedTenantServicesItem
+    ///ManagedTenantServices
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "enabled": true,
+    ///      "name": "vpn"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "enabled",
@@ -5543,18 +6062,18 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct ManagedTenantServicesItem {
+    pub struct ManagedTenantServices {
         pub enabled: bool,
-        pub name: ManagedTenantServicesItemName,
+        pub name: ManagedTenantServicesName,
     }
 
-    impl From<&ManagedTenantServicesItem> for ManagedTenantServicesItem {
-        fn from(value: &ManagedTenantServicesItem) -> Self {
+    impl From<&ManagedTenantServices> for ManagedTenantServices {
+        fn from(value: &ManagedTenantServices) -> Self {
             value.clone()
         }
     }
 
-    ///ManagedTenantServicesItemName
+    ///ManagedTenantServicesName
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5570,7 +6089,7 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum ManagedTenantServicesItemName {
+    pub enum ManagedTenantServicesName {
         #[serde(rename = "vpn")]
         Vpn,
         #[serde(rename = "tracing")]
@@ -5579,13 +6098,13 @@ pub mod types {
         Monitoring,
     }
 
-    impl From<&ManagedTenantServicesItemName> for ManagedTenantServicesItemName {
-        fn from(value: &ManagedTenantServicesItemName) -> Self {
+    impl From<&ManagedTenantServicesName> for ManagedTenantServicesName {
+        fn from(value: &ManagedTenantServicesName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for ManagedTenantServicesItemName {
+    impl ToString for ManagedTenantServicesName {
         fn to_string(&self) -> String {
             match *self {
                 Self::Vpn => "vpn".to_string(),
@@ -5595,7 +6114,7 @@ pub mod types {
         }
     }
 
-    impl std::str::FromStr for ManagedTenantServicesItemName {
+    impl std::str::FromStr for ManagedTenantServicesName {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
             match value {
@@ -5607,21 +6126,21 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for ManagedTenantServicesItemName {
+    impl std::convert::TryFrom<&str> for ManagedTenantServicesName {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for ManagedTenantServicesItemName {
+    impl std::convert::TryFrom<&String> for ManagedTenantServicesName {
         type Error = self::error::ConversionError;
         fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for ManagedTenantServicesItemName {
+    impl std::convert::TryFrom<String> for ManagedTenantServicesName {
         type Error = self::error::ConversionError;
         fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
             value.parse()
@@ -5636,6 +6155,12 @@ pub mod types {
     ///{
     ///  "description": "metrics endpoint which will be scraped by the
     /// platform.",
+    ///  "examples": [
+    ///    {
+    ///      "path": "/metrics",
+    ///      "port": 0
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "properties": {
     ///    "path": {
@@ -5675,6 +6200,15 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "args": {
+    ///        "key": "args"
+    ///      },
+    ///      "message": "message",
+    ///      "remove": true
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "message",
@@ -5720,6 +6254,11 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "prefix": "prefix"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "prefix"
@@ -5753,6 +6292,24 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "auth": "auth",
+    ///      "mode": "mode",
+    ///      "paths": [
+    ///        {
+    ///          "prefix": "prefix"
+    ///        },
+    ///        {
+    ///          "prefix": "prefix"
+    ///        }
+    ///      ],
+    ///      "serviceGroup": "serviceGroup",
+    ///      "tls": "auto",
+    ///      "vhost": "vhost",
+    ///      "whitelist": "whitelist"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "properties": {
     ///    "auth": {
@@ -5953,51 +6510,21 @@ pub mod types {
         }
     }
 
-    ///A public stream.  A stream that can be shared between different tenants
-    /// within the DSH platform, and is accessible over the MQTT protocol
-    /// adapter. A public stream requires a stream contract.
+    ///A public stream.  A stream that can be shared between different tenants,
+    /// and is accessible over the MQTT protocol adapter.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "A public stream.  A stream that can be shared between different tenants within the DSH platform, and is accessible over the MQTT protocol adapter. A public stream requires a stream contract.\n",
-    ///  "examples": [
-    ///    [
-    ///      {
-    ///        "$ref":
-    /// "#/components/examples/publicManagedStreamWithTopicLevelPartitioner"
-    ///      },
-    ///      {
-    ///        "$ref":
-    /// "#/components/examples/publicManagedStreamWithDefaultKafkaPartitioner"
-    ///      }
-    ///    ]
-    ///  ],
+    ///  "description": "A public stream.  A stream that can be shared between different tenants, and is accessible over the MQTT protocol adapter.\n",
     ///  "type": "object",
     ///  "allOf": [
     ///    {
-    ///      "$ref": "#/components/schemas/Topic"
+    ///      "$ref": "#/components/schemas/ManagedStream"
     ///    },
     ///    {
-    ///      "type": "object",
-    ///      "required": [
-    ///        "contract",
-    ///        "kind"
-    ///      ],
-    ///      "properties": {
-    ///        "contract": {
-    ///          "$ref": "#/components/schemas/PublicManagedStreamContract"
-    ///        },
-    ///        "kind": {
-    ///          "description": "For public streams, the value of `kind` must be
-    /// `public`",
-    ///          "type": "string",
-    ///          "enum": [
-    ///            "public"
-    ///          ]
-    ///        }
-    ///      }
+    ///      "$ref": "#/components/schemas/PublicManagedStream_allOf"
     ///    }
     ///  ]
     ///}
@@ -6006,14 +6533,24 @@ pub mod types {
     #[derive(Clone, Debug, Deserialize, Serialize)]
     pub struct PublicManagedStream {
         pub contract: PublicManagedStreamContract,
+        ///Additional Kafka properties to be set on the topic. The properties
+        /// are key-value pairs. The key is the property name and the
+        /// value is the property value.  The following properties are allowed:
+        ///  - `cleanup.policy`: `delete|compact`
+        ///  - `compression.type`: `uncompressed|zstd|lz4|snappy|gzip|producer`
+        ///  - `delete.retention.ms`: min 0
+        ///  - `max.message.bytes`: min `1024`, max `1048576` (1024x1024)
+        ///  - `message.timestamp.type`: `CreateTime|LogAppendTime`
+        ///  - `retention.bytes` min 0
+        ///  - `retention.ms` min `3600000` (1 hour), max: `3,1536E+10` (365
+        ///    days)
+        ///  - `segment.bytes`: min `52428800` (1024x1024x50)
         #[serde(
             rename = "kafkaProperties",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "std::collections::HashMap::is_empty"
         )]
-        pub kafka_properties: Option<KafkaProperties>,
-        ///For public streams, the value of `kind` must be `public`
-        pub kind: PublicManagedStreamKind,
+        pub kafka_properties: std::collections::HashMap<String, String>,
         pub partitions: i64,
         #[serde(rename = "replicationFactor")]
         pub replication_factor: i64,
@@ -6025,6 +6562,35 @@ pub mod types {
         }
     }
 
+    ///PublicManagedStreamAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "contract"
+    ///  ],
+    ///  "properties": {
+    ///    "contract": {
+    ///      "$ref": "#/components/schemas/PublicManagedStreamContract"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct PublicManagedStreamAllOf {
+        pub contract: PublicManagedStreamContract,
+    }
+
+    impl From<&PublicManagedStreamAllOf> for PublicManagedStreamAllOf {
+        fn from(value: &PublicManagedStreamAllOf) -> Self {
+            value.clone()
+        }
+    }
+
     ///The stream contract for a public stream.
     ///
     /// <details><summary>JSON schema</summary>
@@ -6032,18 +6598,6 @@ pub mod types {
     /// ```json
     ///{
     ///  "description": "The stream contract for a public stream.",
-    ///  "examples": [
-    ///    [
-    ///      {
-    ///        "$ref":
-    /// "#/components/examples/publicManagedStreamWithTopicLevelPartitioner"
-    ///      },
-    ///      {
-    ///        "$ref":
-    /// "#/components/examples/publicManagedStreamWithDefaultKafkaPartitioner"
-    ///      }
-    ///    ]
-    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "canBeRetained",
@@ -6142,11 +6696,6 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "examples": [
-    ///    {
-    ///      "$ref": "#/components/examples/defaultKafkaPartitioner"
-    ///    }
-    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "kind"
@@ -6156,6 +6705,7 @@ pub mod types {
     ///      "examples": [
     ///        "kafkaDefault"
     ///      ],
+    ///      "type": "string",
     ///      "enum": [
     ///        "kafkaDefault"
     ///      ]
@@ -6186,6 +6736,7 @@ pub mod types {
     ///  "examples": [
     ///    "kafkaDefault"
     ///  ],
+    ///  "type": "string",
     ///  "enum": [
     ///    "kafkaDefault"
     ///  ]
@@ -6245,83 +6796,12 @@ pub mod types {
         }
     }
 
-    ///For public streams, the value of `kind` must be `public`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "For public streams, the value of `kind` must be
-    /// `public`",
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "public"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum PublicManagedStreamKind {
-        #[serde(rename = "public")]
-        Public,
-    }
-
-    impl From<&PublicManagedStreamKind> for PublicManagedStreamKind {
-        fn from(value: &PublicManagedStreamKind) -> Self {
-            value.clone()
-        }
-    }
-
-    impl ToString for PublicManagedStreamKind {
-        fn to_string(&self) -> String {
-            match *self {
-                Self::Public => "public".to_string(),
-            }
-        }
-    }
-
-    impl std::str::FromStr for PublicManagedStreamKind {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            match value {
-                "public" => Ok(Self::Public),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-
-    impl std::convert::TryFrom<&str> for PublicManagedStreamKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for PublicManagedStreamKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for PublicManagedStreamKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
     ///PublicManagedStreamTopicLevelPartitioner
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "examples": [
-    ///    {
-    ///      "$ref": "#/components/examples/topicLevelPartitioner"
-    ///    }
-    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "kind",
@@ -6332,6 +6812,7 @@ pub mod types {
     ///      "examples": [
     ///        "topicLevel"
     ///      ],
+    ///      "type": "string",
     ///      "enum": [
     ///        "topicLevel"
     ///      ]
@@ -6368,6 +6849,7 @@ pub mod types {
     ///  "examples": [
     ///    "topicLevel"
     ///  ],
+    ///  "type": "string",
     ///  "enum": [
     ///    "topicLevel"
     ///  ]
@@ -6427,86 +6909,18 @@ pub mod types {
         }
     }
 
-    ///ReceivedBucketAccess
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "$ref": "#/components/schemas/ThirdPartyBucketConcession"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct ReceivedBucketAccess(pub ThirdPartyBucketConcession);
-    impl std::ops::Deref for ReceivedBucketAccess {
-        type Target = ThirdPartyBucketConcession;
-        fn deref(&self) -> &ThirdPartyBucketConcession {
-            &self.0
-        }
-    }
-
-    impl From<ReceivedBucketAccess> for ThirdPartyBucketConcession {
-        fn from(value: ReceivedBucketAccess) -> Self {
-            value.0
-        }
-    }
-
-    impl From<&ReceivedBucketAccess> for ReceivedBucketAccess {
-        fn from(value: &ReceivedBucketAccess) -> Self {
-            value.clone()
-        }
-    }
-
-    impl From<ThirdPartyBucketConcession> for ReceivedBucketAccess {
-        fn from(value: ThirdPartyBucketConcession) -> Self {
-            Self(value)
-        }
-    }
-
-    ///ReceivedBucketAccessStatus
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "$ref": "#/components/schemas/ThirdPartyBucketConcessionStatus"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct ReceivedBucketAccessStatus(pub ThirdPartyBucketConcessionStatus);
-    impl std::ops::Deref for ReceivedBucketAccessStatus {
-        type Target = ThirdPartyBucketConcessionStatus;
-        fn deref(&self) -> &ThirdPartyBucketConcessionStatus {
-            &self.0
-        }
-    }
-
-    impl From<ReceivedBucketAccessStatus> for ThirdPartyBucketConcessionStatus {
-        fn from(value: ReceivedBucketAccessStatus) -> Self {
-            value.0
-        }
-    }
-
-    impl From<&ReceivedBucketAccessStatus> for ReceivedBucketAccessStatus {
-        fn from(value: &ReceivedBucketAccessStatus) -> Self {
-            value.clone()
-        }
-    }
-
-    impl From<ThirdPartyBucketConcessionStatus> for ReceivedBucketAccessStatus {
-        fn from(value: ThirdPartyBucketConcessionStatus) -> Self {
-            Self(value)
-        }
-    }
-
     ///Secret
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "name": "name",
+    ///      "value": "value"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "name",
@@ -6794,6 +7208,48 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "healthy": true,
+    ///        "host": "10.0.2.36",
+    ///        "lastUpdate": 1638980430,
+    ///        "stagedAt": "2017-12-07T10:53:46.643Z",
+    ///        "startedAt": "2017-12-07T10:55:41.765Z",
+    ///        "state": "RUNNING",
+    ///        "stoppedAt": "2017-12-07T10:58:41.765Z"
+    ///      },
+    ///      "configuration": {
+    ///        "healthy": true,
+    ///        "host": "10.0.2.36",
+    ///        "lastUpdate": 1638980430,
+    ///        "stagedAt": "2017-12-07T10:53:46.643Z",
+    ///        "startedAt": "2017-12-07T10:55:41.765Z",
+    ///        "state": "RUNNING",
+    ///        "stoppedAt": "2017-12-07T10:58:41.765Z"
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -6833,6 +7289,16 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "credentialidentifierref": "credentialidentifierref",
+    ///      "credentialsecretref": "credentialsecretref",
+    ///      "name": "name",
+    ///      "readable": true,
+    ///      "shareidentifier": "shareidentifier",
+    ///      "writable": true
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "credentialidentifierref",
@@ -6889,6 +7355,12 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "name": "name",
+    ///      "shareidentifier": "shareidentifier"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "name",
@@ -6925,6 +7397,14 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "credentialidentifierplaintext": "credentialidentifierplaintext",
+    ///      "credentialsecretplaintext": "credentialsecretplaintext",
+    ///      "name": "name",
+    ///      "shareidentifier": "shareidentifier"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "credentialidentifierplaintext",
@@ -6980,6 +7460,42 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "credentialidentifierref": "credentialidentifierref",
+    ///        "credentialsecretref": "credentialsecretref",
+    ///        "name": "name",
+    ///        "readable": true,
+    ///        "shareidentifier": "shareidentifier",
+    ///        "writable": true
+    ///      },
+    ///      "configuration": {
+    ///        "name": "name",
+    ///        "shareidentifier": "shareidentifier"
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -7020,6 +7536,15 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "kafkaProperties": {
+    ///        "key": "kafkaProperties"
+    ///      },
+    ///      "partitions": 0,
+    ///      "replicationFactor": 6
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "partitions",
@@ -7027,7 +7552,20 @@ pub mod types {
     ///  ],
     ///  "properties": {
     ///    "kafkaProperties": {
-    ///      "$ref": "#/components/schemas/KafkaProperties"
+    ///      "description": "Additional Kafka properties to be set on the topic.
+    /// The properties are key-value pairs.\nThe key is the property name and
+    /// the value is the property value.  The following properties are
+    /// allowed:\n  - `cleanup.policy`: `delete|compact`\n  -
+    /// `compression.type`: `uncompressed|zstd|lz4|snappy|gzip|producer`\n  -
+    /// `delete.retention.ms`: min 0\n  - `max.message.bytes`: min `1024`, max
+    /// `1048576` (1024x1024)\n  - `message.timestamp.type`:
+    /// `CreateTime|LogAppendTime`\n  - `retention.bytes` min 0\n  -
+    /// `retention.ms` min `3600000` (1 hour), max: `3,1536E+10` (365 days)\n  -
+    /// `segment.bytes`: min `52428800` (1024x1024x50)\n",
+    ///      "type": "object",
+    ///      "additionalProperties": {
+    ///        "type": "string"
+    ///      }
     ///    },
     ///    "partitions": {
     ///      "type": "integer"
@@ -7041,12 +7579,24 @@ pub mod types {
     /// </details>
     #[derive(Clone, Debug, Deserialize, Serialize)]
     pub struct Topic {
+        ///Additional Kafka properties to be set on the topic. The properties
+        /// are key-value pairs. The key is the property name and the
+        /// value is the property value.  The following properties are allowed:
+        ///  - `cleanup.policy`: `delete|compact`
+        ///  - `compression.type`: `uncompressed|zstd|lz4|snappy|gzip|producer`
+        ///  - `delete.retention.ms`: min 0
+        ///  - `max.message.bytes`: min `1024`, max `1048576` (1024x1024)
+        ///  - `message.timestamp.type`: `CreateTime|LogAppendTime`
+        ///  - `retention.bytes` min 0
+        ///  - `retention.ms` min `3600000` (1 hour), max: `3,1536E+10` (365
+        ///    days)
+        ///  - `segment.bytes`: min `52428800` (1024x1024x50)
         #[serde(
             rename = "kafkaProperties",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "std::collections::HashMap::is_empty"
         )]
-        pub kafka_properties: Option<KafkaProperties>,
+        pub kafka_properties: std::collections::HashMap<String, String>,
         pub partitions: i64,
         #[serde(rename = "replicationFactor")]
         pub replication_factor: i64,
@@ -7064,6 +7614,44 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "kafkaProperties": {
+    ///          "key": "kafkaProperties"
+    ///        },
+    ///        "partitions": 0,
+    ///        "replicationFactor": 6
+    ///      },
+    ///      "configuration": {
+    ///        "kafkaProperties": {
+    ///          "key": "kafkaProperties"
+    ///        },
+    ///        "partitions": 0,
+    ///        "replicationFactor": 6
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -7103,6 +7691,17 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "commonName": "commonName",
+    ///      "country": "country",
+    ///      "locality": "locality",
+    ///      "organization": "organization",
+    ///      "organizationalUnit": "organizationalUnit",
+    ///      "province": "province",
+    ///      "subjectType": "subjectType"
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "properties": {
     ///    "commonName": {
@@ -7215,6 +7814,11 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "sizeGiB": 0
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "sizeGiB"
@@ -7245,6 +7849,36 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "actual": {
+    ///        "sizeGiB": 0
+    ///      },
+    ///      "configuration": {
+    ///        "sizeGiB": 0
+    ///      },
+    ///      "status": {
+    ///        "derivedFrom": "derivedFrom",
+    ///        "notifications": [
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          },
+    ///          {
+    ///            "args": {
+    ///              "key": "args"
+    ///            },
+    ///            "message": "message",
+    ///            "remove": true
+    ///          }
+    ///        ],
+    ///        "provisioned": true
+    ///      }
+    ///    }
+    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "status"
@@ -7399,19 +8033,19 @@ pub mod types {
             "/".to_string()
         }
 
-        pub(super) fn managed_tenant_services() -> Vec<super::ManagedTenantServicesItem> {
+        pub(super) fn managed_tenant_services() -> Vec<super::ManagedTenantServices> {
             vec![
-                super::ManagedTenantServicesItem {
+                super::ManagedTenantServices {
                     enabled: true,
-                    name: super::ManagedTenantServicesItemName::Monitoring,
+                    name: super::ManagedTenantServicesName::Monitoring,
                 },
-                super::ManagedTenantServicesItem {
+                super::ManagedTenantServices {
                     enabled: false,
-                    name: super::ManagedTenantServicesItemName::Vpn,
+                    name: super::ManagedTenantServicesName::Vpn,
                 },
-                super::ManagedTenantServicesItem {
+                super::ManagedTenantServices {
                     enabled: false,
-                    name: super::ManagedTenantServicesItemName::Tracing,
+                    name: super::ManagedTenantServicesName::Tracing,
                 },
             ]
         }
@@ -7427,7 +8061,7 @@ pub mod types {
 ///
 ///Resource management API for DSH
 ///
-///Version: 1.8.0
+///Version: 1.9.0
 pub struct Client {
     pub(crate) baseurl: String,
     pub(crate) client: reqwest::Client,
@@ -7480,1765 +8114,12 @@ impl Client {
     /// This string is pulled directly from the source OpenAPI
     /// document and may be in any format the API selects.
     pub fn api_version(&self) -> &'static str {
-        "rc.1.9.0"
+        "1.9.0"
     }
 }
 
 #[allow(clippy::all)]
 impl Client {
-    ///lists all data catalog assets of a tenant for the given kind
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/datacatalog/asset/{kind}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `kind`: data catalog asset kind
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn data_catalog_get_alltenantdatacatalogassets<'a>(
-        &'a self,
-        tenant: &'a str,
-        kind: types::DataCatalogGetAlltenantdatacatalogassetsKind,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/datacatalog/asset/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&kind.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets configuration of a data catalog asset allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/datacatalog/asset/{kind}/{name}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `kind`: data catalog asset kind
-    /// - `name`: data catalog asset name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn data_catalog_get_datacatalogassetconfiguration<'a>(
-        &'a self,
-        tenant: &'a str,
-        kind: types::DataCatalogGetDatacatalogassetconfigurationKind,
-        name: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::DataCatalogAsset>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/datacatalog/asset/{}/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&kind.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///creates dataCatalogAsset configuration
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/datacatalog/asset/{kind}/{name}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `kind`: data catalog asset kind
-    /// - `name`: data catalog asset name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the JSON representation of the resource
-    pub async fn data_catalog_put_datacatalogassetconfiguration<'a>(
-        &'a self,
-        tenant: &'a str,
-        kind: types::DataCatalogPutDatacatalogassetconfigurationKind,
-        name: &'a str,
-        authorization: &'a str,
-        body: &'a types::DataCatalogAsset,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/datacatalog/asset/{}/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&kind.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a dataCatalogAsset
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/datacatalog/asset/{kind}/{name}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `kind`: data catalog asset kind
-    /// - `name`: data catalog asset name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn data_catalog_delete_datacatalogassetconfiguration<'a>(
-        &'a self,
-        tenant: &'a str,
-        kind: types::DataCatalogDeleteDatacatalogassetconfigurationKind,
-        name: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/datacatalog/asset/{}/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&kind.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///shows overall status of a datacatalog asset allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/datacatalog/asset/{kind}/{name}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `kind`: data catalog asset kind
-    /// - `name`: data catalog asset name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn data_catalog_get_datacatalogassetoftenant<'a>(
-        &'a self,
-        tenant: &'a str,
-        kind: types::DataCatalogGetDatacatalogassetoftenantKind,
-        name: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::DataCatalogAssetStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/datacatalog/asset/{}/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&kind.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///lists all bucketaccesses of a tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucketaccess`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_access_get_alltenantbucketaccesses<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucketaccess",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///lists all bucketwatches of a tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucketwatch`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_watch_get_alltenantbucketwatches<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucketwatch",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///lists all bucket names of a tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucket`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_get_alltenantbuckets<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///list summaries of third party buckets, registered using credentials
-    /// shared to you by a third party
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/thirdpartybucketconcession`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn third_party_bucket_get_alltenantthirdpartybucketconcessions<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/thirdpartybucketconcession",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///register a new bucket concession for which credentials were shared to
-    /// you by a third party
-    ///
-    ///Sends a `POST` request to
-    /// `/allocation/{tenant}/thirdpartybucketconcession`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the secret value
-    pub async fn third_party_bucket_post_alltenantthirdpartybucketconcessions<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-        body: &'a types::ThirdPartyBucketConcessionRegistration,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/thirdpartybucketconcession",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .post(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            201u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets actual configuration of a bucketaccess allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `name`: bucket access name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_access_get_bucketaccessactualofbucketaccess<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        name: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::BucketAccess>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketaccess/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets status description of a bucketaccess allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/status:`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `name`: bucket access name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_access_get_bucketaccessallocstatusofbucketaccess<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        name: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketaccess/{}/status:",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets configuration of a bucketaccess allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `name`: bucket access name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_access_get_bucketaccessconfigofbucketaccess<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        name: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::BucketAccessConfiguration>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketaccess/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///creates bucketaccess configuration
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `name`: bucket access name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the wanted config of the (new) bucketaccess allocation
-    pub async fn bucket_access_put_bucketaccessconfigofbucketaccess<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        name: &'a str,
-        authorization: &'a str,
-        body: &'a types::BucketAccessConfiguration,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketaccess/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a bucketaccess
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `name`: bucket access name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_access_delete_bucketaccessconfigofbucketaccess<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        name: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketaccess/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///shows overall status of a third party bucket
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `name`: bucket access name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_access_get_bucketaccessofbucket<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        name: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::BucketAccessStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketaccess/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-            encode_path(&name.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///shows bucketaccesses about a specific bucket
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}/bucketaccess`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_access_get_bucketaccessesofbucket<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketaccess",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets actual configuration of a bucket allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_get_bucketactual<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Bucket>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets status description of a bucket allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_get_bucketallocstatus<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets configuration of a bucket allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/bucket/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_get_bucketconfiguration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Bucket>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///creates bucket configuration.It is impossible to update an existing
-    /// bucket. This requires a delete of the existing bucket and creation of a
-    /// new one with the wanted configuration
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/bucket/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the JSON representation of the resource
-    pub async fn bucket_put_bucketconfiguration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-        body: &'a types::Bucket,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a bucket
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/bucket/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_delete_bucketconfiguration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///shows overall status of a bucket allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_get_bucketoftenant<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::BucketStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets actual configuration of a bucketwatch allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_watch_get_bucketwatchactualofbucket<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::BucketWatch>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketwatch/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets status description of a bucketwatch allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_watch_get_bucketwatchallocstatusofbucket<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketwatch/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets configuration of a bucketwatch allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_watch_get_bucketwatchconfigofbucket<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::BucketWatch>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///creates bucketwatch configuration
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_watch_put_bucketwatchconfigofbucket<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.put(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a bucketwatch
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_watch_delete_bucketwatchconfigofbucket<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///shows overall status of a bucketwatch allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}/bucketwatch`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: bucket name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn bucket_watch_get_bucketwatchofbucket<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::BucketWatchStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/{}/bucketwatch",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///lists only bucket names of a tenant that originated from a third party
-    /// bucket
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/bucket/fromthirdparty`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn third_party_bucket_get_onlytenantbucketsfromthirdpartyconcessions<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/bucket/fromthirdparty",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///shows overall status of a third party bucket
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: your name of choice for the third party bucket
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn third_party_bucket_get_thirdpartybucketconcession<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ThirdPartyBucketConcessionStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/thirdpartybucketconcession/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets actual configuration of a third party bucket (received bucket
-    /// access) allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: your name of choice for the third party bucket
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn third_party_bucket_get_thirdpartybucketconcessionactual<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ThirdPartyBucketConcession>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/thirdpartybucketconcession/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets status description of third party bucket (received bucket access)
-    /// allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: your name of choice for the third party bucket
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn third_party_bucket_get_thirdpartybucketconcessionallocstatus<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/thirdpartybucketconcession/{}/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///gets configuration of a third party bucket (received bucket access)
-    /// allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: your name of choice for the third party bucket
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn third_party_bucket_get_thirdpartybucketconcessionconfig<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ThirdPartyBucketConcession>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/thirdpartybucketconcession/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///unregisters a third party bucket. This will also remove the virtual
-    /// bucket
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: your name of choice for the third party bucket
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn third_party_bucket_delete_thirdpartybucketconcessionconfig<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/thirdpartybucketconcession/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///list tenant Kafka ACL groups
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/aclgroup`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn kafka_acl_group_get_by_tenant_aclgroup<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/aclgroup",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///return the configuration of the Kafka ACl group
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: Kafka ACL group id
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn kafka_acl_group_get_by_tenant_aclgroup_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a types::KafkaAclGroupGetByTenantAclgroupByIdConfigurationId,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::KafkaAclGroup>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/aclgroup/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///creates a new or updates an existing Kafka ACL group
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: Kafka ACL group id
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the Kafka ACL group definition
-    pub async fn kafka_acl_group_put_by_tenant_aclgroup_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a types::KafkaAclGroupPutByTenantAclgroupByIdConfigurationId,
-        authorization: &'a str,
-        body: &'a types::KafkaAclGroup,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/aclgroup/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a Kafka ACL group
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: Kafka ACL group id
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn kafka_acl_group_delete_by_tenant_aclgroup_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a types::KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/aclgroup/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a list containing all App Catalog App allocations and their
-    /// respective configurations of a given tenant, as they are actually
-    /// deployed
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/appcatalogapp/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn app_catalog_get_by_tenant_appcatalogapp_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<std::collections::HashMap<String, types::AppCatalogApp>>, Error<()>>
-    {
-        let url = format!(
-            "{}/allocation/{}/appcatalogapp/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a list containing all App Catalog App allocations and their
-    /// respective configurations of a given tenant
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/appcatalogapp/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn app_catalog_get_by_tenant_appcatalogapp_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<std::collections::HashMap<String, types::AppCatalogApp>>, Error<()>>
-    {
-        let url = format!(
-            "{}/allocation/{}/appcatalogapp/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the configuration of an App Catalog App allocation as it is
-    /// actually deployed. To only view the configuration parameters of this
-    /// allocation, see the `appcatalogappconfiguration` section.
-    ///
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/appcatalogapp/{appcatalogappid}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `appcatalogappid`: appcatalogapp name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        appcatalogappid: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AppCatalogApp>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/appcatalogapp/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&appcatalogappid.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the configuration of an App Catalog App allocation by a
-    /// specified tenant name and App Catalog App Id. To only view the
-    /// configuration parameters of this allocation, see the
-    /// `appcatalogappconfiguration` section.
-    ///
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/appcatalogapp/{appcatalogappid}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `appcatalogappid`: appcatalogapp name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        appcatalogappid: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AppCatalogApp>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/appcatalogapp/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&appcatalogappid.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a list containing the configuration of every deployed
-    /// application of a given tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/application/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn application_get_by_tenant_application_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<std::collections::HashMap<String, types::Application>>, Error<()>>
-    {
-        let url = format!(
-            "{}/allocation/{}/application/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
     ///Returns the configuration of every application created by a given tenant
     ///
     ///Sends a `GET` request to
@@ -9257,48 +8138,6 @@ impl Client {
             "{}/allocation/{}/application/configuration",
             self.baseurl,
             encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the configuration of a deployed application allocation for a
-    /// given app id and tenant
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/application/{appid}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `appid`: application name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn application_get_by_tenant_application_by_appid_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        appid: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Application>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/application/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&appid.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -9437,6 +8276,87 @@ impl Client {
         }
     }
 
+    ///returns a list containing the configuration of every deployed
+    /// application of a given tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/application/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn application_get_by_tenant_application_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<std::collections::HashMap<String, types::Application>>, Error<()>>
+    {
+        let url = format!(
+            "{}/allocation/{}/application/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the configuration of a deployed application allocation for a
+    /// given app id and tenant
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/application/{appid}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `appid`: application name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn application_get_by_tenant_application_by_appid_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        appid: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Application>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/application/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&appid.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
     ///returns a status description of an application allocation
     ///
     ///Sends a `GET` request to
@@ -9478,295 +8398,23 @@ impl Client {
         }
     }
 
-    ///returns a list of all certificate names that are allocated to a tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/certificate`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn certificate_get_by_tenant_certificate<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/certificate",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the status of a specific certificate allocation by id
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/certificate/{id}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: certificate name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn certificate_get_by_tenant_certificate_by_id<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::CertificateStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/certificate/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the actual configuration of a certificate allocation. This may
-    /// not represent the wanted configuration
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/certificate/{id}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: certificate name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn certificate_get_by_tenant_certificate_by_id_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Certificate>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/certificate/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the configuration of a certificate allocation
+    ///returns a list containing all App Catalog App allocations and their
+    /// respective configurations of a given tenant
     ///
     ///Sends a `GET` request to
-    /// `/allocation/{tenant}/certificate/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: certificate name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn certificate_get_by_tenant_certificate_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Certificate>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/certificate/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///create a new certificate. It is impossible to update an existing
-    /// certificate. This requires a delete of the existing certificate and
-    /// creation of a new one with the wanted configuration
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/certificate/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: certificate name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the JSON object containing the configuration of a certificate.
-    ///   certChainSecret and keySecret must be known to the platform.
-    pub async fn certificate_put_by_tenant_certificate_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-        body: &'a types::Certificate,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/certificate/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a certificate by id
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/certificate/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: certificate name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn certificate_delete_by_tenant_certificate_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/certificate/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a brief status description of a certificate allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/certificate/{id}/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: certificate name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn certificate_get_by_tenant_certificate_by_id_status<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/certificate/{}/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///(beta release) lists ids of all databases of a tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/database`
+    /// `/allocation/{tenant}/appcatalogapp/configuration`
     ///
     ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn database_get_by_tenant_database<'a>(
+    pub async fn app_catalog_get_by_tenant_appcatalogapp_configuration<'a>(
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+    ) -> Result<ResponseValue<std::collections::HashMap<String, types::AppCatalogApp>>, Error<()>>
+    {
         let url = format!(
-            "{}/allocation/{}/database",
+            "{}/allocation/{}/appcatalogapp/configuration",
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
@@ -9790,25 +8438,25 @@ impl Client {
         }
     }
 
-    ///(beta release) gets overall status of a database allocation
+    ///returns a list containing all App Catalog App allocations and their
+    /// respective configurations of a given tenant, as they are actually
+    /// deployed
     ///
-    ///Sends a `GET` request to `/allocation/{tenant}/database/{id}`
+    ///Sends a `GET` request to `/allocation/{tenant}/appcatalogapp/actual`
     ///
     ///Arguments:
     /// - `tenant`: tenant name
-    /// - `id`: database name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn database_get_by_tenant_database_by_id<'a>(
+    pub async fn app_catalog_get_by_tenant_appcatalogapp_actual<'a>(
         &'a self,
         tenant: &'a str,
-        id: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<types::DatabaseStatus>, Error<()>> {
+    ) -> Result<ResponseValue<std::collections::HashMap<String, types::AppCatalogApp>>, Error<()>>
+    {
         let url = format!(
-            "{}/allocation/{}/database/{}",
+            "{}/allocation/{}/appcatalogapp/actual",
             self.baseurl,
             encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -9830,66 +8478,30 @@ impl Client {
         }
     }
 
-    ///(beta release) gets actual state for a database allocation
+    ///returns the configuration of an App Catalog App allocation by a
+    /// specified tenant name and App Catalog App Id. To only view the
+    /// configuration parameters of this allocation, see the
+    /// `appcatalogappconfiguration` section.
     ///
-    ///Sends a `GET` request to `/allocation/{tenant}/database/{id}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: database name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn database_get_by_tenant_database_by_id_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Database>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/database/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///(beta release) gets configuration for a database allocation
     ///
     ///Sends a `GET` request to
-    /// `/allocation/{tenant}/database/{id}/configuration`
+    /// `/allocation/{tenant}/appcatalogapp/{appcatalogappid}/configuration`
     ///
     ///Arguments:
     /// - `tenant`: tenant name
-    /// - `id`: database name
+    /// - `appcatalogappid`: appcatalogapp name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn database_get_by_tenant_database_by_id_configuration<'a>(
+    pub async fn app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_configuration<'a>(
         &'a self,
         tenant: &'a str,
-        id: &'a str,
+        appcatalogappid: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<types::Database>, Error<()>> {
+    ) -> Result<ResponseValue<types::AppCatalogApp>, Error<()>> {
         let url = format!(
-            "{}/allocation/{}/database/{}/configuration",
+            "{}/allocation/{}/appcatalogapp/{}/configuration",
             self.baseurl,
             encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
+            encode_path(&appcatalogappid.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -9911,1527 +8523,29 @@ impl Client {
         }
     }
 
-    ///(beta release) creates a database configuration. It is impossible to
-    /// update an existing database
+    ///returns the configuration of an App Catalog App allocation as it is
+    /// actually deployed. To only view the configuration parameters of this
+    /// allocation, see the `appcatalogappconfiguration` section.
     ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/database/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: database name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the JSON representation of the resource
-    pub async fn database_put_by_tenant_database_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-        body: &'a types::Database,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/database/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///(beta release) deletes a database
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/database/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: database name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn database_delete_by_tenant_database_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/database/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///(beta release) gets status description of a database allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/database/{id}/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: database name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn database_get_by_tenant_database_by_id_status<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/database/{}/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the overall status of a Flink Cluster
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/flinkcluster`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn flink_cluster_get_by_tenant_flinkcluster<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::FlinkClusterStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/flinkcluster",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the actual configuration of a Flink Cluster
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/flinkcluster/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn flink_cluster_get_by_tenant_flinkcluster_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::FlinkCluster>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/flinkcluster/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the configuration of a Flink Cluster
     ///
     ///Sends a `GET` request to
-    /// `/allocation/{tenant}/flinkcluster/configuration`
+    /// `/allocation/{tenant}/appcatalogapp/{appcatalogappid}/actual`
     ///
     ///Arguments:
     /// - `tenant`: tenant name
+    /// - `appcatalogappid`: appcatalogapp name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn flink_cluster_get_by_tenant_flinkcluster_configuration<'a>(
+    pub async fn app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_actual<'a>(
         &'a self,
         tenant: &'a str,
+        appcatalogappid: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<types::FlinkCluster>, Error<()>> {
+    ) -> Result<ResponseValue<types::AppCatalogApp>, Error<()>> {
         let url = format!(
-            "{}/allocation/{}/flinkcluster/configuration",
+            "{}/allocation/{}/appcatalogapp/{}/actual",
             self.baseurl,
             encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///create a new Flink Cluster. It is impossible to update an existing Flink
-    /// Cluster. This requires a delete of the existing Flink Cluster and
-    /// creation of a new one with the wanted configuration
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/flinkcluster/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: a JSON object containing the desired configuration of the
-    ///   Flink Cluster. Zone must be known to the platform.
-    pub async fn flink_cluster_put_by_tenant_flinkcluster_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-        body: &'a types::FlinkCluster,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/flinkcluster/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a Flink Cluster. Since only one cluster can be created per
-    /// tenant, only the tenants' name needs to be specified
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/flinkcluster/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn flink_cluster_delete_by_tenant_flinkcluster_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/flinkcluster/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a brief status description of a Flink Cluster
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/flinkcluster/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn flink_cluster_get_by_tenant_flinkcluster_status<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/flinkcluster/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a list of all kafka proxies of a tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/kafkaproxy`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn kafka_proxy_get_by_tenant_kafkaproxy<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/kafkaproxy",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///Returns the configuration of a certain kafka Proxy, specified by the
-    /// tenant name and kafka Proxy name
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/kafkaproxy/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: Kafka proxy id
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn kafka_proxy_get_by_tenant_kafkaproxy_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::KafkaProxy>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/kafkaproxy/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///update the value of the kafka proxy
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/kafkaproxy/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: Kafka proxy id
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the kafka proxy configuration options
-    pub async fn kafka_proxy_put_by_tenant_kafkaproxy_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-        body: &'a types::KafkaProxy,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/kafkaproxy/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a kafka proxy
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/kafkaproxy/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: Kafka proxy id
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn kafka_proxy_delete_by_tenant_kafkaproxy_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/kafkaproxy/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a list of all secret names of a tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/secret`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn secret_get_by_tenant_secret<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/secret",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///create a new secret
-    ///
-    ///Sends a `POST` request to `/allocation/{tenant}/secret`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: a JSON object containing the name and the secret value
-    pub async fn secret_post_by_tenant_secret<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-        body: &'a types::Secret,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/secret",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .post(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            201u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the value of a secret
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/secret/{id}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: secret name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn secret_get_by_tenant_secret_by_id<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<ByteStream>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/secret/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.get(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => Ok(ResponseValue::stream(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///update the value of a secret
-    ///
-    ///Sends a `PUT` request to `/allocation/{tenant}/secret/{id}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: secret name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the secret value as a string
-    pub async fn secret_put_by_tenant_secret_by_id<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-        body: String,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/secret/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .header(
-                reqwest::header::CONTENT_TYPE,
-                reqwest::header::HeaderValue::from_static("text/plain"),
-            )
-            .body(body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the actual state of a secret. The response body will always be
-    /// empty because we cannot share the secret value, but the response code
-    /// will tell you more about its state
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/secret/{id}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: secret name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn secret_get_by_tenant_secret_by_id_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Empty>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/secret/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the configuration of a secret allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/secret/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: secret name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn secret_get_by_tenant_secret_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Empty>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/secret/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a secret
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/secret/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: secret name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn secret_delete_by_tenant_secret_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/secret/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a brief status description of a secret allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/secret/{id}/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: secret name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn secret_get_by_tenant_secret_by_id_status<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/secret/{}/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///return a list containing the ids of all applications with derived tasks
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/task`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn application_get_by_tenant_task<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/task",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///return a list containing the ids of an application's derived tasks
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/task/{appid}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `appid`: application name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn application_get_by_tenant_task_by_appid<'a>(
-        &'a self,
-        tenant: &'a str,
-        appid: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/task/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&appid.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns overall status of a task
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/task/{appid}/{id}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `appid`: application name
-    /// - `id`: task name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn application_get_by_tenant_task_by_appid_by_id<'a>(
-        &'a self,
-        tenant: &'a str,
-        appid: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::TaskStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/task/{}/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&appid.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the actual state of a specific task
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/task/{appid}/{id}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `appid`: application name
-    /// - `id`: task name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn application_get_by_tenant_task_by_appid_by_id_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        appid: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Task>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/task/{}/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&appid.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a brief status description of a task
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/task/{appid}/{id}/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `appid`: application name
-    /// - `id`: task name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn application_get_by_tenant_task_by_appid_by_id_status<'a>(
-        &'a self,
-        tenant: &'a str,
-        appid: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/task/{}/{}/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&appid.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a list of topics of a tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/topic`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn topic_get_by_tenant_topic<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/topic",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the overall status of a topic allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/topic/{id}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: topic name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn topic_get_by_tenant_topic_by_id<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::TopicStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/topic/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns actual configuration of a topic allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/topic/{id}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: topic name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn topic_get_by_tenant_topic_by_id_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Topic>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/topic/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the configuration of a topic allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/topic/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: topic name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn topic_get_by_tenant_topic_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Topic>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/topic/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///create a new topic. It is impossible to update an existing topic. This
-    /// requires a delete of the existing topic and creation of a new one with
-    /// the wanted configuration
-    ///
-    ///Sends a `PUT` request to `/allocation/{tenant}/topic/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: topic name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the JSON object containing the configuration of the desired
-    ///   topic
-    pub async fn topic_put_by_tenant_topic_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-        body: &'a types::Topic,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/topic/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a topic
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/topic/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: topic name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn topic_delete_by_tenant_topic_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/topic/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a brief status description of a topic allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/topic/{id}/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: topic name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn topic_get_by_tenant_topic_by_id_status<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/topic/{}/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a list containing the ids of all volumes of a given tenant
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/volume`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn volume_get_by_tenant_volume<'a>(
-        &'a self,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/volume",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the overall status of a volume allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/volume/{id}`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: volume name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn volume_get_by_tenant_volume_by_id<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::VolumeStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/volume/{}",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the actual state for a volume allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/volume/{id}/actual`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: volume name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn volume_get_by_tenant_volume_by_id_actual<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Volume>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/volume/{}/actual",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the configuration for a volume allocation
-    ///
-    ///Sends a `GET` request to
-    /// `/allocation/{tenant}/volume/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: volume name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn volume_get_by_tenant_volume_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::Volume>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/volume/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///create a new volume configuration. It is impossible to update an
-    /// existing volume. This requires a delete of the existing volume and
-    /// creation of a new one with the wanted configuration
-    ///
-    ///Sends a `PUT` request to
-    /// `/allocation/{tenant}/volume/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: volume name
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`: the JSON object containing the desired configuration of a
-    ///   volume allocation
-    pub async fn volume_put_by_tenant_volume_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-        body: &'a types::Volume,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/volume/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .put(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///deletes a volume
-    ///
-    ///Sends a `DELETE` request to
-    /// `/allocation/{tenant}/volume/{id}/configuration`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: volume name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn volume_delete_by_tenant_volume_by_id_configuration<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/volume/{}/configuration",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns a brief status description of a volume allocation
-    ///
-    ///Sends a `GET` request to `/allocation/{tenant}/volume/{id}/status`
-    ///
-    ///Arguments:
-    /// - `tenant`: tenant name
-    /// - `id`: volume name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn volume_get_by_tenant_volume_by_id_status<'a>(
-        &'a self,
-        tenant: &'a str,
-        id: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
-        let url = format!(
-            "{}/allocation/{}/volume/{}/status",
-            self.baseurl,
-            encode_path(&tenant.to_string()),
-            encode_path(&id.to_string()),
+            encode_path(&appcatalogappid.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -11658,362 +8772,144 @@ impl Client {
         }
     }
 
-    ///get a list of streams managed by the managing tenant
+    ///lists all bucketwatches of a tenant
     ///
-    ///Sends a `GET` request to `/manage/{manager}/stream`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_get_manage_by_manager_stream<'a>(
-        &'a self,
-        manager: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<Vec<types::ManagedStreamId>>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///Get the configuration for an internal managed stream
-    ///
-    ///Sends a `GET` request to
-    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
+    ///Sends a `GET` request to `/allocation/{tenant}/bucketwatch`
     ///
     ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_get_manage_by_manager_stream_internal_by_streamid_configuration<
-        'a,
-    >(
-        &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedInternalStreamId,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::InternalManagedStream>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream/internal/{}/configuration",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///Create an internal managed stream
-    ///
-    ///Sends a `POST` request to
-    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`
-    pub async fn managed_streams_post_manage_by_manager_stream_internal_by_streamid_configuration<
-        'a,
-    >(
-        &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedInternalStreamId,
-        authorization: &'a str,
-        body: &'a types::InternalManagedStream,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream/internal/{}/configuration",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .post(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            400u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///Delete an internal managed stream
-    ///
-    ///Sends a `DELETE` request to
-    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_delete_manage_by_manager_stream_internal_by_streamid_configuration<
-        'a,
-    >(
-        &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedInternalStreamId,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream/internal/{}/configuration",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///Get the configuration for a public managed stream
-    ///
-    ///Sends a `GET` request to
-    /// `/manage/{manager}/stream/public/{streamId}/configuration`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_get_manage_by_manager_stream_public_by_streamid_configuration<
-        'a,
-    >(
-        &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedPublicStreamId,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::PublicManagedStream>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream/public/{}/configuration",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///Create a public managed stream
-    ///
-    ///Sends a `POST` request to
-    /// `/manage/{manager}/stream/public/{streamId}/configuration`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
-    /// - `authorization`: Authorization header (bearer token)
-    /// - `body`
-    pub async fn managed_streams_post_manage_by_manager_stream_public_by_streamid_configuration<
-        'a,
-    >(
-        &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedPublicStreamId,
-        authorization: &'a str,
-        body: &'a types::PublicManagedStream,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream/public/{}/configuration",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .post(url)
-            .json(&body)
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            400u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///Delete a public managed stream
-    ///
-    ///Sends a `DELETE` request to
-    /// `/manage/{manager}/stream/public/{streamId}/configuration`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_delete_manage_by_manager_stream_public_by_streamid_configuration<
-        'a,
-    >(
-        &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedPublicStreamId,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream/public/{}/configuration",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            202u16 => Ok(ResponseValue::empty(response)),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///get a list of all tenants that have read access to the stream
-    ///
-    ///Sends a `GET` request to
-    /// `/manage/{manager}/stream/{streamId}/access/read`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_get_manage_by_manager_stream_by_streamid_access_read<'a>(
-        &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedStreamId,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream/{}/access/read",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///Grant the tenant write access to the stream
-    ///
-    ///Sends a `PUT` request to
-    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_put_manage_by_manager_stream_by_streamid_access_read_by_tenant<
-        'a,
-    >(
+    pub async fn bucket_watch_get_by_tenant_bucketwatch<'a>(
         &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedStreamId,
         tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucketwatch",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///shows overall status of a bucketwatch allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}/bucketwatch`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_watch_get_by_tenant_bucket_by_id_bucketwatch<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::BucketWatchStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketwatch",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets configuration of a bucketwatch allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::BucketWatch>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///creates bucketwatch configuration
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_watch_put_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/read/{}",
+            "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
             self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -12027,32 +8923,26 @@ impl Client {
         }
     }
 
-    ///Revoke read access for the tenant on the stream
+    ///deletes a bucketwatch
     ///
     ///Sends a `DELETE` request to
-    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
+    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/configuration`
     ///
     ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
+    /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_delete_manage_by_manager_stream_by_streamid_access_read_by_tenant<
-        'a,
-    >(
+    pub async fn bucket_watch_delete_by_tenant_bucket_by_id_bucketwatch_configuration<'a>(
         &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedStreamId,
         tenant: &'a str,
+        id: &'a str,
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/read/{}",
+            "{}/allocation/{}/bucket/{}/bucketwatch/configuration",
             self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -12066,69 +8956,26 @@ impl Client {
         }
     }
 
-    ///Check whether the tenant has read access to the stream
-    ///
-    ///Sends a `HEAD` request to
-    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_head_manage_by_manager_stream_by_streamid_access_read_by_tenant<
-        'a,
-    >(
-        &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedStreamId,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/stream/{}/access/read/{}",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
-            encode_path(&tenant.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self.client.head(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            204u16 => Ok(ResponseValue::empty(response)),
-            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///get a list of all tenants that have write access to the stream
+    ///gets actual configuration of a bucketwatch allocation
     ///
     ///Sends a `GET` request to
-    /// `/manage/{manager}/stream/{streamId}/access/write`
+    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/actual`
     ///
     ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_get_manage_by_manager_stream_by_streamid_access_write<
-        'a,
-    >(
+    pub async fn bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_actual<'a>(
         &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        id: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+    ) -> Result<ResponseValue<types::BucketWatch>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/write",
+            "{}/allocation/{}/bucket/{}/bucketwatch/actual",
             self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -12150,37 +8997,199 @@ impl Client {
         }
     }
 
-    ///Grant the tenant write access to the stream
+    ///gets status description of a bucketwatch allocation
     ///
-    ///Sends a `PUT` request to
-    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketwatch/status`
     ///
     ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketwatch/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///lists all bucket names of a tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/bucket`
+    ///
+    ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_put_manage_by_manager_stream_by_streamid_access_write_by_tenant<
-        'a,
-    >(
+    pub async fn bucket_get_by_tenant_bucket<'a>(
         &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedStreamId,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/write/{}",
+            "{}/allocation/{}/bucket",
             self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.put(url).headers(header_map).build()?;
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///shows overall status of a bucket allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_get_by_tenant_bucket_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::BucketStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets configuration of a bucket allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/bucket/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_get_by_tenant_bucket_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Bucket>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///creates bucket configuration.It is impossible to update an existing
+    /// bucket. This requires a delete of the existing bucket and creation of a
+    /// new one with the wanted configuration
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/bucket/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the JSON representation of the resource
+    pub async fn bucket_put_by_tenant_bucket_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+        body: &'a types::Bucket,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
@@ -12189,31 +9198,1341 @@ impl Client {
         }
     }
 
-    ///Revoke write access for the tenant on the stream
+    ///deletes a bucket
     ///
     ///Sends a `DELETE` request to
-    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    /// `/allocation/{tenant}/bucket/{id}/configuration`
     ///
     ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_delete_by_tenant_bucket_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets actual configuration of a bucket allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_get_by_tenant_bucket_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Bucket>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets status description of a bucket allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_get_by_tenant_bucket_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///lists all bucketaccesses of a tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/bucketaccess`
+    ///
+    ///Arguments:
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_delete_manage_by_manager_stream_by_streamid_access_write_by_tenant<
+    pub async fn bucket_access_get_by_tenant_bucketaccess<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucketaccess",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///shows bucketaccesses about a specific bucket
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/bucket/{id}/bucketaccess`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketaccess",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///shows overall status of a third party bucket
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        name: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::BucketAccessStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketaccess/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets configuration of a bucketaccess allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        name: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::BucketAccessConfiguration>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketaccess/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///creates bucketaccess configuration
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the wanted config of the (new) bucketaccess allocation
+    pub async fn bucket_access_put_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        name: &'a str,
+        authorization: &'a str,
+        body: &'a types::BucketAccessConfiguration,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketaccess/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a bucketaccess
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_access_delete_by_tenant_bucket_by_id_bucketaccess_by_name_configuration<
         'a,
     >(
         &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        id: &'a str,
+        name: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketaccess/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets actual configuration of a bucketaccess allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        name: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::BucketAccess>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketaccess/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets status description of a bucketaccess allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/bucket/{id}/bucketaccess/{name}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: bucket name
+    /// - `name`: bucket access name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        name: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/{}/bucketaccess/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a list of all certificate names that are allocated to a tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/certificate`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn certificate_get_by_tenant_certificate<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/certificate",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the status of a specific certificate allocation by id
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/certificate/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn certificate_get_by_tenant_certificate_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::CertificateStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/certificate/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the configuration of a certificate allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/certificate/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn certificate_get_by_tenant_certificate_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Certificate>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/certificate/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///create a new certificate. It is impossible to update an existing
+    /// certificate. This requires a delete of the existing certificate and
+    /// creation of a new one with the wanted configuration
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/certificate/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the JSON object containing the configuration of a certificate.
+    ///   certChainSecret and keySecret must be known to the platform.
+    pub async fn certificate_put_by_tenant_certificate_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+        body: &'a types::Certificate,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/certificate/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a certificate by id
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/certificate/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn certificate_delete_by_tenant_certificate_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/certificate/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the actual configuration of a certificate allocation. This may
+    /// not represent the wanted configuration
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/certificate/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn certificate_get_by_tenant_certificate_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Certificate>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/certificate/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a brief status description of a certificate allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/certificate/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: certificate name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn certificate_get_by_tenant_certificate_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/certificate/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///(beta release) lists ids of all databases of a tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/database`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn database_get_by_tenant_database<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/database",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///(beta release) gets overall status of a database allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/database/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn database_get_by_tenant_database_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::DatabaseStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/database/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///(beta release) gets configuration for a database allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/database/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn database_get_by_tenant_database_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Database>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/database/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///(beta release) creates a database configuration. It is impossible to
+    /// update an existing database
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/database/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the JSON representation of the resource
+    pub async fn database_put_by_tenant_database_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+        body: &'a types::Database,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/database/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///(beta release) deletes a database
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/database/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn database_delete_by_tenant_database_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/database/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///(beta release) gets actual state for a database allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/database/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn database_get_by_tenant_database_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Database>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/database/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///(beta release) gets status description of a database allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/database/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: database name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn database_get_by_tenant_database_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/database/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///lists all data catalog assets of a tenant for the given kind
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/datacatalog/asset/{kind}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `kind`: data catalog asset kind
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn data_catalog_get_by_tenant_datacatalog_asset_by_kind<'a>(
+        &'a self,
+        tenant: &'a str,
+        kind: types::DataCatalogGetByTenantDatacatalogAssetByKindKind,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/datacatalog/asset/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&kind.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///shows overall status of a datacatalog asset allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/datacatalog/asset/{kind}/{name}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `kind`: data catalog asset kind
+    /// - `name`: data catalog asset name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn data_catalog_get_by_tenant_datacatalog_asset_by_kind_by_name<'a>(
+        &'a self,
+        tenant: &'a str,
+        kind: types::DataCatalogGetByTenantDatacatalogAssetByKindByNameKind,
+        name: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::DataCatalogAssetStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/datacatalog/asset/{}/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&kind.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets configuration of a data catalog asset allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/datacatalog/asset/{kind}/{name}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `kind`: data catalog asset kind
+    /// - `name`: data catalog asset name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn data_catalog_get_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        kind: types::DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        name: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::DataCatalogAsset>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/datacatalog/asset/{}/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&kind.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///creates dataCatalogAsset configuration
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/datacatalog/asset/{kind}/{name}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `kind`: data catalog asset kind
+    /// - `name`: data catalog asset name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the JSON representation of the resource
+    pub async fn data_catalog_put_by_tenant_datacatalog_asset_by_kind_by_name_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        kind: types::DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        name: &'a str,
+        authorization: &'a str,
+        body: &'a types::DataCatalogAsset,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/datacatalog/asset/{}/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&kind.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a dataCatalogAsset
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/datacatalog/asset/{kind}/{name}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `kind`: data catalog asset kind
+    /// - `name`: data catalog asset name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn data_catalog_delete_by_tenant_datacatalog_asset_by_kind_by_name_configuration<
+        'a,
+    >(
+        &'a self,
+        tenant: &'a str,
+        kind: types::DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind,
+        name: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/datacatalog/asset/{}/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&kind.to_string()),
+            encode_path(&name.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the overall status of a Flink Cluster
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/flinkcluster`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn flink_cluster_get_by_tenant_flinkcluster<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::FlinkClusterStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/flinkcluster",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the configuration of a Flink Cluster
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/flinkcluster/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn flink_cluster_get_by_tenant_flinkcluster_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::FlinkCluster>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/flinkcluster/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///create a new Flink Cluster. It is impossible to update an existing Flink
+    /// Cluster. This requires a delete of the existing Flink Cluster and
+    /// creation of a new one with the wanted configuration
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/flinkcluster/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: a JSON object containing the desired configuration of the
+    ///   Flink Cluster. Zone must be known to the platform.
+    pub async fn flink_cluster_put_by_tenant_flinkcluster_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+        body: &'a types::FlinkCluster,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/flinkcluster/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a Flink Cluster. Since only one cluster can be created per
+    /// tenant, only the tenants' name needs to be specified
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/flinkcluster/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn flink_cluster_delete_by_tenant_flinkcluster_configuration<'a>(
+        &'a self,
         tenant: &'a str,
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/write/{}",
+            "{}/allocation/{}/flinkcluster/configuration",
             self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
@@ -12228,42 +10547,1873 @@ impl Client {
         }
     }
 
-    ///Check whether the tenant has write access to the stream
+    ///returns the actual configuration of a Flink Cluster
     ///
-    ///Sends a `HEAD` request to
-    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    ///Sends a `GET` request to `/allocation/{tenant}/flinkcluster/actual`
     ///
     ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_head_manage_by_manager_stream_by_streamid_access_write_by_tenant<
-        'a,
-    >(
+    pub async fn flink_cluster_get_by_tenant_flinkcluster_actual<'a>(
         &'a self,
-        manager: &'a str,
-        stream_id: &'a types::ManagedStreamId,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<()>, Error<()>> {
+    ) -> Result<ResponseValue<types::FlinkCluster>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/write/{}",
+            "{}/allocation/{}/flinkcluster/actual",
             self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
-        let mut request = self.client.head(url).headers(header_map).build()?;
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
         let result = self.client.execute(request).await;
         let response = result?;
         match response.status().as_u16() {
-            204u16 => Ok(ResponseValue::empty(response)),
-            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a brief status description of a Flink Cluster
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/flinkcluster/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn flink_cluster_get_by_tenant_flinkcluster_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/flinkcluster/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a list of all kafka proxies of a tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/kafkaproxy`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_proxy_get_by_tenant_kafkaproxy<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/kafkaproxy",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Returns the configuration of a certain kafka Proxy, specified by the
+    /// tenant name and kafka Proxy name
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/kafkaproxy/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_proxy_get_by_tenant_kafkaproxy_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::KafkaProxy>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/kafkaproxy/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///update the value of the kafka proxy
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/kafkaproxy/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the kafka proxy configuration options
+    pub async fn kafka_proxy_put_by_tenant_kafkaproxy_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+        body: &'a types::KafkaProxy,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/kafkaproxy/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a kafka proxy
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/kafkaproxy/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_proxy_delete_by_tenant_kafkaproxy_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/kafkaproxy/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Returns the actual deployment state of a kafka proxy, specified by the
+    /// tenant name and kafka proxy name
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/kafkaproxy/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_proxy_get_by_tenant_kafkaproxy_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::KafkaProxy>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/kafkaproxy/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a status description of a kafkaproxy allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/kafkaproxy/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_proxy_get_by_tenant_kafkaproxy_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/kafkaproxy/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///list tenant Kafka ACL groups
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/aclgroup`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_acl_group_get_by_tenant_aclgroup<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/aclgroup",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///return the configuration of the Kafka ACl group
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka ACL group id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_acl_group_get_by_tenant_aclgroup_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a types::KafkaAclGroupGetByTenantAclgroupByIdConfigurationId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::KafkaAclGroup>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/aclgroup/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///creates a new or updates an existing Kafka ACL group
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka ACL group id
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the Kafka ACL group definition
+    pub async fn kafka_acl_group_put_by_tenant_aclgroup_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a types::KafkaAclGroupPutByTenantAclgroupByIdConfigurationId,
+        authorization: &'a str,
+        body: &'a types::KafkaAclGroup,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/aclgroup/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a Kafka ACL group
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka ACL group id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_acl_group_delete_by_tenant_aclgroup_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a types::KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/aclgroup/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///generate new client secret for a tenant
+    ///
+    ///Sends a `POST` request to `/robot/{tenant}/generate-secret`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn robot_post_robot_by_tenant_generate_secret<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ClientSecret>, Error<()>> {
+        let url = format!(
+            "{}/robot/{}/generate-secret",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .post(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a list of all secret names of a tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/secret`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn secret_get_by_tenant_secret<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/secret",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///create a new secret
+    ///
+    ///Sends a `POST` request to `/allocation/{tenant}/secret`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: a JSON object containing the name and the secret value
+    pub async fn secret_post_by_tenant_secret<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+        body: &'a types::Secret,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/secret",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .post(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            201u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the configuration of a secret allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/secret/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn secret_get_by_tenant_secret_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Empty>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/secret/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a secret
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/secret/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn secret_delete_by_tenant_secret_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/secret/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the actual state of a secret. The response body will always be
+    /// empty because we cannot share the secret value, but the response code
+    /// will tell you more about its state
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/secret/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn secret_get_by_tenant_secret_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Empty>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/secret/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a brief status description of a secret allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/secret/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn secret_get_by_tenant_secret_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/secret/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the value of a secret
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/secret/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn secret_get_by_tenant_secret_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<ByteStream>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/secret/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.get(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => Ok(ResponseValue::stream(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///update the value of a secret
+    ///
+    ///Sends a `PUT` request to `/allocation/{tenant}/secret/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: secret name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the secret value as a string
+    pub async fn secret_put_by_tenant_secret_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+        body: String,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/secret/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .header(
+                reqwest::header::CONTENT_TYPE,
+                reqwest::header::HeaderValue::from_static("text/plain"),
+            )
+            .body(body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///return a list containing the ids of all applications with derived tasks
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/task`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn application_get_by_tenant_task<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/task",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///return a list containing the ids of an application's derived tasks
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/task/{appid}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `appid`: application name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn application_get_by_tenant_task_by_appid<'a>(
+        &'a self,
+        tenant: &'a str,
+        appid: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/task/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&appid.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns overall status of a task
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/task/{appid}/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `appid`: application name
+    /// - `id`: task name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn application_get_by_tenant_task_by_appid_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        appid: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::TaskStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/task/{}/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&appid.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the actual state of a specific task
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/task/{appid}/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `appid`: application name
+    /// - `id`: task name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn application_get_by_tenant_task_by_appid_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        appid: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Task>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/task/{}/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&appid.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a brief status description of a task
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/task/{appid}/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `appid`: application name
+    /// - `id`: task name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn application_get_by_tenant_task_by_appid_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        appid: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/task/{}/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&appid.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///lists only bucket names of a tenant that originated from a third party
+    /// bucket
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/bucket/fromthirdparty`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn third_party_bucket_get_by_tenant_bucket_fromthirdparty<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/bucket/fromthirdparty",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///list summaries of third party buckets, registered using credentials
+    /// shared to you by a third party
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/thirdpartybucketconcession`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/thirdpartybucketconcession",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///register a new bucket concession for which credentials were shared to
+    /// you by a third party
+    ///
+    ///Sends a `POST` request to
+    /// `/allocation/{tenant}/thirdpartybucketconcession`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the secret value
+    pub async fn third_party_bucket_post_by_tenant_thirdpartybucketconcession<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+        body: &'a types::ThirdPartyBucketConcessionRegistration,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/thirdpartybucketconcession",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .post(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            201u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///shows overall status of a third party bucket
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ThirdPartyBucketConcessionStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/thirdpartybucketconcession/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets configuration of a third party bucket (received bucket access)
+    /// allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_configuration<
+        'a,
+    >(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ThirdPartyBucketConcession>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/thirdpartybucketconcession/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///unregisters a third party bucket. This will also remove the virtual
+    /// bucket
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn third_party_bucket_delete_by_tenant_thirdpartybucketconcession_by_id_configuration<
+        'a,
+    >(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/thirdpartybucketconcession/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets actual configuration of a third party bucket (received bucket
+    /// access) allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ThirdPartyBucketConcession>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/thirdpartybucketconcession/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///gets status description of third party bucket (received bucket access)
+    /// allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/thirdpartybucketconcession/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: your name of choice for the third party bucket
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/thirdpartybucketconcession/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a list of topics of a tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/topic`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn topic_get_by_tenant_topic<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/topic",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the overall status of a topic allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/topic/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn topic_get_by_tenant_topic_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::TopicStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/topic/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the configuration of a topic allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/topic/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn topic_get_by_tenant_topic_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Topic>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/topic/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///create a new topic. It is impossible to update an existing topic. This
+    /// requires a delete of the existing topic and creation of a new one with
+    /// the wanted configuration
+    ///
+    ///Sends a `PUT` request to `/allocation/{tenant}/topic/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the JSON object containing the configuration of the desired
+    ///   topic
+    pub async fn topic_put_by_tenant_topic_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+        body: &'a types::Topic,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/topic/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a topic
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/topic/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn topic_delete_by_tenant_topic_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/topic/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns actual configuration of a topic allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/topic/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn topic_get_by_tenant_topic_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Topic>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/topic/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a brief status description of a topic allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/topic/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: topic name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn topic_get_by_tenant_topic_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/topic/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a list containing the ids of all volumes of a given tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/volume`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn volume_get_by_tenant_volume<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/volume",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the overall status of a volume allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/volume/{id}`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn volume_get_by_tenant_volume_by_id<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::VolumeStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/volume/{}",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the configuration for a volume allocation
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/volume/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn volume_get_by_tenant_volume_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Volume>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/volume/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///create a new volume configuration. It is impossible to update an
+    /// existing volume. This requires a delete of the existing volume and
+    /// creation of a new one with the wanted configuration
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/volume/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the JSON object containing the desired configuration of a
+    ///   volume allocation
+    pub async fn volume_put_by_tenant_volume_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+        body: &'a types::Volume,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/volume/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a volume
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/volume/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn volume_delete_by_tenant_volume_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/volume/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the actual state for a volume allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/volume/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn volume_get_by_tenant_volume_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::Volume>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/volume/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a brief status description of a volume allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/volume/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: volume name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn volume_get_by_tenant_volume_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/volume/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
             _ => Err(Error::UnexpectedResponse(response)),
         }
     }
@@ -12285,47 +12435,6 @@ impl Client {
             "{}/manage/{}/tenant",
             self.baseurl,
             encode_path(&manager.to_string()),
-        );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
-        #[allow(unused_mut)]
-        let mut request = self
-            .client
-            .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
-            )
-            .headers(header_map)
-            .build()?;
-        let result = self.client.execute(request).await;
-        let response = result?;
-        match response.status().as_u16() {
-            200u16 => ResponseValue::from_response(response).await,
-            _ => Err(Error::UnexpectedResponse(response)),
-        }
-    }
-
-    ///returns the actual state for a managed tenant allocation
-    ///
-    ///Sends a `GET` request to `/manage/{manager}/tenant/{tenant}/actual`
-    ///
-    ///Arguments:
-    /// - `manager`: Name of the tenant that is acting as manager for this
-    ///   request
-    /// - `tenant`: tenant name
-    /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_tenant_get_manage_by_manager_tenant_by_tenant_actual<'a>(
-        &'a self,
-        manager: &'a str,
-        tenant: &'a str,
-        authorization: &'a str,
-    ) -> Result<ResponseValue<types::ManagedTenant>, Error<()>> {
-        let url = format!(
-            "{}/manage/{}/tenant/{}/actual",
-            self.baseurl,
-            encode_path(&manager.to_string()),
-            encode_path(&tenant.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -12463,6 +12572,88 @@ impl Client {
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the actual state for a managed tenant allocation
+    ///
+    ///Sends a `GET` request to `/manage/{manager}/tenant/{tenant}/actual`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_tenant_get_manage_by_manager_tenant_by_tenant_actual<'a>(
+        &'a self,
+        manager: &'a str,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ManagedTenant>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/tenant/{}/actual",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a brief status description of a managed tenant allocation
+    ///
+    ///Sends a `GET` request to `/manage/{manager}/tenant/{tenant}/status`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_tenant_get_manage_by_manager_tenant_by_tenant_status<'a>(
+        &'a self,
+        manager: &'a str,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/tenant/{}/status",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
             _ => Err(Error::UnexpectedResponse(response)),
         }
     }
@@ -12640,26 +12831,23 @@ impl Client {
         }
     }
 
-    ///returns a brief status description of a managed tenant allocation
+    ///get a list of internal streams managed by the managing tenant
     ///
-    ///Sends a `GET` request to `/manage/{manager}/tenant/{tenant}/status`
+    ///Sends a `GET` request to `/manage/{manager}/stream/internal`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
-    /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_tenant_get_manage_by_manager_tenant_by_tenant_status<'a>(
+    pub async fn managed_streams_get_manage_by_manager_stream_internal<'a>(
         &'a self,
         manager: &'a str,
-        tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+    ) -> Result<ResponseValue<Vec<types::ManagedStreamId>>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/tenant/{}/status",
+            "{}/manage/{}/stream/internal",
             self.baseurl,
             encode_path(&manager.to_string()),
-            encode_path(&tenant.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
@@ -12681,29 +12869,30 @@ impl Client {
         }
     }
 
-    ///generate new client secret for a tenant
+    ///get a list of public streams managed by the managing tenant
     ///
-    ///Sends a `POST` request to `/robot/{tenant}/generate-secret`
+    ///Sends a `GET` request to `/manage/{manager}/stream/public`
     ///
     ///Arguments:
-    /// - `tenant`: tenant name
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn robot_post_robot_by_tenant_generate_secret<'a>(
+    pub async fn managed_streams_get_manage_by_manager_stream_public<'a>(
         &'a self,
-        tenant: &'a str,
+        manager: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<types::ClientSecret>, Error<()>> {
+    ) -> Result<ResponseValue<Vec<types::ManagedStreamId>>, Error<()>> {
         let url = format!(
-            "{}/robot/{}/generate-secret",
+            "{}/manage/{}/stream/public",
             self.baseurl,
-            encode_path(&tenant.to_string()),
+            encode_path(&manager.to_string()),
         );
         let mut header_map = HeaderMap::with_capacity(1usize);
         header_map.append("Authorization", HeaderValue::try_from(authorization)?);
         #[allow(unused_mut)]
         let mut request = self
             .client
-            .post(url)
+            .get(url)
             .header(
                 reqwest::header::ACCEPT,
                 reqwest::header::HeaderValue::from_static("application/json"),
@@ -12714,6 +12903,904 @@ impl Client {
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Get the configuration for a public managed stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/public/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_get_manage_by_manager_stream_public_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::PublicManagedStream>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Create a public managed stream
+    ///
+    ///Sends a `POST` request to
+    /// `/manage/{manager}/stream/public/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`
+    pub async fn managed_streams_post_manage_by_manager_stream_public_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+        body: &'a types::PublicManagedStream,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .post(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            400u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Delete a public managed stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/public/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_delete_manage_by_manager_stream_public_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Get the configuration for an internal managed stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_get_manage_by_manager_stream_internal_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ManagedStream>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Create an internal managed stream
+    ///
+    ///Sends a `POST` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`
+    pub async fn managed_streams_post_manage_by_manager_stream_internal_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+        body: &'a types::ManagedStream,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .post(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            400u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Delete an internal managed stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/configuration`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_delete_manage_by_manager_stream_internal_by_streamid_configuration<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/configuration",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of all tenants that have write access to the internal stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/write`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_write<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/write",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Grant the tenant write access to the internal stream
+    ///
+    ///Sends a `PUT` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.put(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Revoke write access for the tenant on the internal stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Check whether the tenant has write access to the internal stream
+    ///
+    ///Sends a `HEAD` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.head(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            204u16 => Ok(ResponseValue::empty(response)),
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of all tenants that have read access to the internal stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/read`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_read<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/read",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Grant the tenant write access to the internal stream
+    ///
+    ///Sends a `PUT` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.put(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Revoke read access for the tenant on the internal stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Check whether the tenant has read access to the internal stream
+    ///
+    ///Sends a `HEAD` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.head(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            204u16 => Ok(ResponseValue::empty(response)),
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of all tenants that have write access to the public stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/write`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_write<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/write",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Grant the tenant write access to the public stream
+    ///
+    ///Sends a `PUT` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.put(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Revoke write access for the tenant on the public stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Check whether the tenant has write access to the public stream
+    ///
+    ///Sends a `HEAD` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.head(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            204u16 => Ok(ResponseValue::empty(response)),
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of all tenants that have read access to the public stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/read`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_read<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/read",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Grant the tenant write access to the stream
+    ///
+    ///Sends a `PUT` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.put(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Revoke read access for the tenant on the public stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Check whether the tenant has read access to the public stream
+    ///
+    ///Sends a `HEAD` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.head(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            204u16 => Ok(ResponseValue::empty(response)),
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
             _ => Err(Error::UnexpectedResponse(response)),
         }
     }
