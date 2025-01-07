@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.11] -2024-09-30
+### Fixed
+- Retry mechanism for when PKI endpoint is not yet avaialble during rolling restart DSH ([#101](https://github.com/kpn-dsh/dsh-sdk-platform-rs/issues/101))
+
 ## [0.4.10] -2024-09-30
 ### Added
 - Add new with client methods to REST and MQTTT token fetcher

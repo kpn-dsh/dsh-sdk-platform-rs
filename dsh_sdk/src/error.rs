@@ -1,5 +1,3 @@
-//! Error types for the DSH SDK
-
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -53,6 +51,15 @@ pub enum DshError {
     #[cfg(feature = "metrics")]
     #[error("Hyper error: {0}")]
     HyperError(#[from] hyper::http::Error),
+}
+
+pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
+    let mut s = format!("{}", err);
+    while let Some(src) = err.source() {
+        s.push_str(&format!("\n\nCaused by: {}", src));
+        err = src;
+    }
+    s
 }
 
 #[cfg(feature = "rest-token-fetcher")]
