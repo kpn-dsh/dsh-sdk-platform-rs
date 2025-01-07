@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ]
     }
     "#;
-    let subject_name = SubjectName::new("scratch.topic-name.tenant-name", false); // "scratch.topic-name.tenant-name-value"
+    let subject_name = SubjectName::new_topic_name_strategy("scratch.topic-name.tenant-name", false); // "scratch.topic-name.tenant-name-value"
     let schema_id = client.subject_add_schema(subject_name, schema).await?;
     println!("Registered schema with id: {}\n", schema_id);
 

@@ -32,7 +32,7 @@ prometheus = { version = "0.13", features = ["process"], optional = true }
 protofish = { version = "0.5.2", optional = true }
 rcgen = { version = "0.13", optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "blocking"], optional = true }
-rdkafka = { version = ">=0.36", default-features = false, optional = true }
+rdkafka = { version = "0.37", default-features = false, optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"], optional = true }
 sha2 = { version = "0.10", optional = true}
@@ -68,4 +68,4 @@ serial_test = "3.1.0"
 dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.2.0" }
 dsh_sdk = { features = ["dlq"], path = "." }
 env_logger = "0.11"
-rdkafka = { version = ">=0.36", features = ["cmake-build", "ssl-vendored"], default-features = true }
+rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"], default-features = true }

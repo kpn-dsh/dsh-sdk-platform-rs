@@ -1,7 +1,10 @@
+#[cfg(feature = "rdkafka-config")]
 use rdkafka::ClientConfig;
 
 use super::DshKafkaConfig;
 use crate::Dsh;
+
+
 
 impl DshKafkaConfig for ClientConfig {
     fn set_dsh_consumer_config(&mut self) -> &mut Self {
@@ -86,3 +89,4 @@ impl DshKafkaConfig for ClientConfig {
         }
     }
 }
+

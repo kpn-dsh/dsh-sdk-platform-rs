@@ -151,14 +151,6 @@ impl Cert {
     }
 }
 
-/// Helper function to ensure that the host starts with `https://` (or `http://`)
-fn ensure_https_prefix(host: String) -> String {
-    if host.starts_with("https://") || host.starts_with("http://") {
-        host
-    } else {
-        format!("https://{}", host)
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -285,20 +277,5 @@ mod tests {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let client = cert.reqwest_blocking_client_config();
         assert!(client.is_ok());
-    }
-
-    #[test]
-    fn test_ensure_https_prefix() {
-        let host = "http://example.com".to_string();
-        let result = ensure_https_prefix(host);
-        assert_eq!(result, "http://example.com");
-
-        let host = "https://example.com".to_string();
-        let result = ensure_https_prefix(host);
-        assert_eq!(result, "https://example.com");
-
-        let host = "example.com".to_string();
-        let result = ensure_https_prefix(host);
-        assert_eq!(result, "https://example.com");
     }
 }

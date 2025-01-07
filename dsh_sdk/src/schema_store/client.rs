@@ -47,9 +47,9 @@ where
     ///
     pub async fn subject_compatibility<Sn>(&self, subject: Sn) -> Result<Compatibility>
     where
-        Sn: Into<SubjectName>,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> ,
     {
-        Ok(self.get_config_subject(subject.into().name()).await?.into())
+        Ok(self.get_config_subject(subject.try_into()?.name()).await?.into())
     }
 
     /// Set the compatibility level for a subject
@@ -79,10 +79,10 @@ where
         compatibility: Compatibility,
     ) -> Result<Compatibility>
     where
-        Sn: Into<SubjectName>,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> ,
     {
         Ok(self
-            .put_config_subject(subject.into().name(), compatibility)
+            .put_config_subject(subject.try_into()?.name(), compatibility)
             .await?
             .into())
     }
@@ -123,9 +123,9 @@ where
     /// ```
     pub async fn subject_versions<Sn>(&self, subject: Sn) -> Result<Vec<i32>>
     where
-        Sn: Into<SubjectName>,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> ,
     {
-        self.get_subjects_subject_versions(subject.into().name())
+        self.get_subjects_subject_versions(subject.try_into()?.name())
             .await
     }
 
@@ -155,10 +155,10 @@ where
     pub async fn subject<Sn, V>(&self, subject: Sn, version: V) -> Result<Subject>
     where
         //Sn: TryInto<SubjectName, Error = SchemaStoreError>,
-        Sn: Into<SubjectName>,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> ,
         V: Into<SubjectVersion>,
     {
-        let subject = subject.into().name();
+        let subject = subject.try_into()?.name();
         let version = version.into();
         self.get_subjects_subject_versions_id(subject, version.to_string())
             .await
@@ -185,11 +185,11 @@ where
     /// ```
     pub async fn subject_raw_schema<Sn, V>(&self, subject: Sn, version: V) -> Result<String>
     where
-        Sn: Into<SubjectName>,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> ,
         V: Into<SubjectVersion>,
     {
         self.get_subjects_subject_versions_id_schema(
-            subject.into().name(),
+            subject.try_into()?.name(),
             version.into().to_string(),
         )
         .await
@@ -215,7 +215,7 @@ where
     /// # }
     pub async fn subject_all_schemas<Sn>(&self, subject: Sn) -> Result<Vec<Subject>>
     where
-        Sn: Into<SubjectName> + Clone,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> + Clone,
     {
         let versions = self.subject_versions(subject.clone()).await?;
         let mut subjects = Vec::new();
@@ -225,6 +225,22 @@ where
         }
         Ok(subjects)
     }
+
+    /// Get all schemas for a topic
+    /// 
+    /// ## Arguments
+    /// - `topic`: &str/String of the topic name
+    /// 
+    /// ## Returns
+    /// 
+    // pub async fn topic_all_schemas<S>(&self, topic: S) -> Result<(Vec<Subject>,Vec<Subject>)>
+    // where
+    //     S: AsRef<str>,
+    // {
+    //     let key_schemas = self.subject_all_schemas((topic.as_ref(), true)).await?;
+    //     let value_schemas = self.subject_all_schemas((topic.as_ref(), false)).await?;
+    //     Ok(subjects)
+    // }
 
     /// Post a new schema for a (new) subject
     ///
@@ -262,12 +278,12 @@ where
     /// ```
     pub async fn subject_add_schema<Sn, Sc>(&self, subject: Sn, schema: Sc) -> Result<i32>
     where
-        Sn: Into<SubjectName>,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> ,
         Sc: TryInto<RawSchemaWithType, Error = SchemaStoreError>,
     {
         let schema = schema.try_into()?;
         Ok(self
-            .post_subjects_subject_versions(subject.into().name(), schema)
+            .post_subjects_subject_versions(subject.try_into()?.name(), schema)
             .await?
             .id())
     }
@@ -305,11 +321,11 @@ where
     /// ```
     pub async fn subject_schema_exist<Sn, Sc>(&self, subject: Sn, schema: Sc) -> Result<Subject>
     where
-        Sn: Into<SubjectName>,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> ,
         Sc: TryInto<RawSchemaWithType, Error = SchemaStoreError>,
     {
         let schema = schema.try_into()?;
-        self.post_subjects_subject(subject.into().name(), schema)
+        self.post_subjects_subject(subject.try_into()?.name(), schema)
             .await
     }
 
@@ -332,14 +348,14 @@ where
         schema: Sc,
     ) -> Result<bool>
     where
-        Sn: Into<SubjectName>,
+        Sn: TryInto<SubjectName, Error = SchemaStoreError> ,
         Sv: Into<SubjectVersion>,
         Sc: TryInto<RawSchemaWithType, Error = SchemaStoreError>,
     {
         let schema = schema.try_into()?;
         Ok(self
             .post_compatibility_subjects_subject_versions_id(
-                subject.into().name(),
+                subject.try_into()?.name(),
                 version.into().to_string(),
                 schema,
             )

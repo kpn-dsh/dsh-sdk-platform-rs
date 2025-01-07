@@ -1,5 +1,7 @@
 use std::hash::{Hash, Hasher};
 
+use crate::schema_store::SchemaStoreError;
+
 /// Subject name strategy
 ///
 /// Defines the strategy to use for the subject name
@@ -27,7 +29,7 @@ pub enum SubjectName {
 }
 
 impl SubjectName {
-    pub fn new<S>(topic: S, key: bool) -> Self
+    pub fn new_topic_name_strategy<S>(topic: S, key: bool) -> Self
     where
         S: AsRef<str>,
     {
@@ -61,8 +63,15 @@ impl SubjectName {
     }
 }
 
-impl From<&str> for SubjectName {
-    fn from(value: &str) -> Self {
+
+impl TryFrom<SubjectName> for SubjectName
+    {
+    type Error = SchemaStoreError;
+}
+
+impl TryFrom<&str> for SubjectName {
+    type Error = SchemaStoreError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
         let (topic, key) = if value.ends_with("-key") {
             (value.trim_end_matches("-key"), true)
         } else if value.ends_with("-value") {
@@ -70,16 +79,16 @@ impl From<&str> for SubjectName {
         } else {
             (value, false)
         };
-        Self::TopicNameStrategy {
+        Ok(Self::TopicNameStrategy {
             topic: topic.to_string(),
             key,
-        }
+        })
     }
 }
 
 impl From<String> for SubjectName {
     fn from(value: String) -> Self {
-        value.as_str().into()
+        value.as_str().try_into().unwrap()
     }
 }
 
@@ -151,7 +160,7 @@ mod tests {
 
     #[test]
     fn test_subject_name_new() {
-        let subject = SubjectName::new("scratch.example.tenant", false);
+        let subject = SubjectName::new_topic_name_strategy("scratch.example.tenant", false);
         assert_eq!(
             subject,
             SubjectName::TopicNameStrategy {
@@ -163,7 +172,7 @@ mod tests {
 
     #[test]
     fn test_subject_name_from_string() {
-        let subject: SubjectName = "scratch.example.tenant-value".into();
+        let subject: SubjectName = "scratch.example.tenant-value".try_into().unwrap();
         assert_eq!(
             subject,
             SubjectName::TopicNameStrategy {
@@ -172,7 +181,7 @@ mod tests {
             }
         );
 
-        let subject: SubjectName = "scratch.example.tenant-key".into();
+        let subject: SubjectName = "scratch.example.tenant-key".try_into().unwrap();
         assert_eq!(
             subject,
             SubjectName::TopicNameStrategy {
