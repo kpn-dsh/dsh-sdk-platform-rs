@@ -22,8 +22,8 @@ pub struct ProtocolTokenFetcher {
     rest_api_key: String,
     rest_token: RwLock<RestToken>,
     rest_auth_url: String,
-    mqtt_token: RwLock<HashMap<String, MqttToken>>, // Mapping from Client ID to MqttToken
-    mqtt_auth_url: String,
+    protocol_token: RwLock<HashMap<String, MqttToken>>, // Mapping from Client ID to MqttToken
+    protocol_auth_url: String,
     client: reqwest::Client,
     //token_lifetime: Option<i32>, // TODO: Implement option of passing token lifetime to request token for specific duration
     // port: Port or connection_type: Connection // TODO: Platform provides two connection options, current implemetation only provides connecting over SSL, enable WebSocket too
@@ -89,7 +89,7 @@ impl ProtocolTokenFetcher {
     /// # Example
     ///
     /// ```no_run
-    /// use dsh_sdk::mqtt_token_fetcher::ProtocolTokenFetcher;
+    /// use dsh_sdk::protocol_adapters::ProtocolTokenFetcher;
     /// use dsh_sdk::Platform;
     ///
     /// # #[tokio::main]
@@ -114,8 +114,8 @@ impl ProtocolTokenFetcher {
             rest_api_key: api_key,
             rest_token: RwLock::new(rest_token),
             rest_auth_url: platform.endpoint_rest_token().to_string(),
-            mqtt_token: RwLock::new(HashMap::new()),
-            mqtt_auth_url: platform.endpoint_mqtt_token().to_string(),
+            protocol_token: RwLock::new(HashMap::new()),
+            protocol_auth_url: platform.endpoint_protocol_token().to_string(),
             client,
         }
     }
@@ -136,18 +136,23 @@ impl ProtocolTokenFetcher {
         client_id: &str,
         claims: Option<Vec<Claims>>,
     ) -> Result<MqttToken, DshError> {
-        match self.mqtt_token.write().await.entry(client_id.to_string()) {
+        match self
+            .protocol_token
+            .write()
+            .await
+            .entry(client_id.to_string())
+        {
             Entry::Occupied(mut entry) => {
-                let mqtt_token = entry.get_mut();
-                if !mqtt_token.is_valid() {
-                    *mqtt_token = self.fetch_new_mqtt_token(client_id, claims).await?;
+                let protocol_token = entry.get_mut();
+                if !protocol_token.is_valid() {
+                    *protocol_token = self.fetch_new_protocol_token(client_id, claims).await?;
                 };
-                Ok(mqtt_token.clone())
+                Ok(protocol_token.clone())
             }
             Entry::Vacant(entry) => {
-                let mqtt_token = self.fetch_new_mqtt_token(client_id, claims).await?;
-                entry.insert(mqtt_token.clone());
-                Ok(mqtt_token)
+                let protocol_token = self.fetch_new_protocol_token(client_id, claims).await?;
+                entry.insert(protocol_token.clone());
+                Ok(protocol_token)
             }
         }
     }
@@ -155,7 +160,7 @@ impl ProtocolTokenFetcher {
     /// Fetches a new MQTT token from the platform.
     ///
     /// This method handles token validation and fetching the token
-    async fn fetch_new_mqtt_token(
+    async fn fetch_new_protocol_token(
         &self,
         client_id: &str,
         claims: Option<Vec<Claims>>,
@@ -174,13 +179,13 @@ impl ProtocolTokenFetcher {
 
         let authorization_header = format!("Bearer {}", rest_token.raw_token);
 
-        let mqtt_token_request = MqttTokenRequest::new(client_id, &self.tenant_name, claims)?;
-        let payload = serde_json::to_value(&mqtt_token_request)?;
+        let protocol_token_request = MqttTokenRequest::new(client_id, &self.tenant_name, claims)?;
+        let payload = serde_json::to_value(&protocol_token_request)?;
 
-        let response = mqtt_token_request
+        let response = protocol_token_request
             .send(
                 &self.client,
-                &self.mqtt_auth_url,
+                &self.protocol_auth_url,
                 &authorization_header,
                 &payload,
             )
@@ -286,12 +291,12 @@ impl MqttTokenRequest {
     async fn send(
         &self,
         reqwest_client: &reqwest::Client,
-        mqtt_auth_url: &str,
+        protocol_auth_url: &str,
         authorization_header: &str,
         payload: &serde_json::Value,
     ) -> Result<String, DshError> {
         let response = reqwest_client
-            .post(mqtt_auth_url)
+            .post(protocol_auth_url)
             .header("Authorization", authorization_header)
             .json(payload)
             .send()
@@ -301,7 +306,7 @@ impl MqttTokenRequest {
             Ok(response.text().await?)
         } else {
             Err(DshError::DshCallError {
-                url: mqtt_auth_url.to_string(),
+                url: protocol_auth_url.to_string(),
                 status_code: response.status(),
                 error_body: response.text().await?,
             })
@@ -528,39 +533,39 @@ mod tests {
             exp: exp_time as i32,
             raw_token: "valid.token.payload".to_string(),
         };
-        let mqtt_token = MqttToken {
+        let protocol_token = MqttToken {
             exp: exp_time,
             raw_token: "valid.token.payload".to_string(),
         };
-        let mqtt_token_map = RwLock::new(HashMap::new());
-        mqtt_token_map
+        let protocol_token_map = RwLock::new(HashMap::new());
+        protocol_token_map
             .write()
             .await
-            .insert("test_client".to_string(), mqtt_token.clone());
+            .insert("test_client".to_string(), protocol_token.clone());
         ProtocolTokenFetcher {
             tenant_name: "test_tenant".to_string(),
             rest_api_key: "test_api_key".to_string(),
             rest_token: RwLock::new(rest_token),
             rest_auth_url: "test_auth_url".to_string(),
-            mqtt_token: mqtt_token_map,
+            protocol_token: protocol_token_map,
             client: reqwest::Client::new(),
-            mqtt_auth_url: "test_auth_url".to_string(),
+            protocol_auth_url: "test_auth_url".to_string(),
         }
     }
 
     #[tokio::test]
-    async fn test_mqtt_token_fetcher_new() {
+    async fn test_protocol_token_fetcher_new() {
         let tenant_name = "test_tenant".to_string();
         let rest_api_key = "test_api_key".to_string();
         let platform = Platform::NpLz;
 
         let fetcher = ProtocolTokenFetcher::new(tenant_name, rest_api_key, platform);
 
-        assert!(fetcher.mqtt_token.read().await.is_empty());
+        assert!(fetcher.protocol_token.read().await.is_empty());
     }
 
     #[tokio::test]
-    async fn test_mqtt_token_fetcher_new_with_client() {
+    async fn test_protocol_token_fetcher_new_with_client() {
         let tenant_name = "test_tenant".to_string();
         let rest_api_key = "test_api_key".to_string();
         let platform = Platform::NpLz;
@@ -569,20 +574,20 @@ mod tests {
         let fetcher =
             ProtocolTokenFetcher::new_with_client(tenant_name, rest_api_key, platform, client);
 
-        assert!(fetcher.mqtt_token.read().await.is_empty());
+        assert!(fetcher.protocol_token.read().await.is_empty());
     }
 
     #[tokio::test]
-    async fn test_fetch_new_mqtt_token() {
+    async fn test_fetch_new_protocol_token() {
         let mut mockito_server = mockito::Server::new_async().await;
         let _m = mockito_server.mock("POST", "/rest_auth_url")
             .with_status(200)
             .with_body(r#"{"raw_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJnZW4iOjEsImVuZHBvaW50IjoidGVzdF9lbmRwb2ludCIsImlzcyI6IlN0cmluZyIsImNsYWltcyI6W3sicmVzb3VyY2UiOiJ0ZXN0IiwiYWN0aW9uIjoicHVzaCJ9XSwiZXhwIjoxLCJjbGllbnQtaWQiOiJ0ZXN0X2NsaWVudCIsImlhdCI6MCwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQifQ.WCf03qyxV1NwxXpzTYF7SyJYwB3uAkQZ7u-TVrDRJgE"}"#)
             .create_async()
             .await;
-        let _m2 = mockito_server.mock("POST", "/mqtt_auth_url")
+        let _m2 = mockito_server.mock("POST", "/protocol_auth_url")
             .with_status(200)
-            .with_body(r#"{"mqtt_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJnZW4iOjEsImVuZHBvaW50IjoidGVzdF9lbmRwb2ludCIsImlzcyI6IlN0cmluZyIsImV4cCI6MSwiY2xpZW50LWlkIjoidGVzdF9jbGllbnQiLCJpYXQiOjAsInRlbmFudC1pZCI6InRlc3RfdGVuYW50In0.VwlKomR4OnLtLX-NwI-Fpol8b6t-kmptRS_vPnwNd3A"}"#)
+            .with_body(r#"{"protocol_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJnZW4iOjEsImVuZHBvaW50IjoidGVzdF9lbmRwb2ludCIsImlzcyI6IlN0cmluZyIsImV4cCI6MSwiY2xpZW50LWlkIjoidGVzdF9jbGllbnQiLCJpYXQiOjAsInRlbmFudC1pZCI6InRlc3RfdGVuYW50In0.VwlKomR4OnLtLX-NwI-Fpol8b6t-kmptRS_vPnwNd3A"}"#)
             .create();
 
         let client = reqwest::Client::new();
@@ -595,21 +600,23 @@ mod tests {
             client,
             tenant_name: "test_tenant".to_string(),
             rest_api_key: "test_api_key".to_string(),
-            mqtt_token: RwLock::new(HashMap::new()),
+            protocol_token: RwLock::new(HashMap::new()),
             rest_auth_url: mockito_server.url() + "/rest_auth_url",
-            mqtt_auth_url: mockito_server.url() + "/mqtt_auth_url",
+            protocol_auth_url: mockito_server.url() + "/protocol_auth_url",
             rest_token: RwLock::new(rest_token),
         };
 
-        let result = fetcher.fetch_new_mqtt_token("test_client_id", None).await;
+        let result = fetcher
+            .fetch_new_protocol_token("test_client_id", None)
+            .await;
         println!("{:?}", result);
         assert!(result.is_ok());
-        let mqtt_token = result.unwrap();
-        assert_eq!(mqtt_token.exp, 1);
+        let protocol_token = result.unwrap();
+        assert_eq!(protocol_token.exp, 1);
     }
 
     #[tokio::test]
-    async fn test_mqtt_token_fetcher_get_token() {
+    async fn test_protocol_token_fetcher_get_token() {
         let fetcher = create_valid_fetcher().await;
         let token = fetcher.get_token("test_client", None).await.unwrap();
         assert_eq!(token.raw_token, "valid.token.payload");
@@ -634,7 +641,7 @@ mod tests {
     async fn test_send_success() {
         let mut mockito_server = mockito::Server::new_async().await;
         let _m = mockito_server
-            .mock("POST", "/mqtt_auth_url")
+            .mock("POST", "/protocol_auth_url")
             .match_header("Authorization", "Bearer test_token")
             .match_body(Matcher::Json(json!({"key": "value"})))
             .with_status(200)
@@ -647,7 +654,7 @@ mod tests {
         let result = request
             .send(
                 &client,
-                &format!("{}/mqtt_auth_url", mockito_server.url()),
+                &format!("{}/protocol_auth_url", mockito_server.url()),
                 "Bearer test_token",
                 &payload,
             )
@@ -661,7 +668,7 @@ mod tests {
     async fn test_send_failure() {
         let mut mockito_server = mockito::Server::new_async().await;
         let _m = mockito_server
-            .mock("POST", "/mqtt_auth_url")
+            .mock("POST", "/protocol_auth_url")
             .match_header("Authorization", "Bearer test_token")
             .match_body(Matcher::Json(json!({"key": "value"})))
             .with_status(400)
@@ -674,7 +681,7 @@ mod tests {
         let result = request
             .send(
                 &client,
-                &format!("{}/mqtt_auth_url", mockito_server.url()),
+                &format!("{}/protocol_auth_url", mockito_server.url()),
                 "Bearer test_token",
                 &payload,
             )
@@ -687,7 +694,7 @@ mod tests {
             error_body,
         }) = result
         {
-            assert_eq!(url, format!("{}/mqtt_auth_url", mockito_server.url()));
+            assert_eq!(url, format!("{}/protocol_auth_url", mockito_server.url()));
             assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
             assert_eq!(error_body, "error_response");
         } else {
@@ -726,7 +733,7 @@ mod tests {
     }
 
     #[test]
-    fn test_mqtt_token_is_valid() {
+    fn test_protocol_token_is_valid() {
         let raw_token = "valid.token.payload".to_string();
         let token = MqttToken {
             exp: SystemTime::now()
@@ -740,7 +747,7 @@ mod tests {
         assert!(token.is_valid());
     }
     #[test]
-    fn test_mqtt_token_is_invalid() {
+    fn test_protocol_token_is_invalid() {
         let raw_token = "valid.token.payload".to_string();
         let token = MqttToken {
             exp: SystemTime::now()

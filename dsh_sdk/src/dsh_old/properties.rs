@@ -737,12 +737,14 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_kafka_auto_commit() {
         let properties = Properties::default();
         assert!(!properties.kafka_auto_commit());
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_kafka_auto_offset_reset() {
         let properties = Properties::default();
         assert_eq!(properties.kafka_auto_offset_reset(), "earliest");
