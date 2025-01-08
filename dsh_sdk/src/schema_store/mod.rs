@@ -19,7 +19,8 @@
 //! let subjects = client.subjects().await.unwrap();
 //!
 //! // Get the latest version of a subjects value schema
-//! let subject = client.subject(SubjectName::TopicNameStrategy{topic: "scratch.example-topic.tenant".to_string(), key: false}, SubjectVersion::Latest).await.unwrap();
+//! let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into().unwrap();
+//! let subject = client.subject(&subject_name, SubjectVersion::Latest).await.unwrap();
 //! let raw_schema = subject.schema;
 //! # }
 //! ```
@@ -41,7 +42,7 @@
 //! assert_eq!(from_tuple, from_struct);
 //! ```
 //!
-//! This means you can easily provide the input arguments from other types without converting it yourself.
+//! This means you can easily convert into [types::SubjectName] and [types::RawSchemaWithType].
 //! For example:
 //! ```no_run
 //! use dsh_sdk::schema_store::SchemaStoreClient;
@@ -51,11 +52,11 @@
 //! # async fn main() {
 //! let client = SchemaStoreClient::new();
 //!
-//! let raw_schema = r#"{ "type": "record", "name": "User", "fields": [ { "name": "name", "type": "string" } ] }"#;
-//! client.subject_add_schema("scratch.example-topic.tenant-value", raw_schema).await.unwrap(); // Returns error if schema is not valid
+//! let raw_schema: RawSchemaWithType = r#"{ "type": "record", "name": "User", "fields": [ { "name": "name", "type": "string" } ] }"#.try_into().unwrap();
+//! let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into().unwrap();
+//! client.subject_add_schema(&subject_name, raw_schema).await.unwrap(); // Returns error if schema is not valid
 //! # }
 //! ```
-
 mod api;
 mod client;
 mod error;

@@ -15,20 +15,16 @@ See [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migrat
 
 ## Description
 This library can be used to interact with the DSH Platform. It is intended to be used as a base for services that will be used to interact with DSH. Features include:
-- Connect to DSH 
-- Fetch Kafka Properties and certificates
-- Rest API Token Fetcher (to be used with [dsh_rest_api_client](https://crates.io/crates/dsh_rest_api_client))
-- MQTT Token Fetcher
-- Common functions 
-  - Preconfigured RDKafka client config
-  - Preconfigured Reqwest client config (for schema store)
-- Graceful shutdown
-- Prometheus Metrics (web server and re-export of metrics crate)
-- Dead Letter Queue (experimental)
-
-### Note
-Rdkafka and thereby this library is dependent on CMAKE. Make sure it is installed in your environment and/or Dockerfile where you are compiling.
-See [dockerfile](../example_dsh_service/Dockerfile) for an example.
+- Connect to DSH Kafka (DSH, Kafka Proxy, VPN, System Space, Local)
+  - Bootstrap (fetch datastreams info and generate signed certificate)
+  - PKI Config Directory (for Kafka Proxy/VPN)
+- Kafka config for DSH (incl. RDKafka)
+- Management API Token Fetcher (to be used with [dsh_rest_api_client](https://crates.io/crates/dsh_rest_api_client))
+- Protocol Token Fetcher (MQTT and HTTP)
+- Common utilities 
+  - Prometheus Metrics (web server and re-export of metrics crate)
+  - Graceful shutdown
+  - Dead Letter Queue 
 
 ## Usage
 To use this SDK with the default features in your project, add the following to your Cargo.toml file:
@@ -36,16 +32,8 @@ To use this SDK with the default features in your project, add the following to 
 ```toml
 [dependencies]
 dsh_sdk = "0.5"
+rdkafka = { version =  "0.37", features = ["cmake-build", "ssl-vendored"] }
 ```
-
-However, if you would like to use only specific features, you can specify them in your Cargo.toml file. For example, if you would like to use only the bootstrap feature, add the following to your Cargo.toml file:
-  
-```toml
-[dependencies]
-dsh_sdk = { version = "0.5", default-features = false, features = ["rdkafka"] }
-rdkafka = { version =  "0.37", features = ["cmake-buld", "ssl-vendored"] }
-```
-
 See [feature flags](#feature-flags) for more information on the available features.
 
 To use this SDK in your project
@@ -56,7 +44,7 @@ use rdkafka::ClientConfig;
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{
     // get a rdkafka consumer config for example
-    let consumer: StreamConsumer = ClientConfig::new().dsh_consumer_config().create()?;
+    let consumer: StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
 }
 ```
 
@@ -69,30 +57,33 @@ See the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Mi
 
 The following features are available in this library and can be enabled/disabled in your Cargo.toml file:
 
-| **feature** | **default** | **Description** |
-|---|---|---|
-| `bootstrap` | &check; | Generate signed certificate and fetch datastreams info |
-| `kafka` |  &check; | Enable `DshKafkaConfig` trait and Config struct to connect to DSH |
-| `rdkafka-config` | &check; | Enable `DshKafkaConfig` implementation for RDKafka |
-| `protocol-token-fetcher` | &cross; | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP) |
-| `management-api-token-fetcher` | &cross; | Fetch tokens to use DSH Management API |
-| `metrics` | &cross; | Enable prometheus metrics including http server |
-| `graceful-shutdown` | &cross; | Tokio based gracefull shutdown handler |
-| `dlq` | &cross; | Dead Letter Queue implementation |
-| `rest-token-fetcher` | &cross; | Replaced by `management-api-token-fetcher` |
-| `mqtt-token-fetcher` | &cross; | Replaced by `protocol-token-fetcher` |
+| **feature** | **default** | **Description** | **Example** |
+| --- |--- | --- | --- |
+| `bootstrap` | &check; | Certificate signing process and fetch datastreams info |  [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs) |
+| `kafka` |  &check; | Enable `DshKafkaConfig` trait and Config struct to connect to DSH |  [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs) |
+| `rdkafka-config` | &check; | Enable `DshKafkaConfig` implementation for RDKafka | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs) |
+| `schema-store` | &cross; | Interact with DSH Schema Store | [Schema Store API](./examples/schema_store_api.rs) |
+| `protocol-token-fetcher` | &cross; | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP) | [Token fetcher](./examples/protocol_token_fetcher.rs) / [with specific claims](./examples/protocol_token_fetcher_specific_claims.rs) |
+| `management-api-token-fetcher` | &cross; | Fetch tokens to use DSH Management API | [ Token fetcher](./examples/management_api_token_fetcher.rs) |
+| `metrics` | &cross; | Enable prometheus metrics including http server | [expose metrics](./examples/expose_metrics.rs) / [custom metrics](./examples/custom_metrics.rs) |
+| `graceful-shutdown` | &cross; | Tokio based graceful shutdown handler | [Graceful shutdown](./examples/graceful_shutdown.rs) |
+| `dlq` | &cross; | Dead Letter Queue implementation | [Full implementatione example](./examples/dlq_implementation.rs) |
 
-See api documentation for more information on how to use these features including.
+See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use these features.
+
+If you would like to use specific features, you can specify them in your Cargo.toml file. This can save compile time and dependencies.
+For example, if you only want to use the Management API token fetcher feature, add the following to your Cargo.toml file:
+
+```toml
+[dependencies]
+dsh_sdk = { version = "0.5", default-features = false, features = ["management-api-token-fetcher"] }
+```
 
 ## Environment variables
-The default RDKafka config can be overwritten by setting environment variables. See [ENV_VARIABLES.md](ENV_VARIABLES.md) for more information.
-
-
-## Api doc
-See the [api documentation](https://docs.rs/dsh_sdk/latest/dsh_sdk/) for more information on how to use this library.
+The SDK checks environment variables to change configuration for  See [ENV_VARIABLES.md](ENV_VARIABLES.md)  which .
 
 ## Examples
-See folder [dsh_sdk/examples](/examples/) for simple examples on how to use the SDK.
+See folder [dsh_sdk/examples](./examples/) for simple examples on how to use the SDK.
 
 ### Full service example
 See folder [example_dsh_service](../example_dsh_service/) for a full service, including how to build the Rust project and post it to Harbor. See [readme](../example_dsh_service/README.md) for more information.

@@ -1,5 +1,7 @@
 use std::hash::{Hash, Hasher};
 
+use crate::schema_store::SchemaStoreError;
+
 /// Subject name strategy
 ///
 /// Defines the strategy to use for the subject name
@@ -27,7 +29,7 @@ pub enum SubjectName {
 }
 
 impl SubjectName {
-    pub fn new<S>(topic: S, key: bool) -> Self
+    pub fn new_topic_name_strategy<S>(topic: S, key: bool) -> Self
     where
         S: AsRef<str>,
     {
@@ -61,25 +63,29 @@ impl SubjectName {
     }
 }
 
-impl From<&str> for SubjectName {
-    fn from(value: &str) -> Self {
-        let (topic, key) = if value.ends_with("-key") {
-            (value.trim_end_matches("-key"), true)
+impl TryFrom<&str> for SubjectName {
+    type Error = SchemaStoreError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if value.ends_with("-key") {
+            Ok(Self::TopicNameStrategy {
+                topic: value.trim_end_matches("-key").to_string(),
+                key: true,
+            })
         } else if value.ends_with("-value") {
-            (value.trim_end_matches("-value"), false)
+            Ok(Self::TopicNameStrategy {
+                topic: value.trim_end_matches("-value").to_string(),
+                key: false,
+            })
         } else {
-            (value, false)
-        };
-        Self::TopicNameStrategy {
-            topic: topic.to_string(),
-            key,
+            Err(SchemaStoreError::InvalidSubjectName(value.to_string()))
         }
     }
 }
 
-impl From<String> for SubjectName {
-    fn from(value: String) -> Self {
-        value.as_str().into()
+impl TryFrom<String> for SubjectName {
+    type Error = SchemaStoreError;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        value.as_str().try_into()
     }
 }
 
@@ -151,7 +157,7 @@ mod tests {
 
     #[test]
     fn test_subject_name_new() {
-        let subject = SubjectName::new("scratch.example.tenant", false);
+        let subject = SubjectName::new_topic_name_strategy("scratch.example.tenant", false);
         assert_eq!(
             subject,
             SubjectName::TopicNameStrategy {
@@ -163,7 +169,7 @@ mod tests {
 
     #[test]
     fn test_subject_name_from_string() {
-        let subject: SubjectName = "scratch.example.tenant-value".into();
+        let subject: SubjectName = "scratch.example.tenant-value".try_into().unwrap();
         assert_eq!(
             subject,
             SubjectName::TopicNameStrategy {
@@ -172,7 +178,7 @@ mod tests {
             }
         );
 
-        let subject: SubjectName = "scratch.example.tenant-key".into();
+        let subject: SubjectName = "scratch.example.tenant-key".try_into().unwrap();
         assert_eq!(
             subject,
             SubjectName::TopicNameStrategy {
@@ -206,7 +212,7 @@ mod tests {
     #[test]
     fn test_subject_name_from_string_ref() {
         let string = "scratch.example.tenant-value".to_string();
-        let subject: SubjectName = string.into();
+        let subject: SubjectName = string.try_into().unwrap();
         assert_eq!(
             subject,
             SubjectName::TopicNameStrategy {

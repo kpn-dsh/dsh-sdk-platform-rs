@@ -18,7 +18,7 @@
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! let consumer: StreamConsumer = ClientConfig::new().dsh_consumer_config().create()?;
+//! let consumer: StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
 //! # Ok(())
 //! # }
 //! ```
@@ -75,7 +75,7 @@
 #![allow(deprecated)]
 
 // to be kept in v0.6.0
-#[cfg(feature = "certificate")]
+#[cfg(feature = "bootstrap")]
 pub mod certificates;
 #[cfg(feature = "bootstrap")]
 pub mod datastream;

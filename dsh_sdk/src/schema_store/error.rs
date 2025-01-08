@@ -16,13 +16,6 @@ pub enum SchemaStoreError {
         url: String,
         error: String,
     },
-    #[error("Empty payload")]
-    EmptyPayload,
-    #[error("Failed to decode payload: {0}")]
-    FailedToDecode(String),
-    #[error("Failed to parse value onto struct")]
-    FailedParseToStruct,
-
-    #[error("Protobuf to struct not (yet) implemented")]
-    NotImplementedProtobufDeserialize,
+    #[error("Invalid subject name: {0}")]
+    InvalidSubjectName(String),
 }

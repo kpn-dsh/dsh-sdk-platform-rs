@@ -199,8 +199,11 @@ pub struct Claims {
 }
 
 impl Claims {
-    pub fn new(resource: Resource, action: String) -> Claims {
-        Claims { resource, action }
+    pub fn new(resource: Resource, action: Actions) -> Claims {
+        Claims {
+            resource,
+            action: action.to_string(),
+        }
     }
 }
 
@@ -213,8 +216,8 @@ pub enum Actions {
 impl Display for Actions {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
-            Actions::Publish => write!(f, "Publish"),
-            Actions::Subscribe => write!(f, "Subscribe"),
+            Actions::Publish => write!(f, "publish"),
+            Actions::Subscribe => write!(f, "subscribe"),
         }
     }
 }
@@ -615,9 +618,9 @@ mod tests {
     #[test]
     fn test_actions_display() {
         let action = Actions::Publish;
-        assert_eq!(action.to_string(), "Publish");
+        assert_eq!(action.to_string(), "publish");
         let action = Actions::Subscribe;
-        assert_eq!(action.to_string(), "Subscribe");
+        assert_eq!(action.to_string(), "subscribe");
     }
 
     #[test]
@@ -700,9 +703,9 @@ mod tests {
             "topic".to_string(),
             None,
         );
-        let action = "publish".to_string();
+        let action = Actions::Publish;
 
-        let claims = Claims::new(resource.clone(), action.clone());
+        let claims = Claims::new(resource.clone(), action);
 
         assert_eq!(claims.resource.stream, "stream");
         assert_eq!(claims.action, "publish");

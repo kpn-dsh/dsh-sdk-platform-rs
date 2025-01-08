@@ -6,7 +6,7 @@
 //! CLIENT_SECRET=your_client_secret TENANT=your_tenant cargo run --features rest-token-fetcher --example rest_api_token_fetcher
 //! ```
 use dsh_rest_api_client::Client;
-use dsh_sdk::{Platform, RestTokenFetcherBuilder};
+use dsh_sdk::{ManagementApiTokenFetcherBuilder, Platform};
 use std::env;
 
 #[tokio::main]
@@ -16,7 +16,7 @@ async fn main() {
         env::var("CLIENT_SECRET").expect("CLIENT_SECRET must be set as environment variable");
     let tenant = env::var("TENANT").expect("TENANT must be set as environment variable");
     let client = Client::new(platform.endpoint_rest_api());
-    let tf = RestTokenFetcherBuilder::new(platform)
+    let tf = ManagementApiTokenFetcherBuilder::new(platform)
         .tenant_name(tenant.clone())
         .client_secret(client_secret)
         .build()

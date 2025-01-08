@@ -24,7 +24,7 @@ pub enum DshError {
     #[cfg(feature = "bootstrap")]
     #[error("Invalid PEM certificate: {0}")]
     PemError(#[from] pem::PemError),
-    #[cfg(any(feature = "certificate", feature = "protocol-token-fetcher"))]
+    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
     #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
@@ -53,21 +53,4 @@ pub enum DshError {
     #[cfg(feature = "metrics")]
     #[error("Hyper error: {0}")]
     HyperError(#[from] hyper::http::Error),
-}
-
-#[cfg(feature = "management-api-token-fetcher")]
-#[derive(Error, Debug)]
-#[non_exhaustive]
-pub enum DshRestTokenError {
-    #[error("Client ID is unknown")]
-    UnknownClientId,
-    #[error("Client secret not set")]
-    UnknownClientSecret,
-    #[error("Unexpected failure while fetching token from server: {0}")]
-    FailureTokenFetch(reqwest::Error),
-    #[error("Unexpected status code: {status_code}, error body: {error_body:#?}")]
-    StatusCode {
-        status_code: reqwest::StatusCode,
-        error_body: reqwest::Response,
-    },
 }

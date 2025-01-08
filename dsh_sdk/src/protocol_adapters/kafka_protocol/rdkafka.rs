@@ -1,10 +1,11 @@
+#[cfg(feature = "rdkafka-config")]
 use rdkafka::ClientConfig;
 
 use super::DshKafkaConfig;
 use crate::Dsh;
 
 impl DshKafkaConfig for ClientConfig {
-    fn dsh_consumer_config(&mut self) -> &mut Self {
+    fn set_dsh_consumer_config(&mut self) -> &mut Self {
         let dsh = Dsh::get();
         let client_id = dsh.client_id();
         let config = dsh.kafka_config();
@@ -33,7 +34,7 @@ impl DshKafkaConfig for ClientConfig {
         self
     }
 
-    fn dsh_producer_config(&mut self) -> &mut Self {
+    fn set_dsh_producer_config(&mut self) -> &mut Self {
         let dsh = Dsh::get();
         let client_id = dsh.client_id();
         let config = dsh.kafka_config();

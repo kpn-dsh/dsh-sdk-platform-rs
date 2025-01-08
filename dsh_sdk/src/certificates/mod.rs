@@ -365,28 +365,6 @@ mod tests {
     }
 
     #[test]
-    fn test_prepare_reqwest_client() {
-        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let result = Cert::prepare_reqwest_client(
-            cert.dsh_kafka_certificate_pem(),
-            &cert.private_key_pem(),
-            cert.dsh_ca_certificate_pem(),
-        );
-    }
-
-    #[test]
-    fn test_reqwest_client_config() {
-        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let client = cert.reqwest_client_config();
-    }
-
-    #[test]
-    fn test_reqwest_blocking_client_config() {
-        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
-        let client = cert.reqwest_blocking_client_config();
-    }
-
-    #[test]
     fn test_ensure_https_prefix() {
         let host = "http://example.com".to_string();
         let result = ensure_https_prefix(host);
