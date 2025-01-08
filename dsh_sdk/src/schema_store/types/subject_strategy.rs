@@ -68,10 +68,14 @@ impl TryFrom<&str> for SubjectName {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         if value.ends_with("-key") {
             Ok(Self::TopicNameStrategy {
-                topic: value.trim_end_matches("-key").to_string(), key: true})
+                topic: value.trim_end_matches("-key").to_string(),
+                key: true,
+            })
         } else if value.ends_with("-value") {
             Ok(Self::TopicNameStrategy {
-                topic: value.trim_end_matches("-value").to_string(), key: false})
+                topic: value.trim_end_matches("-value").to_string(),
+                key: false,
+            })
         } else {
             Err(SchemaStoreError::InvalidSubjectName(value.to_string()))
         }
@@ -80,7 +84,7 @@ impl TryFrom<&str> for SubjectName {
 
 impl TryFrom<String> for SubjectName {
     type Error = SchemaStoreError;
-    fn try_from(value: String) -> Result<Self, Self::Error>  {
+    fn try_from(value: String) -> Result<Self, Self::Error> {
         value.as_str().try_into()
     }
 }

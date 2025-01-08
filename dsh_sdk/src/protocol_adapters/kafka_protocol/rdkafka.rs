@@ -4,8 +4,6 @@ use rdkafka::ClientConfig;
 use super::DshKafkaConfig;
 use crate::Dsh;
 
-
-
 impl DshKafkaConfig for ClientConfig {
     fn set_dsh_consumer_config(&mut self) -> &mut Self {
         let dsh = Dsh::get();
@@ -89,4 +87,3 @@ impl DshKafkaConfig for ClientConfig {
         }
     }
 }
-

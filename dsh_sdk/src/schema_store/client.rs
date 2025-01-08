@@ -37,7 +37,7 @@ where
     ///
     /// ## Arguments
     /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
-    /// 
+    ///
     /// ## Example
     /// ```no_run
     /// use dsh_sdk::schema_store::SchemaStoreClient;
@@ -51,8 +51,7 @@ where
     /// # Ok(())
     /// # }
     ///
-    pub async fn subject_compatibility(&self, subject: &SubjectName) -> Result<Compatibility>
-    {
+    pub async fn subject_compatibility(&self, subject: &SubjectName) -> Result<Compatibility> {
         Ok(self.get_config_subject(subject.name()).await?.into())
     }
 
@@ -60,7 +59,7 @@ where
     ///
     /// Set compatibility on subject level. With 1 schema stored in the subject, you can change it to any compatibility level.
     /// Else, you can only change into a less restrictive level.
-    /// 
+    ///
     /// ## Arguments
     /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
     ///
@@ -84,8 +83,7 @@ where
         &self,
         subject: &SubjectName,
         compatibility: Compatibility,
-    ) -> Result<Compatibility>
-    {
+    ) -> Result<Compatibility> {
         Ok(self
             .put_config_subject(subject.name(), compatibility)
             .await?
@@ -129,10 +127,8 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject_versions(&self, subject: &SubjectName) -> Result<Vec<i32>>
-    {
-        self.get_subjects_subject_versions(subject.name())
-            .await
+    pub async fn subject_versions(&self, subject: &SubjectName) -> Result<Vec<i32>> {
+        self.get_subjects_subject_versions(subject.name()).await
     }
 
     /// Get subject for specific version
@@ -196,11 +192,8 @@ where
     where
         V: Into<SubjectVersion>,
     {
-        self.get_subjects_subject_versions_id_schema(
-            subject.name(),
-            version.into().to_string(),
-        )
-        .await
+        self.get_subjects_subject_versions_id_schema(subject.name(), version.into().to_string())
+            .await
     }
 
     /// Get all schemas for a subject
@@ -223,8 +216,7 @@ where
     /// let subjects = client.subject_all_schemas(&subject_name).await?;
     /// # Ok(())
     /// # }
-    pub async fn subject_all_schemas(&self, subject: &SubjectName) -> Result<Vec<Subject>>
-    {
+    pub async fn subject_all_schemas(&self, subject: &SubjectName) -> Result<Vec<Subject>> {
         let versions = self.subject_versions(&subject).await?;
         let mut subjects = Vec::new();
         for version in versions {
@@ -235,12 +227,12 @@ where
     }
 
     /// Get all schemas for a topic
-    /// 
+    ///
     /// ## Arguments
     /// - `topic`: &str/String of the topic name
-    /// 
+    ///
     /// ## Returns
-    /// 
+    ///
     // pub async fn topic_all_schemas<S>(&self, topic: S) -> Result<(Vec<Subject>,Vec<Subject>)>
     // where
     //     S: AsRef<str>,
@@ -275,7 +267,7 @@ where
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let client = SchemaStoreClient::new();
-    /// 
+    ///
     /// // Get subjectname (note it ends on "-value")
     /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
     ///
@@ -290,8 +282,11 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject_add_schema(&self, subject: &SubjectName, schema: RawSchemaWithType) -> Result<i32>
-    {
+    pub async fn subject_add_schema(
+        &self,
+        subject: &SubjectName,
+        schema: RawSchemaWithType,
+    ) -> Result<i32> {
         Ok(self
             .post_subjects_subject_versions(subject.name(), schema)
             .await?
@@ -331,10 +326,12 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject_schema_exist(&self, subject: &SubjectName, schema: RawSchemaWithType) -> Result<Subject>
-    {
-        self.post_subjects_subject(subject.name(), schema)
-            .await
+    pub async fn subject_schema_exist(
+        &self,
+        subject: &SubjectName,
+        schema: RawSchemaWithType,
+    ) -> Result<Subject> {
+        self.post_subjects_subject(subject.name(), schema).await
     }
 
     /// Check if schema is compatible with a specific version of a subject based on the compatibility level

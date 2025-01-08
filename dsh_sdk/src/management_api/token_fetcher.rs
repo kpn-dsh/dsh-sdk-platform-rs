@@ -227,7 +227,9 @@ impl ManagementApiTokenFetcher {
     /// If the request fails, it will return a [ManagementTokenError::FailureTokenFetch] error.
     /// If the status code is not successful, it will return a [ManagementTokenError::StatusCode] error.
     /// If the request is successful, it will return the [AccessToken].
-    pub async fn fetch_access_token_from_server(&self) -> Result<AccessToken, ManagementTokenError> {
+    pub async fn fetch_access_token_from_server(
+        &self,
+    ) -> Result<AccessToken, ManagementTokenError> {
         let response = self
             .client
             .post(&self.auth_url)

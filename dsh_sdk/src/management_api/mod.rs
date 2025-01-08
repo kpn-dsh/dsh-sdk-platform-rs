@@ -1,2 +1,2 @@
-pub mod token_fetcher;
 pub mod error;
+pub mod token_fetcher;

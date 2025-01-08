@@ -151,7 +151,6 @@ impl Cert {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
