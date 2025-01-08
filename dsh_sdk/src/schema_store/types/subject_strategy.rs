@@ -63,32 +63,25 @@ impl SubjectName {
     }
 }
 
-
-impl TryFrom<SubjectName> for SubjectName
-    {
-    type Error = SchemaStoreError;
-}
-
 impl TryFrom<&str> for SubjectName {
     type Error = SchemaStoreError;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let (topic, key) = if value.ends_with("-key") {
-            (value.trim_end_matches("-key"), true)
+        if value.ends_with("-key") {
+            Ok(Self::TopicNameStrategy {
+                topic: value.trim_end_matches("-key").to_string(), key: true})
         } else if value.ends_with("-value") {
-            (value.trim_end_matches("-value"), false)
+            Ok(Self::TopicNameStrategy {
+                topic: value.trim_end_matches("-value").to_string(), key: false})
         } else {
-            (value, false)
-        };
-        Ok(Self::TopicNameStrategy {
-            topic: topic.to_string(),
-            key,
-        })
+            Err(SchemaStoreError::InvalidSubjectName(value.to_string()))
+        }
     }
 }
 
-impl From<String> for SubjectName {
-    fn from(value: String) -> Self {
-        value.as_str().try_into().unwrap()
+impl TryFrom<String> for SubjectName {
+    type Error = SchemaStoreError;
+    fn try_from(value: String) -> Result<Self, Self::Error>  {
+        value.as_str().try_into()
     }
 }
 
@@ -215,7 +208,7 @@ mod tests {
     #[test]
     fn test_subject_name_from_string_ref() {
         let string = "scratch.example.tenant-value".to_string();
-        let subject: SubjectName = string.into();
+        let subject: SubjectName = string.try_into().unwrap();
         assert_eq!(
             subject,
             SubjectName::TopicNameStrategy {
