@@ -114,8 +114,8 @@ pub mod dlq;
 #[cfg(feature = "bootstrap")]
 #[deprecated(
     since = "0.5.0",
-    note = "The `dsh` as module is phased out. Use
-    `dsh_sdk::Dsh` for all info about your running container;
+    note = "The `Properties` struct phased out. Use
+    `dsh_sdk::Dsh` for an all-in-one struct, similar to the original `Properties`;
     `dsh_sdk::certificates` for all certificate related info;
     `dsh_sdk::datastream` for all datastream related info;
     "

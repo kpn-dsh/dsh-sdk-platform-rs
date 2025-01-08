@@ -10,16 +10,33 @@
 //! ## Environment variables
 //! See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for
 //! more information configuring the consmer or producer via environment variables.
-use log::{error, warn};
+//!
+//! # Example
+//! ```
+//! use dsh_sdk::Properties;
+//! use rdkafka::consumer::{Consumer, StreamConsumer};
+//!
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let dsh_properties = Properties::get();
+//! let consumer_config = dsh_properties.consumer_rdkafka_config();
+//! let consumer: StreamConsumer = consumer_config.create()?;
+//!
+//! # Ok(())
+//! # }
+//! ```
+use log::{debug, error, warn};
 use std::env;
-use std::sync::{Arc, OnceLock};
+use std::sync::OnceLock;
 
-use crate::certificates::Cert;
-use crate::datastream;
-use crate::error::DshError;
-
+use super::bootstrap::bootstrap;
+use super::error::DshError;
+use super::{certificates, config, datastream, pki_config_dir};
 use crate::utils;
 use crate::*;
+static PROPERTIES: OnceLock<Properties> = OnceLock::new();
+static CONSUMER_CONFIG: OnceLock<config::ConsumerConfig> = OnceLock::new();
+static PRODUCER_CONFIG: OnceLock<config::ProducerConfig> = OnceLock::new();
 
 /// DSH properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
 ///  - Contains info from datastreams.json
@@ -29,14 +46,29 @@ use crate::*;
 /// ## Environment variables
 /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for
 /// more information configuring the consmer or producer via environment variables.
+///
+/// # Example
+/// ```
+/// use dsh_sdk::Properties;
+/// use rdkafka::consumer::{Consumer, StreamConsumer};
+///
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let dsh_properties = Properties::get();
+///     
+///     let consumer_config = dsh_properties.consumer_rdkafka_config();
+///     let consumer: StreamConsumer = consumer_config.create()?;
+///
+///     Ok(())
+/// }
+/// ```
 
-#[deprecated(since = "0.5.0", note = "`Properties` is renamed to `dsh_sdk::Dsh`")]
 #[derive(Debug, Clone)]
 pub struct Properties {
     config_host: String,
     task_id: String,
     tenant_name: String,
-    datastream: Arc<datastream::Datastream>,
+    datastream: datastream::Datastream,
     certificates: Option<certificates::Cert>,
 }
 
@@ -49,7 +81,6 @@ impl Properties {
         datastream: datastream::Datastream,
         certificates: Option<certificates::Cert>,
     ) -> Self {
-        let datastream = Arc::new(datastream);
         Self {
             config_host,
             task_id,
@@ -85,7 +116,6 @@ impl Properties {
     /// # }
     /// ```
     pub fn get() -> &'static Self {
-        static PROPERTIES: OnceLock<Properties> = OnceLock::new();
         PROPERTIES.get_or_init(|| tokio::task::block_in_place(Self::init))
     }
 
@@ -116,8 +146,8 @@ impl Properties {
         let config_host = config_host.unwrap_or(DEFAULT_CONFIG_HOST.to_string()); // Default is for running on local machine with VPN
         let fetched_datastreams = certificates.as_ref().and_then(|cert| {
             cert.reqwest_blocking_client_config()
-                .build()
                 .ok()
+                .and_then(|cb| cb.build().ok())
                 .and_then(|client| {
                     datastream::Datastream::fetch_blocking(
                         &client,
@@ -135,6 +165,172 @@ impl Properties {
             datastream::Datastream::load_local_datastreams().unwrap_or_default()
         };
         Self::new(config_host, task_id, tenant_name, datastream, certificates)
+    }
+
+    /// Get default RDKafka Consumer config to connect to Kafka on DSH.
+    ///
+    /// Note: This config is set to auto commit to false. You need to manually commit offsets.
+    /// You can overwrite this config by setting the enable.auto.commit and enable.auto.offset.store property to `true`.
+    ///
+    /// # Group ID
+    /// There are 2 types of group id's in DSH: private and shared. Private will have a unique group id per running instance.
+    /// Shared will have the same group id for all running instances. With this you can horizontally scale your service.
+    /// The group type can be manipulated by environment variable KAFKA_CONSUMER_GROUP_TYPE.
+    /// If not set, it will default to shared.
+    ///
+    /// # Example
+    /// ```
+    /// use dsh_sdk::Properties;
+    /// use rdkafka::config::RDKafkaLogLevel;
+    /// use rdkafka::consumer::stream_consumer::StreamConsumer;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let dsh_properties = Properties::get();
+    ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config();
+    ///     let consumer: StreamConsumer =  consumer_config.create()?;
+    ///     Ok(())
+    /// }
+    /// ```
+    ///
+    /// # Default configs
+    /// See full list of configs properties in case you want to add/overwrite the config:
+    /// <https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md>
+    ///
+    /// Some configurations are overwitable by environment variables.
+    ///
+    /// | **config**                | **Default value**                | **Remark**                                                             |
+    /// |---------------------------|----------------------------------|------------------------------------------------------------------------|
+    /// | `bootstrap.servers`       | Brokers based on datastreams     | Overwritable by env variable KAFKA_BOOTSTRAP_SERVERS`                  |
+    /// | `group.id`                | Shared Group ID from datastreams | Overwritable by setting `KAFKA_GROUP_ID` or `KAFKA_CONSUMER_GROUP_TYPE`|
+    /// | `client.id`               | Task_id of service               |                                                                        |
+    /// | `enable.auto.commit`      | `false`                          | Overwritable by setting `KAFKA_ENABLE_AUTO_COMMIT`                     |
+    /// | `auto.offset.reset`       | `earliest`                       | Overwritable by setting `KAFKA_AUTO_OFFSET_RESET`                      |
+    /// | `security.protocol`       | ssl (DSH) / plaintext (local)    | Security protocol                                                      |
+    /// | `ssl.key.pem`             | private key                      | Generated when bootstrap is initiated                                  |
+    /// | `ssl.certificate.pem`     | dsh kafka certificate            | Signed certificate to connect to kafka cluster                         |
+    /// | `ssl.ca.pem`              | CA certifacte                    | CA certificate, provided by DSH.                                       |
+    ///
+    /// ## Environment variables
+    /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
+    /// configuring the consmer via environment variables.
+    #[cfg(feature = "rdkafka-config")]
+    pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
+        let consumer_config = CONSUMER_CONFIG.get_or_init(config::ConsumerConfig::new);
+        let mut config = rdkafka::config::ClientConfig::new();
+        config
+            .set("bootstrap.servers", self.kafka_brokers())
+            .set("group.id", self.kafka_group_id())
+            .set("client.id", self.client_id())
+            .set("enable.auto.commit", self.kafka_auto_commit().to_string())
+            .set("auto.offset.reset", self.kafka_auto_offset_reset());
+        if let Some(session_timeout) = consumer_config.session_timeout() {
+            config.set("session.timeout.ms", session_timeout.to_string());
+        }
+        if let Some(queued_buffering_max_messages_kbytes) =
+            consumer_config.queued_buffering_max_messages_kbytes()
+        {
+            config.set(
+                "queued.max.messages.kbytes",
+                queued_buffering_max_messages_kbytes.to_string(),
+            );
+        }
+        debug!("Consumer config: {:#?}", config);
+        // Set SSL if certificates are present
+        if let Ok(certificates) = &self.certificates() {
+            config
+                .set("security.protocol", "ssl")
+                .set("ssl.key.pem", certificates.private_key_pem())
+                .set(
+                    "ssl.certificate.pem",
+                    certificates.dsh_kafka_certificate_pem(),
+                )
+                .set("ssl.ca.pem", certificates.dsh_ca_certificate_pem());
+        } else {
+            config.set("security.protocol", "plaintext");
+        }
+        config
+    }
+
+    /// Get default RDKafka Producer config to connect to Kafka on DSH.
+    /// If certificates are present, it will use SSL to connect to Kafka.
+    /// If not, it will use plaintext so it can connect to local as well.
+    ///
+    /// Note: The default config is set to auto commit to false. You need to manually commit offsets.
+    ///
+    /// # Example
+    /// ```
+    /// use rdkafka::config::RDKafkaLogLevel;
+    /// use rdkafka::producer::FutureProducer;
+    /// use dsh_sdk::Properties;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>>{
+    ///     let dsh_properties = Properties::get();
+    ///     let mut producer_config = dsh_properties.producer_rdkafka_config();
+    ///     let producer: FutureProducer =  producer_config.create().expect("Producer creation failed");
+    ///     Ok(())
+    /// }
+    /// ```
+    ///
+    /// # Default configs
+    /// See full list of configs properties in case you want to manually add/overwrite the config:
+    /// <https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md>
+    ///
+    /// | **config**          | **Default value**              | **Remark**                                                                              |
+    /// |---------------------|--------------------------------|-----------------------------------------------------------------------------------------|
+    /// | bootstrap.servers   | Brokers based on datastreams   | Overwritable by env variable `KAFKA_BOOTSTRAP_SERVERS`                                  |
+    /// | client.id           | task_id of service             | Based on task_id of running service                                                     |
+    /// | security.protocol   | ssl (DSH)) / plaintext (local) | Security protocol                                                                       |
+    /// | ssl.key.pem         | private key                    | Generated when bootstrap is initiated                                                   |
+    /// | ssl.certificate.pem | dsh kafka certificate          | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated) |
+    /// | ssl.ca.pem          | CA certifacte                  | CA certificate, provided by DSH.                                                        |
+    /// | log_level           | Info                           | Log level of rdkafka                                                                    |
+    ///
+    /// ## Environment variables
+    /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
+    /// configuring the producer via environment variables.
+    #[cfg(feature = "rdkafka-config")]
+    pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
+        let producer_config = PRODUCER_CONFIG.get_or_init(config::ProducerConfig::new);
+        let mut config = rdkafka::config::ClientConfig::new();
+        config
+            .set("bootstrap.servers", self.kafka_brokers())
+            .set("client.id", self.client_id());
+        if let Some(batch_num_messages) = producer_config.batch_num_messages() {
+            config.set("batch.num.messages", batch_num_messages.to_string());
+        }
+        if let Some(queue_buffering_max_messages) = producer_config.queue_buffering_max_messages() {
+            config.set(
+                "queue.buffering.max.messages",
+                queue_buffering_max_messages.to_string(),
+            );
+        }
+        if let Some(queue_buffering_max_kbytes) = producer_config.queue_buffering_max_kbytes() {
+            config.set(
+                "queue.buffering.max.kbytes",
+                queue_buffering_max_kbytes.to_string(),
+            );
+        }
+        if let Some(queue_buffering_max_ms) = producer_config.queue_buffering_max_ms() {
+            config.set("queue.buffering.max.ms", queue_buffering_max_ms.to_string());
+        }
+        debug!("Producer config: {:#?}", config);
+
+        // Set SSL if certificates are present
+        if let Ok(certificates) = self.certificates() {
+            config
+                .set("security.protocol", "ssl")
+                .set("ssl.key.pem", certificates.private_key_pem())
+                .set(
+                    "ssl.certificate.pem",
+                    certificates.dsh_kafka_certificate_pem(),
+                )
+                .set("ssl.ca.pem", certificates.dsh_ca_certificate_pem());
+        } else {
+            config.set("security.protocol", "plaintext");
+        }
+        config
     }
 
     /// Get reqwest async client config to connect to DSH Schema Registry.
@@ -156,7 +352,7 @@ impl Properties {
     pub fn reqwest_client_config(&self) -> Result<reqwest::ClientBuilder, DshError> {
         let mut client_builder = reqwest::Client::builder();
         if let Ok(certificates) = &self.certificates() {
-            client_builder = certificates.reqwest_client_config();
+            client_builder = certificates.reqwest_client_config()?;
         }
         Ok(client_builder)
     }
@@ -171,7 +367,7 @@ impl Properties {
     /// # use dsh_sdk::Properties;
     /// # use reqwest::blocking::Client;
     /// # use dsh_sdk::error::DshError;
-    /// # fn main() -> Result<(), DshError> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh_properties = Properties::get();
     /// let client = dsh_properties.reqwest_blocking_client_config()?.build()?;
     /// #    Ok(())
@@ -182,7 +378,7 @@ impl Properties {
         let mut client_builder: reqwest::blocking::ClientBuilder =
             reqwest::blocking::Client::builder();
         if let Ok(certificates) = &self.certificates() {
-            client_builder = certificates.reqwest_blocking_client_config();
+            client_builder = certificates.reqwest_blocking_client_config()?;
         }
         Ok(client_builder)
     }
@@ -193,7 +389,7 @@ impl Properties {
     /// ```no_run
     /// # use dsh_sdk::Properties;
     /// # use dsh_sdk::error::DshError;
-    /// # fn main() -> Result<(), DshError> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>>{
     /// let dsh_properties = Properties::get();
     /// let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();
     /// #    Ok(())
@@ -325,7 +521,6 @@ impl Properties {
         }
     }
 
-    #[cfg(feature = "kafka")]
     /// Get the confifured kafka auto commit setinngs.
     ///
     /// ## Environment variables
@@ -337,13 +532,10 @@ impl Properties {
     /// - Required: `false`
     /// - Options: `true`, `false`
     pub fn kafka_auto_commit(&self) -> bool {
-        crate::protocol_adapters::kafka_protocol::config::KafkaConfig::new(Some(
-            self.datastream.clone(),
-        ))
-        .enable_auto_commit()
+        let consumer_config = CONSUMER_CONFIG.get_or_init(config::ConsumerConfig::new);
+        consumer_config.enable_auto_commit()
     }
 
-    #[cfg(feature = "kafka")]
     /// Get the kafka auto offset reset settings.
     ///
     /// ## Environment variables
@@ -355,111 +547,14 @@ impl Properties {
     /// - Required: `false`
     /// - Options: smallest, earliest, beginning, largest, latest, end
     pub fn kafka_auto_offset_reset(&self) -> String {
-        crate::protocol_adapters::kafka_protocol::config::KafkaConfig::new(Some(
-            self.datastream.clone(),
-        ))
-        .auto_offset_reset()
-        .to_string()
-    }
-
-    /// Get default RDKafka Consumer config to connect to Kafka on DSH.
-    ///
-    /// Note: This config is set to auto commit to false. You need to manually commit offsets.
-    /// You can overwrite this config by setting the enable.auto.commit and enable.auto.offset.store property to `true`.
-    ///
-    /// # Group ID
-    /// There are 2 types of group id's in DSH: private and shared. Private will have a unique group id per running instance.
-    /// Shared will have the same group id for all running instances. With this you can horizontally scale your service.
-    /// The group type can be manipulated by environment variable KAFKA_CONSUMER_GROUP_TYPE.
-    /// If not set, it will default to shared.
-    ///
-    /// # Example
-    /// ```
-    /// use dsh_sdk::Properties;
-    /// use rdkafka::consumer::stream_consumer::StreamConsumer;
-    ///
-    /// #[tokio::main]
-    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let dsh_properties = Properties::get();
-    ///     let mut consumer_config = dsh_properties.consumer_rdkafka_config();
-    ///     let consumer: StreamConsumer =  consumer_config.create()?;
-    ///     Ok(())
-    /// }
-    /// ```
-    ///
-    /// # Default configs
-    /// See full list of configs properties in case you want to add/overwrite the config:
-    /// <https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md>
-    ///
-    /// Some configurations are overwitable by environment variables.
-    ///
-    /// | **config**                | **Default value**                | **Remark**                                                             |
-    /// |---------------------------|----------------------------------|------------------------------------------------------------------------|
-    /// | `bootstrap.servers`       | Brokers based on datastreams     | Overwritable by env variable KAFKA_BOOTSTRAP_SERVERS`                  |
-    /// | `group.id`                | Shared Group ID from datastreams | Overwritable by setting `KAFKA_GROUP_ID` or `KAFKA_CONSUMER_GROUP_TYPE`|
-    /// | `client.id`               | Task_id of service               |                                                                        |
-    /// | `enable.auto.commit`      | `false`                          | Overwritable by setting `KAFKA_ENABLE_AUTO_COMMIT`                     |
-    /// | `auto.offset.reset`       | `earliest`                       | Overwritable by setting `KAFKA_AUTO_OFFSET_RESET`                      |
-    /// | `security.protocol`       | ssl (DSH) / plaintext (local)    | Security protocol                                                      |
-    /// | `ssl.key.pem`             | private key                      | Generated when bootstrap is initiated                                  |
-    /// | `ssl.certificate.pem`     | dsh kafka certificate            | Signed certificate to connect to kafka cluster                         |
-    /// | `ssl.ca.pem`              | CA certifacte                    | CA certificate, provided by DSH.                                       |
-    ///
-    /// ## Environment variables
-    /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
-    /// configuring the consmer via environment variables.
-    #[cfg(feature = "rdkafka-config")]
-    pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
-        crate::Dsh::get().consumer_rdkafka_config()
-    }
-
-    /// Get default RDKafka Producer config to connect to Kafka on DSH.
-    /// If certificates are present, it will use SSL to connect to Kafka.
-    /// If not, it will use plaintext so it can connect to local as well.
-    ///
-    /// Note: The default config is set to auto commit to false. You need to manually commit offsets.
-    ///
-    /// # Example
-    /// ```
-    /// use rdkafka::producer::FutureProducer;
-    /// use dsh_sdk::Properties;
-    ///
-    /// #[tokio::main]
-    /// async fn main() -> Result<(), Box<dyn std::error::Error>>{
-    ///     let dsh_properties = Properties::get();
-    ///     let mut producer_config = dsh_properties.producer_rdkafka_config();
-    ///     let producer: FutureProducer =  producer_config.create().expect("Producer creation failed");
-    ///     Ok(())
-    /// }
-    /// ```
-    ///
-    /// # Default configs
-    /// See full list of configs properties in case you want to manually add/overwrite the config:
-    /// <https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md>
-    ///
-    /// | **config**          | **Default value**              | **Remark**                                                                              |
-    /// |---------------------|--------------------------------|-----------------------------------------------------------------------------------------|
-    /// | bootstrap.servers   | Brokers based on datastreams   | Overwritable by env variable `KAFKA_BOOTSTRAP_SERVERS`                                  |
-    /// | client.id           | task_id of service             | Based on task_id of running service                                                     |
-    /// | security.protocol   | ssl (DSH)) / plaintext (local) | Security protocol                                                                       |
-    /// | ssl.key.pem         | private key                    | Generated when bootstrap is initiated                                                   |
-    /// | ssl.certificate.pem | dsh kafka certificate          | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated) |
-    /// | ssl.ca.pem          | CA certifacte                  | CA certificate, provided by DSH.                                                        |
-    /// | log_level           | Info                           | Log level of rdkafka                                                                    |
-    ///
-    /// ## Environment variables
-    /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
-    /// configuring the producer via environment variables.
-    #[cfg(feature = "rdkafka-config")]
-    pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
-        crate::Dsh::get().producer_rdkafka_config()
+        let consumer_config = CONSUMER_CONFIG.get_or_init(config::ConsumerConfig::new);
+        consumer_config.auto_offset_reset()
     }
 }
 
 impl Default for Properties {
     fn default() -> Self {
-        let datastream =
-            Arc::new(datastream::Datastream::load_local_datastreams().unwrap_or_default());
+        let datastream = datastream::Datastream::load_local_datastreams().unwrap_or_default();
         Self {
             task_id: "local_task_id".to_string(),
             tenant_name: "local_tenant".to_string(),

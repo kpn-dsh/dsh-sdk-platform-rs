@@ -21,35 +21,14 @@
 //! # Ok(())
 //! # }
 //! ```
-#[deprecated(
-    since = "0.5.0",
-    note = "`dsh_sdk::dsh::certificates` is moved to `dsh_sdk::certificates`"
-)]
+mod bootstrap;
 pub mod certificates;
-#[deprecated(
-    since = "0.5.0",
-    note = "`dsh_sdk::dsh::datastream` is moved to `dsh_sdk::datastream`"
-)]
+mod config;
 pub mod datastream;
-#[deprecated(
-    since = "0.5.0",
-    note = "`dsh_sdk::dsh::properties` is moved to `dsh_sdk::dsh`"
-)]
+mod error;
+mod pki_config_dir;
 pub mod properties;
 
 // Re-export the properties struct to avoid braking changes
-
-#[deprecated(
-    since = "0.5.0",
-    note = "get_configured_topics is moved to `dsh_sdk::utils::get_configured_topics`"
-)]
-pub fn get_configured_topics() -> Result<Vec<String>, crate::error::DshError> {
-    let kafka_topic_string = crate::utils::get_env_var("TOPICS")?;
-    Ok(kafka_topic_string
-        .split(',')
-        .map(str::trim)
-        .map(String::from)
-        .collect())
-}
-
+pub use super::utils::get_configured_topics;
 pub use properties::Properties;

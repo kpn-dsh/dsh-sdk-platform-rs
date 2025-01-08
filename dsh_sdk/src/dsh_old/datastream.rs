@@ -16,12 +16,20 @@
 //! let schema_store = datastream.schema_store();
 //! ```
 use std::collections::HashMap;
+use std::env;
+use std::fs::File;
+use std::io::Read;
 
-use log::info;
+use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 
-use crate::error::DshError;
-use crate::{utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_SCHEMA_REGISTRY_HOST};
+use super::error::DshError;
+use crate::{
+    utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_LOCAL_DATASTREAMS_JSON,
+    VAR_SCHEMA_REGISTRY_HOST,
+};
+
+const FILE_NAME: &str = "local_datastreams.json";
 
 /// This struct is equivalent to the datastreams.json
 ///
@@ -91,20 +99,20 @@ impl Datastream {
     pub fn verify_list_of_topics<T: std::fmt::Display>(
         &self,
         topics: &Vec<T>,
-        access: crate::datastream::ReadWriteAccess,
+        access: ReadWriteAccess,
     ) -> Result<(), DshError> {
         let read_topics = self
             .streams()
             .values()
             .map(|datastream| match access {
-                crate::datastream::ReadWriteAccess::Read => datastream
+                ReadWriteAccess::Read => datastream
                     .read
                     .split('.')
                     .take(2)
                     .collect::<Vec<&str>>()
                     .join(".")
                     .replace('\\', ""),
-                crate::datastream::ReadWriteAccess::Write => datastream
+                ReadWriteAccess::Write => datastream
                     .write
                     .split('.')
                     .take(2)
@@ -143,7 +151,7 @@ impl Datastream {
     ///
     /// # Example
     /// ```no_run
-    /// # use dsh_sdk::datastream::Datastream;
+    /// # use dsh_sdk::dsh_old::datastream::Datastream;
     /// # let datastream = Datastream::default();
     /// let path = std::path::PathBuf::from("/path/to/directory");
     /// datastream.to_file(&path).unwrap();
@@ -201,6 +209,40 @@ impl Datastream {
 
     pub(crate) fn datastreams_endpoint(host: &str, tenant: &str, task_id: &str) -> String {
         format!("{}/kafka/config/{}/{}", host, tenant, task_id)
+    }
+
+    /// If local_datastreams.json is found, it will load the datastreams from this file.
+    /// If it does not parse or the file is not found based on on Environment Variable, it will panic.
+    /// If the Environment Variable is not set, it will look in the current directory. If it is not found,
+    /// it will return a Error on the Result. Based on this it will use default Datastreams.
+    pub(crate) fn load_local_datastreams() -> Result<Self, DshError> {
+        let path_buf = if let Ok(path) = utils::get_env_var(VAR_LOCAL_DATASTREAMS_JSON) {
+            let path = std::path::PathBuf::from(path);
+            if !path.exists() {
+                panic!("{} not found", path.display());
+            } else {
+                path
+            }
+        } else {
+            std::env::current_dir().unwrap().join(FILE_NAME)
+        };
+        debug!("Reading local datastreams from {}", path_buf.display());
+        let mut file = File::open(&path_buf).map_err(|e| {
+            debug!(
+                "Failed opening local_datastreams.json ({}): {}",
+                path_buf.display(),
+                e
+            );
+            DshError::IoError(e)
+        })?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let mut datastream: Datastream = serde_json::from_str(&contents)
+            .unwrap_or_else(|e| panic!("Failed to parse {}, {:?}", path_buf.display(), e));
+        if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
+            datastream.brokers = brokers.split(',').map(|s| s.to_string()).collect();
+        }
+        Ok(datastream)
     }
 }
 
@@ -313,7 +355,7 @@ impl Stream {
         } else {
             Err(DshError::TopicPermissionsError(
                 self.name.clone(),
-                crate::datastream::ReadWriteAccess::Read,
+                ReadWriteAccess::Read,
             ))
         }
     }
@@ -328,22 +370,58 @@ impl Stream {
         } else {
             Err(DshError::TopicPermissionsError(
                 self.name.clone(),
-                crate::datastream::ReadWriteAccess::Write,
+                ReadWriteAccess::Write,
             ))
         }
     }
 }
 
-pub use crate::datastream::GroupType;
-pub use crate::datastream::ReadWriteAccess;
+/// Enum to indicate if we want to check the read or write topics
+#[derive(Debug, Clone, PartialEq)]
+pub enum ReadWriteAccess {
+    Read,
+    Write,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum GroupType {
+    Private(usize),
+    Shared(usize),
+}
+
+impl GroupType {
+    /// Get the group type from the environment variable KAFKA_CONSUMER_GROUP_TYPE
+    /// If KAFKA_CONSUMER_GROUP_TYPE is not (properly) set, it defaults to shared
+    pub fn from_env() -> Self {
+        let group_type = env::var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
+        match group_type {
+            Ok(s) if s.to_lowercase() == *"private" => GroupType::Private(0),
+            Ok(s) if s.to_lowercase() == *"shared" => GroupType::Shared(0),
+            Ok(_) => {
+                error!("KAFKA_CONSUMER_GROUP_TYPE is not set with \"shared\" or \"private\", defaulting to shared group type.");
+                GroupType::Shared(0)
+            }
+            Err(_) => {
+                warn!("KAFKA_CONSUMER_GROUP_TYPE is not set, defaulting to shared group type.");
+                GroupType::Shared(0)
+            }
+        }
+    }
+}
+
+impl std::fmt::Display for GroupType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GroupType::Private(i) => write!(f, "private; index: {}", i),
+            GroupType::Shared(i) => write!(f, "shared; index: {}", i),
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use serial_test::serial;
-    use std::io::Read;
-
-    use crate::VAR_KAFKA_CONSUMER_GROUP_TYPE;
 
     // Define a reusable Properties instance
     fn datastream() -> Datastream {
@@ -485,13 +563,13 @@ mod tests {
     #[serial(env_dependency)]
     fn test_datastream_get_group_type_from_env() {
         // Set the KAFKA_CONSUMER_GROUP_TYPE environment variable to "private"
-        std::env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
+        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
         assert_eq!(GroupType::from_env(), GroupType::Private(0),);
-        std::env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
+        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
         assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
-        std::env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "invalid-type");
+        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "invalid-type");
         assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
-        std::env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
+        env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
         assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
     }
 
@@ -598,6 +676,79 @@ mod tests {
         let test_path = std::path::PathBuf::from("test_files");
         let result = datastream().to_file(&test_path);
         assert!(result.is_ok())
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_load_local_valid_datastreams() {
+        // load from root directory
+        let datastream = Datastream::load_local_datastreams().is_ok();
+        assert!(datastream);
+        // load from custom directory
+        let current_dir = env::current_dir().unwrap();
+        let file_location = format!(
+            "{}/test_resources/valid_datastreams.json",
+            current_dir.display()
+        );
+        println!("file_location: {}", file_location);
+        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+        let datastream = Datastream::load_local_datastreams().is_ok();
+        assert!(datastream);
+        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_load_local_nonexisting_datastreams() {
+        let current_dir = env::current_dir().unwrap();
+        let file_location = format!(
+            "{}/test_resoources/nonexisting_datastreams.json",
+            current_dir.display()
+        );
+        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+        // let it panic in a thread
+        let join_handle = std::thread::spawn(move || {
+            let _ = Datastream::load_local_datastreams();
+        });
+        let result = join_handle.join();
+        assert!(result.is_err());
+        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_load_local_invalid_datastreams() {
+        let current_dir = env::current_dir().unwrap();
+        let file_location = format!(
+            "{}/test_resources/invalid_datastreams.json",
+            current_dir.display()
+        );
+        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+        // let it panic in a thread
+        let join_handle = std::thread::spawn(move || {
+            let _ = Datastream::load_local_datastreams();
+        });
+        let result = join_handle.join();
+        assert!(result.is_err());
+        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_load_local_invalid_json() {
+        let current_dir = env::current_dir().unwrap();
+        let file_location = format!(
+            "{}/test_resources/invalid_datastreams_missing_field.json",
+            current_dir.display()
+        );
+        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+        // let it panic in a thread
+        let join_handle = std::thread::spawn(move || {
+            let _ = Datastream::load_local_datastreams();
+        });
+        let result = join_handle.join();
+        assert!(result.is_err());
+        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
     }
 
     #[test]
