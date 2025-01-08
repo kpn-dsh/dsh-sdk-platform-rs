@@ -102,12 +102,22 @@ impl Platform {
         }
     }
 
+    #[deprecated(since = "0.5.0", note = "Use `endpoint_management_api_token` instead")]
     /// Get the endpoint for fetching DSH Rest Authentication Token
     ///
     /// With this token you can authenticate for the mqtt token endpoint
     ///
     /// It will return the endpoint for DSH Rest authentication token based on the platform
     pub fn endpoint_rest_token(&self) -> &str {
+        self.endpoint_management_api_token()
+    }
+
+    /// Get the endpoint for fetching DSH Rest Authentication Token
+    ///
+    /// With this token you can authenticate for the mqtt token endpoint
+    ///
+    /// It will return the endpoint for DSH Rest authentication token based on the platform
+    pub fn endpoint_management_api_token(&self) -> &str {
         match self {
             Self::Prod => "https://api.kpn-dsh.com/auth/v0/token",
             Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/auth/v0/token",
@@ -117,10 +127,18 @@ impl Platform {
         }
     }
 
-    /// Get the endpoint for fetching DSH MQTT token
+    #[deprecated(since = "0.5.0", note = "Use `endpoint_protocol_token` instead")]
+    /// Get the endpoint for fetching DSH mqtt token
     ///
     /// It will return the endpoint for DSH MQTT Token based on the platform
     pub fn endpoint_mqtt_token(&self) -> &str {
+        self.endpoint_protocol_token()
+    }
+
+    /// Get the endpoint for fetching DSH Protocol token
+    ///
+    /// It will return the endpoint for DSH Protocol adapter Token based on the platform
+    pub fn endpoint_protocol_token(&self) -> &str {
         match self {
             Self::Prod => "https://api.kpn-dsh.com/datastreams/v0/mqtt/token",
             Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/datastreams/v0/mqtt/token",
