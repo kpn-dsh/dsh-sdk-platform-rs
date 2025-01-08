@@ -9,23 +9,20 @@ use reqwest::header::{HeaderMap, HeaderValue};
 /// Types used as operation parameters and responses.
 #[allow(clippy::all)]
 pub mod types {
-    use serde::{Deserialize, Serialize};
-    #[allow(unused_imports)]
-    use std::convert::TryFrom;
     /// Error types.
     pub mod error {
         /// Error from a TryFrom or FromStr implementation.
-        pub struct ConversionError(std::borrow::Cow<'static, str>);
-        impl std::error::Error for ConversionError {}
-        impl std::fmt::Display for ConversionError {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-                std::fmt::Display::fmt(&self.0, f)
+        pub struct ConversionError(::std::borrow::Cow<'static, str>);
+        impl ::std::error::Error for ConversionError {}
+        impl ::std::fmt::Display for ConversionError {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> Result<(), ::std::fmt::Error> {
+                ::std::fmt::Display::fmt(&self.0, f)
             }
         }
 
-        impl std::fmt::Debug for ConversionError {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-                std::fmt::Debug::fmt(&self.0, f)
+        impl ::std::fmt::Debug for ConversionError {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> Result<(), ::std::fmt::Error> {
+                ::std::fmt::Debug::fmt(&self.0, f)
             }
         }
 
@@ -62,16 +59,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ActualCertificate {
         #[serde(rename = "certChainSecret")]
-        pub cert_chain_secret: String,
+        pub cert_chain_secret: ::std::string::String,
         #[serde(rename = "distinguishedName")]
-        pub distinguished_name: String,
+        pub distinguished_name: ::std::string::String,
         #[serde(rename = "dnsNames")]
-        pub dns_names: Vec<String>,
+        pub dns_names: ::std::vec::Vec<::std::string::String>,
         #[serde(rename = "keySecret")]
-        pub key_secret: String,
+        pub key_secret: ::std::string::String,
         #[serde(rename = "notAfter")]
         pub not_after: chrono::DateTime<chrono::offset::Utc>,
         #[serde(rename = "notBefore")]
@@ -79,14 +76,14 @@ pub mod types {
         #[serde(
             rename = "passphraseSecret",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub passphrase_secret: Option<String>,
+        pub passphrase_secret: ::std::option::Option<::std::string::String>,
         #[serde(rename = "serialNumber")]
-        pub serial_number: String,
+        pub serial_number: ::std::string::String,
     }
 
-    impl From<&ActualCertificate> for ActualCertificate {
+    impl ::std::convert::From<&ActualCertificate> for ActualCertificate {
         fn from(value: &ActualCertificate) -> Self {
             value.clone()
         }
@@ -131,21 +128,21 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ActualCertificateAllOf {
         #[serde(rename = "distinguishedName")]
-        pub distinguished_name: String,
+        pub distinguished_name: ::std::string::String,
         #[serde(rename = "dnsNames")]
-        pub dns_names: Vec<String>,
+        pub dns_names: ::std::vec::Vec<::std::string::String>,
         #[serde(rename = "notAfter")]
         pub not_after: chrono::DateTime<chrono::offset::Utc>,
         #[serde(rename = "notBefore")]
         pub not_before: chrono::DateTime<chrono::offset::Utc>,
         #[serde(rename = "serialNumber")]
-        pub serial_number: String,
+        pub serial_number: ::std::string::String,
     }
 
-    impl From<&ActualCertificateAllOf> for ActualCertificateAllOf {
+    impl ::std::convert::From<&ActualCertificateAllOf> for ActualCertificateAllOf {
         fn from(value: &ActualCertificateAllOf) -> Self {
             value.clone()
         }
@@ -205,22 +202,22 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct AllocationStatus {
         ///pointer to the parent allocation or limit that caused this
         /// allocation to be implicitly created
         #[serde(
             rename = "derivedFrom",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub derived_from: Option<String>,
-        pub notifications: Vec<Notification>,
+        pub derived_from: ::std::option::Option<::std::string::String>,
+        pub notifications: ::std::vec::Vec<Notification>,
         ///indicates whether configuration and actual state match
         pub provisioned: bool,
     }
 
-    impl From<&AllocationStatus> for AllocationStatus {
+    impl ::std::convert::From<&AllocationStatus> for AllocationStatus {
         fn from(value: &AllocationStatus) -> Self {
             value.clone()
         }
@@ -236,28 +233,29 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    #[serde(transparent)]
     pub struct AllocationStatus1(pub AllocationStatus);
-    impl std::ops::Deref for AllocationStatus1 {
+    impl ::std::ops::Deref for AllocationStatus1 {
         type Target = AllocationStatus;
         fn deref(&self) -> &AllocationStatus {
             &self.0
         }
     }
 
-    impl From<AllocationStatus1> for AllocationStatus {
+    impl ::std::convert::From<AllocationStatus1> for AllocationStatus {
         fn from(value: AllocationStatus1) -> Self {
             value.0
         }
     }
 
-    impl From<&AllocationStatus1> for AllocationStatus1 {
+    impl ::std::convert::From<&AllocationStatus1> for AllocationStatus1 {
         fn from(value: &AllocationStatus1) -> Self {
             value.clone()
         }
     }
 
-    impl From<AllocationStatus> for AllocationStatus1 {
+    impl ::std::convert::From<AllocationStatus> for AllocationStatus1 {
         fn from(value: AllocationStatus) -> Self {
             Self(value)
         }
@@ -328,18 +326,19 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct AppCatalogApp {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<::std::string::String>,
         #[serde(rename = "manifestUrn")]
-        pub manifest_urn: String,
-        pub name: String,
+        pub manifest_urn: ::std::string::String,
+        pub name: ::std::string::String,
         ///child resources
-        pub resources: std::collections::HashMap<String, AppCatalogAppResourcesValue>,
+        pub resources:
+            ::std::collections::HashMap<::std::string::String, AppCatalogAppResourcesValue>,
     }
 
-    impl From<&AppCatalogApp> for AppCatalogApp {
+    impl ::std::convert::From<&AppCatalogApp> for AppCatalogApp {
         fn from(value: &AppCatalogApp) -> Self {
             value.clone()
         }
@@ -390,17 +389,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct AppCatalogAppConfiguration {
         ///configuration parameters to be used in AppCatalog manifest
-        pub configuration: std::collections::HashMap<String, String>,
+        pub configuration:
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
         #[serde(rename = "manifestUrn")]
-        pub manifest_urn: String,
-        pub name: String,
+        pub manifest_urn: ::std::string::String,
+        pub name: ::std::string::String,
         pub stopped: bool,
     }
 
-    impl From<&AppCatalogAppConfiguration> for AppCatalogAppConfiguration {
+    impl ::std::convert::From<&AppCatalogAppConfiguration> for AppCatalogAppConfiguration {
         fn from(value: &AppCatalogAppConfiguration) -> Self {
             value.clone()
         }
@@ -438,7 +438,7 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     #[serde(untagged)]
     pub enum AppCatalogAppResourcesValue {
         Application(Application),
@@ -450,49 +450,49 @@ pub mod types {
         Volume(Volume),
     }
 
-    impl From<&AppCatalogAppResourcesValue> for AppCatalogAppResourcesValue {
+    impl ::std::convert::From<&Self> for AppCatalogAppResourcesValue {
         fn from(value: &AppCatalogAppResourcesValue) -> Self {
             value.clone()
         }
     }
 
-    impl From<Application> for AppCatalogAppResourcesValue {
+    impl ::std::convert::From<Application> for AppCatalogAppResourcesValue {
         fn from(value: Application) -> Self {
             Self::Application(value)
         }
     }
 
-    impl From<Bucket> for AppCatalogAppResourcesValue {
+    impl ::std::convert::From<Bucket> for AppCatalogAppResourcesValue {
         fn from(value: Bucket) -> Self {
             Self::Bucket(value)
         }
     }
 
-    impl From<Certificate> for AppCatalogAppResourcesValue {
+    impl ::std::convert::From<Certificate> for AppCatalogAppResourcesValue {
         fn from(value: Certificate) -> Self {
             Self::Certificate(value)
         }
     }
 
-    impl From<Secret> for AppCatalogAppResourcesValue {
+    impl ::std::convert::From<Secret> for AppCatalogAppResourcesValue {
         fn from(value: Secret) -> Self {
             Self::Secret(value)
         }
     }
 
-    impl From<Topic> for AppCatalogAppResourcesValue {
+    impl ::std::convert::From<Topic> for AppCatalogAppResourcesValue {
         fn from(value: Topic) -> Self {
             Self::Topic(value)
         }
     }
 
-    impl From<Vhost> for AppCatalogAppResourcesValue {
+    impl ::std::convert::From<Vhost> for AppCatalogAppResourcesValue {
         fn from(value: Vhost) -> Self {
             Self::Vhost(value)
         }
     }
 
-    impl From<Volume> for AppCatalogAppResourcesValue {
+    impl ::std::convert::From<Volume> for AppCatalogAppResourcesValue {
         fn from(value: Volume) -> Self {
             Self::Volume(value)
         }
@@ -532,15 +532,15 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct AppCatalogManifest {
         pub draft: bool,
         #[serde(rename = "lastModified")]
         pub last_modified: f64,
-        pub payload: String,
+        pub payload: ::std::string::String,
     }
 
-    impl From<&AppCatalogManifest> for AppCatalogManifest {
+    impl ::std::convert::From<&AppCatalogManifest> for AppCatalogManifest {
         fn from(value: &AppCatalogManifest) -> Self {
             value.clone()
         }
@@ -760,34 +760,37 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Application {
         pub cpus: f64,
         ///Environment variables
-        #[serde(default, skip_serializing_if = "std::collections::HashMap::is_empty")]
-        pub env: std::collections::HashMap<String, String>,
+        #[serde(
+            default,
+            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+        )]
+        pub env: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
         ///Exposes ports of your application outside the platform
         #[serde(
             rename = "exposedPorts",
             default,
-            skip_serializing_if = "std::collections::HashMap::is_empty"
+            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
         )]
-        pub exposed_ports: std::collections::HashMap<String, PortMapping>,
+        pub exposed_ports: ::std::collections::HashMap<::std::string::String, PortMapping>,
         #[serde(
             rename = "healthCheck",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub health_check: Option<HealthCheck>,
+        pub health_check: ::std::option::Option<HealthCheck>,
         ///The container image to launch
-        pub image: String,
+        pub image: ::std::string::String,
         ///Number of instances that need to be spun up for this app
         #[serde(default = "defaults::default_u64::<u64, 1>")]
         pub instances: u64,
         ///Amount of memory your application needs in MB
         pub mem: u64,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub metrics: Option<Metrics>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metrics: ::std::option::Option<Metrics>,
         ///If true, the platform will provision a secret token in the
         /// `DSH_SECRET_TOKEN` environment variable. This token can be exchanged
         /// for a client certificate that can be used for authentication to,
@@ -798,11 +801,11 @@ pub mod types {
         #[serde(
             rename = "readableStreams",
             default,
-            skip_serializing_if = "Vec::is_empty"
+            skip_serializing_if = "::std::vec::Vec::is_empty"
         )]
-        pub readable_streams: Vec<String>,
-        #[serde(default, skip_serializing_if = "Vec::is_empty")]
-        pub secrets: Vec<ApplicationSecret>,
+        pub readable_streams: ::std::vec::Vec<::std::string::String>,
+        #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+        pub secrets: ::std::vec::Vec<ApplicationSecret>,
         ///If true, the platform will ensure that there is always at most one
         /// instance of this application running at the same time. This impacts
         /// restart and upgrade behavior: A single-instance application will be
@@ -818,29 +821,32 @@ pub mod types {
         #[serde(
             rename = "spreadGroup",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub spread_group: Option<String>,
+        pub spread_group: ::std::option::Option<::std::string::String>,
         ///names of scratch topics to which the application needs access.
-        #[serde(default, skip_serializing_if = "Vec::is_empty")]
-        pub topics: Vec<String>,
+        #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+        pub topics: ::std::vec::Vec<::std::string::String>,
         ///The userid:groupid combination used to start the application
         /// container.
-        pub user: String,
+        pub user: ::std::string::String,
         ///The volumes to be mounted in the container. The dictionary key is
         /// the mount point.
-        #[serde(default, skip_serializing_if = "std::collections::HashMap::is_empty")]
-        pub volumes: std::collections::HashMap<String, ApplicationVolumes>,
+        #[serde(
+            default,
+            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+        )]
+        pub volumes: ::std::collections::HashMap<::std::string::String, ApplicationVolumes>,
         ///names of streams to which the application needs write access.
         #[serde(
             rename = "writableStreams",
             default,
-            skip_serializing_if = "Vec::is_empty"
+            skip_serializing_if = "::std::vec::Vec::is_empty"
         )]
-        pub writable_streams: Vec<String>,
+        pub writable_streams: ::std::vec::Vec<::std::string::String>,
     }
 
-    impl From<&Application> for Application {
+    impl ::std::convert::From<&Application> for Application {
         fn from(value: &Application) -> Self {
             value.clone()
         }
@@ -894,18 +900,20 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ApplicationSecret {
         ///a list of environment variable names. The secret's value may be
         /// injected multiple times as different environment variables, so
         /// multiple environment variable names for the same secret can be
         /// provided
-        pub injections: Vec<std::collections::HashMap<String, String>>,
+        pub injections: ::std::vec::Vec<
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        >,
         ///the secret's name
-        pub name: String,
+        pub name: ::std::string::String,
     }
 
-    impl From<&ApplicationSecret> for ApplicationSecret {
+    impl ::std::convert::From<&ApplicationSecret> for ApplicationSecret {
         fn from(value: &ApplicationSecret) -> Self {
             value.clone()
         }
@@ -936,14 +944,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ApplicationVolumes {
         ///the full name of the volume that needs to be mounted in the
         /// container.
-        pub name: String,
+        pub name: ::std::string::String,
     }
 
-    impl From<&ApplicationVolumes> for ApplicationVolumes {
+    impl ::std::convert::From<&ApplicationVolumes> for ApplicationVolumes {
         fn from(value: &ApplicationVolumes) -> Self {
             value.clone()
         }
@@ -978,12 +986,12 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BaseLimitValue {
         pub name: BaseLimitValueName,
     }
 
-    impl From<&BaseLimitValue> for BaseLimitValue {
+    impl ::std::convert::From<&BaseLimitValue> for BaseLimitValue {
         fn from(value: &BaseLimitValue) -> Self {
             value.clone()
         }
@@ -1010,7 +1018,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum BaseLimitValueName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -1032,31 +1051,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&BaseLimitValueName> for BaseLimitValueName {
+    impl ::std::convert::From<&Self> for BaseLimitValueName {
         fn from(value: &BaseLimitValueName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for BaseLimitValueName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for BaseLimitValueName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for BaseLimitValueName {
+    impl ::std::str::FromStr for BaseLimitValueName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -1072,23 +1091,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for BaseLimitValueName {
+    impl ::std::convert::TryFrom<&str> for BaseLimitValueName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for BaseLimitValueName {
+    impl ::std::convert::TryFrom<&::std::string::String> for BaseLimitValueName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for BaseLimitValueName {
+    impl ::std::convert::TryFrom<::std::string::String> for BaseLimitValueName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -1121,13 +1144,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Bucket {
         pub encrypted: bool,
         pub versioned: bool,
     }
 
-    impl From<&Bucket> for Bucket {
+    impl ::std::convert::From<&Bucket> for Bucket {
         fn from(value: &Bucket) -> Self {
             value.clone()
         }
@@ -1181,17 +1204,17 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BucketAccess {
-        pub bucket: String,
-        pub credentialidentifierref: String,
-        pub credentialsecretref: String,
-        pub name: String,
+        pub bucket: ::std::string::String,
+        pub credentialidentifierref: ::std::string::String,
+        pub credentialsecretref: ::std::string::String,
+        pub name: ::std::string::String,
         pub readable: bool,
         pub writable: bool,
     }
 
-    impl From<&BucketAccess> for BucketAccess {
+    impl ::std::convert::From<&BucketAccess> for BucketAccess {
         fn from(value: &BucketAccess) -> Self {
             value.clone()
         }
@@ -1235,15 +1258,15 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BucketAccessConfiguration {
-        pub bucket: String,
-        pub name: String,
+        pub bucket: ::std::string::String,
+        pub name: ::std::string::String,
         pub readable: bool,
         pub writable: bool,
     }
 
-    impl From<&BucketAccessConfiguration> for BucketAccessConfiguration {
+    impl ::std::convert::From<&BucketAccessConfiguration> for BucketAccessConfiguration {
         fn from(value: &BucketAccessConfiguration) -> Self {
             value.clone()
         }
@@ -1311,16 +1334,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BucketAccessStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<BucketAccess>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<BucketAccessConfiguration>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<BucketAccess>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<BucketAccessConfiguration>,
         pub status: AllocationStatus,
     }
 
-    impl From<&BucketAccessStatus> for BucketAccessStatus {
+    impl ::std::convert::From<&BucketAccessStatus> for BucketAccessStatus {
         fn from(value: &BucketAccessStatus) -> Self {
             value.clone()
         }
@@ -1382,16 +1405,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BucketStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<Bucket>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<Bucket>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<Bucket>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<Bucket>,
         pub status: AllocationStatus,
     }
 
-    impl From<&BucketStatus> for BucketStatus {
+    impl ::std::convert::From<&BucketStatus> for BucketStatus {
         fn from(value: &BucketStatus) -> Self {
             value.clone()
         }
@@ -1420,12 +1443,12 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BucketWatch {
-        pub bucket: String,
+        pub bucket: ::std::string::String,
     }
 
-    impl From<&BucketWatch> for BucketWatch {
+    impl ::std::convert::From<&BucketWatch> for BucketWatch {
         fn from(value: &BucketWatch) -> Self {
             value.clone()
         }
@@ -1485,16 +1508,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BucketWatchStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<BucketWatch>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<BucketWatch>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<BucketWatch>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<BucketWatch>,
         pub status: AllocationStatus,
     }
 
-    impl From<&BucketWatchStatus> for BucketWatchStatus {
+    impl ::std::convert::From<&BucketWatchStatus> for BucketWatchStatus {
         fn from(value: &BucketWatchStatus) -> Self {
             value.clone()
         }
@@ -1535,21 +1558,21 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Certificate {
         #[serde(rename = "certChainSecret")]
-        pub cert_chain_secret: String,
+        pub cert_chain_secret: ::std::string::String,
         #[serde(rename = "keySecret")]
-        pub key_secret: String,
+        pub key_secret: ::std::string::String,
         #[serde(
             rename = "passphraseSecret",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub passphrase_secret: Option<String>,
+        pub passphrase_secret: ::std::option::Option<::std::string::String>,
     }
 
-    impl From<&Certificate> for Certificate {
+    impl ::std::convert::From<&Certificate> for Certificate {
         fn from(value: &Certificate) -> Self {
             value.clone()
         }
@@ -1609,16 +1632,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct CertificateStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<ActualCertificate>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<Certificate>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<ActualCertificate>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<Certificate>,
         pub status: AllocationStatus,
     }
 
-    impl From<&CertificateStatus> for CertificateStatus {
+    impl ::std::convert::From<&CertificateStatus> for CertificateStatus {
         fn from(value: &CertificateStatus) -> Self {
             value.clone()
         }
@@ -1637,29 +1660,30 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct ChildList(pub Vec<String>);
-    impl std::ops::Deref for ChildList {
-        type Target = Vec<String>;
-        fn deref(&self) -> &Vec<String> {
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct ChildList(pub ::std::vec::Vec<::std::string::String>);
+    impl ::std::ops::Deref for ChildList {
+        type Target = ::std::vec::Vec<::std::string::String>;
+        fn deref(&self) -> &::std::vec::Vec<::std::string::String> {
             &self.0
         }
     }
 
-    impl From<ChildList> for Vec<String> {
+    impl ::std::convert::From<ChildList> for ::std::vec::Vec<::std::string::String> {
         fn from(value: ChildList) -> Self {
             value.0
         }
     }
 
-    impl From<&ChildList> for ChildList {
+    impl ::std::convert::From<&ChildList> for ChildList {
         fn from(value: &ChildList) -> Self {
             value.clone()
         }
     }
 
-    impl From<Vec<String>> for ChildList {
-        fn from(value: Vec<String>) -> Self {
+    impl ::std::convert::From<::std::vec::Vec<::std::string::String>> for ChildList {
+        fn from(value: ::std::vec::Vec<::std::string::String>) -> Self {
             Self(value)
         }
     }
@@ -1693,19 +1717,19 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ClientSecret {
         #[serde(
             rename = "createdDate",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub created_date: Option<f64>,
+        pub created_date: ::std::option::Option<f64>,
         ///the secret value
-        pub value: String,
+        pub value: ::std::string::String,
     }
 
-    impl From<&ClientSecret> for ClientSecret {
+    impl ::std::convert::From<&ClientSecret> for ClientSecret {
         fn from(value: &ClientSecret) -> Self {
             value.clone()
         }
@@ -1739,13 +1763,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct DataCatalogAsset {
-        pub kind: String,
-        pub name: String,
+        pub kind: ::std::string::String,
+        pub name: ::std::string::String,
     }
 
-    impl From<&DataCatalogAsset> for DataCatalogAsset {
+    impl ::std::convert::From<&DataCatalogAsset> for DataCatalogAsset {
         fn from(value: &DataCatalogAsset) -> Self {
             value.clone()
         }
@@ -1807,16 +1831,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct DataCatalogAssetStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<DataCatalogAsset>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<DataCatalogAsset>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<DataCatalogAsset>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<DataCatalogAsset>,
         pub status: AllocationStatus,
     }
 
-    impl From<&DataCatalogAssetStatus> for DataCatalogAssetStatus {
+    impl ::std::convert::From<&DataCatalogAssetStatus> for DataCatalogAssetStatus {
         fn from(value: &DataCatalogAssetStatus) -> Self {
             value.clone()
         }
@@ -1836,7 +1860,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
         #[serde(rename = "bucket")]
         Bucket,
@@ -1844,7 +1879,7 @@ pub mod types {
         Writablestream,
     }
 
-    impl From<&DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind>
+    impl ::std::convert::From<&Self>
         for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         fn from(
@@ -1854,18 +1889,22 @@ pub mod types {
         }
     }
 
-    impl ToString for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => "bucket".to_string(),
-                Self::Writablestream => "writablestream".to_string(),
+                Self::Bucket => write!(f, "bucket"),
+                Self::Writablestream => write!(f, "writablestream"),
             }
         }
     }
 
-    impl std::str::FromStr for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind {
+    impl ::std::str::FromStr
+        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "bucket" => Ok(Self::Bucket),
                 "writablestream" => Ok(Self::Writablestream),
@@ -1874,29 +1913,33 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str>
+    impl ::std::convert::TryFrom<&str>
         for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String>
+    impl ::std::convert::TryFrom<&::std::string::String>
         for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String>
+    impl ::std::convert::TryFrom<::std::string::String>
         for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -1915,7 +1958,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
         #[serde(rename = "bucket")]
         Bucket,
@@ -1923,7 +1977,7 @@ pub mod types {
         Writablestream,
     }
 
-    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind>
+    impl ::std::convert::From<&Self>
         for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         fn from(
@@ -1933,18 +1987,18 @@ pub mod types {
         }
     }
 
-    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => "bucket".to_string(),
-                Self::Writablestream => "writablestream".to_string(),
+                Self::Bucket => write!(f, "bucket"),
+                Self::Writablestream => write!(f, "writablestream"),
             }
         }
     }
 
-    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
+    impl ::std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "bucket" => Ok(Self::Bucket),
                 "writablestream" => Ok(Self::Writablestream),
@@ -1953,29 +2007,33 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str>
+    impl ::std::convert::TryFrom<&str>
         for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String>
+    impl ::std::convert::TryFrom<&::std::string::String>
         for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String>
+    impl ::std::convert::TryFrom<::std::string::String>
         for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -1994,7 +2052,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         #[serde(rename = "bucket")]
         Bucket,
@@ -2002,26 +2071,24 @@ pub mod types {
         Writablestream,
     }
 
-    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindByNameKind>
-        for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind
-    {
+    impl ::std::convert::From<&Self> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         fn from(value: &DataCatalogGetByTenantDatacatalogAssetByKindByNameKind) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => "bucket".to_string(),
-                Self::Writablestream => "writablestream".to_string(),
+                Self::Bucket => write!(f, "bucket"),
+                Self::Writablestream => write!(f, "writablestream"),
             }
         }
     }
 
-    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+    impl ::std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "bucket" => Ok(Self::Bucket),
                 "writablestream" => Ok(Self::Writablestream),
@@ -2030,23 +2097,31 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+    impl ::std::convert::TryFrom<&str> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
+    impl ::std::convert::TryFrom<::std::string::String>
+        for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -2065,7 +2140,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum DataCatalogGetByTenantDatacatalogAssetByKindKind {
         #[serde(rename = "bucket")]
         Bucket,
@@ -2073,26 +2159,24 @@ pub mod types {
         Writablestream,
     }
 
-    impl From<&DataCatalogGetByTenantDatacatalogAssetByKindKind>
-        for DataCatalogGetByTenantDatacatalogAssetByKindKind
-    {
+    impl ::std::convert::From<&Self> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         fn from(value: &DataCatalogGetByTenantDatacatalogAssetByKindKind) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for DataCatalogGetByTenantDatacatalogAssetByKindKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => "bucket".to_string(),
-                Self::Writablestream => "writablestream".to_string(),
+                Self::Bucket => write!(f, "bucket"),
+                Self::Writablestream => write!(f, "writablestream"),
             }
         }
     }
 
-    impl std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+    impl ::std::str::FromStr for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "bucket" => Ok(Self::Bucket),
                 "writablestream" => Ok(Self::Writablestream),
@@ -2101,23 +2185,31 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+    impl ::std::convert::TryFrom<&str> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for DataCatalogGetByTenantDatacatalogAssetByKindKind
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
+    impl ::std::convert::TryFrom<::std::string::String>
+        for DataCatalogGetByTenantDatacatalogAssetByKindKind
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -2136,7 +2228,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
         #[serde(rename = "bucket")]
         Bucket,
@@ -2144,7 +2247,7 @@ pub mod types {
         Writablestream,
     }
 
-    impl From<&DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind>
+    impl ::std::convert::From<&Self>
         for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         fn from(
@@ -2154,18 +2257,18 @@ pub mod types {
         }
     }
 
-    impl ToString for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => "bucket".to_string(),
-                Self::Writablestream => "writablestream".to_string(),
+                Self::Bucket => write!(f, "bucket"),
+                Self::Writablestream => write!(f, "writablestream"),
             }
         }
     }
 
-    impl std::str::FromStr for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
+    impl ::std::str::FromStr for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "bucket" => Ok(Self::Bucket),
                 "writablestream" => Ok(Self::Writablestream),
@@ -2174,29 +2277,33 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str>
+    impl ::std::convert::TryFrom<&str>
         for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String>
+    impl ::std::convert::TryFrom<&::std::string::String>
         for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String>
+    impl ::std::convert::TryFrom<::std::string::String>
         for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -2288,26 +2395,26 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Database {
         pub cpus: f64,
-        #[serde(default, skip_serializing_if = "Vec::is_empty")]
-        pub extensions: Vec<String>,
+        #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+        pub extensions: ::std::vec::Vec<::std::string::String>,
         pub instances: i64,
         pub mem: i64,
         #[serde(
             rename = "snapshotInterval",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub snapshot_interval: Option<i64>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub version: Option<String>,
+        pub snapshot_interval: ::std::option::Option<i64>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub version: ::std::option::Option<::std::string::String>,
         #[serde(rename = "volumeSize")]
         pub volume_size: i64,
     }
 
-    impl From<&Database> for Database {
+    impl ::std::convert::From<&Database> for Database {
         fn from(value: &Database) -> Self {
             value.clone()
         }
@@ -2387,16 +2494,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct DatabaseStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<Database>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<Database>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<Database>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<Database>,
         pub status: AllocationStatus,
     }
 
-    impl From<&DatabaseStatus> for DatabaseStatus {
+    impl ::std::convert::From<&DatabaseStatus> for DatabaseStatus {
         fn from(value: &DatabaseStatus) -> Self {
             value.clone()
         }
@@ -2413,12 +2520,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     #[serde(deny_unknown_fields)]
     pub struct Empty {}
-    impl From<&Empty> for Empty {
+    impl ::std::convert::From<&Empty> for Empty {
         fn from(value: &Empty) -> Self {
             value.clone()
+        }
+    }
+
+    impl ::std::default::Default for Empty {
+        fn default() -> Self {
+            Self {}
         }
     }
 
@@ -2469,28 +2582,28 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct FlinkCluster {
         #[serde(
             rename = "jobManager",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub job_manager: Option<FlinkJobManager>,
+        pub job_manager: ::std::option::Option<FlinkJobManager>,
         #[serde(
             rename = "taskManager",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub task_manager: Option<FlinkTaskManager>,
+        pub task_manager: ::std::option::Option<FlinkTaskManager>,
         ///Flink version
-        pub version: String,
+        pub version: ::std::string::String,
         ///Network zone this cluster needs to run in. /components/schemas/Zone
         /// contains a list of available network zones in this platform.
-        pub zone: String,
+        pub zone: ::std::string::String,
     }
 
-    impl From<&FlinkCluster> for FlinkCluster {
+    impl ::std::convert::From<&FlinkCluster> for FlinkCluster {
         fn from(value: &FlinkCluster) -> Self {
             value.clone()
         }
@@ -2570,16 +2683,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct FlinkClusterStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<FlinkCluster>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<FlinkCluster>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<FlinkCluster>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<FlinkCluster>,
         pub status: AllocationStatus,
     }
 
-    impl From<&FlinkClusterStatus> for FlinkClusterStatus {
+    impl ::std::convert::From<&FlinkClusterStatus> for FlinkClusterStatus {
         fn from(value: &FlinkClusterStatus) -> Self {
             value.clone()
         }
@@ -2625,14 +2738,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct FlinkJobManager {
         pub cpus: f64,
         ///Memory (MB) for this Flink job manager (minimum 1024 = 1 GB)
         pub mem: i64,
     }
 
-    impl From<&FlinkJobManager> for FlinkJobManager {
+    impl ::std::convert::From<&FlinkJobManager> for FlinkJobManager {
         fn from(value: &FlinkJobManager) -> Self {
             value.clone()
         }
@@ -2688,7 +2801,7 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct FlinkTaskManager {
         pub cpus: f64,
         ///Number of Flink task managers (minimum 1)
@@ -2697,7 +2810,7 @@ pub mod types {
         pub mem: i64,
     }
 
-    impl From<&FlinkTaskManager> for FlinkTaskManager {
+    impl ::std::convert::From<&FlinkTaskManager> for FlinkTaskManager {
         fn from(value: &FlinkTaskManager) -> Self {
             value.clone()
         }
@@ -2742,22 +2855,32 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct HealthCheck {
         ///The HTTP path for the health check
         #[serde(default = "defaults::health_check_path")]
-        pub path: String,
+        pub path: ::std::string::String,
         ///The TCP port for the health check
         #[serde(default = "defaults::default_u64::<u64, 7070>")]
         pub port: u64,
         ///The protocol for for the health check (http or https)
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub protocol: Option<HealthCheckProtocol>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub protocol: ::std::option::Option<HealthCheckProtocol>,
     }
 
-    impl From<&HealthCheck> for HealthCheck {
+    impl ::std::convert::From<&HealthCheck> for HealthCheck {
         fn from(value: &HealthCheck) -> Self {
             value.clone()
+        }
+    }
+
+    impl ::std::default::Default for HealthCheck {
+        fn default() -> Self {
+            Self {
+                path: defaults::health_check_path(),
+                port: defaults::default_u64::<u64, 7070>(),
+                protocol: Default::default(),
+            }
         }
     }
 
@@ -2777,7 +2900,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum HealthCheckProtocol {
         #[serde(rename = "http")]
         Http,
@@ -2785,24 +2919,24 @@ pub mod types {
         Https,
     }
 
-    impl From<&HealthCheckProtocol> for HealthCheckProtocol {
+    impl ::std::convert::From<&Self> for HealthCheckProtocol {
         fn from(value: &HealthCheckProtocol) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for HealthCheckProtocol {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for HealthCheckProtocol {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Http => "http".to_string(),
-                Self::Https => "https".to_string(),
+                Self::Http => write!(f, "http"),
+                Self::Https => write!(f, "https"),
             }
         }
     }
 
-    impl std::str::FromStr for HealthCheckProtocol {
+    impl ::std::str::FromStr for HealthCheckProtocol {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "http" => Ok(Self::Http),
                 "https" => Ok(Self::Https),
@@ -2811,239 +2945,591 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for HealthCheckProtocol {
+    impl ::std::convert::TryFrom<&str> for HealthCheckProtocol {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for HealthCheckProtocol {
+    impl ::std::convert::TryFrom<&::std::string::String> for HealthCheckProtocol {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for HealthCheckProtocol {
+    impl ::std::convert::TryFrom<::std::string::String> for HealthCheckProtocol {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    ///An internal stream.  A stream that can be shared between different
-    /// tenants, but is not accessible over the MQTT protocol adapter.
+    ///information about a Kafka ACL group
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "An internal stream.  A stream that can be shared
-    /// between different tenants, but is not accessible over the MQTT protocol
-    /// adapter.\n",
+    ///  "description": "information about a Kafka ACL group",
     ///  "examples": [
     ///    {
-    ///      "$ref": "#/components/examples/managedInternalStream"
-    ///    }
-    ///  ],
-    ///  "type": "object",
-    ///  "allOf": [
-    ///    {
-    ///      "$ref": "#/components/schemas/Topic"
-    ///    },
-    ///    {
-    ///      "$ref": "#/components/schemas/InternalManagedStream_allOf"
-    ///    }
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct InternalManagedStream {
-        #[serde(
-            rename = "kafkaProperties",
-            default,
-            skip_serializing_if = "std::collections::HashMap::is_empty"
-        )]
-        pub kafka_properties: std::collections::HashMap<String, String>,
-        ///For internal streams, the value of `kind` must be `internal.`
-        pub kind: InternalManagedStreamKind,
-        pub partitions: i64,
-        #[serde(rename = "replicationFactor")]
-        pub replication_factor: i64,
-    }
-
-    impl From<&InternalManagedStream> for InternalManagedStream {
-        fn from(value: &InternalManagedStream) -> Self {
-            value.clone()
-        }
-    }
-
-    ///InternalManagedStreamAllOf
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "type": "object",
-    ///  "required": [
-    ///    "kind"
-    ///  ],
-    ///  "properties": {
-    ///    "kind": {
-    ///      "description": "For internal streams, the value of `kind` must be
-    /// `internal.`",
-    ///      "type": "string",
-    ///      "enum": [
-    ///        "internal"
+    ///      "readableStreams": [
+    ///        {
+    ///          "kind": "topic",
+    ///          "name": "readable-topic-1"
+    ///        },
+    ///        {
+    ///          "kind": "public",
+    ///          "name": "readable-topic-2"
+    ///        }
+    ///      ],
+    ///      "writableStreams": [
+    ///        {
+    ///          "kind": "topic",
+    ///          "name": "writeable-topic-1"
+    ///        },
+    ///        {
+    ///          "kind": "internal",
+    ///          "name": "writeable-topic-2"
+    ///        }
     ///      ]
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "readableStreams": {
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/KafkaAclGroupTopic"
+    ///      }
+    ///    },
+    ///    "writableStreams": {
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/KafkaAclGroupTopic"
+    ///      }
     ///    }
     ///  }
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct InternalManagedStreamAllOf {
-        ///For internal streams, the value of `kind` must be `internal.`
-        pub kind: InternalManagedStreamAllOfKind,
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    pub struct KafkaAclGroup {
+        #[serde(
+            rename = "readableStreams",
+            default,
+            skip_serializing_if = "::std::vec::Vec::is_empty"
+        )]
+        pub readable_streams: ::std::vec::Vec<KafkaAclGroupTopic>,
+        #[serde(
+            rename = "writableStreams",
+            default,
+            skip_serializing_if = "::std::vec::Vec::is_empty"
+        )]
+        pub writable_streams: ::std::vec::Vec<KafkaAclGroupTopic>,
     }
 
-    impl From<&InternalManagedStreamAllOf> for InternalManagedStreamAllOf {
-        fn from(value: &InternalManagedStreamAllOf) -> Self {
+    impl ::std::convert::From<&KafkaAclGroup> for KafkaAclGroup {
+        fn from(value: &KafkaAclGroup) -> Self {
             value.clone()
         }
     }
 
-    ///For internal streams, the value of `kind` must be `internal.`
+    impl ::std::default::Default for KafkaAclGroup {
+        fn default() -> Self {
+            Self {
+                readable_streams: Default::default(),
+                writable_streams: Default::default(),
+            }
+        }
+    }
+
+    ///KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "For internal streams, the value of `kind` must be
-    /// `internal.`",
     ///  "type": "string",
-    ///  "enum": [
-    ///    "internal"
-    ///  ]
+    ///  "pattern": "[a-z][a-z0-9-]{1,15}"
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum InternalManagedStreamAllOfKind {
-        #[serde(rename = "internal")]
-        Internal,
+    #[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId(::std::string::String);
+    impl ::std::ops::Deref for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
     }
 
-    impl From<&InternalManagedStreamAllOfKind> for InternalManagedStreamAllOfKind {
-        fn from(value: &InternalManagedStreamAllOfKind) -> Self {
+    impl ::std::convert::From<KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId>
+        for ::std::string::String
+    {
+        fn from(value: KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId) -> Self {
+            value.0
+        }
+    }
+
+    impl ::std::convert::From<&KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId>
+        for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId
+    {
+        fn from(value: &KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for InternalManagedStreamAllOfKind {
-        fn to_string(&self) -> String {
-            match *self {
-                Self::Internal => "internal".to_string(),
-            }
-        }
-    }
-
-    impl std::str::FromStr for InternalManagedStreamAllOfKind {
+    impl ::std::str::FromStr for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            match value {
-                "internal" => Ok(Self::Internal),
-                _ => Err("invalid value".into()),
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if regress::Regex::new("[a-z][a-z0-9-]{1,15}")
+                .unwrap()
+                .find(value)
+                .is_none()
+            {
+                return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
             }
+            Ok(Self(value.to_string()))
         }
     }
 
-    impl std::convert::TryFrom<&str> for InternalManagedStreamAllOfKind {
+    impl ::std::convert::TryFrom<&str> for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for InternalManagedStreamAllOfKind {
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for InternalManagedStreamAllOfKind {
+    impl ::std::convert::TryFrom<::std::string::String>
+        for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    ///For internal streams, the value of `kind` must be `internal.`
+    impl<'de> ::serde::Deserialize<'de> for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+
+    ///KafkaAclGroupGetByTenantAclgroupByIdConfigurationId
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "For internal streams, the value of `kind` must be
-    /// `internal.`",
     ///  "type": "string",
-    ///  "enum": [
-    ///    "internal"
-    ///  ]
+    ///  "pattern": "[a-z][a-z0-9-]{1,15}"
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum InternalManagedStreamKind {
-        #[serde(rename = "internal")]
-        Internal,
+    #[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct KafkaAclGroupGetByTenantAclgroupByIdConfigurationId(::std::string::String);
+    impl ::std::ops::Deref for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
     }
 
-    impl From<&InternalManagedStreamKind> for InternalManagedStreamKind {
-        fn from(value: &InternalManagedStreamKind) -> Self {
+    impl ::std::convert::From<KafkaAclGroupGetByTenantAclgroupByIdConfigurationId>
+        for ::std::string::String
+    {
+        fn from(value: KafkaAclGroupGetByTenantAclgroupByIdConfigurationId) -> Self {
+            value.0
+        }
+    }
+
+    impl ::std::convert::From<&KafkaAclGroupGetByTenantAclgroupByIdConfigurationId>
+        for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId
+    {
+        fn from(value: &KafkaAclGroupGetByTenantAclgroupByIdConfigurationId) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for InternalManagedStreamKind {
-        fn to_string(&self) -> String {
+    impl ::std::str::FromStr for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if regress::Regex::new("[a-z][a-z0-9-]{1,15}")
+                .unwrap()
+                .find(value)
+                .is_none()
+            {
+                return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+
+    impl ::std::convert::TryFrom<&str> for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<::std::string::String>
+        for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl<'de> ::serde::Deserialize<'de> for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+
+    ///KafkaAclGroupPutByTenantAclgroupByIdConfigurationId
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "[a-z][a-z0-9-]{1,15}"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct KafkaAclGroupPutByTenantAclgroupByIdConfigurationId(::std::string::String);
+    impl ::std::ops::Deref for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+
+    impl ::std::convert::From<KafkaAclGroupPutByTenantAclgroupByIdConfigurationId>
+        for ::std::string::String
+    {
+        fn from(value: KafkaAclGroupPutByTenantAclgroupByIdConfigurationId) -> Self {
+            value.0
+        }
+    }
+
+    impl ::std::convert::From<&KafkaAclGroupPutByTenantAclgroupByIdConfigurationId>
+        for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId
+    {
+        fn from(value: &KafkaAclGroupPutByTenantAclgroupByIdConfigurationId) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ::std::str::FromStr for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if regress::Regex::new("[a-z][a-z0-9-]{1,15}")
+                .unwrap()
+                .find(value)
+                .is_none()
+            {
+                return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+
+    impl ::std::convert::TryFrom<&str> for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<::std::string::String>
+        for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl<'de> ::serde::Deserialize<'de> for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+
+    ///Kafka ACL group topic definition
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Kafka ACL group topic definition",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "kind",
+    ///    "name"
+    ///  ],
+    ///  "properties": {
+    ///    "kind": {
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "topic",
+    ///        "internal",
+    ///        "public"
+    ///      ]
+    ///    },
+    ///    "name": {
+    ///      "description": "topic name",
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    pub struct KafkaAclGroupTopic {
+        pub kind: KafkaAclGroupTopicKind,
+        ///topic name
+        pub name: ::std::string::String,
+    }
+
+    impl ::std::convert::From<&KafkaAclGroupTopic> for KafkaAclGroupTopic {
+        fn from(value: &KafkaAclGroupTopic) -> Self {
+            value.clone()
+        }
+    }
+
+    ///KafkaAclGroupTopicKind
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "topic",
+    ///    "internal",
+    ///    "public"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum KafkaAclGroupTopicKind {
+        #[serde(rename = "topic")]
+        Topic,
+        #[serde(rename = "internal")]
+        Internal,
+        #[serde(rename = "public")]
+        Public,
+    }
+
+    impl ::std::convert::From<&Self> for KafkaAclGroupTopicKind {
+        fn from(value: &KafkaAclGroupTopicKind) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ::std::fmt::Display for KafkaAclGroupTopicKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Internal => "internal".to_string(),
+                Self::Topic => write!(f, "topic"),
+                Self::Internal => write!(f, "internal"),
+                Self::Public => write!(f, "public"),
             }
         }
     }
 
-    impl std::str::FromStr for InternalManagedStreamKind {
+    impl ::std::str::FromStr for KafkaAclGroupTopicKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
+                "topic" => Ok(Self::Topic),
                 "internal" => Ok(Self::Internal),
+                "public" => Ok(Self::Public),
                 _ => Err("invalid value".into()),
             }
         }
     }
 
-    impl std::convert::TryFrom<&str> for InternalManagedStreamKind {
+    impl ::std::convert::TryFrom<&str> for KafkaAclGroupTopicKind {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for InternalManagedStreamKind {
+    impl ::std::convert::TryFrom<&::std::string::String> for KafkaAclGroupTopicKind {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for InternalManagedStreamKind {
+    impl ::std::convert::TryFrom<::std::string::String> for KafkaAclGroupTopicKind {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+
+    ///Additional Kafka properties to be set on the topic. The properties are
+    /// key-value pairs. The key is the property name and the value is the
+    /// property value.  The following properties are allowed:
+    ///  - `cleanup.policy`: `delete|compact`
+    ///  - `compression.type`: `uncompressed|zstd|lz4|snappy|gzip|producer`
+    ///  - `delete.retention.ms`: min 0
+    ///  - `max.message.bytes`: min `1024`, max `1048576` (1024x1024)
+    ///  - `message.timestamp.type`: `CreateTime|LogAppendTime`
+    ///  - `retention.bytes` min 0
+    ///  - `retention.ms` min `3600000` (1 hour), max: `3,1536E+10` (365 days)
+    ///  - `segment.bytes`: min `52428800` (1024x1024x50)
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Additional Kafka properties to be set on the topic. The
+    /// properties are key-value pairs.\nThe key is the property name and the
+    /// value is the property value.  The following properties are allowed:\n  -
+    /// `cleanup.policy`: `delete|compact`\n  - `compression.type`:
+    /// `uncompressed|zstd|lz4|snappy|gzip|producer`\n  - `delete.retention.ms`:
+    /// min 0\n  - `max.message.bytes`: min `1024`, max `1048576` (1024x1024)\n
+    /// - `message.timestamp.type`: `CreateTime|LogAppendTime`\n  -
+    /// `retention.bytes` min 0\n  - `retention.ms` min `3600000` (1 hour), max:
+    /// `3,1536E+10` (365 days)\n  - `segment.bytes`: min `52428800`
+    /// (1024x1024x50)\n",
+    ///  "type": "object",
+    ///  "additionalProperties": {
+    ///    "type": "string"
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct KafkaProperties(
+        pub ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+    );
+    impl ::std::ops::Deref for KafkaProperties {
+        type Target = ::std::collections::HashMap<::std::string::String, ::std::string::String>;
+        fn deref(
+            &self,
+        ) -> &::std::collections::HashMap<::std::string::String, ::std::string::String> {
+            &self.0
+        }
+    }
+
+    impl ::std::convert::From<KafkaProperties>
+        for ::std::collections::HashMap<::std::string::String, ::std::string::String>
+    {
+        fn from(value: KafkaProperties) -> Self {
+            value.0
+        }
+    }
+
+    impl ::std::convert::From<&KafkaProperties> for KafkaProperties {
+        fn from(value: &KafkaProperties) -> Self {
+            value.clone()
+        }
+    }
+
+    impl
+        ::std::convert::From<
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        > for KafkaProperties
+    {
+        fn from(
+            value: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        ) -> Self {
+            Self(value)
         }
     }
 
@@ -3057,6 +3543,7 @@ pub mod types {
     ///    {
     ///      "certificate": "certificate",
     ///      "cpus": 0.3,
+    ///      "enableKafkaAclGroups": true,
     ///      "instances": 2,
     ///      "mem": 3072,
     ///      "name": "name",
@@ -3109,6 +3596,12 @@ pub mod types {
     ///      ],
     ///      "type": "number",
     ///      "minimum": 0.3
+    ///    },
+    ///    "enableKafkaAclGroups": {
+    ///      "description": "Set to True to enable the ACL groups (Advanced
+    /// feature: without the correct acl groups in place this will result in a
+    /// non-functioning proxy instance)\n",
+    ///      "type": "boolean"
     ///    },
     ///    "instances": {
     ///      "description": "Number of instances",
@@ -3174,48 +3667,57 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct KafkaProxy {
         ///Secret name with the server certificate
-        pub certificate: String,
+        pub certificate: ::std::string::String,
         pub cpus: f64,
+        ///Set to True to enable the ACL groups (Advanced feature: without the
+        /// correct acl groups in place this will result in a non-functioning
+        /// proxy instance)
+        #[serde(
+            rename = "enableKafkaAclGroups",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub enable_kafka_acl_groups: ::std::option::Option<bool>,
         ///Number of instances
         pub instances: std::num::NonZeroU64,
         ///Memory (MB) for each Kafka Proxy (minimum 1024 = 1 GB)
         pub mem: i64,
         ///Name of the new Kafka Proxy
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub name: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub name: ::std::option::Option<::std::string::String>,
         ///Set to True no enable Schema Store
         #[serde(
             rename = "schemaStore",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub schema_store: Option<bool>,
+        pub schema_store: ::std::option::Option<bool>,
         #[serde(
             rename = "schemaStoreCpus",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub schema_store_cpus: Option<f64>,
+        pub schema_store_cpus: ::std::option::Option<f64>,
         ///Memory (MB) for Schema Store (minimum 256MB)
         #[serde(
             rename = "schemaStoreMem",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub schema_store_mem: Option<i64>,
+        pub schema_store_mem: ::std::option::Option<i64>,
         ///Secret name containing the Ca Cert
         #[serde(rename = "secretNameCaChain")]
-        pub secret_name_ca_chain: String,
-        #[serde(default, skip_serializing_if = "Vec::is_empty")]
-        pub validations: Vec<Validations>,
+        pub secret_name_ca_chain: ::std::string::String,
+        #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+        pub validations: ::std::vec::Vec<Validations>,
         ///Available networks on this platform
         pub zone: KafkaProxyZone,
     }
 
-    impl From<&KafkaProxy> for KafkaProxy {
+    impl ::std::convert::From<&KafkaProxy> for KafkaProxy {
         fn from(value: &KafkaProxy) -> Self {
             value.clone()
         }
@@ -3242,14 +3744,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct KafkaProxyStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<KafkaProxy>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<KafkaProxy>,
         pub status: AllocationStatus,
     }
 
-    impl From<&KafkaProxyStatus> for KafkaProxyStatus {
+    impl ::std::convert::From<&KafkaProxyStatus> for KafkaProxyStatus {
         fn from(value: &KafkaProxyStatus) -> Self {
             value.clone()
         }
@@ -3299,34 +3801,34 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct KafkaProxyValidation {
         #[serde(
             rename = "commonName",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub common_name: Option<String>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub country: Option<String>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub locality: Option<String>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub organization: Option<String>,
+        pub common_name: ::std::option::Option<::std::string::String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub country: ::std::option::Option<::std::string::String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub locality: ::std::option::Option<::std::string::String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub organization: ::std::option::Option<::std::string::String>,
         #[serde(
             rename = "organizationalUnit",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub organizational_unit: Option<String>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub province: Option<String>,
+        pub organizational_unit: ::std::option::Option<::std::string::String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub province: ::std::option::Option<::std::string::String>,
         ///EXACT for exact match, PATTERN for pattern match
         #[serde(rename = "subjectType")]
         pub subject_type: KafkaProxyValidationSubjectType,
     }
 
-    impl From<&KafkaProxyValidation> for KafkaProxyValidation {
+    impl ::std::convert::From<&KafkaProxyValidation> for KafkaProxyValidation {
         fn from(value: &KafkaProxyValidation) -> Self {
             value.clone()
         }
@@ -3347,7 +3849,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum KafkaProxyValidationSubjectType {
         #[serde(rename = "EXACT")]
         Exact,
@@ -3355,24 +3868,24 @@ pub mod types {
         Pattern,
     }
 
-    impl From<&KafkaProxyValidationSubjectType> for KafkaProxyValidationSubjectType {
+    impl ::std::convert::From<&Self> for KafkaProxyValidationSubjectType {
         fn from(value: &KafkaProxyValidationSubjectType) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for KafkaProxyValidationSubjectType {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for KafkaProxyValidationSubjectType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Exact => "EXACT".to_string(),
-                Self::Pattern => "PATTERN".to_string(),
+                Self::Exact => write!(f, "EXACT"),
+                Self::Pattern => write!(f, "PATTERN"),
             }
         }
     }
 
-    impl std::str::FromStr for KafkaProxyValidationSubjectType {
+    impl ::std::str::FromStr for KafkaProxyValidationSubjectType {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "EXACT" => Ok(Self::Exact),
                 "PATTERN" => Ok(Self::Pattern),
@@ -3381,23 +3894,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for KafkaProxyValidationSubjectType {
+    impl ::std::convert::TryFrom<&str> for KafkaProxyValidationSubjectType {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for KafkaProxyValidationSubjectType {
+    impl ::std::convert::TryFrom<&::std::string::String> for KafkaProxyValidationSubjectType {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for KafkaProxyValidationSubjectType {
+    impl ::std::convert::TryFrom<::std::string::String> for KafkaProxyValidationSubjectType {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -3417,7 +3934,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum KafkaProxyZone {
         #[serde(rename = "private")]
         Private,
@@ -3425,24 +3953,24 @@ pub mod types {
         Public,
     }
 
-    impl From<&KafkaProxyZone> for KafkaProxyZone {
+    impl ::std::convert::From<&Self> for KafkaProxyZone {
         fn from(value: &KafkaProxyZone) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for KafkaProxyZone {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for KafkaProxyZone {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Private => "private".to_string(),
-                Self::Public => "public".to_string(),
+                Self::Private => write!(f, "private"),
+                Self::Public => write!(f, "public"),
             }
         }
     }
 
-    impl std::str::FromStr for KafkaProxyZone {
+    impl ::std::str::FromStr for KafkaProxyZone {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "private" => Ok(Self::Private),
                 "public" => Ok(Self::Public),
@@ -3451,23 +3979,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for KafkaProxyZone {
+    impl ::std::convert::TryFrom<&str> for KafkaProxyZone {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for KafkaProxyZone {
+    impl ::std::convert::TryFrom<&::std::string::String> for KafkaProxyZone {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for KafkaProxyZone {
+    impl ::std::convert::TryFrom<::std::string::String> for KafkaProxyZone {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -3505,12 +4037,15 @@ pub mod types {
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/LimitValueRequestRate"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/LimitValueKafkaAclGroupCount"
     ///    }
     ///  ]
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     #[serde(untagged)]
     pub enum LimitValue {
         Cpu(LimitValueCpu),
@@ -3522,65 +4057,72 @@ pub mod types {
         ConsumerRate(LimitValueConsumerRate),
         ProducerRate(LimitValueProducerRate),
         RequestRate(LimitValueRequestRate),
+        KafkaAclGroupCount(LimitValueKafkaAclGroupCount),
     }
 
-    impl From<&LimitValue> for LimitValue {
+    impl ::std::convert::From<&Self> for LimitValue {
         fn from(value: &LimitValue) -> Self {
             value.clone()
         }
     }
 
-    impl From<LimitValueCpu> for LimitValue {
+    impl ::std::convert::From<LimitValueCpu> for LimitValue {
         fn from(value: LimitValueCpu) -> Self {
             Self::Cpu(value)
         }
     }
 
-    impl From<LimitValueMem> for LimitValue {
+    impl ::std::convert::From<LimitValueMem> for LimitValue {
         fn from(value: LimitValueMem) -> Self {
             Self::Mem(value)
         }
     }
 
-    impl From<LimitValueCertificateCount> for LimitValue {
+    impl ::std::convert::From<LimitValueCertificateCount> for LimitValue {
         fn from(value: LimitValueCertificateCount) -> Self {
             Self::CertificateCount(value)
         }
     }
 
-    impl From<LimitValueSecretCount> for LimitValue {
+    impl ::std::convert::From<LimitValueSecretCount> for LimitValue {
         fn from(value: LimitValueSecretCount) -> Self {
             Self::SecretCount(value)
         }
     }
 
-    impl From<LimitValueTopicCount> for LimitValue {
+    impl ::std::convert::From<LimitValueTopicCount> for LimitValue {
         fn from(value: LimitValueTopicCount) -> Self {
             Self::TopicCount(value)
         }
     }
 
-    impl From<LimitValuePartitionCount> for LimitValue {
+    impl ::std::convert::From<LimitValuePartitionCount> for LimitValue {
         fn from(value: LimitValuePartitionCount) -> Self {
             Self::PartitionCount(value)
         }
     }
 
-    impl From<LimitValueConsumerRate> for LimitValue {
+    impl ::std::convert::From<LimitValueConsumerRate> for LimitValue {
         fn from(value: LimitValueConsumerRate) -> Self {
             Self::ConsumerRate(value)
         }
     }
 
-    impl From<LimitValueProducerRate> for LimitValue {
+    impl ::std::convert::From<LimitValueProducerRate> for LimitValue {
         fn from(value: LimitValueProducerRate) -> Self {
             Self::ProducerRate(value)
         }
     }
 
-    impl From<LimitValueRequestRate> for LimitValue {
+    impl ::std::convert::From<LimitValueRequestRate> for LimitValue {
         fn from(value: LimitValueRequestRate) -> Self {
             Self::RequestRate(value)
+        }
+    }
+
+    impl ::std::convert::From<LimitValueKafkaAclGroupCount> for LimitValue {
+        fn from(value: LimitValueKafkaAclGroupCount) -> Self {
+            Self::KafkaAclGroupCount(value)
         }
     }
 
@@ -3601,14 +4143,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueCertificateCount {
         pub name: LimitValueCertificateCountName,
         ///The number of certificates available for the managed tenant
         pub value: i64,
     }
 
-    impl From<&LimitValueCertificateCount> for LimitValueCertificateCount {
+    impl ::std::convert::From<&LimitValueCertificateCount> for LimitValueCertificateCount {
         fn from(value: &LimitValueCertificateCount) -> Self {
             value.clone()
         }
@@ -3636,13 +4178,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueCertificateCountAllOf {
         ///The number of certificates available for the managed tenant
         pub value: i64,
     }
 
-    impl From<&LimitValueCertificateCountAllOf> for LimitValueCertificateCountAllOf {
+    impl ::std::convert::From<&LimitValueCertificateCountAllOf> for LimitValueCertificateCountAllOf {
         fn from(value: &LimitValueCertificateCountAllOf) -> Self {
             value.clone()
         }
@@ -3669,7 +4211,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValueCertificateCountName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -3691,31 +4244,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValueCertificateCountName> for LimitValueCertificateCountName {
+    impl ::std::convert::From<&Self> for LimitValueCertificateCountName {
         fn from(value: &LimitValueCertificateCountName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValueCertificateCountName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValueCertificateCountName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValueCertificateCountName {
+    impl ::std::str::FromStr for LimitValueCertificateCountName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -3731,23 +4284,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValueCertificateCountName {
+    impl ::std::convert::TryFrom<&str> for LimitValueCertificateCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValueCertificateCountName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueCertificateCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValueCertificateCountName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueCertificateCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -3769,14 +4326,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueConsumerRate {
         pub name: LimitValueConsumerRateName,
         ///The maximum allowed consumer rate (bytes/sec)
         pub value: i64,
     }
 
-    impl From<&LimitValueConsumerRate> for LimitValueConsumerRate {
+    impl ::std::convert::From<&LimitValueConsumerRate> for LimitValueConsumerRate {
         fn from(value: &LimitValueConsumerRate) -> Self {
             value.clone()
         }
@@ -3803,13 +4360,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueConsumerRateAllOf {
         ///The maximum allowed consumer rate (bytes/sec)
         pub value: i64,
     }
 
-    impl From<&LimitValueConsumerRateAllOf> for LimitValueConsumerRateAllOf {
+    impl ::std::convert::From<&LimitValueConsumerRateAllOf> for LimitValueConsumerRateAllOf {
         fn from(value: &LimitValueConsumerRateAllOf) -> Self {
             value.clone()
         }
@@ -3836,7 +4393,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValueConsumerRateName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -3858,31 +4426,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValueConsumerRateName> for LimitValueConsumerRateName {
+    impl ::std::convert::From<&Self> for LimitValueConsumerRateName {
         fn from(value: &LimitValueConsumerRateName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValueConsumerRateName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValueConsumerRateName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValueConsumerRateName {
+    impl ::std::str::FromStr for LimitValueConsumerRateName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -3898,23 +4466,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValueConsumerRateName {
+    impl ::std::convert::TryFrom<&str> for LimitValueConsumerRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValueConsumerRateName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueConsumerRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValueConsumerRateName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueConsumerRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -3936,13 +4508,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueCpu {
         pub name: LimitValueCpuName,
         pub value: f64,
     }
 
-    impl From<&LimitValueCpu> for LimitValueCpu {
+    impl ::std::convert::From<&LimitValueCpu> for LimitValueCpu {
         fn from(value: &LimitValueCpu) -> Self {
             value.clone()
         }
@@ -3971,12 +4543,12 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueCpuAllOf {
         pub value: f64,
     }
 
-    impl From<&LimitValueCpuAllOf> for LimitValueCpuAllOf {
+    impl ::std::convert::From<&LimitValueCpuAllOf> for LimitValueCpuAllOf {
         fn from(value: &LimitValueCpuAllOf) -> Self {
             value.clone()
         }
@@ -4003,7 +4575,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValueCpuName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -4025,31 +4608,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValueCpuName> for LimitValueCpuName {
+    impl ::std::convert::From<&Self> for LimitValueCpuName {
         fn from(value: &LimitValueCpuName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValueCpuName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValueCpuName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValueCpuName {
+    impl ::std::str::FromStr for LimitValueCpuName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -4065,23 +4648,212 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValueCpuName {
+    impl ::std::convert::TryFrom<&str> for LimitValueCpuName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValueCpuName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueCpuName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValueCpuName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueCpuName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///LimitValueKafkaAclGroupCount
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/BaseLimitValue"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/LimitValueKafkaAclGroupCount_allOf"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    pub struct LimitValueKafkaAclGroupCount {
+        pub name: LimitValueKafkaAclGroupCountName,
+        ///The number of Kafka ACL groups available for the managed tenant
+        pub value: i64,
+    }
+
+    impl ::std::convert::From<&LimitValueKafkaAclGroupCount> for LimitValueKafkaAclGroupCount {
+        fn from(value: &LimitValueKafkaAclGroupCount) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueKafkaAclGroupCountAllOf
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "value"
+    ///  ],
+    ///  "properties": {
+    ///    "value": {
+    ///      "description": "The number of Kafka ACL groups available for the
+    /// managed tenant",
+    ///      "type": "integer",
+    ///      "maximum": 50.0,
+    ///      "minimum": 0.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    pub struct LimitValueKafkaAclGroupCountAllOf {
+        ///The number of Kafka ACL groups available for the managed tenant
+        pub value: i64,
+    }
+
+    impl ::std::convert::From<&LimitValueKafkaAclGroupCountAllOf>
+        for LimitValueKafkaAclGroupCountAllOf
+    {
+        fn from(value: &LimitValueKafkaAclGroupCountAllOf) -> Self {
+            value.clone()
+        }
+    }
+
+    ///LimitValueKafkaAclGroupCountName
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "cpu",
+    ///    "mem",
+    ///    "certificateCount",
+    ///    "secretCount",
+    ///    "topicCount",
+    ///    "partitionCount",
+    ///    "consumerRate",
+    ///    "producerRate",
+    ///    "requestRate"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum LimitValueKafkaAclGroupCountName {
+        #[serde(rename = "cpu")]
+        Cpu,
+        #[serde(rename = "mem")]
+        Mem,
+        #[serde(rename = "certificateCount")]
+        CertificateCount,
+        #[serde(rename = "secretCount")]
+        SecretCount,
+        #[serde(rename = "topicCount")]
+        TopicCount,
+        #[serde(rename = "partitionCount")]
+        PartitionCount,
+        #[serde(rename = "consumerRate")]
+        ConsumerRate,
+        #[serde(rename = "producerRate")]
+        ProducerRate,
+        #[serde(rename = "requestRate")]
+        RequestRate,
+    }
+
+    impl ::std::convert::From<&Self> for LimitValueKafkaAclGroupCountName {
+        fn from(value: &LimitValueKafkaAclGroupCountName) -> Self {
+            value.clone()
+        }
+    }
+
+    impl ::std::fmt::Display for LimitValueKafkaAclGroupCountName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
+            }
+        }
+    }
+
+    impl ::std::str::FromStr for LimitValueKafkaAclGroupCountName {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "cpu" => Ok(Self::Cpu),
+                "mem" => Ok(Self::Mem),
+                "certificateCount" => Ok(Self::CertificateCount),
+                "secretCount" => Ok(Self::SecretCount),
+                "topicCount" => Ok(Self::TopicCount),
+                "partitionCount" => Ok(Self::PartitionCount),
+                "consumerRate" => Ok(Self::ConsumerRate),
+                "producerRate" => Ok(Self::ProducerRate),
+                "requestRate" => Ok(Self::RequestRate),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl ::std::convert::TryFrom<&str> for LimitValueKafkaAclGroupCountName {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueKafkaAclGroupCountName {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueKafkaAclGroupCountName {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -4103,14 +4875,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueMem {
         pub name: LimitValueMemName,
         ///The amount of memory available for the managed tenant (MiB)
         pub value: i64,
     }
 
-    impl From<&LimitValueMem> for LimitValueMem {
+    impl ::std::convert::From<&LimitValueMem> for LimitValueMem {
         fn from(value: &LimitValueMem) -> Self {
             value.clone()
         }
@@ -4138,13 +4910,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueMemAllOf {
         ///The amount of memory available for the managed tenant (MiB)
         pub value: i64,
     }
 
-    impl From<&LimitValueMemAllOf> for LimitValueMemAllOf {
+    impl ::std::convert::From<&LimitValueMemAllOf> for LimitValueMemAllOf {
         fn from(value: &LimitValueMemAllOf) -> Self {
             value.clone()
         }
@@ -4171,7 +4943,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValueMemName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -4193,31 +4976,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValueMemName> for LimitValueMemName {
+    impl ::std::convert::From<&Self> for LimitValueMemName {
         fn from(value: &LimitValueMemName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValueMemName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValueMemName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValueMemName {
+    impl ::std::str::FromStr for LimitValueMemName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -4233,23 +5016,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValueMemName {
+    impl ::std::convert::TryFrom<&str> for LimitValueMemName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValueMemName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueMemName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValueMemName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueMemName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -4271,14 +5058,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValuePartitionCount {
         pub name: LimitValuePartitionCountName,
         ///The number of partitions available for the managed tenant
         pub value: i64,
     }
 
-    impl From<&LimitValuePartitionCount> for LimitValuePartitionCount {
+    impl ::std::convert::From<&LimitValuePartitionCount> for LimitValuePartitionCount {
         fn from(value: &LimitValuePartitionCount) -> Self {
             value.clone()
         }
@@ -4306,13 +5093,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValuePartitionCountAllOf {
         ///The number of partitions available for the managed tenant
         pub value: i64,
     }
 
-    impl From<&LimitValuePartitionCountAllOf> for LimitValuePartitionCountAllOf {
+    impl ::std::convert::From<&LimitValuePartitionCountAllOf> for LimitValuePartitionCountAllOf {
         fn from(value: &LimitValuePartitionCountAllOf) -> Self {
             value.clone()
         }
@@ -4339,7 +5126,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValuePartitionCountName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -4361,31 +5159,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValuePartitionCountName> for LimitValuePartitionCountName {
+    impl ::std::convert::From<&Self> for LimitValuePartitionCountName {
         fn from(value: &LimitValuePartitionCountName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValuePartitionCountName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValuePartitionCountName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValuePartitionCountName {
+    impl ::std::str::FromStr for LimitValuePartitionCountName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -4401,23 +5199,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValuePartitionCountName {
+    impl ::std::convert::TryFrom<&str> for LimitValuePartitionCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValuePartitionCountName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValuePartitionCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValuePartitionCountName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValuePartitionCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -4439,14 +5241,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueProducerRate {
         pub name: LimitValueProducerRateName,
         ///The maximum allowed producer rate (bytes/sec)
         pub value: i64,
     }
 
-    impl From<&LimitValueProducerRate> for LimitValueProducerRate {
+    impl ::std::convert::From<&LimitValueProducerRate> for LimitValueProducerRate {
         fn from(value: &LimitValueProducerRate) -> Self {
             value.clone()
         }
@@ -4473,13 +5275,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueProducerRateAllOf {
         ///The maximum allowed producer rate (bytes/sec)
         pub value: i64,
     }
 
-    impl From<&LimitValueProducerRateAllOf> for LimitValueProducerRateAllOf {
+    impl ::std::convert::From<&LimitValueProducerRateAllOf> for LimitValueProducerRateAllOf {
         fn from(value: &LimitValueProducerRateAllOf) -> Self {
             value.clone()
         }
@@ -4506,7 +5308,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValueProducerRateName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -4528,31 +5341,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValueProducerRateName> for LimitValueProducerRateName {
+    impl ::std::convert::From<&Self> for LimitValueProducerRateName {
         fn from(value: &LimitValueProducerRateName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValueProducerRateName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValueProducerRateName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValueProducerRateName {
+    impl ::std::str::FromStr for LimitValueProducerRateName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -4568,23 +5381,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValueProducerRateName {
+    impl ::std::convert::TryFrom<&str> for LimitValueProducerRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValueProducerRateName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueProducerRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValueProducerRateName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueProducerRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -4606,14 +5423,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueRequestRate {
         pub name: LimitValueRequestRateName,
         ///The maximum allowed request rate (%)
         pub value: i64,
     }
 
-    impl From<&LimitValueRequestRate> for LimitValueRequestRate {
+    impl ::std::convert::From<&LimitValueRequestRate> for LimitValueRequestRate {
         fn from(value: &LimitValueRequestRate) -> Self {
             value.clone()
         }
@@ -4640,13 +5457,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueRequestRateAllOf {
         ///The maximum allowed request rate (%)
         pub value: i64,
     }
 
-    impl From<&LimitValueRequestRateAllOf> for LimitValueRequestRateAllOf {
+    impl ::std::convert::From<&LimitValueRequestRateAllOf> for LimitValueRequestRateAllOf {
         fn from(value: &LimitValueRequestRateAllOf) -> Self {
             value.clone()
         }
@@ -4673,7 +5490,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValueRequestRateName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -4695,31 +5523,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValueRequestRateName> for LimitValueRequestRateName {
+    impl ::std::convert::From<&Self> for LimitValueRequestRateName {
         fn from(value: &LimitValueRequestRateName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValueRequestRateName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValueRequestRateName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValueRequestRateName {
+    impl ::std::str::FromStr for LimitValueRequestRateName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -4735,23 +5563,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValueRequestRateName {
+    impl ::std::convert::TryFrom<&str> for LimitValueRequestRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValueRequestRateName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueRequestRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValueRequestRateName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueRequestRateName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -4773,14 +5605,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueSecretCount {
         pub name: LimitValueSecretCountName,
         ///The number of secrets available for the managed tenant
         pub value: i64,
     }
 
-    impl From<&LimitValueSecretCount> for LimitValueSecretCount {
+    impl ::std::convert::From<&LimitValueSecretCount> for LimitValueSecretCount {
         fn from(value: &LimitValueSecretCount) -> Self {
             value.clone()
         }
@@ -4808,13 +5640,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueSecretCountAllOf {
         ///The number of secrets available for the managed tenant
         pub value: i64,
     }
 
-    impl From<&LimitValueSecretCountAllOf> for LimitValueSecretCountAllOf {
+    impl ::std::convert::From<&LimitValueSecretCountAllOf> for LimitValueSecretCountAllOf {
         fn from(value: &LimitValueSecretCountAllOf) -> Self {
             value.clone()
         }
@@ -4841,7 +5673,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValueSecretCountName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -4863,31 +5706,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValueSecretCountName> for LimitValueSecretCountName {
+    impl ::std::convert::From<&Self> for LimitValueSecretCountName {
         fn from(value: &LimitValueSecretCountName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValueSecretCountName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValueSecretCountName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValueSecretCountName {
+    impl ::std::str::FromStr for LimitValueSecretCountName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -4903,23 +5746,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValueSecretCountName {
+    impl ::std::convert::TryFrom<&str> for LimitValueSecretCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValueSecretCountName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueSecretCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValueSecretCountName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueSecretCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -4941,14 +5788,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueTopicCount {
         pub name: LimitValueTopicCountName,
         ///The number of topics available for the managed tenant
         pub value: i64,
     }
 
-    impl From<&LimitValueTopicCount> for LimitValueTopicCount {
+    impl ::std::convert::From<&LimitValueTopicCount> for LimitValueTopicCount {
         fn from(value: &LimitValueTopicCount) -> Self {
             value.clone()
         }
@@ -4976,13 +5823,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueTopicCountAllOf {
         ///The number of topics available for the managed tenant
         pub value: i64,
     }
 
-    impl From<&LimitValueTopicCountAllOf> for LimitValueTopicCountAllOf {
+    impl ::std::convert::From<&LimitValueTopicCountAllOf> for LimitValueTopicCountAllOf {
         fn from(value: &LimitValueTopicCountAllOf) -> Self {
             value.clone()
         }
@@ -5009,7 +5856,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum LimitValueTopicCountName {
         #[serde(rename = "cpu")]
         Cpu,
@@ -5031,31 +5889,31 @@ pub mod types {
         RequestRate,
     }
 
-    impl From<&LimitValueTopicCountName> for LimitValueTopicCountName {
+    impl ::std::convert::From<&Self> for LimitValueTopicCountName {
         fn from(value: &LimitValueTopicCountName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for LimitValueTopicCountName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for LimitValueTopicCountName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::CertificateCount => "certificateCount".to_string(),
-                Self::SecretCount => "secretCount".to_string(),
-                Self::TopicCount => "topicCount".to_string(),
-                Self::PartitionCount => "partitionCount".to_string(),
-                Self::ConsumerRate => "consumerRate".to_string(),
-                Self::ProducerRate => "producerRate".to_string(),
-                Self::RequestRate => "requestRate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::CertificateCount => write!(f, "certificateCount"),
+                Self::SecretCount => write!(f, "secretCount"),
+                Self::TopicCount => write!(f, "topicCount"),
+                Self::PartitionCount => write!(f, "partitionCount"),
+                Self::ConsumerRate => write!(f, "consumerRate"),
+                Self::ProducerRate => write!(f, "producerRate"),
+                Self::RequestRate => write!(f, "requestRate"),
             }
         }
     }
 
-    impl std::str::FromStr for LimitValueTopicCountName {
+    impl ::std::str::FromStr for LimitValueTopicCountName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -5071,360 +5929,176 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for LimitValueTopicCountName {
+    impl ::std::convert::TryFrom<&str> for LimitValueTopicCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for LimitValueTopicCountName {
+    impl ::std::convert::TryFrom<&::std::string::String> for LimitValueTopicCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for LimitValueTopicCountName {
+    impl ::std::convert::TryFrom<::std::string::String> for LimitValueTopicCountName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    ///The id of a managed stream consists of a `internal.` prefix followed by
-    /// the name of the managing tenant and the name of the stream separated by
-    /// `---` (three hyphens). id's starting with `internal` indicate an
-    /// internal stream. For an internal stream called `maerts` for tenant
-    /// `tnanet` the full name would be  `internal.tnanet---maerts`.
-    /// Note that the regular expressions below don't cover all restrictions.
-    /// The tenant name part must still adhere to the rules for tenant names,
-    /// the stream name part must still adhere to the following rules: - Must
-    /// have a minimum length of 3 and a maximum length of 100, - Must only
-    /// contain lower case alphanumerical characters `[a-z0-9]` and hyphens `-`,
-    /// - Must not contain three sequential hyphens `---`, two sequential
-    /// hyphens is fine, - Must start with an lowercase letter `^[a-z]` - Must
-    /// end with a lowercase letter or digit `[a-z0-9]$`
+    ///ManagedStream
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "The id of a managed stream consists of a `internal.`
-    /// prefix followed by the name of the managing tenant and the name of the
-    /// stream separated by `---` (three hyphens).  \nid's starting with
-    /// `internal` indicate an internal stream.\nFor an internal stream called
-    /// `maerts` for tenant `tnanet` the full name would be
-    /// `internal.tnanet---maerts`.\nNote that the regular expressions below
-    /// don't cover all restrictions.  The tenant name part must still adhere to
-    /// the rules for tenant names, the stream name part must still adhere to
-    /// the following rules: - Must have a minimum length of 3 and a maximum
-    /// length of 100, - Must only contain lower case alphanumerical characters
-    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
-    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
-    /// letter `^[a-z]` - Must end with a lowercase letter or digit
-    /// `[a-z0-9]$`\n",
-    ///  "type": "string",
-    ///  "pattern":
-    /// "^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,
-    /// 98}[a-z0-9]$"
+    ///  "description": "An internal stream.  A stream that can be shared
+    /// between different tenants, but is not accessible over the MQTT protocol
+    /// adapter.\n",
+    ///  "type": "object",
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/Topic"
+    ///    },
+    ///    {
+    ///      "type": "object"
+    ///    }
+    ///  ]
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub struct ManagedInternalStreamId(String);
-    impl std::ops::Deref for ManagedInternalStreamId {
-        type Target = String;
-        fn deref(&self) -> &String {
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct ManagedStream(pub Topic);
+    impl ::std::ops::Deref for ManagedStream {
+        type Target = Topic;
+        fn deref(&self) -> &Topic {
             &self.0
         }
     }
 
-    impl From<ManagedInternalStreamId> for String {
-        fn from(value: ManagedInternalStreamId) -> Self {
+    impl ::std::convert::From<ManagedStream> for Topic {
+        fn from(value: ManagedStream) -> Self {
             value.0
         }
     }
 
-    impl From<&ManagedInternalStreamId> for ManagedInternalStreamId {
-        fn from(value: &ManagedInternalStreamId) -> Self {
+    impl ::std::convert::From<&ManagedStream> for ManagedStream {
+        fn from(value: &ManagedStream) -> Self {
             value.clone()
         }
     }
 
-    impl std::str::FromStr for ManagedInternalStreamId {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            if regress::Regex::new(
-                "^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
-            )
-            .unwrap()
-            .find(value)
-            .is_none()
-            {
-                return Err ("doesn't match pattern \"^(internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
-            }
-            Ok(Self(value.to_string()))
+    impl ::std::convert::From<Topic> for ManagedStream {
+        fn from(value: Topic) -> Self {
+            Self(value)
         }
     }
 
-    impl std::convert::TryFrom<&str> for ManagedInternalStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for ManagedInternalStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for ManagedInternalStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl<'de> serde::Deserialize<'de> for ManagedInternalStreamId {
-        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de>,
-        {
-            String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as serde::de::Error>::custom(e.to_string())
-                })
-        }
-    }
-
-    ///The id of a managed stream consists of a `stream.` or `internal.` prefix
-    /// followed by the name of the managing tenant and the name of the stream
-    /// separated by `---` (three hyphens). Id's starting with `stream`
-    /// indicate a public stream,  id's starting with `internal` indicate an
-    /// internal stream. For an internal stream called `maerts` for tenant
-    /// `tnanet` the full name would be  `internal.tnanet---maerts`. For a
-    /// public stream with the same name and tenant,  the full name would be
-    /// `stream.tnanet---maerts`. Note that the regular expressions below
-    /// don't cover all restrictions.  The tenant name part must still adhere to
-    /// the rules for tenant names, the stream name part must still adhere to
-    /// the following rules: - Must have a minimum length of 3 and a maximum
-    /// length of 100, - Must only contain lower case alphanumerical characters
-    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
-    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
-    /// letter `^[a-z]` - Must end with a lowercase letter or digit `[a-z0-9]$`
+    ///The id of a managed stream consists of a managing prefix set
+    /// specifically as a limit  for each managing tenant, and name of the
+    /// stream. The managing prefix and the name are separated by `---` (three
+    /// hyphens). For an stream called `maerts` for a tenant with an
+    /// assigned managing prefix `tnanet` the full name would be
+    /// `tnanet---maerts`. The public or internal type of the particular stream
+    /// is set by using the corresponding `/public/` or `/internal/` methods in
+    /// the managed streams API.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "The id of a managed stream consists of a `stream.` or
-    /// `internal.` prefix followed by the name of the managing tenant and the
-    /// name of the stream separated by `---` (three hyphens).  \nId's starting
-    /// with `stream` indicate a public stream,  id's starting with `internal`
-    /// indicate an internal stream.\nFor an internal stream called `maerts` for
-    /// tenant `tnanet` the full name would be  `internal.tnanet---maerts`. For
-    /// a public stream with the same name and tenant,  the full name would be
-    /// `stream.tnanet---maerts`.\nNote that the regular expressions below don't
-    /// cover all restrictions.  The tenant name part must still adhere to the
-    /// rules for tenant names, the stream name part must still adhere to the
-    /// following rules: - Must have a minimum length of 3 and a maximum length
-    /// of 100, - Must only contain lower case alphanumerical characters
-    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
-    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
-    /// letter `^[a-z]` - Must end with a lowercase letter or digit
-    /// `[a-z0-9]$`\n",
+    ///  "description": "The id of a managed stream consists of a managing
+    /// prefix set specifically as a limit  for each managing tenant, and name
+    /// of the stream. The managing prefix and the name are separated by `---`
+    /// (three hyphens).\nFor an stream called `maerts` for a tenant with an
+    /// assigned managing prefix `tnanet` the full name would be
+    /// `tnanet---maerts`. The public or internal type of the particular stream
+    /// is set by using the corresponding `/public/` or `/internal/` methods in
+    /// the managed streams API.\n",
     ///  "type": "string",
-    ///  "pattern":
-    /// "^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$"
+    ///  "pattern": "^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$"
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub struct ManagedPublicStreamId(String);
-    impl std::ops::Deref for ManagedPublicStreamId {
-        type Target = String;
-        fn deref(&self) -> &String {
+    #[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ManagedStreamId(::std::string::String);
+    impl ::std::ops::Deref for ManagedStreamId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
 
-    impl From<ManagedPublicStreamId> for String {
-        fn from(value: ManagedPublicStreamId) -> Self {
-            value.0
-        }
-    }
-
-    impl From<&ManagedPublicStreamId> for ManagedPublicStreamId {
-        fn from(value: &ManagedPublicStreamId) -> Self {
-            value.clone()
-        }
-    }
-
-    impl std::str::FromStr for ManagedPublicStreamId {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            if regress::Regex::new(
-                "^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
-            )
-            .unwrap()
-            .find(value)
-            .is_none()
-            {
-                return Err ("doesn't match pattern \"^(stream)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
-            }
-            Ok(Self(value.to_string()))
-        }
-    }
-
-    impl std::convert::TryFrom<&str> for ManagedPublicStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for ManagedPublicStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for ManagedPublicStreamId {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl<'de> serde::Deserialize<'de> for ManagedPublicStreamId {
-        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de>,
-        {
-            String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as serde::de::Error>::custom(e.to_string())
-                })
-        }
-    }
-
-    ///The id of a managed stream consists of a `stream.` or `internal.` prefix
-    /// followed by the name of the managing tenant and the name of the stream
-    /// separated by `---` (three hyphens). Id's starting with `stream`
-    /// indicate a public stream,  id's starting with `internal` indicate an
-    /// internal stream. For an internal stream called `maerts` for tenant
-    /// `tnanet` the full name would be  `internal.tnanet---maerts`. For a
-    /// public stream with the same name and tenant,  the full name would be
-    /// `stream.tnanet---maerts`. Note that the regular expressions below
-    /// don't cover all restrictions.  The tenant name part must still adhere to
-    /// the rules for tenant names, the stream name part must still adhere to
-    /// the following rules: - Must have a minimum length of 3 and a maximum
-    /// length of 100, - Must only contain lower case alphanumerical characters
-    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
-    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
-    /// letter `^[a-z]` - Must end with a lowercase letter or digit `[a-z0-9]$`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The id of a managed stream consists of a `stream.` or
-    /// `internal.` prefix followed by the name of the managing tenant and the
-    /// name of the stream separated by `---` (three hyphens).  \nId's starting
-    /// with `stream` indicate a public stream,  id's starting with `internal`
-    /// indicate an internal stream.\nFor an internal stream called `maerts` for
-    /// tenant `tnanet` the full name would be  `internal.tnanet---maerts`. For
-    /// a public stream with the same name and tenant,  the full name would be
-    /// `stream.tnanet---maerts`.\nNote that the regular expressions below don't
-    /// cover all restrictions.  The tenant name part must still adhere to the
-    /// rules for tenant names, the stream name part must still adhere to the
-    /// following rules: - Must have a minimum length of 3 and a maximum length
-    /// of 100, - Must only contain lower case alphanumerical characters
-    /// `[a-z0-9]` and hyphens `-`, - Must not contain three sequential hyphens
-    /// `---`, two sequential hyphens is fine, - Must start with an lowercase
-    /// letter `^[a-z]` - Must end with a lowercase letter or digit
-    /// `[a-z0-9]$`\n",
-    ///  "type": "string",
-    ///  "pattern":
-    /// "^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,
-    /// 98}[a-z0-9]$"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub struct ManagedStreamId(String);
-    impl std::ops::Deref for ManagedStreamId {
-        type Target = String;
-        fn deref(&self) -> &String {
-            &self.0
-        }
-    }
-
-    impl From<ManagedStreamId> for String {
+    impl ::std::convert::From<ManagedStreamId> for ::std::string::String {
         fn from(value: ManagedStreamId) -> Self {
             value.0
         }
     }
 
-    impl From<&ManagedStreamId> for ManagedStreamId {
+    impl ::std::convert::From<&ManagedStreamId> for ManagedStreamId {
         fn from(value: &ManagedStreamId) -> Self {
             value.clone()
         }
     }
 
-    impl std::str::FromStr for ManagedStreamId {
+    impl ::std::str::FromStr for ManagedStreamId {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            if regress::Regex::new(
-                "^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
-            )
-            .unwrap()
-            .find(value)
-            .is_none()
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if regress::Regex::new("^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$")
+                .unwrap()
+                .find(value)
+                .is_none()
             {
-                return Err ("doesn't match pattern \"^(stream|internal)\\.[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
+                return Err ("doesn't match pattern \"^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
             }
             Ok(Self(value.to_string()))
         }
     }
 
-    impl std::convert::TryFrom<&str> for ManagedStreamId {
+    impl ::std::convert::TryFrom<&str> for ManagedStreamId {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for ManagedStreamId {
+    impl ::std::convert::TryFrom<&::std::string::String> for ManagedStreamId {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for ManagedStreamId {
+    impl ::std::convert::TryFrom<::std::string::String> for ManagedStreamId {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl<'de> serde::Deserialize<'de> for ManagedStreamId {
-        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    impl<'de> ::serde::Deserialize<'de> for ManagedStreamId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
-            D: serde::Deserializer<'de>,
+            D: ::serde::Deserializer<'de>,
         {
-            String::deserialize(deserializer)?
+            ::std::string::String::deserialize(deserializer)?
                 .parse()
                 .map_err(|e: self::error::ConversionError| {
-                    <D::Error as serde::de::Error>::custom(e.to_string())
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
                 })
         }
     }
@@ -5498,14 +6172,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ManagedTenant {
         ///Name of the tenant that is acting as manager for this tenant.  
         ///Must be identical to the `manager` parameter in the path.
-        pub manager: String,
+        pub manager: ::std::string::String,
         ///Name of the tenant.  Must be identical to the tenant name used in
         /// the path.
-        pub name: String,
+        pub name: ::std::string::String,
         ///List of services that are enabled for this tenant.  At this point,
         /// `monitoring` is a requirement (it's `enabled` value must be
         /// `true`).  The default values for `tracing` and `vpn` are both
@@ -5513,10 +6187,10 @@ pub mod types {
         /// platforms.  Requesting it on a platform that doesn't support it will
         /// cause the request to be rejected.
         #[serde(default = "defaults::managed_tenant_services")]
-        pub services: Vec<ManagedTenantServices>,
+        pub services: ::std::vec::Vec<ManagedTenantServices>,
     }
 
-    impl From<&ManagedTenant> for ManagedTenant {
+    impl ::std::convert::From<&ManagedTenant> for ManagedTenant {
         fn from(value: &ManagedTenant) -> Self {
             value.clone()
         }
@@ -5543,7 +6217,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
         #[serde(rename = "cpu")]
         Cpu,
@@ -5565,7 +6250,7 @@ pub mod types {
         Requestrate,
     }
 
-    impl From<&ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind>
+    impl ::std::convert::From<&Self>
         for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
     {
         fn from(
@@ -5575,25 +6260,25 @@ pub mod types {
         }
     }
 
-    impl ToString for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::Certificatecount => "certificatecount".to_string(),
-                Self::Secretcount => "secretcount".to_string(),
-                Self::Topiccount => "topiccount".to_string(),
-                Self::Partitioncount => "partitioncount".to_string(),
-                Self::Consumerrate => "consumerrate".to_string(),
-                Self::Producerrate => "producerrate".to_string(),
-                Self::Requestrate => "requestrate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::Certificatecount => write!(f, "certificatecount"),
+                Self::Secretcount => write!(f, "secretcount"),
+                Self::Topiccount => write!(f, "topiccount"),
+                Self::Partitioncount => write!(f, "partitioncount"),
+                Self::Consumerrate => write!(f, "consumerrate"),
+                Self::Producerrate => write!(f, "producerrate"),
+                Self::Requestrate => write!(f, "requestrate"),
             }
         }
     }
 
-    impl std::str::FromStr for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
+    impl ::std::str::FromStr for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -5609,29 +6294,33 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str>
+    impl ::std::convert::TryFrom<&str>
         for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String>
+    impl ::std::convert::TryFrom<&::std::string::String>
         for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String>
+    impl ::std::convert::TryFrom<::std::string::String>
         for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -5657,7 +6346,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
         #[serde(rename = "cpu")]
         Cpu,
@@ -5679,7 +6379,7 @@ pub mod types {
         Requestrate,
     }
 
-    impl From<&ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind>
+    impl ::std::convert::From<&Self>
         for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
     {
         fn from(
@@ -5689,25 +6389,25 @@ pub mod types {
         }
     }
 
-    impl ToString for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => "cpu".to_string(),
-                Self::Mem => "mem".to_string(),
-                Self::Certificatecount => "certificatecount".to_string(),
-                Self::Secretcount => "secretcount".to_string(),
-                Self::Topiccount => "topiccount".to_string(),
-                Self::Partitioncount => "partitioncount".to_string(),
-                Self::Consumerrate => "consumerrate".to_string(),
-                Self::Producerrate => "producerrate".to_string(),
-                Self::Requestrate => "requestrate".to_string(),
+                Self::Cpu => write!(f, "cpu"),
+                Self::Mem => write!(f, "mem"),
+                Self::Certificatecount => write!(f, "certificatecount"),
+                Self::Secretcount => write!(f, "secretcount"),
+                Self::Topiccount => write!(f, "topiccount"),
+                Self::Partitioncount => write!(f, "partitioncount"),
+                Self::Consumerrate => write!(f, "consumerrate"),
+                Self::Producerrate => write!(f, "producerrate"),
+                Self::Requestrate => write!(f, "requestrate"),
             }
         }
     }
 
-    impl std::str::FromStr for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
+    impl ::std::str::FromStr for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "cpu" => Ok(Self::Cpu),
                 "mem" => Ok(Self::Mem),
@@ -5723,29 +6423,33 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str>
+    impl ::std::convert::TryFrom<&str>
         for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String>
+    impl ::std::convert::TryFrom<&::std::string::String>
         for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String>
+    impl ::std::convert::TryFrom<::std::string::String>
         for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
     {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -5783,13 +6487,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ManagedTenantServices {
         pub enabled: bool,
         pub name: ManagedTenantServicesName,
     }
 
-    impl From<&ManagedTenantServices> for ManagedTenantServices {
+    impl ::std::convert::From<&ManagedTenantServices> for ManagedTenantServices {
         fn from(value: &ManagedTenantServices) -> Self {
             value.clone()
         }
@@ -5810,7 +6514,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum ManagedTenantServicesName {
         #[serde(rename = "vpn")]
         Vpn,
@@ -5820,25 +6535,25 @@ pub mod types {
         Monitoring,
     }
 
-    impl From<&ManagedTenantServicesName> for ManagedTenantServicesName {
+    impl ::std::convert::From<&Self> for ManagedTenantServicesName {
         fn from(value: &ManagedTenantServicesName) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for ManagedTenantServicesName {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for ManagedTenantServicesName {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Vpn => "vpn".to_string(),
-                Self::Tracing => "tracing".to_string(),
-                Self::Monitoring => "monitoring".to_string(),
+                Self::Vpn => write!(f, "vpn"),
+                Self::Tracing => write!(f, "tracing"),
+                Self::Monitoring => write!(f, "monitoring"),
             }
         }
     }
 
-    impl std::str::FromStr for ManagedTenantServicesName {
+    impl ::std::str::FromStr for ManagedTenantServicesName {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "vpn" => Ok(Self::Vpn),
                 "tracing" => Ok(Self::Tracing),
@@ -5848,23 +6563,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for ManagedTenantServicesName {
+    impl ::std::convert::TryFrom<&str> for ManagedTenantServicesName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for ManagedTenantServicesName {
+    impl ::std::convert::TryFrom<&::std::string::String> for ManagedTenantServicesName {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for ManagedTenantServicesName {
+    impl ::std::convert::TryFrom<::std::string::String> for ManagedTenantServicesName {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -5900,19 +6619,28 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Metrics {
         ///The HTTP path for the metrics endpoint
         #[serde(default = "defaults::metrics_path")]
-        pub path: String,
+        pub path: ::std::string::String,
         ///The TCP port for the metrics endpoint
         #[serde(default = "defaults::default_u64::<u64, 7070>")]
         pub port: u64,
     }
 
-    impl From<&Metrics> for Metrics {
+    impl ::std::convert::From<&Metrics> for Metrics {
         fn from(value: &Metrics) -> Self {
             value.clone()
+        }
+    }
+
+    impl ::std::default::Default for Metrics {
+        fn default() -> Self {
+            Self {
+                path: defaults::metrics_path(),
+                port: defaults::default_u64::<u64, 7070>(),
+            }
         }
     }
 
@@ -5954,17 +6682,20 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Notification {
-        #[serde(default, skip_serializing_if = "std::collections::HashMap::is_empty")]
-        pub args: std::collections::HashMap<String, String>,
-        pub message: String,
+        #[serde(
+            default,
+            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+        )]
+        pub args: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        pub message: ::std::string::String,
         ///true if the notification has to do with removal of the allocation,
         /// false if it relates to creation/update of the resource
         pub remove: bool,
     }
 
-    impl From<&Notification> for Notification {
+    impl ::std::convert::From<&Notification> for Notification {
         fn from(value: &Notification) -> Self {
             value.clone()
         }
@@ -5995,14 +6726,14 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct PathSpec {
         ///The path prefix (starting with `/`, ending without `/`) that will be
         /// matched for routing to this service.
-        pub prefix: String,
+        pub prefix: ::std::string::String,
     }
 
-    impl From<&PathSpec> for PathSpec {
+    impl ::std::convert::From<&PathSpec> for PathSpec {
         fn from(value: &PathSpec) -> Self {
             value.clone()
         }
@@ -6097,11 +6828,11 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct PortMapping {
         ///TODO
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub auth: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub auth: ::std::option::Option<::std::string::String>,
         ///Routing mode. The allowed values are:
         ///  * `http` (default if this property is omitted). HTTP routing and
         ///    TLS termination are done by the platform. In this case, the `tls`
@@ -6123,38 +6854,52 @@ pub mod types {
         ///      auto-configured by the platform when allocating a VPN
         ///      application and should *not* be used when allocating regular
         ///      applications.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub mode: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub mode: ::std::option::Option<::std::string::String>,
         ///The paths which are allowed on the associated vhost
-        #[serde(default, skip_serializing_if = "Vec::is_empty")]
-        pub paths: Vec<PathSpec>,
+        #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+        pub paths: ::std::vec::Vec<PathSpec>,
         ///To load balance traffic between different services, use this
         /// optional field to put those services in the same service group.
         /// Choose any name consisting of all lowercase letters.
         #[serde(
             rename = "serviceGroup",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub service_group: Option<String>,
+        pub service_group: ::std::option::Option<::std::string::String>,
         ///The default is 'auto', indicating that the port will only accept
         /// secured connections. Put this to 'none' if you do not want the
         /// service to have a secure endpoint.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub tls: Option<PortMappingTls>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub tls: ::std::option::Option<PortMappingTls>,
         ///The host name that needs to be assigned to this port (for multiple
         /// names, separate them with commas)
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub vhost: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub vhost: ::std::option::Option<::std::string::String>,
         ///Put ip addresses or ip ranges that can call this service here (for
         /// multiple addresses, separate them with spaces)
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub whitelist: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub whitelist: ::std::option::Option<::std::string::String>,
     }
 
-    impl From<&PortMapping> for PortMapping {
+    impl ::std::convert::From<&PortMapping> for PortMapping {
         fn from(value: &PortMapping) -> Self {
             value.clone()
+        }
+    }
+
+    impl ::std::default::Default for PortMapping {
+        fn default() -> Self {
+            Self {
+                auth: Default::default(),
+                mode: Default::default(),
+                paths: Default::default(),
+                service_group: Default::default(),
+                tls: Default::default(),
+                vhost: Default::default(),
+                whitelist: Default::default(),
+            }
         }
     }
 
@@ -6177,7 +6922,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum PortMappingTls {
         #[serde(rename = "auto")]
         Auto,
@@ -6185,24 +6941,24 @@ pub mod types {
         None,
     }
 
-    impl From<&PortMappingTls> for PortMappingTls {
+    impl ::std::convert::From<&Self> for PortMappingTls {
         fn from(value: &PortMappingTls) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for PortMappingTls {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for PortMappingTls {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Auto => "auto".to_string(),
-                Self::None => "none".to_string(),
+                Self::Auto => write!(f, "auto"),
+                Self::None => write!(f, "none"),
             }
         }
     }
 
-    impl std::str::FromStr for PortMappingTls {
+    impl ::std::str::FromStr for PortMappingTls {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "auto" => Ok(Self::Auto),
                 "none" => Ok(Self::None),
@@ -6211,52 +6967,43 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for PortMappingTls {
+    impl ::std::convert::TryFrom<&str> for PortMappingTls {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for PortMappingTls {
+    impl ::std::convert::TryFrom<&::std::string::String> for PortMappingTls {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for PortMappingTls {
+    impl ::std::convert::TryFrom<::std::string::String> for PortMappingTls {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    ///A public stream.  A stream that can be shared between different tenants
-    /// within the DSH platform, and is accessible over the MQTT protocol
-    /// adapter. A public stream requires a stream contract.
+    ///A public stream.  A stream that can be shared between different tenants,
+    /// and is accessible over the MQTT protocol adapter.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "A public stream.  A stream that can be shared between different tenants within the DSH platform, and is accessible over the MQTT protocol adapter. A public stream requires a stream contract.\n",
-    ///  "examples": [
-    ///    [
-    ///      {
-    ///        "$ref":
-    /// "#/components/examples/publicManagedStreamWithTopicLevelPartitioner"
-    ///      },
-    ///      {
-    ///        "$ref":
-    /// "#/components/examples/publicManagedStreamWithDefaultKafkaPartitioner"
-    ///      }
-    ///    ]
-    ///  ],
+    ///  "description": "A public stream.  A stream that can be shared between different tenants, and is accessible over the MQTT protocol adapter.\n",
     ///  "type": "object",
     ///  "allOf": [
     ///    {
-    ///      "$ref": "#/components/schemas/Topic"
+    ///      "$ref": "#/components/schemas/ManagedStream"
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/PublicManagedStream_allOf"
@@ -6265,23 +7012,34 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct PublicManagedStream {
         pub contract: PublicManagedStreamContract,
+        ///Additional Kafka properties to be set on the topic. The properties
+        /// are key-value pairs. The key is the property name and the
+        /// value is the property value.  The following properties are allowed:
+        ///  - `cleanup.policy`: `delete|compact`
+        ///  - `compression.type`: `uncompressed|zstd|lz4|snappy|gzip|producer`
+        ///  - `delete.retention.ms`: min 0
+        ///  - `max.message.bytes`: min `1024`, max `1048576` (1024x1024)
+        ///  - `message.timestamp.type`: `CreateTime|LogAppendTime`
+        ///  - `retention.bytes` min 0
+        ///  - `retention.ms` min `3600000` (1 hour), max: `3,1536E+10` (365
+        ///    days)
+        ///  - `segment.bytes`: min `52428800` (1024x1024x50)
         #[serde(
             rename = "kafkaProperties",
             default,
-            skip_serializing_if = "std::collections::HashMap::is_empty"
+            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
         )]
-        pub kafka_properties: std::collections::HashMap<String, String>,
-        ///For public streams, the value of `kind` must be `public`
-        pub kind: PublicManagedStreamKind,
+        pub kafka_properties:
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
         pub partitions: i64,
         #[serde(rename = "replicationFactor")]
         pub replication_factor: i64,
     }
 
-    impl From<&PublicManagedStream> for PublicManagedStream {
+    impl ::std::convert::From<&PublicManagedStream> for PublicManagedStream {
         fn from(value: &PublicManagedStream) -> Self {
             value.clone()
         }
@@ -6295,101 +7053,24 @@ pub mod types {
     ///{
     ///  "type": "object",
     ///  "required": [
-    ///    "contract",
-    ///    "kind"
+    ///    "contract"
     ///  ],
     ///  "properties": {
     ///    "contract": {
     ///      "$ref": "#/components/schemas/PublicManagedStreamContract"
-    ///    },
-    ///    "kind": {
-    ///      "description": "For public streams, the value of `kind` must be
-    /// `public`",
-    ///      "type": "string",
-    ///      "enum": [
-    ///        "public"
-    ///      ]
     ///    }
     ///  }
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct PublicManagedStreamAllOf {
         pub contract: PublicManagedStreamContract,
-        ///For public streams, the value of `kind` must be `public`
-        pub kind: PublicManagedStreamAllOfKind,
     }
 
-    impl From<&PublicManagedStreamAllOf> for PublicManagedStreamAllOf {
+    impl ::std::convert::From<&PublicManagedStreamAllOf> for PublicManagedStreamAllOf {
         fn from(value: &PublicManagedStreamAllOf) -> Self {
             value.clone()
-        }
-    }
-
-    ///For public streams, the value of `kind` must be `public`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "For public streams, the value of `kind` must be
-    /// `public`",
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "public"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum PublicManagedStreamAllOfKind {
-        #[serde(rename = "public")]
-        Public,
-    }
-
-    impl From<&PublicManagedStreamAllOfKind> for PublicManagedStreamAllOfKind {
-        fn from(value: &PublicManagedStreamAllOfKind) -> Self {
-            value.clone()
-        }
-    }
-
-    impl ToString for PublicManagedStreamAllOfKind {
-        fn to_string(&self) -> String {
-            match *self {
-                Self::Public => "public".to_string(),
-            }
-        }
-    }
-
-    impl std::str::FromStr for PublicManagedStreamAllOfKind {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            match value {
-                "public" => Ok(Self::Public),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-
-    impl std::convert::TryFrom<&str> for PublicManagedStreamAllOfKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for PublicManagedStreamAllOfKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for PublicManagedStreamAllOfKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
         }
     }
 
@@ -6400,18 +7081,6 @@ pub mod types {
     /// ```json
     ///{
     ///  "description": "The stream contract for a public stream.",
-    ///  "examples": [
-    ///    [
-    ///      {
-    ///        "$ref":
-    /// "#/components/examples/publicManagedStreamWithTopicLevelPartitioner"
-    ///      },
-    ///      {
-    ///        "$ref":
-    /// "#/components/examples/publicManagedStreamWithDefaultKafkaPartitioner"
-    ///      }
-    ///    ]
-    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "canBeRetained",
@@ -6441,7 +7110,7 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct PublicManagedStreamContract {
         ///Whether MQTT records can have the "retained" flag.
         #[serde(rename = "canBeRetained")]
@@ -6451,7 +7120,7 @@ pub mod types {
         pub partitioner: PublicManagedStreamContractPartitioner,
     }
 
-    impl From<&PublicManagedStreamContract> for PublicManagedStreamContract {
+    impl ::std::convert::From<&PublicManagedStreamContract> for PublicManagedStreamContract {
         fn from(value: &PublicManagedStreamContract) -> Self {
             value.clone()
         }
@@ -6479,26 +7148,30 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     #[serde(untagged)]
     pub enum PublicManagedStreamContractPartitioner {
         TopicLevelPartitioner(PublicManagedStreamTopicLevelPartitioner),
         KafkaDefaultPartitioner(PublicManagedStreamKafkaDefaultPartitioner),
     }
 
-    impl From<&PublicManagedStreamContractPartitioner> for PublicManagedStreamContractPartitioner {
+    impl ::std::convert::From<&Self> for PublicManagedStreamContractPartitioner {
         fn from(value: &PublicManagedStreamContractPartitioner) -> Self {
             value.clone()
         }
     }
 
-    impl From<PublicManagedStreamTopicLevelPartitioner> for PublicManagedStreamContractPartitioner {
+    impl ::std::convert::From<PublicManagedStreamTopicLevelPartitioner>
+        for PublicManagedStreamContractPartitioner
+    {
         fn from(value: PublicManagedStreamTopicLevelPartitioner) -> Self {
             Self::TopicLevelPartitioner(value)
         }
     }
 
-    impl From<PublicManagedStreamKafkaDefaultPartitioner> for PublicManagedStreamContractPartitioner {
+    impl ::std::convert::From<PublicManagedStreamKafkaDefaultPartitioner>
+        for PublicManagedStreamContractPartitioner
+    {
         fn from(value: PublicManagedStreamKafkaDefaultPartitioner) -> Self {
             Self::KafkaDefaultPartitioner(value)
         }
@@ -6510,11 +7183,6 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "examples": [
-    ///    {
-    ///      "$ref": "#/components/examples/defaultKafkaPartitioner"
-    ///    }
-    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "kind"
@@ -6533,12 +7201,12 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct PublicManagedStreamKafkaDefaultPartitioner {
         pub kind: PublicManagedStreamKafkaDefaultPartitionerKind,
     }
 
-    impl From<&PublicManagedStreamKafkaDefaultPartitioner>
+    impl ::std::convert::From<&PublicManagedStreamKafkaDefaultPartitioner>
         for PublicManagedStreamKafkaDefaultPartitioner
     {
         fn from(value: &PublicManagedStreamKafkaDefaultPartitioner) -> Self {
@@ -6562,31 +7230,40 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum PublicManagedStreamKafkaDefaultPartitionerKind {
         #[serde(rename = "kafkaDefault")]
         KafkaDefault,
     }
 
-    impl From<&PublicManagedStreamKafkaDefaultPartitionerKind>
-        for PublicManagedStreamKafkaDefaultPartitionerKind
-    {
+    impl ::std::convert::From<&Self> for PublicManagedStreamKafkaDefaultPartitionerKind {
         fn from(value: &PublicManagedStreamKafkaDefaultPartitionerKind) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for PublicManagedStreamKafkaDefaultPartitionerKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for PublicManagedStreamKafkaDefaultPartitionerKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::KafkaDefault => "kafkaDefault".to_string(),
+                Self::KafkaDefault => write!(f, "kafkaDefault"),
             }
         }
     }
 
-    impl std::str::FromStr for PublicManagedStreamKafkaDefaultPartitionerKind {
+    impl ::std::str::FromStr for PublicManagedStreamKafkaDefaultPartitionerKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "kafkaDefault" => Ok(Self::KafkaDefault),
                 _ => Err("invalid value".into()),
@@ -6594,89 +7271,31 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for PublicManagedStreamKafkaDefaultPartitionerKind {
+    impl ::std::convert::TryFrom<&str> for PublicManagedStreamKafkaDefaultPartitionerKind {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for PublicManagedStreamKafkaDefaultPartitionerKind {
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for PublicManagedStreamKafkaDefaultPartitionerKind
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for PublicManagedStreamKafkaDefaultPartitionerKind {
+    impl ::std::convert::TryFrom<::std::string::String>
+        for PublicManagedStreamKafkaDefaultPartitionerKind
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    ///For public streams, the value of `kind` must be `public`
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "For public streams, the value of `kind` must be
-    /// `public`",
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "public"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-    pub enum PublicManagedStreamKind {
-        #[serde(rename = "public")]
-        Public,
-    }
-
-    impl From<&PublicManagedStreamKind> for PublicManagedStreamKind {
-        fn from(value: &PublicManagedStreamKind) -> Self {
-            value.clone()
-        }
-    }
-
-    impl ToString for PublicManagedStreamKind {
-        fn to_string(&self) -> String {
-            match *self {
-                Self::Public => "public".to_string(),
-            }
-        }
-    }
-
-    impl std::str::FromStr for PublicManagedStreamKind {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
-            match value {
-                "public" => Ok(Self::Public),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-
-    impl std::convert::TryFrom<&str> for PublicManagedStreamKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<&String> for PublicManagedStreamKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-
-    impl std::convert::TryFrom<String> for PublicManagedStreamKind {
-        type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -6687,11 +7306,6 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "examples": [
-    ///    {
-    ///      "$ref": "#/components/examples/topicLevelPartitioner"
-    ///    }
-    ///  ],
     ///  "type": "object",
     ///  "required": [
     ///    "kind",
@@ -6717,14 +7331,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct PublicManagedStreamTopicLevelPartitioner {
         pub kind: PublicManagedStreamTopicLevelPartitionerKind,
         #[serde(rename = "topicLevel")]
         pub topic_level: i64,
     }
 
-    impl From<&PublicManagedStreamTopicLevelPartitioner> for PublicManagedStreamTopicLevelPartitioner {
+    impl ::std::convert::From<&PublicManagedStreamTopicLevelPartitioner>
+        for PublicManagedStreamTopicLevelPartitioner
+    {
         fn from(value: &PublicManagedStreamTopicLevelPartitioner) -> Self {
             value.clone()
         }
@@ -6746,31 +7362,40 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum PublicManagedStreamTopicLevelPartitionerKind {
         #[serde(rename = "topicLevel")]
         TopicLevel,
     }
 
-    impl From<&PublicManagedStreamTopicLevelPartitionerKind>
-        for PublicManagedStreamTopicLevelPartitionerKind
-    {
+    impl ::std::convert::From<&Self> for PublicManagedStreamTopicLevelPartitionerKind {
         fn from(value: &PublicManagedStreamTopicLevelPartitionerKind) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for PublicManagedStreamTopicLevelPartitionerKind {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for PublicManagedStreamTopicLevelPartitionerKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::TopicLevel => "topicLevel".to_string(),
+                Self::TopicLevel => write!(f, "topicLevel"),
             }
         }
     }
 
-    impl std::str::FromStr for PublicManagedStreamTopicLevelPartitionerKind {
+    impl ::std::str::FromStr for PublicManagedStreamTopicLevelPartitionerKind {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "topicLevel" => Ok(Self::TopicLevel),
                 _ => Err("invalid value".into()),
@@ -6778,23 +7403,31 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for PublicManagedStreamTopicLevelPartitionerKind {
+    impl ::std::convert::TryFrom<&str> for PublicManagedStreamTopicLevelPartitionerKind {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for PublicManagedStreamTopicLevelPartitionerKind {
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for PublicManagedStreamTopicLevelPartitionerKind
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for PublicManagedStreamTopicLevelPartitionerKind {
+    impl ::std::convert::TryFrom<::std::string::String>
+        for PublicManagedStreamTopicLevelPartitionerKind
+    {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -6827,13 +7460,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Secret {
-        pub name: String,
-        pub value: String,
+        pub name: ::std::string::String,
+        pub value: ::std::string::String,
     }
 
-    impl From<&Secret> for Secret {
+    impl ::std::convert::From<&Secret> for Secret {
         fn from(value: &Secret) -> Self {
             value.clone()
         }
@@ -6925,11 +7558,11 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Task {
         ///false or true depending on health checks (empty if no health checks)
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub healthy: Option<bool>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub healthy: ::std::option::Option<bool>,
         ///The IP address of the host the task is running on (not the IP
         /// address of the task itself)
         pub host: std::net::Ipv4Addr,
@@ -6937,12 +7570,12 @@ pub mod types {
         #[serde(
             rename = "lastUpdate",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub last_update: Option<i64>,
+        pub last_update: ::std::option::Option<i64>,
         ///Optional link to the latest log dump for this task
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub logs: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub logs: ::std::option::Option<::std::string::String>,
         ///Staging time of the task
         #[serde(rename = "stagedAt")]
         pub staged_at: chrono::DateTime<chrono::offset::Utc>,
@@ -6952,11 +7585,15 @@ pub mod types {
         ///The state the task is in
         pub state: TaskState,
         ///Stopped time of the task
-        #[serde(rename = "stoppedAt", default, skip_serializing_if = "Option::is_none")]
-        pub stopped_at: Option<chrono::DateTime<chrono::offset::Utc>>,
+        #[serde(
+            rename = "stoppedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub stopped_at: ::std::option::Option<chrono::DateTime<chrono::offset::Utc>>,
     }
 
-    impl From<&Task> for Task {
+    impl ::std::convert::From<&Task> for Task {
         fn from(value: &Task) -> Self {
             value.clone()
         }
@@ -6989,7 +7626,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum TaskState {
         #[serde(rename = "DROPPED")]
         Dropped,
@@ -7021,36 +7669,36 @@ pub mod types {
         Unreachable,
     }
 
-    impl From<&TaskState> for TaskState {
+    impl ::std::convert::From<&Self> for TaskState {
         fn from(value: &TaskState) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for TaskState {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for TaskState {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Dropped => "DROPPED".to_string(),
-                Self::Error => "ERROR".to_string(),
-                Self::Failed => "FAILED".to_string(),
-                Self::Finished => "FINISHED".to_string(),
-                Self::Gone => "GONE".to_string(),
-                Self::GoneByOperator => "GONE_BY_OPERATOR".to_string(),
-                Self::Killed => "KILLED".to_string(),
-                Self::Killing => "KILLING".to_string(),
-                Self::Lost => "LOST".to_string(),
-                Self::Running => "RUNNING".to_string(),
-                Self::Staging => "STAGING".to_string(),
-                Self::Starting => "STARTING".to_string(),
-                Self::Unknown => "UNKNOWN".to_string(),
-                Self::Unreachable => "UNREACHABLE".to_string(),
+                Self::Dropped => write!(f, "DROPPED"),
+                Self::Error => write!(f, "ERROR"),
+                Self::Failed => write!(f, "FAILED"),
+                Self::Finished => write!(f, "FINISHED"),
+                Self::Gone => write!(f, "GONE"),
+                Self::GoneByOperator => write!(f, "GONE_BY_OPERATOR"),
+                Self::Killed => write!(f, "KILLED"),
+                Self::Killing => write!(f, "KILLING"),
+                Self::Lost => write!(f, "LOST"),
+                Self::Running => write!(f, "RUNNING"),
+                Self::Staging => write!(f, "STAGING"),
+                Self::Starting => write!(f, "STARTING"),
+                Self::Unknown => write!(f, "UNKNOWN"),
+                Self::Unreachable => write!(f, "UNREACHABLE"),
             }
         }
     }
 
-    impl std::str::FromStr for TaskState {
+    impl ::std::str::FromStr for TaskState {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "DROPPED" => Ok(Self::Dropped),
                 "ERROR" => Ok(Self::Error),
@@ -7071,23 +7719,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for TaskState {
+    impl ::std::convert::TryFrom<&str> for TaskState {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for TaskState {
+    impl ::std::convert::TryFrom<&::std::string::String> for TaskState {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for TaskState {
+    impl ::std::convert::TryFrom<::std::string::String> for TaskState {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -7158,16 +7810,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct TaskStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<Task>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<Task>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<Task>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<Task>,
         pub status: AllocationStatus,
     }
 
-    impl From<&TaskStatus> for TaskStatus {
+    impl ::std::convert::From<&TaskStatus> for TaskStatus {
         fn from(value: &TaskStatus) -> Self {
             value.clone()
         }
@@ -7222,18 +7874,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ThirdPartyBucketConcession {
-        pub credentialidentifierref: String,
-        pub credentialsecretref: String,
+        pub credentialidentifierref: ::std::string::String,
+        pub credentialsecretref: ::std::string::String,
         ///your name for this bucket owned by a third party
-        pub name: String,
+        pub name: ::std::string::String,
         pub readable: bool,
-        pub shareidentifier: String,
+        pub shareidentifier: ::std::string::String,
         pub writable: bool,
     }
 
-    impl From<&ThirdPartyBucketConcession> for ThirdPartyBucketConcession {
+    impl ::std::convert::From<&ThirdPartyBucketConcession> for ThirdPartyBucketConcession {
         fn from(value: &ThirdPartyBucketConcession) -> Self {
             value.clone()
         }
@@ -7268,14 +7920,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ThirdPartyBucketConcessionConfiguration {
         ///your name for this bucket owned by a third party
-        pub name: String,
-        pub shareidentifier: String,
+        pub name: ::std::string::String,
+        pub shareidentifier: ::std::string::String,
     }
 
-    impl From<&ThirdPartyBucketConcessionConfiguration> for ThirdPartyBucketConcessionConfiguration {
+    impl ::std::convert::From<&ThirdPartyBucketConcessionConfiguration>
+        for ThirdPartyBucketConcessionConfiguration
+    {
         fn from(value: &ThirdPartyBucketConcessionConfiguration) -> Self {
             value.clone()
         }
@@ -7326,19 +7980,21 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ThirdPartyBucketConcessionRegistration {
         ///plaintext credential identifier provided to you by the third party
-        pub credentialidentifierplaintext: String,
+        pub credentialidentifierplaintext: ::std::string::String,
         ///plaintext secret value provided to you by the third party
-        pub credentialsecretplaintext: String,
+        pub credentialsecretplaintext: ::std::string::String,
         ///the name you give to the third party bucket you are registering
-        pub name: String,
+        pub name: ::std::string::String,
         ///provided to you by the third party
-        pub shareidentifier: String,
+        pub shareidentifier: ::std::string::String,
     }
 
-    impl From<&ThirdPartyBucketConcessionRegistration> for ThirdPartyBucketConcessionRegistration {
+    impl ::std::convert::From<&ThirdPartyBucketConcessionRegistration>
+        for ThirdPartyBucketConcessionRegistration
+    {
         fn from(value: &ThirdPartyBucketConcessionRegistration) -> Self {
             value.clone()
         }
@@ -7405,16 +8061,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct ThirdPartyBucketConcessionStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<ThirdPartyBucketConcession>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<ThirdPartyBucketConcessionConfiguration>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<ThirdPartyBucketConcession>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<ThirdPartyBucketConcessionConfiguration>,
         pub status: AllocationStatus,
     }
 
-    impl From<&ThirdPartyBucketConcessionStatus> for ThirdPartyBucketConcessionStatus {
+    impl ::std::convert::From<&ThirdPartyBucketConcessionStatus> for ThirdPartyBucketConcessionStatus {
         fn from(value: &ThirdPartyBucketConcessionStatus) -> Self {
             value.clone()
         }
@@ -7442,6 +8098,16 @@ pub mod types {
     ///  ],
     ///  "properties": {
     ///    "kafkaProperties": {
+    ///      "description": "Additional Kafka properties to be set on the topic.
+    /// The properties are key-value pairs.\nThe key is the property name and
+    /// the value is the property value.  The following properties are
+    /// allowed:\n  - `cleanup.policy`: `delete|compact`\n  -
+    /// `compression.type`: `uncompressed|zstd|lz4|snappy|gzip|producer`\n  -
+    /// `delete.retention.ms`: min 0\n  - `max.message.bytes`: min `1024`, max
+    /// `1048576` (1024x1024)\n  - `message.timestamp.type`:
+    /// `CreateTime|LogAppendTime`\n  - `retention.bytes` min 0\n  -
+    /// `retention.ms` min `3600000` (1 hour), max: `3,1536E+10` (365 days)\n  -
+    /// `segment.bytes`: min `52428800` (1024x1024x50)\n",
     ///      "type": "object",
     ///      "additionalProperties": {
     ///        "type": "string"
@@ -7457,20 +8123,33 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Topic {
+        ///Additional Kafka properties to be set on the topic. The properties
+        /// are key-value pairs. The key is the property name and the
+        /// value is the property value.  The following properties are allowed:
+        ///  - `cleanup.policy`: `delete|compact`
+        ///  - `compression.type`: `uncompressed|zstd|lz4|snappy|gzip|producer`
+        ///  - `delete.retention.ms`: min 0
+        ///  - `max.message.bytes`: min `1024`, max `1048576` (1024x1024)
+        ///  - `message.timestamp.type`: `CreateTime|LogAppendTime`
+        ///  - `retention.bytes` min 0
+        ///  - `retention.ms` min `3600000` (1 hour), max: `3,1536E+10` (365
+        ///    days)
+        ///  - `segment.bytes`: min `52428800` (1024x1024x50)
         #[serde(
             rename = "kafkaProperties",
             default,
-            skip_serializing_if = "std::collections::HashMap::is_empty"
+            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
         )]
-        pub kafka_properties: std::collections::HashMap<String, String>,
+        pub kafka_properties:
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
         pub partitions: i64,
         #[serde(rename = "replicationFactor")]
         pub replication_factor: i64,
     }
 
-    impl From<&Topic> for Topic {
+    impl ::std::convert::From<&Topic> for Topic {
         fn from(value: &Topic) -> Self {
             value.clone()
         }
@@ -7538,16 +8217,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct TopicStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<Topic>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<Topic>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<Topic>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<Topic>,
         pub status: AllocationStatus,
     }
 
-    impl From<&TopicStatus> for TopicStatus {
+    impl ::std::convert::From<&TopicStatus> for TopicStatus {
         fn from(value: &TopicStatus) -> Self {
             value.clone()
         }
@@ -7604,46 +8283,60 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Validations {
         ///Certificate common name
         #[serde(
             rename = "commonName",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub common_name: Option<String>,
+        pub common_name: ::std::option::Option<::std::string::String>,
         ///Certificate country
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub country: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub country: ::std::option::Option<::std::string::String>,
         ///Certificate locality
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub locality: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub locality: ::std::option::Option<::std::string::String>,
         ///Certificate organization
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub organization: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub organization: ::std::option::Option<::std::string::String>,
         ///Certificate Organizational unit
         #[serde(
             rename = "organizationalUnit",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub organizational_unit: Option<String>,
+        pub organizational_unit: ::std::option::Option<::std::string::String>,
         ///Certificate province
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub province: Option<String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub province: ::std::option::Option<::std::string::String>,
         ///Certificate subject Type
         #[serde(
             rename = "subjectType",
             default,
-            skip_serializing_if = "Option::is_none"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub subject_type: Option<String>,
+        pub subject_type: ::std::option::Option<::std::string::String>,
     }
 
-    impl From<&Validations> for Validations {
+    impl ::std::convert::From<&Validations> for Validations {
         fn from(value: &Validations) -> Self {
             value.clone()
+        }
+    }
+
+    impl ::std::default::Default for Validations {
+        fn default() -> Self {
+            Self {
+                common_name: Default::default(),
+                country: Default::default(),
+                locality: Default::default(),
+                organization: Default::default(),
+                organizational_unit: Default::default(),
+                province: Default::default(),
+                subject_type: Default::default(),
+            }
         }
     }
 
@@ -7665,12 +8358,12 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Vhost {
-        pub value: String,
+        pub value: ::std::string::String,
     }
 
-    impl From<&Vhost> for Vhost {
+    impl ::std::convert::From<&Vhost> for Vhost {
         fn from(value: &Vhost) -> Self {
             value.clone()
         }
@@ -7699,13 +8392,13 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Volume {
         #[serde(rename = "sizeGiB")]
         pub size_gi_b: i64,
     }
 
-    impl From<&Volume> for Volume {
+    impl ::std::convert::From<&Volume> for Volume {
         fn from(value: &Volume) -> Self {
             value.clone()
         }
@@ -7765,16 +8458,16 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct VolumeStatus {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub actual: Option<Volume>,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub configuration: Option<Volume>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub actual: ::std::option::Option<Volume>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub configuration: ::std::option::Option<Volume>,
         pub status: AllocationStatus,
     }
 
-    impl From<&VolumeStatus> for VolumeStatus {
+    impl ::std::convert::From<&VolumeStatus> for VolumeStatus {
         fn from(value: &VolumeStatus) -> Self {
             value.clone()
         }
@@ -7803,12 +8496,12 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Zone {
         pub network: ZoneNetwork,
     }
 
-    impl From<&Zone> for Zone {
+    impl ::std::convert::From<&Zone> for Zone {
         fn from(value: &Zone) -> Self {
             value.clone()
         }
@@ -7828,7 +8521,18 @@ pub mod types {
     ///}
     /// ```
     /// </details>
-    #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
     pub enum ZoneNetwork {
         #[serde(rename = "internal")]
         Internal,
@@ -7836,24 +8540,24 @@ pub mod types {
         Public,
     }
 
-    impl From<&ZoneNetwork> for ZoneNetwork {
+    impl ::std::convert::From<&Self> for ZoneNetwork {
         fn from(value: &ZoneNetwork) -> Self {
             value.clone()
         }
     }
 
-    impl ToString for ZoneNetwork {
-        fn to_string(&self) -> String {
+    impl ::std::fmt::Display for ZoneNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Internal => "internal".to_string(),
-                Self::Public => "public".to_string(),
+                Self::Internal => write!(f, "internal"),
+                Self::Public => write!(f, "public"),
             }
         }
     }
 
-    impl std::str::FromStr for ZoneNetwork {
+    impl ::std::str::FromStr for ZoneNetwork {
         type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             match value {
                 "internal" => Ok(Self::Internal),
                 "public" => Ok(Self::Public),
@@ -7862,23 +8566,27 @@ pub mod types {
         }
     }
 
-    impl std::convert::TryFrom<&str> for ZoneNetwork {
+    impl ::std::convert::TryFrom<&str> for ZoneNetwork {
         type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> Result<Self, self::error::ConversionError> {
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<&String> for ZoneNetwork {
+    impl ::std::convert::TryFrom<&::std::string::String> for ZoneNetwork {
         type Error = self::error::ConversionError;
-        fn try_from(value: &String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
 
-    impl std::convert::TryFrom<String> for ZoneNetwork {
+    impl ::std::convert::TryFrom<::std::string::String> for ZoneNetwork {
         type Error = self::error::ConversionError;
-        fn try_from(value: String) -> Result<Self, self::error::ConversionError> {
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
@@ -7897,11 +8605,11 @@ pub mod types {
             T::try_from(V).unwrap()
         }
 
-        pub(super) fn health_check_path() -> String {
+        pub(super) fn health_check_path() -> ::std::string::String {
             "/".to_string()
         }
 
-        pub(super) fn managed_tenant_services() -> Vec<super::ManagedTenantServices> {
+        pub(super) fn managed_tenant_services() -> ::std::vec::Vec<super::ManagedTenantServices> {
             vec![
                 super::ManagedTenantServices {
                     enabled: true,
@@ -7918,7 +8626,7 @@ pub mod types {
             ]
         }
 
-        pub(super) fn metrics_path() -> String {
+        pub(super) fn metrics_path() -> ::std::string::String {
             "/metrics".to_string()
         }
     }
@@ -7929,7 +8637,7 @@ pub mod types {
 ///
 ///Resource management API for DSH
 ///
-///Version: 1.8.0
+///Version: 1.9.0
 pub struct Client {
     pub(crate) baseurl: String,
     pub(crate) client: reqwest::Client,
@@ -7982,11 +8690,12 @@ impl Client {
     /// This string is pulled directly from the source OpenAPI
     /// document and may be in any format the API selects.
     pub fn api_version(&self) -> &'static str {
-        "1.8.0"
+        "1.9.0"
     }
 }
 
 #[allow(clippy::all)]
+#[allow(elided_named_lifetimes)]
 impl Client {
     ///Returns the configuration of every application created by a given tenant
     ///
@@ -8000,8 +8709,10 @@ impl Client {
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<std::collections::HashMap<String, types::Application>>, Error<()>>
-    {
+    ) -> Result<
+        ResponseValue<::std::collections::HashMap<::std::string::String, types::Application>>,
+        Error<()>,
+    > {
         let url = format!(
             "{}/allocation/{}/application/configuration",
             self.baseurl,
@@ -8156,8 +8867,10 @@ impl Client {
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<std::collections::HashMap<String, types::Application>>, Error<()>>
-    {
+    ) -> Result<
+        ResponseValue<::std::collections::HashMap<::std::string::String, types::Application>>,
+        Error<()>,
+    > {
         let url = format!(
             "{}/allocation/{}/application/actual",
             self.baseurl,
@@ -8279,8 +8992,10 @@ impl Client {
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<std::collections::HashMap<String, types::AppCatalogApp>>, Error<()>>
-    {
+    ) -> Result<
+        ResponseValue<::std::collections::HashMap<::std::string::String, types::AppCatalogApp>>,
+        Error<()>,
+    > {
         let url = format!(
             "{}/allocation/{}/appcatalogapp/configuration",
             self.baseurl,
@@ -8319,8 +9034,10 @@ impl Client {
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<std::collections::HashMap<String, types::AppCatalogApp>>, Error<()>>
-    {
+    ) -> Result<
+        ResponseValue<::std::collections::HashMap<::std::string::String, types::AppCatalogApp>>,
+        Error<()>,
+    > {
         let url = format!(
             "{}/allocation/{}/appcatalogapp/actual",
             self.baseurl,
@@ -8614,7 +9331,7 @@ impl Client {
         &'a self,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<Vec<types::AppCatalogManifest>>, Error<()>> {
+    ) -> Result<ResponseValue<::std::vec::Vec<types::AppCatalogManifest>>, Error<()>> {
         let url = format!(
             "{}/appcatalog/{}/manifest",
             self.baseurl,
@@ -10641,6 +11358,238 @@ impl Client {
         }
     }
 
+    ///Returns the actual deployment state of a kafka proxy, specified by the
+    /// tenant name and kafka proxy name
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/kafkaproxy/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_proxy_get_by_tenant_kafkaproxy_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::KafkaProxy>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/kafkaproxy/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a status description of a kafkaproxy allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/kafkaproxy/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka proxy id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_proxy_get_by_tenant_kafkaproxy_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/kafkaproxy/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///list tenant Kafka ACL groups
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/aclgroup`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_acl_group_get_by_tenant_aclgroup<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/aclgroup",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///return the configuration of the Kafka ACl group
+    ///
+    ///Sends a `GET` request to
+    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka ACL group id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_acl_group_get_by_tenant_aclgroup_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a types::KafkaAclGroupGetByTenantAclgroupByIdConfigurationId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::KafkaAclGroup>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/aclgroup/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///creates a new or updates an existing Kafka ACL group
+    ///
+    ///Sends a `PUT` request to
+    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka ACL group id
+    /// - `authorization`: Authorization header (bearer token)
+    /// - `body`: the Kafka ACL group definition
+    pub async fn kafka_acl_group_put_by_tenant_aclgroup_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a types::KafkaAclGroupPutByTenantAclgroupByIdConfigurationId,
+        authorization: &'a str,
+        body: &'a types::KafkaAclGroup,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/aclgroup/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .put(url)
+            .json(&body)
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///deletes a Kafka ACL group
+    ///
+    ///Sends a `DELETE` request to
+    /// `/allocation/{tenant}/aclgroup/{id}/configuration`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: Kafka ACL group id
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn kafka_acl_group_delete_by_tenant_aclgroup_by_id_configuration<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a types::KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/aclgroup/{}/configuration",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
     ///generate new client secret for a tenant
     ///
     ///Sends a `POST` request to `/robot/{tenant}/generate-secret`
@@ -12308,7 +13257,7 @@ impl Client {
         manager: &'a str,
         tenant: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<Vec<types::LimitValue>>, Error<()>> {
+    ) -> Result<ResponseValue<::std::vec::Vec<types::LimitValue>>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant/{}/limit",
             self.baseurl,
@@ -12350,7 +13299,7 @@ impl Client {
         manager: &'a str,
         tenant: &'a str,
         authorization: &'a str,
-        body: &'a Vec<types::LimitValue>,
+        body: &'a ::std::vec::Vec<types::LimitValue>,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/manage/{}/tenant/{}/limit",
@@ -12467,21 +13416,59 @@ impl Client {
         }
     }
 
-    ///get a list of streams managed by the managing tenant
+    ///get a list of internal streams managed by the managing tenant
     ///
-    ///Sends a `GET` request to `/manage/{manager}/stream`
+    ///Sends a `GET` request to `/manage/{manager}/stream/internal`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_get_manage_by_manager_stream<'a>(
+    pub async fn managed_streams_get_manage_by_manager_stream_internal<'a>(
         &'a self,
         manager: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<Vec<types::ManagedStreamId>>, Error<()>> {
+    ) -> Result<ResponseValue<::std::vec::Vec<types::ManagedStreamId>>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream",
+            "{}/manage/{}/stream/internal",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of public streams managed by the managing tenant
+    ///
+    ///Sends a `GET` request to `/manage/{manager}/stream/public`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_get_manage_by_manager_stream_public<'a>(
+        &'a self,
+        manager: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<::std::vec::Vec<types::ManagedStreamId>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public",
             self.baseurl,
             encode_path(&manager.to_string()),
         );
@@ -12520,7 +13507,7 @@ impl Client {
     >(
         &'a self,
         manager: &'a str,
-        stream_id: &'a types::ManagedPublicStreamId,
+        stream_id: &'a types::ManagedStreamId,
         authorization: &'a str,
     ) -> Result<ResponseValue<types::PublicManagedStream>, Error<()>> {
         let url = format!(
@@ -12566,7 +13553,7 @@ impl Client {
     >(
         &'a self,
         manager: &'a str,
-        stream_id: &'a types::ManagedPublicStreamId,
+        stream_id: &'a types::ManagedStreamId,
         authorization: &'a str,
         body: &'a types::PublicManagedStream,
     ) -> Result<ResponseValue<()>, Error<()>> {
@@ -12609,7 +13596,7 @@ impl Client {
     >(
         &'a self,
         manager: &'a str,
-        stream_id: &'a types::ManagedPublicStreamId,
+        stream_id: &'a types::ManagedStreamId,
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -12645,9 +13632,9 @@ impl Client {
     >(
         &'a self,
         manager: &'a str,
-        stream_id: &'a types::ManagedInternalStreamId,
+        stream_id: &'a types::ManagedStreamId,
         authorization: &'a str,
-    ) -> Result<ResponseValue<types::InternalManagedStream>, Error<()>> {
+    ) -> Result<ResponseValue<types::ManagedStream>, Error<()>> {
         let url = format!(
             "{}/manage/{}/stream/internal/{}/configuration",
             self.baseurl,
@@ -12691,9 +13678,9 @@ impl Client {
     >(
         &'a self,
         manager: &'a str,
-        stream_id: &'a types::ManagedInternalStreamId,
+        stream_id: &'a types::ManagedStreamId,
         authorization: &'a str,
-        body: &'a types::InternalManagedStream,
+        body: &'a types::ManagedStream,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
             "{}/manage/{}/stream/internal/{}/configuration",
@@ -12734,7 +13721,7 @@ impl Client {
     >(
         &'a self,
         manager: &'a str,
-        stream_id: &'a types::ManagedInternalStreamId,
+        stream_id: &'a types::ManagedStreamId,
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
@@ -12755,26 +13742,26 @@ impl Client {
         }
     }
 
-    ///get a list of all tenants that have write access to the stream
+    ///get a list of all tenants that have write access to the internal stream
     ///
     ///Sends a `GET` request to
-    /// `/manage/{manager}/stream/{streamId}/access/write`
+    /// `/manage/{manager}/stream/internal/{streamId}/access/write`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_get_manage_by_manager_stream_by_streamid_access_write<
+    pub async fn managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_write<
         'a,
     >(
         &'a self,
         manager: &'a str,
         stream_id: &'a types::ManagedStreamId,
         authorization: &'a str,
-    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+    ) -> Result<ResponseValue<::std::vec::Vec<::std::string::String>>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/write",
+            "{}/manage/{}/stream/internal/{}/access/write",
             self.baseurl,
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
@@ -12799,10 +13786,10 @@ impl Client {
         }
     }
 
-    ///Grant the tenant write access to the stream
+    ///Grant the tenant write access to the internal stream
     ///
     ///Sends a `PUT` request to
-    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    /// `/manage/{manager}/stream/internal/{streamId}/access/write/{tenant}`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
@@ -12810,7 +13797,7 @@ impl Client {
     /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_put_manage_by_manager_stream_by_streamid_access_write_by_tenant<
+    pub async fn managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant<
         'a,
     >(
         &'a self,
@@ -12820,7 +13807,7 @@ impl Client {
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/write/{}",
+            "{}/manage/{}/stream/internal/{}/access/write/{}",
             self.baseurl,
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
@@ -12838,10 +13825,10 @@ impl Client {
         }
     }
 
-    ///Revoke write access for the tenant on the stream
+    ///Revoke write access for the tenant on the internal stream
     ///
     ///Sends a `DELETE` request to
-    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    /// `/manage/{manager}/stream/internal/{streamId}/access/write/{tenant}`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
@@ -12849,7 +13836,7 @@ impl Client {
     /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_delete_manage_by_manager_stream_by_streamid_access_write_by_tenant<
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant<
         'a,
     >(
         &'a self,
@@ -12859,7 +13846,7 @@ impl Client {
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/write/{}",
+            "{}/manage/{}/stream/internal/{}/access/write/{}",
             self.baseurl,
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
@@ -12877,10 +13864,10 @@ impl Client {
         }
     }
 
-    ///Check whether the tenant has write access to the stream
+    ///Check whether the tenant has write access to the internal stream
     ///
     ///Sends a `HEAD` request to
-    /// `/manage/{manager}/stream/{streamId}/access/write/{tenant}`
+    /// `/manage/{manager}/stream/internal/{streamId}/access/write/{tenant}`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
@@ -12888,7 +13875,7 @@ impl Client {
     /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_head_manage_by_manager_stream_by_streamid_access_write_by_tenant<
+    pub async fn managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant<
         'a,
     >(
         &'a self,
@@ -12898,7 +13885,7 @@ impl Client {
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/write/{}",
+            "{}/manage/{}/stream/internal/{}/access/write/{}",
             self.baseurl,
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
@@ -12917,24 +13904,350 @@ impl Client {
         }
     }
 
-    ///get a list of all tenants that have read access to the stream
+    ///get a list of all tenants that have read access to the internal stream
     ///
     ///Sends a `GET` request to
-    /// `/manage/{manager}/stream/{streamId}/access/read`
+    /// `/manage/{manager}/stream/internal/{streamId}/access/read`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
     ///   request
     /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_get_manage_by_manager_stream_by_streamid_access_read<'a>(
+    pub async fn managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_read<
+        'a,
+    >(
         &'a self,
         manager: &'a str,
         stream_id: &'a types::ManagedStreamId,
         authorization: &'a str,
-    ) -> Result<ResponseValue<Vec<String>>, Error<()>> {
+    ) -> Result<ResponseValue<::std::vec::Vec<::std::string::String>>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/read",
+            "{}/manage/{}/stream/internal/{}/access/read",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Grant the tenant write access to the internal stream
+    ///
+    ///Sends a `PUT` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.put(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Revoke read access for the tenant on the internal stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Check whether the tenant has read access to the internal stream
+    ///
+    ///Sends a `HEAD` request to
+    /// `/manage/{manager}/stream/internal/{streamId}/access/read/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/internal/{}/access/read/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.head(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            204u16 => Ok(ResponseValue::empty(response)),
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of all tenants that have write access to the public stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/write`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_write<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<::std::vec::Vec<::std::string::String>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/write",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                reqwest::header::ACCEPT,
+                reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Grant the tenant write access to the public stream
+    ///
+    ///Sends a `PUT` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.put(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Revoke write access for the tenant on the public stream
+    ///
+    ///Sends a `DELETE` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.delete(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            202u16 => Ok(ResponseValue::empty(response)),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///Check whether the tenant has write access to the public stream
+    ///
+    ///Sends a `HEAD` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/write/{tenant}`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_write_by_tenant<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<()>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/write/{}",
+            self.baseurl,
+            encode_path(&manager.to_string()),
+            encode_path(&stream_id.to_string()),
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = HeaderMap::with_capacity(1usize);
+        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        #[allow(unused_mut)]
+        let mut request = self.client.head(url).headers(header_map).build()?;
+        let result = self.client.execute(request).await;
+        let response = result?;
+        match response.status().as_u16() {
+            204u16 => Ok(ResponseValue::empty(response)),
+            404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///get a list of all tenants that have read access to the public stream
+    ///
+    ///Sends a `GET` request to
+    /// `/manage/{manager}/stream/public/{streamId}/access/read`
+    ///
+    ///Arguments:
+    /// - `manager`: Name of the tenant that is acting as manager for this
+    ///   request
+    /// - `stream_id`: id of the managed stream, including the type prefix
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_read<
+        'a,
+    >(
+        &'a self,
+        manager: &'a str,
+        stream_id: &'a types::ManagedStreamId,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<::std::vec::Vec<::std::string::String>>, Error<()>> {
+        let url = format!(
+            "{}/manage/{}/stream/public/{}/access/read",
             self.baseurl,
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
@@ -12962,7 +14275,7 @@ impl Client {
     ///Grant the tenant write access to the stream
     ///
     ///Sends a `PUT` request to
-    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
+    /// `/manage/{manager}/stream/public/{streamId}/access/read/{tenant}`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
@@ -12970,7 +14283,7 @@ impl Client {
     /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_put_manage_by_manager_stream_by_streamid_access_read_by_tenant<
+    pub async fn managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_read_by_tenant<
         'a,
     >(
         &'a self,
@@ -12980,7 +14293,7 @@ impl Client {
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/read/{}",
+            "{}/manage/{}/stream/public/{}/access/read/{}",
             self.baseurl,
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
@@ -12998,10 +14311,10 @@ impl Client {
         }
     }
 
-    ///Revoke read access for the tenant on the stream
+    ///Revoke read access for the tenant on the public stream
     ///
     ///Sends a `DELETE` request to
-    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
+    /// `/manage/{manager}/stream/public/{streamId}/access/read/{tenant}`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
@@ -13009,7 +14322,7 @@ impl Client {
     /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_delete_manage_by_manager_stream_by_streamid_access_read_by_tenant<
+    pub async fn managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_read_by_tenant<
         'a,
     >(
         &'a self,
@@ -13019,7 +14332,7 @@ impl Client {
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/read/{}",
+            "{}/manage/{}/stream/public/{}/access/read/{}",
             self.baseurl,
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
@@ -13037,10 +14350,10 @@ impl Client {
         }
     }
 
-    ///Check whether the tenant has read access to the stream
+    ///Check whether the tenant has read access to the public stream
     ///
     ///Sends a `HEAD` request to
-    /// `/manage/{manager}/stream/{streamId}/access/read/{tenant}`
+    /// `/manage/{manager}/stream/public/{streamId}/access/read/{tenant}`
     ///
     ///Arguments:
     /// - `manager`: Name of the tenant that is acting as manager for this
@@ -13048,7 +14361,7 @@ impl Client {
     /// - `stream_id`: id of the managed stream, including the type prefix
     /// - `tenant`: tenant name
     /// - `authorization`: Authorization header (bearer token)
-    pub async fn managed_streams_access_head_manage_by_manager_stream_by_streamid_access_read_by_tenant<
+    pub async fn managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_read_by_tenant<
         'a,
     >(
         &'a self,
@@ -13058,7 +14371,7 @@ impl Client {
         authorization: &'a str,
     ) -> Result<ResponseValue<()>, Error<()>> {
         let url = format!(
-            "{}/manage/{}/stream/{}/access/read/{}",
+            "{}/manage/{}/stream/public/{}/access/read/{}",
             self.baseurl,
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),

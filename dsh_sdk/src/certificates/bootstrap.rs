@@ -25,7 +25,7 @@ pub(crate) fn bootstrap(
 ) -> Result<Cert, DshError> {
     let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id)?;
     let client = reqwest_ca_client(dsh_config.dsh_ca_certificate.as_bytes())?;
-    let dn = DshBootstapCall::Dn(&dsh_config).perform_call(&client)?;
+    let dn = DshBootstapCall::Dn(&dsh_config).retryable_call(&client)?;
     let dn = Dn::parse_string(&dn)?;
     let certificates = get_signed_client_cert(dn, &dsh_config, &client)?;
     info!("Successfully connected to DSH");
@@ -157,6 +157,28 @@ impl DshBootstapCall<'_> {
             });
         }
         Ok(response.text()?)
+    }
+
+    pub(crate) fn retryable_call(&self, client: &Client) -> Result<String, DshError> {
+        let mut retries = 0;
+        loop {
+            match self.perform_call(client) {
+                Ok(response) => return Ok(response),
+                Err(err) => {
+                    if retries >= 30 {
+                        return Err(err);
+                    }
+                    retries += 1;
+                    // sleep exponentially
+                    let sleep: u64 = std::cmp::min(2u64.pow(retries), 60);
+                    log::warn!(
+                        "Retrying call to DSH in {sleep} seconds due to error: {}",
+                        crate::error::report(&err)
+                    );
+                    std::thread::sleep(std::time::Duration::from_secs(sleep));
+                }
+            }
+        }
     }
 }
 

@@ -99,24 +99,21 @@ impl Properties {
             }
         };
         let task_id = utils::get_env_var(VAR_TASK_ID).unwrap_or("local_task_id".to_string());
-        let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST)
-            .map(|host| format!("https://{}", host))
-            .unwrap_or_else(|_| {
-                warn!(
-                    "{} is not set, using default value {}",
-                    VAR_KAFKA_CONFIG_HOST, DEFAULT_CONFIG_HOST
-                );
-                DEFAULT_CONFIG_HOST.to_string()
-            });
-        let certificates = if let Ok(cert) = Cert::from_pki_config_dir::<std::path::PathBuf>(None) {
+        let config_host =
+            utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(|host| format!("https://{}", host));
+        let certificates = if let Ok(cert) = pki_config_dir::get_pki_cert() {
             Some(cert)
-        } else {
-            Cert::from_bootstrap(&config_host, &tenant_name, &task_id)
+        } else if let Ok(config_host) = &config_host {
+            bootstrap(config_host, &tenant_name, &task_id)
                 .inspect_err(|e| {
                     warn!("Could not bootstrap to DSH, due to: {}", e);
                 })
                 .ok()
+        } else {
+            warn!("Could not bootstrap to DSH, as it does not seem to be running on DSH due to missing enivironment variables");
+            None
         };
+        let config_host = config_host.unwrap_or(DEFAULT_CONFIG_HOST.to_string()); // Default is for running on local machine with VPN
         let fetched_datastreams = certificates.as_ref().and_then(|cert| {
             cert.reqwest_blocking_client_config()
                 .build()
