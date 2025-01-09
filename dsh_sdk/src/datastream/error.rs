@@ -1,4 +1,4 @@
-// Errors relataed to datastreams 
+/// Errors relataed to datastreams
 #[derive(Debug, thiserror::Error)]
 pub enum DatastreamError {
     #[error("Error getting group id, index out of bounds for {0}")]

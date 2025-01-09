@@ -20,9 +20,9 @@ use crate::DshKafkaConfig;
 /// The dead letter queue
 ///
 /// ## How to use
-/// 1. Implement the [ErrorToDlq] trait on top your (custom) error type.
+/// 1. Implement the [ErrorToDlq](super::ErrorToDlq) trait on top your (custom) error type.
 /// 2. Use the [Dlq::start] in your main or at start of your process logic. (this will start the DLQ in a separate tokio task)
-/// 3. Get the dlq [DlqChannel] from the [Dlq::start] method and use this channel to communicate errored messages with the [Dlq] via the [ErrorToDlq::to_dlq] method.
+/// 3. Get the dlq [DlqChannel] from the [Dlq::start] method and use this channel to communicate errored messages with the [Dlq] via the [ErrorToDlq::to_dlq](super::ErrorToDlq::to_dlq) method.
 ///
 /// # Example
 /// See full implementation example [here](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs)

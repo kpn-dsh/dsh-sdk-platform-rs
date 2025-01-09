@@ -96,7 +96,7 @@ pub enum MetricsError {
 /// # Example
 /// This starts a http server on port 9090 on a separate thread. The server will run until the main thread is stopped.
 /// ```rust
-/// use dsh_sdk::metrics::start_http_server;
+/// use dsh_sdk::utils::metrics::start_http_server;
 ///
 /// #[tokio::main]
 /// async fn main() {

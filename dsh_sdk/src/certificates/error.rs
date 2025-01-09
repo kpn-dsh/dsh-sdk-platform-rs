@@ -3,6 +3,8 @@
 pub enum CertificatesError {
     #[error("Certificates are not set")]
     NoCertificates,
+    #[error("Missing required injected variables")]
+    MisisngInjectedVariables,
     #[error("Error parsing: {0}")]
     ParseDn(String),
     #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]

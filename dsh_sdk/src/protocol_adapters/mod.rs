@@ -1,3 +1,5 @@
+//! The DSH Protocol adapter clients (HTTP, Kafka, MQTT)
+//!
 #[cfg(feature = "http-protocol-adapter")]
 pub mod http_protocol;
 #[cfg(feature = "kafka")]

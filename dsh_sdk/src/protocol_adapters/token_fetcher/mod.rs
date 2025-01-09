@@ -1,4 +1,4 @@
-//! # MQTT Token Fetcher
+//! Protocol Token Fetcher
 //!
 //! `ProtocolTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
 use std::collections::{hash_map::Entry, HashMap};

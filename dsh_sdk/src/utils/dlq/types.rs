@@ -30,14 +30,13 @@ use super::DlqChannel;
 /// }
 /// ```
 pub trait ErrorToDlq {
-    /// Convert error message to a dlq message
+    /// Convert Error message to a dlq message
     fn to_dlq(&self, kafka_message: OwnedMessage) -> SendToDlq;
-    /// Match error if the orignal message is able to be retried or not
+    /// Match Error if the orignal message is able to be retried
     fn retryable(&self) -> Retryable;
 }
 
-/// Struct with required details to send a channel message to the dlq
-/// Error needs to be send as string, as it is not possible to send a struct that implements Error trait
+/// DLQ Message that can be send to the [DlqChannel]
 pub struct SendToDlq {
     pub kafka_message: OwnedMessage,
     pub retryable: Retryable,

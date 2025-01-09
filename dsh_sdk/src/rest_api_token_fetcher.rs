@@ -40,7 +40,7 @@ use std::time::{Duration, Instant};
 use log::debug;
 use serde::Deserialize;
 
-use crate::management_api::error::ManagementApiTokenError as DshRestTokenError;
+use crate::management_api::ManagementApiTokenError as DshRestTokenError;
 use crate::utils::Platform;
 
 /// Access token of the authentication serveice of DSH.

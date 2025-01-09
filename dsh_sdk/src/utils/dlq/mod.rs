@@ -2,7 +2,8 @@
 //! This optional module contains an implementation of pushing unprocessable/invalid messages towards a Dead Letter Queue (DLQ).
 //! It is implemeted with [rdkafka] and [tokio].
 //!
-//! add feature `dlq` to your Cargo.toml to enable this module.
+//! ## Feature flag
+//! Add feature `dlq` to your Cargo.toml to enable this module.
 //!
 //! ### NOTE:
 //! This module is meant for pushing messages towards a dead/retry topic only, it does and WILL not handle any logic for retrying messages.
@@ -10,19 +11,15 @@
 //!
 //! It is up to the user to implement the strategy and logic for retrying messages.
 //!
-//! ### How it works
-//! The DLQ struct can
-//!
 //! ## How to use
 //! 1. Implement the [ErrorToDlq] trait on top your (custom) error type.
 //! 2. Use the [Dlq::start] in your main or at start of your process logic. (this will start the DLQ in a separate tokio task)
-//! 3. Get the dlq [DlqChannel] from the [Dlq::start] method and use this channel to communicate errored messages with the [Dlq] via the [ErrorToDlq::to_dlq] method.
+//! 3. Get the dlq [DlqChannel] from the [Dlq::start] method and use this channel to communicate errored messages with the [Dlq] via the [ErrorToDlq::to_dlq] method which is implemented on your Error.
 //!
 //! The topics are set via environment variables `DLQ_DEAD_TOPIC` and `DLQ_RETRY_TOPIC`.
 //!
 //! ### Example:
-//! https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs
-
+//! <https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs>
 mod dlq;
 mod error;
 mod headers;

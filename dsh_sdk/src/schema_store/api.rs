@@ -1,7 +1,7 @@
 use super::types::*;
 
 use super::request::Request;
-use super::Result;
+use super::SchemaStoreError;
 
 use super::SchemaStoreClient;
 
@@ -13,15 +13,15 @@ pub trait SchemaStoreApi {
     /// Get glabal compatibility level
     ///
     /// {base_url}/config/{subject}
-    async fn get_config_subject(&self, subject: String) -> Result<ConfigGet>;
+    async fn get_config_subject(&self, subject: String) -> Result<ConfigGet, SchemaStoreError>;
     /// Set compatibility on subject level. With 1 schema stored in the subject, you can change it to any compatibility level. Else, you can only change into a less restrictive level. Must be one of BACKWARD, BACKWARD_TRANSITIVE, FORWARD, FORWARD_TRANSITIVE, FULL, FULL_TRANSITIVE, NONE
     ///
     /// {base_url}/config/{subject}
-    async fn put_config_subject(&self, subject: String, body: Compatibility) -> Result<ConfigPut>;
+    async fn put_config_subject(&self, subject: String, body: Compatibility) -> Result<ConfigPut, SchemaStoreError>;
     /// Get a list of registered subjects
     ///
     /// {base_url}/subjects
-    async fn get_subjects(&self) -> Result<Vec<String>>;
+    async fn get_subjects(&self) -> Result<Vec<String>, SchemaStoreError>;
 
     /// Check if a schema has already been registered under the specified subject.
     /// If so, this returns the schema string along with its globally unique identifier,
@@ -32,12 +32,12 @@ pub trait SchemaStoreApi {
         &self,
         subject: String,
         body: RawSchemaWithType,
-    ) -> Result<Subject>;
+    ) -> Result<Subject, SchemaStoreError>;
 
     /// Get a list of versions registered under the specified subject.
     ///
     /// {base_url}/subjects/{subject}
-    async fn get_subjects_subject_versions(&self, subject: String) -> Result<Vec<i32>>;
+    async fn get_subjects_subject_versions(&self, subject: String) -> Result<Vec<i32>, SchemaStoreError>;
 
     /// Get a specific version of the schema registered under this subject.
     ///
@@ -46,7 +46,7 @@ pub trait SchemaStoreApi {
         &self,
         subject: String,
         id: String,
-    ) -> Result<Subject>;
+    ) -> Result<Subject, SchemaStoreError>;
 
     /// Register a new schema under the specified subject.
     ///  
@@ -63,7 +63,7 @@ pub trait SchemaStoreApi {
         &self,
         subject: String,
         body: RawSchemaWithType,
-    ) -> Result<SchemaId>;
+    ) -> Result<SchemaId, SchemaStoreError>;
 
     /// Test input schema against a particular version of a subject’s schema for compatibility.
     /// Note that the compatibility level applied for the check is the configured compatibility level for the subject (GET /config/(string: subject)).
@@ -75,7 +75,7 @@ pub trait SchemaStoreApi {
         subject: String,
         id: String,
         body: RawSchemaWithType,
-    ) -> Result<CompatibilityCheck>;
+    ) -> Result<CompatibilityCheck, SchemaStoreError>;
 
     /// "Get the schema for the specified version of this subject. The unescaped schema only is returned.
     ///
@@ -84,34 +84,34 @@ pub trait SchemaStoreApi {
         &self,
         subject: String,
         version_id: String,
-    ) -> Result<String>;
+    ) -> Result<String, SchemaStoreError>;
 
     /// Get the schema for the specified version of schema.
     ///
     /// {base_url}/schemas/ids/{id}
-    async fn get_schemas_ids_id(&self, id: i32) -> Result<RawSchemaWithType>;
+    async fn get_schemas_ids_id(&self, id: i32) -> Result<RawSchemaWithType, SchemaStoreError>;
 
     /// Get the related subjects vesrion for the specified schema.
     ///
     /// {base_url}/schemas/ids/{id}/versions
-    async fn get_schemas_ids_id_versions(&self, id: i32) -> Result<Vec<SubjectVersionInfo>>;
+    async fn get_schemas_ids_id_versions(&self, id: i32) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError>;
 }
 
 impl<C> SchemaStoreApi for SchemaStoreClient<C>
 where
     C: Request,
 {
-    async fn get_config_subject(&self, subject: String) -> Result<ConfigGet> {
+    async fn get_config_subject(&self, subject: String) -> Result<ConfigGet, SchemaStoreError> {
         let url = format!("{}/config/{}", self.base_url, subject);
         Ok(self.client.get_request(url).await?)
     }
 
-    async fn put_config_subject(&self, subject: String, body: Compatibility) -> Result<ConfigPut> {
+    async fn put_config_subject(&self, subject: String, body: Compatibility) -> Result<ConfigPut, SchemaStoreError> {
         let url = format!("{}/config/{}", self.base_url, subject);
         Ok(self.client.put_request(url, body).await?)
     }
 
-    async fn get_subjects(&self) -> Result<Vec<String>> {
+    async fn get_subjects(&self) -> Result<Vec<String>, SchemaStoreError> {
         let url = format!("{}/subjects", self.base_url);
         Ok(self.client.get_request(url).await?)
     }
@@ -120,12 +120,12 @@ where
         &self,
         subject: String,
         body: RawSchemaWithType,
-    ) -> Result<Subject> {
+    ) -> Result<Subject, SchemaStoreError> {
         let url = format!("{}/subjects/{}", self.base_url, subject);
         Ok(self.client.post_request(url, body).await?)
     }
 
-    async fn get_subjects_subject_versions(&self, subject: String) -> Result<Vec<i32>> {
+    async fn get_subjects_subject_versions(&self, subject: String) -> Result<Vec<i32>, SchemaStoreError> {
         let url = format!("{}/subjects/{}/versions", self.base_url, subject);
         Ok(self.client.get_request(url).await?)
     }
@@ -134,7 +134,7 @@ where
         &self,
         subject: String,
         version_id: String,
-    ) -> Result<Subject> {
+    ) -> Result<Subject, SchemaStoreError> {
         let url = format!(
             "{}/subjects/{}/versions/{}",
             self.base_url, subject, version_id
@@ -146,7 +146,7 @@ where
         &self,
         subject: String,
         body: RawSchemaWithType,
-    ) -> Result<SchemaId> {
+    ) -> Result<SchemaId, SchemaStoreError> {
         let url = format!("{}/subjects/{}/versions", self.base_url, subject);
         Ok(self.client.post_request(url, body).await?)
     }
@@ -156,7 +156,7 @@ where
         subject: String,
         version_id: String,
         body: RawSchemaWithType,
-    ) -> Result<CompatibilityCheck> {
+    ) -> Result<CompatibilityCheck, SchemaStoreError> {
         let url = format!(
             "{}/compatibility/subjects/{}/versions/{}",
             self.base_url, subject, version_id
@@ -168,7 +168,7 @@ where
         &self,
         subject: String,
         version_id: String,
-    ) -> Result<String> {
+    ) -> Result<String, SchemaStoreError> {
         let url = format!(
             "{}/subjects/{}/versions/{}/schema",
             self.base_url, subject, version_id
@@ -176,12 +176,12 @@ where
         Ok(self.client.get_request_plain(url).await?)
     }
 
-    async fn get_schemas_ids_id(&self, id: i32) -> Result<RawSchemaWithType> {
+    async fn get_schemas_ids_id(&self, id: i32) -> Result<RawSchemaWithType, SchemaStoreError> {
         let url = format!("{}/schemas/ids/{}", self.base_url, id);
         Ok(self.client.get_request(url).await?)
     }
 
-    async fn get_schemas_ids_id_versions(&self, id: i32) -> Result<Vec<SubjectVersionInfo>> {
+    async fn get_schemas_ids_id_versions(&self, id: i32) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError> {
         let url = format!("{}/schemas/ids/{}/versions", self.base_url, id);
         Ok(self.client.get_request(url).await?)
     }

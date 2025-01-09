@@ -53,7 +53,7 @@ fn get_signed_client_cert(
         config: dsh_config,
         csr: &csr.pem()?,
     }
-    .perform_call(client)?;
+    .retryable_call(client)?;
     let ca_cert = pem::parse_many(&dsh_config.dsh_ca_certificate)?;
     let client_cert = pem::parse_many(client_certificate)?;
     Ok(Cert::new(
@@ -250,7 +250,11 @@ mod tests {
         let subject_alt_names = vec!["hello.world.example".to_string(), "localhost".to_string()];
         let CertifiedKey { cert, key_pair } =
             generate_simple_self_signed(subject_alt_names).unwrap();
-        Cert::new(cert.pem(), cert.pem(), key_pair)
+        Cert::new(
+            cert.pem(),
+            cert.pem(),
+            key_pair,
+        )
     }
 
     #[test]

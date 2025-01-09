@@ -1,8 +1,25 @@
-pub mod config; // TODO: should we make this public? What benefits would that bring?
+//! DSH Configuration for Kafka.
+//! 
+//! This module contains the required configurations to consume and produce messages from DSH Kafka Cluster.
+//! 
+//! ## Example
+//! ```
+//! use dsh_sdk::DshKafkaConfig;
+//! use rdkafka::ClientConfig;
+//! use rdkafka::consumer::StreamConsumer;
+//! 
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let consumer:StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
+//! # Ok(())
+//! # }
+//! ```
+pub mod config; 
 
 #[cfg(feature = "rdkafka")]
 mod rdkafka;
 
+/// Set all required configurations to consume messages from DSH Kafka Cluster.
 pub trait DshKafkaConfig {
     /// Set all required configurations to consume messages from DSH Kafka Cluster.
     ///

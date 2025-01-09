@@ -1,4 +1,4 @@
-/// Errors Dead Letter Queue client
+/// Related errors to the Dead Letter Queue
 #[derive(Debug, thiserror::Error)]
 pub enum DlqErrror {
     #[error("Kafka Error: {0}")]

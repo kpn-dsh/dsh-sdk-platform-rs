@@ -1,19 +1,23 @@
-//! Module to handle the datastreams.json file.
+//! Datastream properties
 //!
 //! The datastreams.json can be parsed into a Datastream struct using serde_json.
-//! This struct contains all the information from the datastreams.json file.
-//!
-//! You can get the Datastream struct via the 'Properties' struct.
+//! This struct contains all the information from the datastreams properties file.
 //!
 //! # Example
-//! ```
-//! use dsh_sdk::Properties;
+//! ```no_run
+//! use dsh_sdk::Dsh;
 //!
-//! let properties = Properties::get();
-//! let datastream = properties.datastream();
-//!
+//! # #[tokio::main]
+//! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+//! let dsh = Dsh::get();
+//! let datastream = dsh.datastream(); // immutable datastream which is fetched at initialization of SDK
+//! // Or
+//! let datastream = dsh.fetch_datastream().await?; // fetch a fresh datastream from dsh server
+//! 
 //! let brokers = datastream.get_brokers();
-//! let schema_store = datastream.schema_store();
+//! let schema_store_url = datastream.schema_store();
+//! # Ok(())
+//! }
 //! ```
 use std::collections::HashMap;
 use std::env;
@@ -27,24 +31,27 @@ use crate::{
     utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_LOCAL_DATASTREAMS_JSON,
     VAR_SCHEMA_REGISTRY_HOST,
 };
+#[doc(inline)]
 pub use error::DatastreamError;
 
 mod error;
 
 const FILE_NAME: &str = "local_datastreams.json";
 
-/// This struct is equivalent to the datastreams.json
+/// Datastream properties file
+///
+/// Read from datastreams.json
 ///
 /// # Example
 /// ```
-/// use dsh_sdk::Properties;
+/// use dsh_sdk::Dsh;
 ///
-/// let properties = Properties::get();
+/// let properties = Dsh::get();
 /// let datastream = properties.datastream();
 ///
 /// let brokers = datastream.get_brokers();
 /// let streams = datastream.streams();
-/// let schema_store = datastream.schema_store();
+/// let schema_store_url = datastream.schema_store();
 /// ```
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Datastream {
@@ -388,6 +395,7 @@ pub enum ReadWriteAccess {
     Write,
 }
 
+/// Enum to indicate the group type (private or shared)
 #[derive(Debug, PartialEq)]
 pub enum GroupType {
     Private(usize),

@@ -1,7 +1,7 @@
 use super::api::SchemaStoreApi;
 use super::request::Request;
 use super::types::*;
-use super::Result;
+use super::SchemaStoreError;
 use crate::Dsh;
 
 /// High level Schema Store Client
@@ -51,7 +51,7 @@ where
     /// # Ok(())
     /// # }
     ///
-    pub async fn subject_compatibility(&self, subject: &SubjectName) -> Result<Compatibility> {
+    pub async fn subject_compatibility(&self, subject: &SubjectName) -> Result<Compatibility, SchemaStoreError> {
         Ok(self.get_config_subject(subject.name()).await?.into())
     }
 
@@ -83,7 +83,7 @@ where
         &self,
         subject: &SubjectName,
         compatibility: Compatibility,
-    ) -> Result<Compatibility> {
+    ) -> Result<Compatibility, SchemaStoreError> {
         Ok(self
             .put_config_subject(subject.name(), compatibility)
             .await?
@@ -105,7 +105,7 @@ where
     /// println!("Subjects: {:?}", client.subjects().await);
     /// # }
     /// ```
-    pub async fn subjects(&self) -> Result<Vec<String>> {
+    pub async fn subjects(&self) -> Result<Vec<String>, SchemaStoreError> {
         self.get_subjects().await
     }
 
@@ -127,7 +127,7 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject_versions(&self, subject: &SubjectName) -> Result<Vec<i32>> {
+    pub async fn subject_versions(&self, subject: &SubjectName) -> Result<Vec<i32>, SchemaStoreError> {
         self.get_subjects_subject_versions(subject.name()).await
     }
 
@@ -156,7 +156,7 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject<V>(&self, subject: &SubjectName, version: V) -> Result<Subject>
+    pub async fn subject<V>(&self, subject: &SubjectName, version: V) -> Result<Subject, SchemaStoreError>
     where
         V: Into<SubjectVersion>,
     {
@@ -188,7 +188,7 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject_raw_schema<V>(&self, subject: &SubjectName, version: V) -> Result<String>
+    pub async fn subject_raw_schema<V>(&self, subject: &SubjectName, version: V) -> Result<String, SchemaStoreError>
     where
         V: Into<SubjectVersion>,
     {
@@ -216,7 +216,7 @@ where
     /// let subjects = client.subject_all_schemas(&subject_name).await?;
     /// # Ok(())
     /// # }
-    pub async fn subject_all_schemas(&self, subject: &SubjectName) -> Result<Vec<Subject>> {
+    pub async fn subject_all_schemas(&self, subject: &SubjectName) -> Result<Vec<Subject>, SchemaStoreError> {
         let versions = self.subject_versions(&subject).await?;
         let mut subjects = Vec::new();
         for version in versions {
@@ -286,7 +286,7 @@ where
         &self,
         subject: &SubjectName,
         schema: RawSchemaWithType,
-    ) -> Result<i32> {
+    ) -> Result<i32, SchemaStoreError> {
         Ok(self
             .post_subjects_subject_versions(subject.name(), schema)
             .await?
@@ -330,7 +330,7 @@ where
         &self,
         subject: &SubjectName,
         schema: RawSchemaWithType,
-    ) -> Result<Subject> {
+    ) -> Result<Subject, SchemaStoreError> {
         self.post_subjects_subject(subject.name(), schema).await
     }
 
@@ -351,7 +351,7 @@ where
         subject: &SubjectName,
         version: Sv,
         schema: RawSchemaWithType,
-    ) -> Result<bool>
+    ) -> Result<bool, SchemaStoreError>
     where
         Sv: Into<SubjectVersion>,
     {
@@ -369,7 +369,7 @@ where
     ///
     /// ## Arguments
     /// - `id`: The schema ID (Into<[i32]>)
-    pub async fn schema<Si>(&self, id: Si) -> Result<RawSchemaWithType>
+    pub async fn schema<Si>(&self, id: Si) -> Result<RawSchemaWithType, SchemaStoreError>
     where
         Si: Into<i32>,
     {
@@ -380,7 +380,7 @@ where
     ///
     /// ## Arguments
     /// - `id`: The schema ID (Into<[i32]>)
-    pub async fn schema_subjects<Si>(&self, id: Si) -> Result<Vec<SubjectVersionInfo>>
+    pub async fn schema_subjects<Si>(&self, id: Si) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError>
     where
         Si: Into<i32>,
     {

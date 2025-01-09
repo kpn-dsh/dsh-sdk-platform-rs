@@ -42,9 +42,11 @@ use dsh_sdk::DshKafkaConfig;
 use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::ClientConfig;
 
-fn main() -> Result<(), Box<dyn std::error::Error>>{
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>>{
     // get a rdkafka consumer config for example
     let consumer: StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
+    Ok(())
 }
 ```
 
@@ -59,7 +61,7 @@ The following features are available in this library and can be enabled/disabled
 
 | **feature** | **default** | **Description** | **Example** |
 | --- |--- | --- | --- |
-| `bootstrap` | &check; | Certificate signing process and fetch datastreams info |  [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs) |
+| `bootstrap` | &check; | Certificate signing process and fetch datastreams properties |  [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs) |
 | `kafka` |  &check; | Enable `DshKafkaConfig` trait and Config struct to connect to DSH |  [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs) |
 | `rdkafka-config` | &check; | Enable `DshKafkaConfig` implementation for RDKafka | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs) |
 | `schema-store` | &cross; | Interact with DSH Schema Store | [Schema Store API](./examples/schema_store_api.rs) |
@@ -80,7 +82,8 @@ dsh_sdk = { version = "0.5", default-features = false, features = ["management-a
 ```
 
 ## Environment variables
-The SDK checks environment variables to change configuration for  See [ENV_VARIABLES.md](ENV_VARIABLES.md)  which .
+The SDK checks environment variables to change configuration for connnecting to DSH.
+See [ENV_VARIABLES.md](ENV_VARIABLES.md)  which .
 
 ## Examples
 See folder [dsh_sdk/examples](./examples/) for simple examples on how to use the SDK.

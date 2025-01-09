@@ -228,7 +228,7 @@ pub fn tenant_name() -> Result<String, UtilsError> {
     } else if let Ok(tenant_name) = get_env_var(VAR_DSH_TENANT_NAME) {
         Ok(tenant_name)
     } else {
-        log::error!("{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster!. Please set one of these environment variables.", VAR_DSH_TENANT_NAME, VAR_APP_ID);
+        log::warn!("{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster as the group ID is based on this!. Please set one of these environment variables.", VAR_DSH_TENANT_NAME, VAR_APP_ID);
         Err(UtilsError::NoTenantName)
     }
 }
