@@ -21,7 +21,7 @@ async fn main() {
     let mqtt_token_fetcher =
         ProtocolTokenFetcher::new(tenant_name, api_key, dsh_sdk::Platform::NpLz);
 
-    let token: MqttToken = mqtt_token_fetcher
+    let token: ProtocolToken = mqtt_token_fetcher
         .get_token("Client-id", Some(claims))
         .await
         .unwrap();

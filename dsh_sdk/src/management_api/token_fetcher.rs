@@ -1,37 +1,3 @@
-//! Module for fetching and storing access tokens for the DSH Management Rest API client
-//!
-//! This module is meant to be used together with the [dsh_rest_api_client].
-//!
-//! The TokenFetcher will fetch and store access tokens to be used in the DSH Rest API client.
-//!
-//! ## Example
-//! Recommended usage is to use the [ManagementApiTokenFetcherBuilder] to create a new instance of the token fetcher.
-//! However, you can also create a new instance of the token fetcher directly.
-//! ```no_run
-//! use dsh_sdk::{ManagementApiTokenFetcherBuilder, Platform};
-//! use dsh_rest_api_client::Client;
-//!
-//! const CLIENT_SECRET: &str = "";
-//! const TENANT: &str = "tenant-name";
-//!
-//! #[tokio::main]
-//! async fn main() {
-//!     let platform = Platform::NpLz;
-//!     let client = Client::new(platform.endpoint_rest_api());
-//!
-//!     let tf = ManagementApiTokenFetcherBuilder::new(platform)
-//!         .tenant_name(TENANT.to_string())
-//!         .client_secret(CLIENT_SECRET.to_string())
-//!         .build()
-//!         .unwrap();
-//!
-//!     let response = client
-//!         .topic_get_by_tenant_topic(TENANT, &tf.get_token().await.unwrap())
-//!         .await;
-//!     println!("Available topics: {:#?}", response);
-//! }
-//! ```
-
 use std::fmt::Debug;
 use std::ops::Add;
 use std::sync::Mutex;
@@ -40,7 +6,7 @@ use std::time::{Duration, Instant};
 use log::debug;
 use serde::Deserialize;
 
-use super::error::ManagementTokenError;
+use super::error::ManagementApiTokenError;
 use crate::utils::Platform;
 
 /// Access token of the authentication serveice of DSH.
@@ -149,6 +115,11 @@ impl ManagementApiTokenFetcher {
         )
     }
 
+    /// Get a [ManagementApiTokenFetcherBuilder] to create a new instance of the token fetcher
+    pub fn builder(platform: Platform) -> ManagementApiTokenFetcherBuilder {
+        ManagementApiTokenFetcherBuilder::new(platform)
+    }
+
     /// Create a new instance of the token fetcher with custom reqwest client
     ///
     /// ## Example
@@ -186,9 +157,9 @@ impl ManagementApiTokenFetcher {
     ///
     /// If the cached token is not valid, it will fetch a new token from the server.
     /// It will return the token as a string, formatted as "{token_type} {token}"
-    /// If the request fails for a new token, it will return a [ManagementTokenError::FailureTokenFetch] error.
+    /// If the request fails for a new token, it will return a [ManagementApiTokenError::FailureTokenFetch] error.
     /// This will contain the underlying reqwest error.
-    pub async fn get_token(&self) -> Result<String, ManagementTokenError> {
+    pub async fn get_token(&self) -> Result<String, ManagementApiTokenError> {
         match self.is_valid() {
             true => Ok(self.access_token.lock().unwrap().formatted_token()),
             false => {
@@ -224,12 +195,12 @@ impl ManagementApiTokenFetcher {
     /// Fetch a new access token from the server
     ///
     /// This will fetch a new access token from the server and return it.
-    /// If the request fails, it will return a [ManagementTokenError::FailureTokenFetch] error.
-    /// If the status code is not successful, it will return a [ManagementTokenError::StatusCode] error.
+    /// If the request fails, it will return a [ManagementApiTokenError::FailureTokenFetch] error.
+    /// If the status code is not successful, it will return a [ManagementApiTokenError::StatusCode] error.
     /// If the request is successful, it will return the [AccessToken].
     pub async fn fetch_access_token_from_server(
         &self,
-    ) -> Result<AccessToken, ManagementTokenError> {
+    ) -> Result<AccessToken, ManagementApiTokenError> {
         let response = self
             .client
             .post(&self.auth_url)
@@ -240,9 +211,9 @@ impl ManagementApiTokenFetcher {
             ])
             .send()
             .await
-            .map_err(ManagementTokenError::FailureTokenFetch)?;
+            .map_err(ManagementApiTokenError::FailureTokenFetch)?;
         if !response.status().is_success() {
-            Err(ManagementTokenError::StatusCode {
+            Err(ManagementApiTokenError::StatusCode {
                 status_code: response.status(),
                 error_body: response.text().await.unwrap_or_default(),
             })
@@ -250,7 +221,7 @@ impl ManagementApiTokenFetcher {
             response
                 .json::<AccessToken>()
                 .await
-                .map_err(ManagementTokenError::FailureTokenFetch)
+                .map_err(ManagementApiTokenError::FailureTokenFetch)
         }
     }
 }
@@ -267,7 +238,7 @@ impl Debug for ManagementApiTokenFetcher {
     }
 }
 
-/// Builder for the token fetcher
+/// Builder for the managemant api token fetcher
 pub struct ManagementApiTokenFetcherBuilder {
     client: Option<reqwest::Client>,
     client_id: Option<String>,
@@ -340,10 +311,10 @@ impl ManagementApiTokenFetcherBuilder {
     ///     .build()
     ///     .unwrap();
     /// ```
-    pub fn build(self) -> Result<ManagementApiTokenFetcher, ManagementTokenError> {
+    pub fn build(self) -> Result<ManagementApiTokenFetcher, ManagementApiTokenError> {
         let client_secret = self
             .client_secret
-            .ok_or(ManagementTokenError::UnknownClientSecret)?;
+            .ok_or(ManagementApiTokenError::UnknownClientSecret)?;
         let client_id = self
             .client_id
             .or_else(|| {
@@ -351,7 +322,7 @@ impl ManagementApiTokenFetcherBuilder {
                     .as_ref()
                     .map(|tenant_name| self.platform.rest_client_id(tenant_name))
             })
-            .ok_or(ManagementTokenError::UnknownClientId)?;
+            .ok_or(ManagementApiTokenError::UnknownClientId)?;
         let client = self.client.unwrap_or_default();
         let token_fetcher = ManagementApiTokenFetcher::new_with_client(
             client_id,
@@ -504,7 +475,7 @@ mod test {
         tf.auth_url = auth_server.url();
         let err = tf.fetch_access_token_from_server().await.unwrap_err();
         match err {
-            ManagementTokenError::StatusCode {
+            ManagementApiTokenError::StatusCode {
                 status_code,
                 error_body,
             } => {
@@ -588,12 +559,12 @@ mod test {
             .client_secret("client_secret".to_string())
             .build()
             .unwrap_err();
-        assert!(matches!(err, ManagementTokenError::UnknownClientId));
+        assert!(matches!(err, ManagementApiTokenError::UnknownClientId));
 
         let err = ManagementApiTokenFetcherBuilder::new(Platform::NpLz)
             .tenant_name("tenant_name".to_string())
             .build()
             .unwrap_err();
-        assert!(matches!(err, ManagementTokenError::UnknownClientSecret));
+        assert!(matches!(err, ManagementApiTokenError::UnknownClientSecret));
     }
 }

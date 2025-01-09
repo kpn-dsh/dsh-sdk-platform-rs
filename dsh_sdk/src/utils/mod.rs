@@ -6,7 +6,9 @@ use std::env;
 use log::{debug, info, warn};
 
 use super::{VAR_APP_ID, VAR_DSH_TENANT_NAME};
-use crate::error::DshError;
+
+#[doc(inline)]
+pub use error::UtilsError;
 
 #[cfg(feature = "dlq")]
 pub mod dlq;
@@ -16,6 +18,8 @@ pub mod graceful_shutdown;
 pub(crate) mod http_client;
 #[cfg(feature = "metrics")]
 pub mod metrics;
+
+mod error;
 
 /// Available DSH platforms plus it's related metadata
 ///
@@ -56,9 +60,9 @@ impl Platform {
     /// ```
     pub fn rest_client_id<T>(&self, tenant: T) -> String
     where
-        T: AsRef<str> + std::fmt::Display,
+        T: AsRef<str>,
     {
-        format!("robot:{}:{}", self.realm(), tenant)
+        format!("robot:{}:{}", self.realm(), tenant.as_ref())
     }
 
     /// Get the endpoint for the DSH Rest API
@@ -174,7 +178,7 @@ impl Platform {
 /// assert_eq!(topics[2], "topic3");
 /// # std::env::remove_var("TOPICS");
 /// ```
-pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
+pub fn get_configured_topics() -> Result<Vec<String>, UtilsError> {
     let kafka_topic_string = get_env_var("TOPICS")?;
     Ok(kafka_topic_string
         .split(',')
@@ -191,7 +195,7 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
 /// ## Example
 /// ```
 /// # use dsh_sdk::utils::tenant_name;
-/// # use dsh_sdk::error::DshError;
+/// # use dsh_sdk::utils::UtilsError;
 /// std::env::set_var("MARATHON_APP_ID", "/dsh-tenant-name/app-name"); // Injected by DSH by default
 ///
 /// let tenant = tenant_name().unwrap();
@@ -205,10 +209,10 @@ pub fn get_configured_topics() -> Result<Vec<String>, DshError> {
 ///
 /// // If neither of the environment variables are set, it will return an error
 /// let result = tenant_name();
-/// assert!(matches!(result, Err(DshError::NoTenantName)));
+/// assert!(matches!(result, Err(UtilsError::NoTenantName)));
 /// ```
 
-pub fn tenant_name() -> Result<String, DshError> {
+pub fn tenant_name() -> Result<String, UtilsError> {
     if let Ok(app_id) = get_env_var(VAR_APP_ID) {
         let tenant_name = app_id.split('/').nth(1);
         match tenant_name {
@@ -224,8 +228,8 @@ pub fn tenant_name() -> Result<String, DshError> {
     } else if let Ok(tenant_name) = get_env_var(VAR_DSH_TENANT_NAME) {
         Ok(tenant_name)
     } else {
-        log::error!("{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster!. Please set one of these environment variables.", VAR_DSH_TENANT_NAME, VAR_APP_ID);
-        Err(DshError::NoTenantName)
+        log::warn!("{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster as the group ID is based on this!. Please set one of these environment variables.", VAR_DSH_TENANT_NAME, VAR_APP_ID);
+        Err(UtilsError::NoTenantName)
     }
 }
 
@@ -233,13 +237,13 @@ pub fn tenant_name() -> Result<String, DshError> {
 ///
 /// Returns the value of the environment variable if it is set, otherwise returns
 /// `VarError` error.
-pub(crate) fn get_env_var(var_name: &str) -> Result<String, DshError> {
+pub(crate) fn get_env_var(var_name: &'static str) -> Result<String, UtilsError> {
     debug!("Reading {} from environment variable", var_name);
     match env::var(var_name) {
         Ok(value) => Ok(value),
         Err(e) => {
             info!("{} is not set", var_name);
-            Err(DshError::EnvVarError(var_name.to_string(), e))
+            Err(UtilsError::EnvVarError(var_name, e))
         }
     }
 }
@@ -276,7 +280,7 @@ mod tests {
     #[serial(env_dependency)]
     fn test_dsh_config_tenant_name() {
         let result = tenant_name();
-        assert!(matches!(result, Err(DshError::NoTenantName)));
+        assert!(matches!(result, Err(UtilsError::NoTenantName)));
         env::set_var(VAR_APP_ID, "/parsed-tenant-name/app-name");
         let result = tenant_name().unwrap();
         assert_eq!(result, "parsed-tenant-name".to_string());

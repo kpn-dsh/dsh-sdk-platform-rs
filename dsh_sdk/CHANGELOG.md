@@ -15,22 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add support reading private key in DER format when reading from PKI_CONFIG_DIR
 
 ### Changed
+- **Breaking change:** `DshError` is now split into error enums per feature flag to untangle mess
+  - `dsh_sdk::DshError` only applies on `bootstrap` feature flag
 - **Breaking change:** `dsh_sdk::Dsh::reqwest_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
 - **Breaking change:** `dsh_sdk::Dsh::reqwest_blocking_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
 - **Breaking change:** `dsh_sdk::utils::Dlq` does not require `Dsh`/`Properties` as argument anymore
-
-### Moved
-- Moved `dsh_sdk::dsh::properties` to `dsh_sdk::propeties`
+- Deprecated `dsh_sdk::dsh::properties` module
 - Moved `dsh_sdk::rest_api_token_fetcher` to `dsh_sdk::management_api::token_fetcher` and renamed `RestApiTokenFetcher` to `ManagementApiTokenFetcher`
-  - **NOTE** Cargo.toml feature flag falls now under `management_api` (`rest-token-fetcher` will be removed in v0.6.0)
+- `dsh_sdk::error::DshRestTokenError` renamed to `dsh_sdk::management_api::error::ManagementApiTokenError`
+  - **NOTE** Cargo.toml feature flag `rest-token-fetcher` renamed to`management-api-token-fetcher` 
 - Moved `dsh_sdk::dsh::datastreams` to `dsh_sdk::datastreams` 
 - Moved `dsh_sdk::dsh::certificates` to `dsh_sdk::certificates`
   - Private module `dsh_sdk::dsh::bootstrap` and `dsh_sdk::dsh::pki_config_dir` are now part of `certificates` module
-- Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token_fetcher` where it is renamed to `ProtocolTokenFetcher`
-  - **NOTE** Cargo.toml feature flag falls now under `protocol-token-fetcher` (`mqtt-token-fetcher` will be removed in v0.6.0)
-- Moved `dsh_sdk::dlq` to `dsh_sdk::utils::dlq` 
-- Moved `dsh_sdk::graceful_shutdown` to `dsh_sdk::utils::graceful_shutdown`
-- Moved `dsh_sdk::metrics` to `dsh_sdk::utils::metrics`
+- Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token_fetcher` and renamed to `ProtocolTokenFetcher`
+  - Cargo.toml feature flag `mqtt-token-fetcher`  renamed to `protocol-token-fetcher`
+- **Breaking change:** Moved `dsh_sdk::dlq` to `dsh_sdk::utils::dlq` 
+- **Breaking change:** Moved `dsh_sdk::graceful_shutdown` to `dsh_sdk::utils::graceful_shutdown`
+- **Breaking change:** Moved `dsh_sdk::metrics` to `dsh_sdk::utils::metrics`
 
 ### Removed
 - Removed `dsh_sdk::rdkafka` public re-export, import `rdkafka` directly

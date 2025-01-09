@@ -1,35 +1,36 @@
-//! # Dsh
+//! High-level API to interact with DSH.
 //!
-//! This module contains the High-level struct for all related
-//!
-//! From `Dsh` there are level functions to get the correct config to connect to Kafka and schema store.
+//! From [Dsh] there are level functions to get the correct config to connect to Kafka and schema store.
 //! For more low level functions, see
-//!     - [datastream](datastream/index.html) module.
-//!     - [certificates](certificates/index.html) module.
+//!     - [datastream] module.
+//!     - [certificates] module.
 //!
 //! ## Environment variables
 //! See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for
 //! more information configuring the consmer or producer via environment variables.
 //!
 //! # Example
-//! ```
+//! ```no_run
 //! use dsh_sdk::Dsh;
 //! use rdkafka::consumer::{Consumer, StreamConsumer};
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! let dsh_properties = Dsh::get();
-//! let consumer_config = dsh_properties.consumer_rdkafka_config();
-//! let consumer: StreamConsumer = consumer_config.create()?;
+//! let dsh = Dsh::get();
+//! let certificates =  dsh.certificates()?;
+//! let datastreams = dsh.datastream();
+//! let kafka_config = dsh.kafka_config();
+//! let tenant_name = dsh.tenant_name();
+//! let task_id = dsh.task_id();
 //!
 //! # Ok(())
 //! # }
 //! ```
-use log::{error, warn};
+use log::warn;
 use std::env;
 use std::sync::{Arc, OnceLock};
 
-use crate::certificates::Cert;
+use crate::certificates::{ensure_https_prefix, Cert, CertificatesError};
 use crate::datastream::Datastream;
 use crate::error::DshError;
 use crate::utils;
@@ -41,7 +42,7 @@ use crate::protocol_adapters::kafka_protocol::config::KafkaConfig;
 // TODO: Remove at v0.6.0
 pub use crate::dsh_old::*;
 
-/// DSH properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
+/// Lazily initialize all related components to connect to the DSH
 ///  - Contains info from datastreams.json
 ///  - Metadata of running container/task
 ///  - Certificates for Kafka and DSH Schema Registry
@@ -113,32 +114,22 @@ impl Dsh {
 
     /// Initialize the properties and bootstrap to DSH
     fn init() -> Self {
-        let tenant_name = match utils::tenant_name() {
-            Ok(tenant_name) => tenant_name,
-            Err(_) => {
-                error!("{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster!. Please set one of these environment variables.", VAR_APP_ID, VAR_DSH_TENANT_NAME);
-                "local_tenant".to_string()
-            }
-        };
+        let tenant_name = utils::tenant_name().unwrap_or("local_tenant".to_string());
         let task_id = utils::get_env_var(VAR_TASK_ID).unwrap_or("local_task_id".to_string());
-        let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST)
-            .map(|host| format!("https://{}", host))
-            .unwrap_or_else(|_| {
-                warn!(
-                    "{} is not set, using default value {}",
-                    VAR_KAFKA_CONFIG_HOST, DEFAULT_CONFIG_HOST
-                );
-                DEFAULT_CONFIG_HOST.to_string()
-            });
+        let config_host =
+            utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(|host| ensure_https_prefix(host));
         let certificates = if let Ok(cert) = Cert::from_pki_config_dir::<std::path::PathBuf>(None) {
             Some(cert)
-        } else {
-            Cert::from_bootstrap(&config_host, &tenant_name, &task_id)
+        } else if let Ok(config_host) = &config_host {
+            Cert::from_bootstrap(config_host, &tenant_name, &task_id)
                 .inspect_err(|e| {
                     warn!("Could not bootstrap to DSH, due to: {}", e);
                 })
                 .ok()
+        } else {
+            None
         };
+        let config_host = config_host.unwrap_or(DEFAULT_CONFIG_HOST.to_string());
         let fetched_datastreams = certificates.as_ref().and_then(|cert| {
             cert.reqwest_blocking_client_config()
                 .build()
@@ -165,15 +156,11 @@ impl Dsh {
     /// # use reqwest::Client;
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let dsh_properties = Dsh::get();
-    /// let client = dsh_properties.reqwest_client_config().build()?;
+    /// let dsh = Dsh::get();
+    /// let client = dsh.reqwest_client_config().build()?;
     /// #    Ok(())
     /// # }
     /// ```
-    #[deprecated(
-        since = "0.5.0",
-        note = "Reqwest client is not used in DSH SDK, use `dsh_sdk::schema_store::SchemaStoreClient` instead"
-    )]
     pub fn reqwest_client_config(&self) -> reqwest::ClientBuilder {
         if let Ok(certificates) = &self.certificates() {
             certificates.reqwest_client_config()
@@ -185,23 +172,16 @@ impl Dsh {
     /// Get reqwest blocking client config to connect to DSH Schema Registry.
     /// If certificates are present, it will use SSL to connect to Schema Registry.
     ///
-    /// Use [schema_registry_converter](https://crates.io/crates/schema_registry_converter) to connect to Schema Registry.
-    ///
     /// # Example
     /// ```
     /// # use dsh_sdk::Dsh;
     /// # use reqwest::blocking::Client;
-    /// # use dsh_sdk::error::DshError;
-    /// # fn main() -> Result<(), DshError> {
-    /// let dsh_properties = Dsh::get();
-    /// let client = dsh_properties.reqwest_blocking_client_config().build()?;
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let dsh = Dsh::get();
+    /// let client = dsh.reqwest_blocking_client_config().build()?;
     /// #    Ok(())
     /// # }
     /// ```
-    #[deprecated(
-        since = "0.5.0",
-        note = "Reqwest client is not used in DSH SDK, use `dsh_sdk::schema_store::SchemaStoreClient` instead"
-    )]
     pub fn reqwest_blocking_client_config(&self) -> reqwest::blocking::ClientBuilder {
         if let Ok(certificates) = &self.certificates() {
             certificates.reqwest_blocking_client_config()
@@ -215,19 +195,18 @@ impl Dsh {
     /// # Example
     /// ```no_run
     /// # use dsh_sdk::Dsh;
-    /// # use dsh_sdk::error::DshError;
-    /// # fn main() -> Result<(), DshError> {
-    /// let dsh_properties = Dsh::get();
-    /// let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let dsh = Dsh::get();
+    /// let dsh_kafka_certificate = dsh.certificates()?.dsh_kafka_certificate_pem();
     /// #    Ok(())
     /// # }
     /// ```
     pub fn certificates(&self) -> Result<&Cert, DshError> {
-        if let Some(cert) = &self.certificates {
+        Ok(if let Some(cert) = &self.certificates {
             Ok(cert)
         } else {
-            Err(DshError::NoCertificates)
-        }
+            Err(CertificatesError::NoCertificates)
+        }?)
     }
 
     /// Get the client id based on the task id.
@@ -269,7 +248,7 @@ impl Dsh {
                 .build()
                 .expect("Could not build reqwest client for fetching datastream")
         });
-        Datastream::fetch(client, &self.config_host, &self.tenant_name, &self.task_id).await
+        Ok(Datastream::fetch(client, &self.config_host, &self.tenant_name, &self.task_id).await?)
     }
 
     /// High level method to fetch the kafka properties provided by DSH (datastreams.json) in a blocking way.
@@ -289,7 +268,12 @@ impl Dsh {
                 .build()
                 .expect("Could not build reqwest client for fetching datastream")
         });
-        Datastream::fetch_blocking(client, &self.config_host, &self.tenant_name, &self.task_id)
+        Ok(Datastream::fetch_blocking(
+            client,
+            &self.config_host,
+            &self.tenant_name,
+            &self.task_id,
+        )?)
     }
 
     /// Get schema host of DSH.

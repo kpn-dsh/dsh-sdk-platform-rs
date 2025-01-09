@@ -366,7 +366,6 @@ impl Properties {
     /// ```
     /// # use dsh_sdk::Properties;
     /// # use reqwest::blocking::Client;
-    /// # use dsh_sdk::error::DshError;
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh_properties = Properties::get();
     /// let client = dsh_properties.reqwest_blocking_client_config()?.build()?;
@@ -388,7 +387,6 @@ impl Properties {
     /// # Example
     /// ```no_run
     /// # use dsh_sdk::Properties;
-    /// # use dsh_sdk::error::DshError;
     /// # fn main() -> Result<(), Box<dyn std::error::Error>>{
     /// let dsh_properties = Properties::get();
     /// let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();

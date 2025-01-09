@@ -12,7 +12,7 @@
 //! # Example:
 //!
 //! ```no_run
-//! use dsh_sdk::graceful_shutdown::Shutdown;
+//! use dsh_sdk::utils::graceful_shutdown::Shutdown;
 //!
 //! // your process task
 //! async fn process_task(shutdown: Shutdown) {
@@ -34,7 +34,7 @@
 //! #[tokio::main]  
 //! async fn main() {
 //!     // Create shutdown handle
-//!     let shutdown = dsh_sdk::graceful_shutdown::Shutdown::new();
+//!     let shutdown = Shutdown::new();
 //!     // Create your process task with a cloned shutdown handle
 //!     let process_task = process_task(shutdown.clone());
 //!     // Spawn your process task in a tokio runtime

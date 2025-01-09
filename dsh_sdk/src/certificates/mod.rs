@@ -1,4 +1,4 @@
-//! This module holds the certificate struct and its methods.
+//! Handle DSH Certificates and bootstrap process
 //!
 //! The certificate struct holds the DSH CA certificate, the DSH Kafka certificate and
 //! the private key. It also has methods to create a reqwest client with the DSH Kafka
@@ -21,23 +21,21 @@
 //! # Ok(())
 //! # }
 //! ```
-//!
-//! ## Reqwest Client
-//! With this request client we can retrieve datastreams.json and connect to Schema Registry.
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use log::{info, warn};
+use log::info;
 use rcgen::KeyPair;
 use reqwest::blocking::{Client, ClientBuilder};
 
-use crate::error::DshError;
-use crate::utils;
-use crate::{DEFAULT_CONFIG_HOST, VAR_KAFKA_CONFIG_HOST, VAR_PKI_CONFIG_DIR, VAR_TASK_ID};
+#[doc(inline)]
+pub use error::CertificatesError;
 
-#[cfg(feature = "bootstrap")]
+use crate::utils;
+use crate::{VAR_KAFKA_CONFIG_HOST, VAR_TASK_ID};
+
 mod bootstrap;
-#[cfg(feature = "bootstrap")]
+mod error;
 mod pki_config_dir;
 
 /// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
@@ -49,7 +47,7 @@ pub struct Cert {
 }
 
 impl Cert {
-    /// Create new `Cert` struct
+    /// Create new [Cert] struct
     fn new(
         dsh_ca_certificate_pem: String,
         dsh_client_certificate_pem: String,
@@ -71,16 +69,15 @@ impl Cert {
     /// This method also allows you to easily switch between Kafka Proxy or VPN connection, based on `PKI_CONFIG_DIR` environment variable.
     ///
     /// ## Arguments
-    /// * `config_host` - The DSH config host where the CSR can be send to. (default: `"https://pikachu.dsh.marathon.mesos:4443"`)
+    /// * `config_host` - The DSH config host where the CSR can be send to.
     /// * `tenant_name` - The tenant name.
     /// * `task_id` - The task id of running container.
-    #[cfg(feature = "bootstrap")]
     pub fn from_bootstrap(
         config_host: &str,
         tenant_name: &str,
         task_id: &str,
-    ) -> Result<Self, DshError> {
-        bootstrap::bootstrap(config_host, tenant_name, task_id)
+    ) -> Result<Self, CertificatesError> {
+        bootstrap::bootstrap(&config_host, tenant_name, task_id)
     }
 
     /// Bootstrap to DSH and sign the certificates based on the injected environment variables by DSH.
@@ -90,23 +87,17 @@ impl Cert {
     ///
     /// Else it will check `KAFKA_CONFIG_HOST`, `MESOS_TASK_ID` and `MARATHON_APP_ID` environment variables to bootstrap to DSH and sign the certificates.
     /// These environment variables are injected by DSH.
-    #[cfg(feature = "bootstrap")]
-    pub fn from_env() -> Result<Self, DshError> {
-        if let Ok(path) = utils::get_env_var(VAR_PKI_CONFIG_DIR) {
-            Self::from_pki_config_dir(Some(path))
-        } else {
-            let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST)
-                .map(|host| ensure_https_prefix(host))
-                .unwrap_or_else(|_| {
-                    warn!(
-                        "{} is not set, using default value {}",
-                        VAR_KAFKA_CONFIG_HOST, DEFAULT_CONFIG_HOST
-                    );
-                    DEFAULT_CONFIG_HOST.to_string()
-                });
-            let task_id = utils::get_env_var(VAR_TASK_ID)?;
-            let tenant_name = utils::tenant_name()?;
+    pub fn from_env() -> Result<Self, CertificatesError> {
+        if let Ok(cert) = Self::from_pki_config_dir::<std::path::PathBuf>(None) {
+            Ok(cert)
+        } else if let (Ok(config_host), Ok(task_id), Ok(tenant_name)) = (
+            utils::get_env_var(VAR_KAFKA_CONFIG_HOST),
+            utils::get_env_var(VAR_TASK_ID),
+            utils::tenant_name(),
+        ) {
             Self::from_bootstrap(&config_host, &tenant_name, &task_id)
+        } else {
+            Err(CertificatesError::MisisngInjectedVariables)
         }
     }
 
@@ -124,8 +115,7 @@ impl Cert {
     /// ## Note
     /// Only certificates in PEM format are supported.
     /// Key files should be in PKCS8 format and can be DER or PEM files.
-    #[cfg(feature = "bootstrap")]
-    pub fn from_pki_config_dir<P>(path: Option<P>) -> Result<Self, DshError>
+    pub fn from_pki_config_dir<P>(path: Option<P>) -> Result<Self, CertificatesError>
     where
         P: AsRef<std::path::Path>,
     {
@@ -134,10 +124,6 @@ impl Cert {
 
     /// Build an async reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
-    #[deprecated(
-        since = "0.5.0",
-        note = "Reqwest client is not used in DSH SDK, use `dsh_sdk::schema_store::SchemaStoreClient` instead"
-    )]
     pub fn reqwest_client_config(&self) -> reqwest::ClientBuilder {
         let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
             self.dsh_kafka_certificate_pem(),
@@ -152,10 +138,6 @@ impl Cert {
 
     /// Build a reqwest client with the DSH Kafka certificate included.
     /// With this client we can retrieve datastreams.json and conenct to Schema Registry.
-    #[deprecated(
-        since = "0.5.0",
-        note = "Reqwest client is not used in DSH SDK, use `dsh_sdk::schema_store::SchemaStoreClient` instead"
-    )]
     pub fn reqwest_blocking_client_config(&self) -> ClientBuilder {
         let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
             self.dsh_kafka_certificate_pem(),
@@ -205,17 +187,17 @@ impl Cert {
     /// # Example
     ///
     /// ```no_run
-    /// use dsh_sdk::Properties;
+    /// use dsh_sdk::certificates::Cert;
     /// use std::path::PathBuf;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let dsh_properties = Properties::get();
-    /// let directory = PathBuf::from("dir");
-    /// dsh_properties.certificates()?.to_files(&directory)?;
+    /// let certificates = Cert::from_env()?;
+    /// let directory = PathBuf::from("path/to/dir");
+    /// certificates.to_files(&directory)?;
     /// # Ok(())
     /// # }
     /// ```
-    pub fn to_files(&self, dir: &PathBuf) -> Result<(), DshError> {
+    pub fn to_files(&self, dir: &PathBuf) -> Result<(), CertificatesError> {
         std::fs::create_dir_all(dir)?;
         Self::create_file(dir.join("ca.crt"), self.dsh_ca_certificate_pem())?;
         Self::create_file(dir.join("client.pem"), self.dsh_kafka_certificate_pem())?;
@@ -223,7 +205,7 @@ impl Cert {
         Ok(())
     }
 
-    fn create_file<C: AsRef<[u8]>>(path: PathBuf, contents: C) -> Result<(), DshError> {
+    fn create_file<C: AsRef<[u8]>>(path: PathBuf, contents: C) -> Result<(), CertificatesError> {
         std::fs::write(&path, contents)?;
         info!("File created ({})", path.display());
         Ok(())
@@ -258,11 +240,11 @@ impl Cert {
 }
 
 /// Helper function to ensure that the host starts with `https://` (or `http://`)
-fn ensure_https_prefix(host: String) -> String {
-    if host.starts_with("https://") || host.starts_with("http://") {
-        host
+pub(crate) fn ensure_https_prefix(host: impl AsRef<str>) -> String {
+    if host.as_ref().starts_with("http://") || host.as_ref().starts_with("https://") {
+        host.as_ref().to_string()
     } else {
-        format!("https://{}", host)
+        format!("https://{}", host.as_ref())
     }
 }
 
@@ -366,15 +348,15 @@ mod tests {
 
     #[test]
     fn test_ensure_https_prefix() {
-        let host = "http://example.com".to_string();
+        let host = "http://example.com";
         let result = ensure_https_prefix(host);
         assert_eq!(result, "http://example.com");
 
-        let host = "https://example.com".to_string();
+        let host = "https://example.com";
         let result = ensure_https_prefix(host);
         assert_eq!(result, "https://example.com");
 
-        let host = "example.com".to_string();
+        let host = "example.com";
         let result = ensure_https_prefix(host);
         assert_eq!(result, "https://example.com");
     }

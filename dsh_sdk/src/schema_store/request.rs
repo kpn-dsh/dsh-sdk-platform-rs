@@ -2,24 +2,27 @@ use log::trace;
 
 use crate::Dsh;
 
-use super::{Result, SchemaStoreError};
+use super::SchemaStoreError;
 
 const DEFAULT_CONTENT_TYPE: &str = "application/vnd.schemaregistry.v1+json";
 
 pub trait Request {
     fn new_client() -> Self;
-    fn get_request<R>(&self, url: String) -> impl std::future::Future<Output = Result<R>> + Send
+    fn get_request<R>(
+        &self,
+        url: String,
+    ) -> impl std::future::Future<Output = Result<R, SchemaStoreError>> + Send
     where
         R: serde::de::DeserializeOwned;
     fn get_request_plain(
         &self,
         url: String,
-    ) -> impl std::future::Future<Output = Result<String>> + Send;
+    ) -> impl std::future::Future<Output = Result<String, SchemaStoreError>> + Send;
     fn post_request<R, B>(
         &self,
         url: String,
         body: B,
-    ) -> impl std::future::Future<Output = Result<R>> + Send
+    ) -> impl std::future::Future<Output = Result<R, SchemaStoreError>> + Send
     where
         R: serde::de::DeserializeOwned,
         B: serde::Serialize + Send;
@@ -27,7 +30,7 @@ pub trait Request {
         &self,
         url: String,
         body: B,
-    ) -> impl std::future::Future<Output = Result<R>> + Send
+    ) -> impl std::future::Future<Output = Result<R, SchemaStoreError>> + Send
     where
         R: serde::de::DeserializeOwned,
         B: serde::Serialize + Send;
@@ -41,7 +44,7 @@ impl Request for reqwest::Client {
             .build()
             .expect("Failed to build reqwest client")
     }
-    async fn get_request<R>(&self, url: String) -> Result<R>
+    async fn get_request<R>(&self, url: String) -> Result<R, SchemaStoreError>
     where
         R: serde::de::DeserializeOwned,
     {
@@ -63,7 +66,7 @@ impl Request for reqwest::Client {
         }
     }
 
-    async fn get_request_plain(&self, url: String) -> Result<String> {
+    async fn get_request_plain(&self, url: String) -> Result<String, SchemaStoreError> {
         trace!("GET {}", url);
         let request = self.get(&url);
         let response = request.send().await?;
@@ -80,7 +83,7 @@ impl Request for reqwest::Client {
     }
 
     /// Helper function to send a POST request and return the response with the expected type (serde with as JSON)
-    async fn post_request<R, B>(&self, url: String, body: B) -> Result<R>
+    async fn post_request<R, B>(&self, url: String, body: B) -> Result<R, SchemaStoreError>
     where
         R: serde::de::DeserializeOwned,
         B: serde::Serialize + Send,
@@ -106,7 +109,7 @@ impl Request for reqwest::Client {
     }
 
     /// Helper function to send a PUT request and return the response with the expected type (serde with as JSON)
-    async fn put_request<R, B>(&self, url: String, body: B) -> Result<R>
+    async fn put_request<R, B>(&self, url: String, body: B) -> Result<R, SchemaStoreError>
     where
         R: serde::de::DeserializeOwned,
         B: serde::Serialize + Send,

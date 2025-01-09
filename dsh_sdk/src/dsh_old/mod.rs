@@ -25,7 +25,7 @@ mod bootstrap;
 pub mod certificates;
 mod config;
 pub mod datastream;
-mod error;
+pub mod error;
 mod pki_config_dir;
 pub mod properties;
 

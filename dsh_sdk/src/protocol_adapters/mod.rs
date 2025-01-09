@@ -1,3 +1,5 @@
+//! The DSH Protocol adapter clients (HTTP, Kafka, MQTT)
+//!
 #[cfg(feature = "http-protocol-adapter")]
 pub mod http_protocol;
 #[cfg(feature = "kafka")]
@@ -7,6 +9,11 @@ pub mod mqtt_protocol;
 #[cfg(feature = "protocol-token-fetcher")]
 pub mod token_fetcher;
 
+mod error;
+
+#[cfg(feature = "protocol-token-fetcher")]
+#[doc(inline)]
+pub use error::ProtocolTokenError;
 #[cfg(feature = "protocol-token-fetcher")]
 #[doc(inline)]
 pub use token_fetcher::ProtocolTokenFetcher;

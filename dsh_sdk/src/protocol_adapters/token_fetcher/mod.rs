@@ -1,6 +1,6 @@
-//! # MQTT Token Fetcher
+//! Protocol Token Fetcher
 //!
-//! `MqttTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
+//! `ProtocolTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
 use std::collections::{hash_map::Entry, HashMap};
 use std::fmt::{Display, Formatter};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -10,7 +10,8 @@ use serde_json::json;
 use sha2::{Digest, Sha256};
 use tokio::sync::RwLock;
 
-use crate::{error::DshError, Platform};
+use super::ProtocolTokenError;
+use crate::Platform;
 
 /// `ProtocolTokenFetcher` is responsible for fetching and managing tokens for the DSH Mqtt and Http protocol adapters.
 ///
@@ -22,7 +23,7 @@ pub struct ProtocolTokenFetcher {
     rest_api_key: String,
     rest_token: RwLock<RestToken>,
     rest_auth_url: String,
-    protocol_token: RwLock<HashMap<String, MqttToken>>, // Mapping from Client ID to MqttToken
+    protocol_token: RwLock<HashMap<String, ProtocolToken>>, // Mapping from Client ID to ProtocolToken
     protocol_auth_url: String,
     client: reqwest::Client,
     //token_lifetime: Option<i32>, // TODO: Implement option of passing token lifetime to request token for specific duration
@@ -39,7 +40,7 @@ pub struct ProtocolTokenFetcher {
 ///
 /// # Returns
 ///
-/// Returns a `Result` containing a `MqttTokenFetcher` instance or a `DshError`.
+/// Returns a `Result` containing a `ProtocolTokenFetcher` instance or a `ProtocolTokenError`.
 impl ProtocolTokenFetcher {
     /// Constructs a new `ProtocolTokenFetcher`.
     ///
@@ -130,12 +131,12 @@ impl ProtocolTokenFetcher {
     ///
     /// # Returns
     ///
-    /// Returns a `Result` containing the `MqttToken` or a `DshError`.
+    /// Returns a `Result` containing the `ProtocolToken` or a `ProtocolTokenError`.
     pub async fn get_token(
         &self,
         client_id: &str,
         claims: Option<Vec<Claims>>,
-    ) -> Result<MqttToken, DshError> {
+    ) -> Result<ProtocolToken, ProtocolTokenError> {
         match self
             .protocol_token
             .write()
@@ -164,7 +165,7 @@ impl ProtocolTokenFetcher {
         &self,
         client_id: &str,
         claims: Option<Vec<Claims>>,
-    ) -> Result<MqttToken, DshError> {
+    ) -> Result<ProtocolToken, ProtocolTokenError> {
         let mut rest_token = self.rest_token.write().await;
 
         if !rest_token.is_valid() {
@@ -179,7 +180,8 @@ impl ProtocolTokenFetcher {
 
         let authorization_header = format!("Bearer {}", rest_token.raw_token);
 
-        let protocol_token_request = MqttTokenRequest::new(client_id, &self.tenant_name, claims)?;
+        let protocol_token_request =
+            ProtocolTokenRequest::new(client_id, &self.tenant_name, claims)?;
         let payload = serde_json::to_value(&protocol_token_request)?;
 
         let response = protocol_token_request
@@ -191,7 +193,7 @@ impl ProtocolTokenFetcher {
             )
             .await?;
 
-        MqttToken::new(response)
+        ProtocolToken::new(response)
     }
 }
 
@@ -264,18 +266,18 @@ impl Resource {
 }
 
 #[derive(Serialize)]
-struct MqttTokenRequest {
+struct ProtocolTokenRequest {
     id: String,
     tenant: String,
     claims: Option<Vec<Claims>>,
 }
 
-impl MqttTokenRequest {
+impl ProtocolTokenRequest {
     fn new(
         client_id: &str,
         tenant: &str,
         claims: Option<Vec<Claims>>,
-    ) -> Result<MqttTokenRequest, DshError> {
+    ) -> Result<ProtocolTokenRequest, ProtocolTokenError> {
         let mut hasher = Sha256::new();
         hasher.update(client_id);
         let result = hasher.finalize();
@@ -294,7 +296,7 @@ impl MqttTokenRequest {
         protocol_auth_url: &str,
         authorization_header: &str,
         payload: &serde_json::Value,
-    ) -> Result<String, DshError> {
+    ) -> Result<String, ProtocolTokenError> {
         let response = reqwest_client
             .post(protocol_auth_url)
             .header("Authorization", authorization_header)
@@ -305,7 +307,7 @@ impl MqttTokenRequest {
         if response.status().is_success() {
             Ok(response.text().await?)
         } else {
-            Err(DshError::DshCallError {
+            Err(ProtocolTokenError::DshCall {
                 url: protocol_auth_url.to_string(),
                 status_code: response.status(),
                 error_body: response.text().await?,
@@ -317,7 +319,7 @@ impl MqttTokenRequest {
 /// Represents attributes associated with a mqtt token.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "kebab-case")]
-struct MqttTokenAttributes {
+struct ProtocolTokenAttributes {
     gen: i32,
     endpoint: String,
     iss: String,
@@ -330,13 +332,13 @@ struct MqttTokenAttributes {
 
 /// Represents a token used for MQTT connections.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MqttToken {
+pub struct ProtocolToken {
     exp: i32,
     raw_token: String,
 }
 
-impl MqttToken {
-    /// Creates a new instance of `MqttToken` from a raw token string.
+impl ProtocolToken {
+    /// Creates a new instance of `ProtocolToken` from a raw token string.
     ///
     /// # Arguments
     ///
@@ -344,14 +346,14 @@ impl MqttToken {
     ///
     /// # Returns
     ///
-    /// A Result containing the created MqttToken or an error.
-    pub fn new(raw_token: String) -> Result<MqttToken, DshError> {
+    /// A Result containing the created ProtocolToken or an error.
+    pub fn new(raw_token: String) -> Result<ProtocolToken, ProtocolTokenError> {
         let header_payload = extract_header_and_payload(&raw_token)?;
 
         let decoded_token = decode_base64(header_payload)?;
 
-        let token_attributes: MqttTokenAttributes = serde_json::from_slice(&decoded_token)?;
-        let token = MqttToken {
+        let token_attributes: ProtocolTokenAttributes = serde_json::from_slice(&decoded_token)?;
+        let token = ProtocolToken {
             exp: token_attributes.exp,
             raw_token,
         };
@@ -408,13 +410,13 @@ impl RestToken {
     ///
     /// # Returns
     ///
-    /// A Result containing the created `RestToken` or a `DshError`.
+    /// A Result containing the created `RestToken` or a `ProtocolTokenError`.
     async fn get(
         client: &reqwest::Client,
         tenant: &str,
         api_key: &str,
         auth_url: &str,
-    ) -> Result<RestToken, DshError> {
+    ) -> Result<RestToken, ProtocolTokenError> {
         let raw_token = Self::fetch_token(client, tenant, api_key, auth_url).await?;
 
         let header_payload = extract_header_and_payload(&raw_token)?;
@@ -444,7 +446,7 @@ impl RestToken {
         tenant: &str,
         api_key: &str,
         auth_url: &str,
-    ) -> Result<String, DshError> {
+    ) -> Result<String, ProtocolTokenError> {
         let json_body = json!({"tenant": tenant});
 
         let response = client
@@ -458,7 +460,7 @@ impl RestToken {
         let body_text = response.text().await?;
         match status {
             reqwest::StatusCode::OK => Ok(body_text),
-            _ => Err(DshError::DshCallError {
+            _ => Err(ProtocolTokenError::DshCall {
                 url: auth_url.to_string(),
                 status_code: status,
                 error_body: body_text,
@@ -484,13 +486,12 @@ impl Default for RestToken {
 ///
 /// # Returns
 ///
-/// A Result containing the header and payload part of the JWT token or a `DshError`.
-fn extract_header_and_payload(raw_token: &str) -> Result<&str, DshError> {
+/// A Result containing the header and payload part of the JWT token or a `ProtocolTokenError`.
+fn extract_header_and_payload(raw_token: &str) -> Result<&str, ProtocolTokenError> {
     let parts: Vec<&str> = raw_token.split('.').collect();
-    parts
-        .get(1)
-        .copied()
-        .ok_or_else(|| DshError::ParseDnError("Header and payload are missing".to_string()))
+    parts.get(1).copied().ok_or_else(|| {
+        ProtocolTokenError::Jwt("Cannot extract header and payload from raw_token".to_string())
+    })
 }
 
 /// Decodes a Base64-encoded string.
@@ -501,8 +502,8 @@ fn extract_header_and_payload(raw_token: &str) -> Result<&str, DshError> {
 ///
 /// # Returns
 ///
-/// A Result containing the decoded byte vector or a `DshError`.
-fn decode_base64(payload: &str) -> Result<Vec<u8>, DshError> {
+/// A Result containing the decoded byte vector or a `ProtocolTokenError`.
+fn decode_base64(payload: &str) -> Result<Vec<u8>, ProtocolTokenError> {
     use base64::{alphabet, engine, read};
     use std::io::Read;
 
@@ -510,9 +511,7 @@ fn decode_base64(payload: &str) -> Result<Vec<u8>, DshError> {
     let mut decoder = read::DecoderReader::new(payload.as_bytes(), &engine);
 
     let mut decoded_token = Vec::new();
-    decoder
-        .read_to_end(&mut decoded_token)
-        .map_err(DshError::IoError)?;
+    decoder.read_to_end(&mut decoded_token)?;
 
     Ok(decoded_token)
 }
@@ -533,7 +532,7 @@ mod tests {
             exp: exp_time as i32,
             raw_token: "valid.token.payload".to_string(),
         };
-        let protocol_token = MqttToken {
+        let protocol_token = ProtocolToken {
             exp: exp_time,
             raw_token: "valid.token.payload".to_string(),
         };
@@ -632,7 +631,7 @@ mod tests {
 
     #[test]
     fn test_token_request_new() {
-        let request = MqttTokenRequest::new("test_client", "test_tenant", None).unwrap();
+        let request = ProtocolTokenRequest::new("test_client", "test_tenant", None).unwrap();
         assert_eq!(request.id.len(), 64);
         assert_eq!(request.tenant, "test_tenant");
     }
@@ -650,7 +649,7 @@ mod tests {
 
         let client = reqwest::Client::new();
         let payload = json!({"key": "value"});
-        let request = MqttTokenRequest::new("test_client", "test_tenant", None).unwrap();
+        let request = ProtocolTokenRequest::new("test_client", "test_tenant", None).unwrap();
         let result = request
             .send(
                 &client,
@@ -677,7 +676,7 @@ mod tests {
 
         let client = reqwest::Client::new();
         let payload = json!({"key": "value"});
-        let request = MqttTokenRequest::new("test_client", "test_tenant", None).unwrap();
+        let request = ProtocolTokenRequest::new("test_client", "test_tenant", None).unwrap();
         let result = request
             .send(
                 &client,
@@ -688,7 +687,7 @@ mod tests {
             .await;
 
         assert!(result.is_err());
-        if let Err(DshError::DshCallError {
+        if let Err(ProtocolTokenError::DshCall {
             url,
             status_code,
             error_body,
@@ -735,7 +734,7 @@ mod tests {
     #[test]
     fn test_protocol_token_is_valid() {
         let raw_token = "valid.token.payload".to_string();
-        let token = MqttToken {
+        let token = ProtocolToken {
             exp: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()
@@ -749,7 +748,7 @@ mod tests {
     #[test]
     fn test_protocol_token_is_invalid() {
         let raw_token = "valid.token.payload".to_string();
-        let token = MqttToken {
+        let token = ProtocolToken {
             exp: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()
@@ -854,7 +853,7 @@ mod tests {
         .await;
 
         assert!(result.is_err());
-        if let Err(DshError::DshCallError {
+        if let Err(ProtocolTokenError::DshCall {
             url,
             status_code,
             error_body,
