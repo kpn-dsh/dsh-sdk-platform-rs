@@ -30,7 +30,7 @@ use log::warn;
 use std::env;
 use std::sync::{Arc, OnceLock};
 
-use crate::certificates::{Cert, CertificatesError, ensure_https_prefix};
+use crate::certificates::{ensure_https_prefix, Cert, CertificatesError};
 use crate::datastream::Datastream;
 use crate::error::DshError;
 use crate::utils;
@@ -116,7 +116,8 @@ impl Dsh {
     fn init() -> Self {
         let tenant_name = utils::tenant_name().unwrap_or("local_tenant".to_string());
         let task_id = utils::get_env_var(VAR_TASK_ID).unwrap_or("local_task_id".to_string());
-        let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(|host| ensure_https_prefix(host));
+        let config_host =
+            utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(|host| ensure_https_prefix(host));
         let certificates = if let Ok(cert) = Cert::from_pki_config_dir::<std::path::PathBuf>(None) {
             Some(cert)
         } else if let Ok(config_host) = &config_host {

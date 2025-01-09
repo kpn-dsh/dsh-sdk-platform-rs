@@ -8,13 +8,16 @@ const DEFAULT_CONTENT_TYPE: &str = "application/vnd.schemaregistry.v1+json";
 
 pub trait Request {
     fn new_client() -> Self;
-    fn get_request<R>(&self, url: String) -> impl std::future::Future<Output = Result<R, SchemaStoreError>> + Send
+    fn get_request<R>(
+        &self,
+        url: String,
+    ) -> impl std::future::Future<Output = Result<R, SchemaStoreError>> + Send
     where
         R: serde::de::DeserializeOwned;
     fn get_request_plain(
         &self,
         url: String,
-    ) -> impl std::future::Future<Output = Result<String,SchemaStoreError>> + Send;
+    ) -> impl std::future::Future<Output = Result<String, SchemaStoreError>> + Send;
     fn post_request<R, B>(
         &self,
         url: String,

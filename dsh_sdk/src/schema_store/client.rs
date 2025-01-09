@@ -51,7 +51,10 @@ where
     /// # Ok(())
     /// # }
     ///
-    pub async fn subject_compatibility(&self, subject: &SubjectName) -> Result<Compatibility, SchemaStoreError> {
+    pub async fn subject_compatibility(
+        &self,
+        subject: &SubjectName,
+    ) -> Result<Compatibility, SchemaStoreError> {
         Ok(self.get_config_subject(subject.name()).await?.into())
     }
 
@@ -127,7 +130,10 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject_versions(&self, subject: &SubjectName) -> Result<Vec<i32>, SchemaStoreError> {
+    pub async fn subject_versions(
+        &self,
+        subject: &SubjectName,
+    ) -> Result<Vec<i32>, SchemaStoreError> {
         self.get_subjects_subject_versions(subject.name()).await
     }
 
@@ -156,7 +162,11 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject<V>(&self, subject: &SubjectName, version: V) -> Result<Subject, SchemaStoreError>
+    pub async fn subject<V>(
+        &self,
+        subject: &SubjectName,
+        version: V,
+    ) -> Result<Subject, SchemaStoreError>
     where
         V: Into<SubjectVersion>,
     {
@@ -188,7 +198,11 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn subject_raw_schema<V>(&self, subject: &SubjectName, version: V) -> Result<String, SchemaStoreError>
+    pub async fn subject_raw_schema<V>(
+        &self,
+        subject: &SubjectName,
+        version: V,
+    ) -> Result<String, SchemaStoreError>
     where
         V: Into<SubjectVersion>,
     {
@@ -216,7 +230,10 @@ where
     /// let subjects = client.subject_all_schemas(&subject_name).await?;
     /// # Ok(())
     /// # }
-    pub async fn subject_all_schemas(&self, subject: &SubjectName) -> Result<Vec<Subject>, SchemaStoreError> {
+    pub async fn subject_all_schemas(
+        &self,
+        subject: &SubjectName,
+    ) -> Result<Vec<Subject>, SchemaStoreError> {
         let versions = self.subject_versions(&subject).await?;
         let mut subjects = Vec::new();
         for version in versions {
@@ -380,7 +397,10 @@ where
     ///
     /// ## Arguments
     /// - `id`: The schema ID (Into<[i32]>)
-    pub async fn schema_subjects<Si>(&self, id: Si) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError>
+    pub async fn schema_subjects<Si>(
+        &self,
+        id: Si,
+    ) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError>
     where
         Si: Into<i32>,
     {

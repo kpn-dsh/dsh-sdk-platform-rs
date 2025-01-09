@@ -17,7 +17,11 @@ pub trait SchemaStoreApi {
     /// Set compatibility on subject level. With 1 schema stored in the subject, you can change it to any compatibility level. Else, you can only change into a less restrictive level. Must be one of BACKWARD, BACKWARD_TRANSITIVE, FORWARD, FORWARD_TRANSITIVE, FULL, FULL_TRANSITIVE, NONE
     ///
     /// {base_url}/config/{subject}
-    async fn put_config_subject(&self, subject: String, body: Compatibility) -> Result<ConfigPut, SchemaStoreError>;
+    async fn put_config_subject(
+        &self,
+        subject: String,
+        body: Compatibility,
+    ) -> Result<ConfigPut, SchemaStoreError>;
     /// Get a list of registered subjects
     ///
     /// {base_url}/subjects
@@ -37,7 +41,10 @@ pub trait SchemaStoreApi {
     /// Get a list of versions registered under the specified subject.
     ///
     /// {base_url}/subjects/{subject}
-    async fn get_subjects_subject_versions(&self, subject: String) -> Result<Vec<i32>, SchemaStoreError>;
+    async fn get_subjects_subject_versions(
+        &self,
+        subject: String,
+    ) -> Result<Vec<i32>, SchemaStoreError>;
 
     /// Get a specific version of the schema registered under this subject.
     ///
@@ -94,7 +101,10 @@ pub trait SchemaStoreApi {
     /// Get the related subjects vesrion for the specified schema.
     ///
     /// {base_url}/schemas/ids/{id}/versions
-    async fn get_schemas_ids_id_versions(&self, id: i32) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError>;
+    async fn get_schemas_ids_id_versions(
+        &self,
+        id: i32,
+    ) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError>;
 }
 
 impl<C> SchemaStoreApi for SchemaStoreClient<C>
@@ -106,7 +116,11 @@ where
         Ok(self.client.get_request(url).await?)
     }
 
-    async fn put_config_subject(&self, subject: String, body: Compatibility) -> Result<ConfigPut, SchemaStoreError> {
+    async fn put_config_subject(
+        &self,
+        subject: String,
+        body: Compatibility,
+    ) -> Result<ConfigPut, SchemaStoreError> {
         let url = format!("{}/config/{}", self.base_url, subject);
         Ok(self.client.put_request(url, body).await?)
     }
@@ -125,7 +139,10 @@ where
         Ok(self.client.post_request(url, body).await?)
     }
 
-    async fn get_subjects_subject_versions(&self, subject: String) -> Result<Vec<i32>, SchemaStoreError> {
+    async fn get_subjects_subject_versions(
+        &self,
+        subject: String,
+    ) -> Result<Vec<i32>, SchemaStoreError> {
         let url = format!("{}/subjects/{}/versions", self.base_url, subject);
         Ok(self.client.get_request(url).await?)
     }
@@ -181,7 +198,10 @@ where
         Ok(self.client.get_request(url).await?)
     }
 
-    async fn get_schemas_ids_id_versions(&self, id: i32) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError> {
+    async fn get_schemas_ids_id_versions(
+        &self,
+        id: i32,
+    ) -> Result<Vec<SubjectVersionInfo>, SchemaStoreError> {
         let url = format!("{}/schemas/ids/{}/versions", self.base_url, id);
         Ok(self.client.get_request(url).await?)
     }

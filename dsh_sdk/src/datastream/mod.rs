@@ -13,7 +13,7 @@
 //! let datastream = dsh.datastream(); // immutable datastream which is fetched at initialization of SDK
 //! // Or
 //! let datastream = dsh.fetch_datastream().await?; // fetch a fresh datastream from dsh server
-//! 
+//!
 //! let brokers = datastream.get_brokers();
 //! let schema_store_url = datastream.schema_store();
 //! # Ok(())
