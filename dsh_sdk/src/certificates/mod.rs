@@ -31,13 +31,14 @@ use log::{info, warn};
 use rcgen::KeyPair;
 use reqwest::blocking::{Client, ClientBuilder};
 
-use crate::error::DshError;
+#[doc(inline)]
+pub use error::CertificatesError;
+
 use crate::utils;
 use crate::{DEFAULT_CONFIG_HOST, VAR_KAFKA_CONFIG_HOST, VAR_PKI_CONFIG_DIR, VAR_TASK_ID};
 
-#[cfg(feature = "bootstrap")]
 mod bootstrap;
-#[cfg(feature = "bootstrap")]
+mod error;
 mod pki_config_dir;
 
 /// Hold all relevant certificates and keys to connect to DSH Kafka Cluster and Schema Store.
@@ -74,12 +75,11 @@ impl Cert {
     /// * `config_host` - The DSH config host where the CSR can be send to. (default: `"https://pikachu.dsh.marathon.mesos:4443"`)
     /// * `tenant_name` - The tenant name.
     /// * `task_id` - The task id of running container.
-    #[cfg(feature = "bootstrap")]
     pub fn from_bootstrap(
         config_host: &str,
         tenant_name: &str,
         task_id: &str,
-    ) -> Result<Self, DshError> {
+    ) -> Result<Self, CertificatesError> {
         bootstrap::bootstrap(config_host, tenant_name, task_id)
     }
 
@@ -90,13 +90,12 @@ impl Cert {
     ///
     /// Else it will check `KAFKA_CONFIG_HOST`, `MESOS_TASK_ID` and `MARATHON_APP_ID` environment variables to bootstrap to DSH and sign the certificates.
     /// These environment variables are injected by DSH.
-    #[cfg(feature = "bootstrap")]
-    pub fn from_env() -> Result<Self, DshError> {
+    pub fn from_env() -> Result<Self, CertificatesError> {
         if let Ok(path) = utils::get_env_var(VAR_PKI_CONFIG_DIR) {
             Self::from_pki_config_dir(Some(path))
         } else {
             let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST)
-                .map(|host| ensure_https_prefix(host))
+                .map(ensure_https_prefix)
                 .unwrap_or_else(|_| {
                     warn!(
                         "{} is not set, using default value {}",
@@ -124,8 +123,7 @@ impl Cert {
     /// ## Note
     /// Only certificates in PEM format are supported.
     /// Key files should be in PKCS8 format and can be DER or PEM files.
-    #[cfg(feature = "bootstrap")]
-    pub fn from_pki_config_dir<P>(path: Option<P>) -> Result<Self, DshError>
+    pub fn from_pki_config_dir<P>(path: Option<P>) -> Result<Self, CertificatesError>
     where
         P: AsRef<std::path::Path>,
     {
@@ -215,7 +213,7 @@ impl Cert {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn to_files(&self, dir: &PathBuf) -> Result<(), DshError> {
+    pub fn to_files(&self, dir: &PathBuf) -> Result<(), CertificatesError> {
         std::fs::create_dir_all(dir)?;
         Self::create_file(dir.join("ca.crt"), self.dsh_ca_certificate_pem())?;
         Self::create_file(dir.join("client.pem"), self.dsh_kafka_certificate_pem())?;
@@ -223,7 +221,7 @@ impl Cert {
         Ok(())
     }
 
-    fn create_file<C: AsRef<[u8]>>(path: PathBuf, contents: C) -> Result<(), DshError> {
+    fn create_file<C: AsRef<[u8]>>(path: PathBuf, contents: C) -> Result<(), CertificatesError> {
         std::fs::write(&path, contents)?;
         info!("File created ({})", path.display());
         Ok(())

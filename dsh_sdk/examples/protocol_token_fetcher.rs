@@ -8,7 +8,7 @@ async fn main() {
     let api_key = env::var("API_KEY").unwrap().to_string();
     let mqtt_token_fetcher =
         ProtocolTokenFetcher::new(tenant_name, api_key, dsh_sdk::Platform::NpLz);
-    let token: MqttToken = mqtt_token_fetcher
+    let token: ProtocolToken = mqtt_token_fetcher
         .get_token("Client-id", None) //Claims = None fetches all possible claims
         .await
         .unwrap();

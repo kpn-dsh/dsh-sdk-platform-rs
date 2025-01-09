@@ -64,9 +64,7 @@ pub use prometheus::*;
 use tokio::net::TcpListener;
 use tokio::task::JoinHandle;
 
-use crate::error::DshError;
-
-type DshResult<T> = std::result::Result<T, DshError>;
+type DshResult<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 type BoxBody = http_body_util::combinators::BoxBody<Bytes, hyper::Error>;
 
 static NOTFOUND: &[u8] = b"404: Not Found";

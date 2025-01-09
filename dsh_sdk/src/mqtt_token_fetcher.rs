@@ -11,7 +11,7 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::{error::DshError, Platform};
+use crate::{dsh_old::error::DshError, Platform};
 
 /// `MqttTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
 ///

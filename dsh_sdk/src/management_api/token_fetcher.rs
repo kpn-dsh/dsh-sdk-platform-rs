@@ -40,7 +40,7 @@ use std::time::{Duration, Instant};
 use log::debug;
 use serde::Deserialize;
 
-use super::error::ManagementTokenError;
+use super::error::ManagementApiTokenError;
 use crate::utils::Platform;
 
 /// Access token of the authentication serveice of DSH.
@@ -186,9 +186,9 @@ impl ManagementApiTokenFetcher {
     ///
     /// If the cached token is not valid, it will fetch a new token from the server.
     /// It will return the token as a string, formatted as "{token_type} {token}"
-    /// If the request fails for a new token, it will return a [ManagementTokenError::FailureTokenFetch] error.
+    /// If the request fails for a new token, it will return a [ManagementApiTokenError::FailureTokenFetch] error.
     /// This will contain the underlying reqwest error.
-    pub async fn get_token(&self) -> Result<String, ManagementTokenError> {
+    pub async fn get_token(&self) -> Result<String, ManagementApiTokenError> {
         match self.is_valid() {
             true => Ok(self.access_token.lock().unwrap().formatted_token()),
             false => {
@@ -224,12 +224,12 @@ impl ManagementApiTokenFetcher {
     /// Fetch a new access token from the server
     ///
     /// This will fetch a new access token from the server and return it.
-    /// If the request fails, it will return a [ManagementTokenError::FailureTokenFetch] error.
-    /// If the status code is not successful, it will return a [ManagementTokenError::StatusCode] error.
+    /// If the request fails, it will return a [ManagementApiTokenError::FailureTokenFetch] error.
+    /// If the status code is not successful, it will return a [ManagementApiTokenError::StatusCode] error.
     /// If the request is successful, it will return the [AccessToken].
     pub async fn fetch_access_token_from_server(
         &self,
-    ) -> Result<AccessToken, ManagementTokenError> {
+    ) -> Result<AccessToken, ManagementApiTokenError> {
         let response = self
             .client
             .post(&self.auth_url)
@@ -240,9 +240,9 @@ impl ManagementApiTokenFetcher {
             ])
             .send()
             .await
-            .map_err(ManagementTokenError::FailureTokenFetch)?;
+            .map_err(ManagementApiTokenError::FailureTokenFetch)?;
         if !response.status().is_success() {
-            Err(ManagementTokenError::StatusCode {
+            Err(ManagementApiTokenError::StatusCode {
                 status_code: response.status(),
                 error_body: response.text().await.unwrap_or_default(),
             })
@@ -250,7 +250,7 @@ impl ManagementApiTokenFetcher {
             response
                 .json::<AccessToken>()
                 .await
-                .map_err(ManagementTokenError::FailureTokenFetch)
+                .map_err(ManagementApiTokenError::FailureTokenFetch)
         }
     }
 }
@@ -267,7 +267,7 @@ impl Debug for ManagementApiTokenFetcher {
     }
 }
 
-/// Builder for the token fetcher
+/// Builder for the managemant api token fetcher
 pub struct ManagementApiTokenFetcherBuilder {
     client: Option<reqwest::Client>,
     client_id: Option<String>,
@@ -340,10 +340,10 @@ impl ManagementApiTokenFetcherBuilder {
     ///     .build()
     ///     .unwrap();
     /// ```
-    pub fn build(self) -> Result<ManagementApiTokenFetcher, ManagementTokenError> {
+    pub fn build(self) -> Result<ManagementApiTokenFetcher, ManagementApiTokenError> {
         let client_secret = self
             .client_secret
-            .ok_or(ManagementTokenError::UnknownClientSecret)?;
+            .ok_or(ManagementApiTokenError::UnknownClientSecret)?;
         let client_id = self
             .client_id
             .or_else(|| {
@@ -351,7 +351,7 @@ impl ManagementApiTokenFetcherBuilder {
                     .as_ref()
                     .map(|tenant_name| self.platform.rest_client_id(tenant_name))
             })
-            .ok_or(ManagementTokenError::UnknownClientId)?;
+            .ok_or(ManagementApiTokenError::UnknownClientId)?;
         let client = self.client.unwrap_or_default();
         let token_fetcher = ManagementApiTokenFetcher::new_with_client(
             client_id,
@@ -504,7 +504,7 @@ mod test {
         tf.auth_url = auth_server.url();
         let err = tf.fetch_access_token_from_server().await.unwrap_err();
         match err {
-            ManagementTokenError::StatusCode {
+            ManagementApiTokenError::StatusCode {
                 status_code,
                 error_body,
             } => {
@@ -588,12 +588,12 @@ mod test {
             .client_secret("client_secret".to_string())
             .build()
             .unwrap_err();
-        assert!(matches!(err, ManagementTokenError::UnknownClientId));
+        assert!(matches!(err, ManagementApiTokenError::UnknownClientId));
 
         let err = ManagementApiTokenFetcherBuilder::new(Platform::NpLz)
             .tenant_name("tenant_name".to_string())
             .build()
             .unwrap_err();
-        assert!(matches!(err, ManagementTokenError::UnknownClientSecret));
+        assert!(matches!(err, ManagementApiTokenError::UnknownClientSecret));
     }
 }

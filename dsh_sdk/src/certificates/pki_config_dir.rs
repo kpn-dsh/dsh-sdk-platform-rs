@@ -6,7 +6,7 @@
 //! This also makes it possible to use the DSH SDK with Kafka Proxy
 //! or VPN outside of the DSH environment.
 use super::Cert;
-use crate::error::DshError;
+use super::CertificatesError;
 use crate::{utils, VAR_PKI_CONFIG_DIR};
 
 use log::{debug, info, warn};
@@ -14,7 +14,7 @@ use pem::{self, Pem};
 use rcgen::KeyPair;
 use std::path::{Path, PathBuf};
 
-pub(crate) fn get_pki_certificates<P>(pki_config_dir: Option<P>) -> Result<Cert, DshError>
+pub(crate) fn get_pki_certificates<P>(pki_config_dir: Option<P>) -> Result<Cert, CertificatesError>
 where
     P: AsRef<Path>,
 {
@@ -38,7 +38,7 @@ where
 /// Get certificate from the PKI config directory
 ///
 /// Looks for all files containing client*.pem and client.crt in the PKI config directory.
-fn get_certificate(cert_paths: Vec<PathBuf>) -> Result<Vec<Pem>, DshError> {
+fn get_certificate(cert_paths: Vec<PathBuf>) -> Result<Vec<Pem>, CertificatesError> {
     'file: for file in cert_paths {
         info!("{} - Reading certificate file", file.display());
         if let Ok(ca_cert) = std::fs::read(&file) {
@@ -63,13 +63,13 @@ fn get_certificate(cert_paths: Vec<PathBuf>) -> Result<Vec<Pem>, DshError> {
         }
     }
     info!("No (valid) certificates found in the PKI config directory");
-    Err(DshError::NoCertificates)
+    Err(CertificatesError::NoCertificates)
 }
 
 /// Get key pair from a file in the PKI config directory
 ///
 /// Returns first succesfull converted key pair found in the given list of paths
-fn get_key_pair(key_paths: Vec<PathBuf>) -> Result<KeyPair, DshError> {
+fn get_key_pair(key_paths: Vec<PathBuf>) -> Result<KeyPair, CertificatesError> {
     for file in key_paths {
         info!("{} - Reading key file", file.display());
         if let Ok(bytes) = std::fs::read(&file) {
@@ -91,14 +91,14 @@ fn get_key_pair(key_paths: Vec<PathBuf>) -> Result<KeyPair, DshError> {
         }
     }
     info!("No (valid) key found in the PKI config directory");
-    Err(DshError::NoCertificates)
+    Err(CertificatesError::NoCertificates)
 }
 /// Get the path to the PKI config direc
 fn get_file_path_bufs<P>(
     prefix: &str,
     contains: PkiFileType,
     config_dir: P,
-) -> Result<Vec<PathBuf>, DshError>
+) -> Result<Vec<PathBuf>, CertificatesError>
 where
     P: AsRef<Path>,
 {
@@ -228,11 +228,11 @@ mod tests {
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].tag(), "CERTIFICATE");
         let result = get_certificate(vec![path_key]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
         let result = get_certificate(vec![]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
         let result = get_certificate(vec![path_ne]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
     }
 
     #[test]
@@ -249,11 +249,11 @@ mod tests {
         assert!(result.is_ok());
         let result =
             get_key_pair(vec![path_ne.clone(), path_cert.clone(), path_ca.clone()]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
         let result = get_key_pair(vec![]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
         let result = get_key_pair(vec![path_ne]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
     }
 
     #[test]
@@ -270,11 +270,11 @@ mod tests {
         assert!(result.is_ok());
         let result =
             get_key_pair(vec![path_ne.clone(), path_cert.clone(), path_ca.clone()]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
         let result = get_key_pair(vec![]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
         let result = get_key_pair(vec![path_ne]).unwrap_err();
-        assert!(matches!(result, DshError::NoCertificates));
+        assert!(matches!(result, CertificatesError::NoCertificates));
     }
 
     #[test]
@@ -282,7 +282,7 @@ mod tests {
     fn test_get_pki_cert() {
         create_test_pki_config_dir();
         let result = get_pki_certificates::<PathBuf>(None).unwrap_err();
-        assert!(matches!(result, DshError::EnvVarError(_, _)));
+        assert!(matches!(result, CertificatesError::UtilsError(_)));
         std::env::set_var(VAR_PKI_CONFIG_DIR, PKI_CONFIG_DIR);
         let result = get_pki_certificates::<PathBuf>(None);
         assert!(result.is_ok());

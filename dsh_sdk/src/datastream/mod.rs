@@ -23,11 +23,13 @@ use std::io::Read;
 use log::{debug, error, info};
 use serde::{Deserialize, Serialize};
 
-use crate::error::DshError;
 use crate::{
     utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_LOCAL_DATASTREAMS_JSON,
     VAR_SCHEMA_REGISTRY_HOST,
 };
+pub use error::DatastreamError;
+
+mod error;
 
 const FILE_NAME: &str = "local_datastreams.json";
 
@@ -70,14 +72,14 @@ impl Datastream {
     /// # Error
     /// If the index is greater then amount of groups in the datastreams
     /// (index out of bounds)
-    pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DshError> {
+    pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DatastreamError> {
         let group_id = match group_type {
             GroupType::Private(i) => self.private_consumer_groups.get(i),
             GroupType::Shared(i) => self.shared_consumer_groups.get(i),
         };
         match group_id {
             Some(id) => Ok(id),
-            None => Err(DshError::IndexGroupIdError(group_type)),
+            None => Err(DatastreamError::IndexGroupIdError(group_type)),
         }
     }
 
@@ -100,7 +102,7 @@ impl Datastream {
         &self,
         topics: &Vec<T>,
         access: ReadWriteAccess,
-    ) -> Result<(), DshError> {
+    ) -> Result<(), DatastreamError> {
         let read_topics = self
             .streams()
             .values()
@@ -129,7 +131,7 @@ impl Datastream {
                 .collect::<Vec<&str>>()
                 .join(".");
             if !read_topics.contains(&topic_name) {
-                return Err(DshError::NotFoundTopicError(topic.to_string()));
+                return Err(DatastreamError::NotFoundTopicError(topic.to_string()));
             }
         }
         Ok(())
@@ -156,7 +158,7 @@ impl Datastream {
     /// let path = std::path::PathBuf::from("/path/to/directory");
     /// datastream.to_file(&path).unwrap();
     /// ```
-    pub fn to_file(&self, path: &std::path::Path) -> Result<(), DshError> {
+    pub fn to_file(&self, path: &std::path::Path) -> Result<(), DatastreamError> {
         let json_string = serde_json::to_string_pretty(self)?;
         std::fs::write(path.join("datastreams.json"), json_string)?;
         info!("File created ({})", path.display());
@@ -172,11 +174,11 @@ impl Datastream {
         host: &str,
         tenant: &str,
         task_id: &str,
-    ) -> Result<Self, DshError> {
+    ) -> Result<Self, DatastreamError> {
         let url = Self::datastreams_endpoint(host, tenant, task_id);
         let response = client.get(&url).send().await?;
         if !response.status().is_success() {
-            return Err(DshError::DshCallError {
+            return Err(DatastreamError::DshCallError {
                 url,
                 status_code: response.status(),
                 error_body: response.text().await.unwrap_or_default(),
@@ -194,11 +196,11 @@ impl Datastream {
         host: &str,
         tenant: &str,
         task_id: &str,
-    ) -> Result<Self, DshError> {
+    ) -> Result<Self, DatastreamError> {
         let url = Self::datastreams_endpoint(host, tenant, task_id);
         let response = client.get(&url).send()?;
         if !response.status().is_success() {
-            return Err(DshError::DshCallError {
+            return Err(DatastreamError::DshCallError {
                 url,
                 status_code: response.status(),
                 error_body: response.text().unwrap_or_default(),
@@ -215,7 +217,7 @@ impl Datastream {
     /// If it does not parse or the file is not found based on on Environment Variable, it will panic.
     /// If the Environment Variable is not set, it will look in the current directory. If it is not found,
     /// it will return a Error on the Result. Based on this it will use default Datastreams.
-    pub(crate) fn load_local_datastreams() -> Result<Self, DshError> {
+    pub(crate) fn load_local_datastreams() -> Result<Self, DatastreamError> {
         let path_buf = if let Ok(path) = utils::get_env_var(VAR_LOCAL_DATASTREAMS_JSON) {
             let path = std::path::PathBuf::from(path);
             if !path.exists() {
@@ -233,7 +235,7 @@ impl Datastream {
                 path_buf.display(),
                 e
             );
-            DshError::IoError(e)
+            DatastreamError::IoError(e)
         })?;
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
@@ -352,11 +354,11 @@ impl Stream {
     ///
     /// ## Error
     /// If the topic does not have read access it returns a `TopicPermissionsError`
-    pub fn read_pattern(&self) -> Result<&str, DshError> {
+    pub fn read_pattern(&self) -> Result<&str, DatastreamError> {
         if self.read_access() {
             Ok(&self.read)
         } else {
-            Err(DshError::TopicPermissionsError(
+            Err(DatastreamError::TopicPermissionsError(
                 self.name.clone(),
                 ReadWriteAccess::Read,
             ))
@@ -367,11 +369,11 @@ impl Stream {
     ///
     /// ## Error
     /// If the topic does not have write access it returns a `TopicPermissionsError`
-    pub fn write_pattern(&self) -> Result<&str, DshError> {
+    pub fn write_pattern(&self) -> Result<&str, DatastreamError> {
         if self.write_access() {
             Ok(&self.write)
         } else {
-            Err(DshError::TopicPermissionsError(
+            Err(DatastreamError::TopicPermissionsError(
                 self.name.clone(),
                 ReadWriteAccess::Write,
             ))
@@ -670,7 +672,7 @@ mod tests {
 
         assert!(matches!(
             e,
-            DshError::TopicPermissionsError(_, ReadWriteAccess::Write)
+            DatastreamError::TopicPermissionsError(_, ReadWriteAccess::Write)
         ));
     }
 

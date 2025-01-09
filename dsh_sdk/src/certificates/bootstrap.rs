@@ -11,7 +11,7 @@ use reqwest::blocking::Client;
 
 use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
 
-use crate::error::DshError;
+use super::CertificatesError;
 
 use super::Cert;
 use crate::utils;
@@ -22,7 +22,7 @@ pub(crate) fn bootstrap(
     config_host: &str,
     tenant_name: &str,
     task_id: &str,
-) -> Result<Cert, DshError> {
+) -> Result<Cert, CertificatesError> {
     let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id)?;
     let client = reqwest_ca_client(dsh_config.dsh_ca_certificate.as_bytes())?;
     let dn = DshBootstapCall::Dn(&dsh_config).retryable_call(&client)?;
@@ -46,7 +46,7 @@ fn get_signed_client_cert(
     dn: Dn,
     dsh_config: &DshBootstrapConfig,
     client: &Client,
-) -> Result<Cert, DshError> {
+) -> Result<Cert, CertificatesError> {
     let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
     let csr = generate_csr(&key_pair, dn)?;
     let client_certificate = DshBootstapCall::CertificateSignRequest {
@@ -64,7 +64,10 @@ fn get_signed_client_cert(
 }
 
 /// Generate the certificate signing request.
-fn generate_csr(key_pair: &KeyPair, dn: Dn) -> Result<CertificateSigningRequest, DshError> {
+fn generate_csr(
+    key_pair: &KeyPair,
+    dn: Dn,
+) -> Result<CertificateSigningRequest, CertificatesError> {
     let mut params = CertificateParams::default();
     params.distinguished_name.push(DnType::CommonName, dn.cn);
     params
@@ -86,7 +89,11 @@ struct DshBootstrapConfig<'a> {
     dsh_ca_certificate: String,
 }
 impl<'a> DshBootstrapConfig<'a> {
-    fn new(config_host: &'a str, tenant_name: &'a str, task_id: &'a str) -> Result<Self, DshError> {
+    fn new(
+        config_host: &'a str,
+        tenant_name: &'a str,
+        task_id: &'a str,
+    ) -> Result<Self, CertificatesError> {
         let dsh_secret_token = match utils::get_env_var(VAR_DSH_SECRET_TOKEN) {
             Ok(token) => token,
             Err(_) => {
@@ -147,10 +154,10 @@ impl DshBootstapCall<'_> {
         }
     }
 
-    fn perform_call(&self, client: &Client) -> Result<String, DshError> {
+    fn perform_call(&self, client: &Client) -> Result<String, CertificatesError> {
         let response = self.request_builder(client).send()?;
         if !response.status().is_success() {
-            return Err(DshError::DshCallError {
+            return Err(CertificatesError::DshCallError {
                 url: self.url(),
                 status_code: response.status(),
                 error_body: response.text().unwrap_or_default(),
@@ -159,7 +166,7 @@ impl DshBootstapCall<'_> {
         Ok(response.text()?)
     }
 
-    pub(crate) fn retryable_call(&self, client: &Client) -> Result<String, DshError> {
+    pub(crate) fn retryable_call(&self, client: &Client) -> Result<String, CertificatesError> {
         let mut retries = 0;
         loop {
             match self.perform_call(client) {
@@ -193,7 +200,7 @@ struct Dn {
 
 impl Dn {
     /// Parse the DN string into Dn struct.
-    fn parse_string(dn_string: &str) -> Result<Self, DshError> {
+    fn parse_string(dn_string: &str) -> Result<Self, CertificatesError> {
         let mut cn = None;
         let mut ou = None;
         let mut o = None;
@@ -211,13 +218,13 @@ impl Dn {
         }
 
         Ok(Dn {
-            cn: cn.ok_or(DshError::ParseDnError(
+            cn: cn.ok_or(CertificatesError::ParseDn(
                 "CN is missing in DN string".to_string(),
             ))?,
-            ou: ou.ok_or(DshError::ParseDnError(
+            ou: ou.ok_or(CertificatesError::ParseDn(
                 "OU is missing in DN string".to_string(),
             ))?,
-            o: o.ok_or(DshError::ParseDnError(
+            o: o.ok_or(CertificatesError::ParseDn(
                 "O is missing in DN string".to_string(),
             ))?,
         })

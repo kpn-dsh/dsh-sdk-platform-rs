@@ -1,56 +1,14 @@
-use thiserror::Error;
-
-#[derive(Error, Debug)]
-#[non_exhaustive]
+/// Errors for the DSH SDK
+#[derive(Debug, thiserror::Error)]
 pub enum DshError {
-    #[error("IO Error: {0}")]
-    IoError(#[from] std::io::Error),
-    #[error("Env variable {0} error: {1}")]
-    EnvVarError(String, std::env::VarError),
-    #[error("Convert bytes to utf8 error: {0}")]
-    Utf8(#[from] std::string::FromUtf8Error),
-    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
-    #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]
-    DshCallError {
-        url: String,
-        status_code: reqwest::StatusCode,
-        error_body: String,
-    },
-    #[cfg(feature = "bootstrap")]
-    #[error("Certificates are not set")]
-    NoCertificates,
-    #[cfg(feature = "bootstrap")]
-    #[error("Invalid PEM certificate: {0}")]
-    PemError(#[from] pem::PemError),
-    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
+    #[error("Certificates error: {0}")]
+    CertificatesError(#[from] crate::certificates::CertificatesError),
+    #[error("Datastream error: {0}")]
+    DatastreamError(#[from] crate::datastream::DatastreamError),
+    #[error("Utils error: {0}")]
+    UtilsError(#[from] crate::utils::UtilsError),
     #[error("Reqwest: {0}")]
     ReqwestError(#[from] reqwest::Error),
-    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
-    #[error("Serde_json error: {0}")]
-    JsonError(#[from] serde_json::Error),
-    #[cfg(feature = "bootstrap")]
-    #[error("Rcgen error: {0}")]
-    PrivateKeyError(#[from] rcgen::Error),
-    #[cfg(any(feature = "bootstrap", feature = "protocol-token-fetcher"))]
-    #[error("Error parsing: {0}")]
-    ParseDnError(String),
-    #[cfg(feature = "bootstrap")]
-    #[error("Error getting group id, index out of bounds for {0}")]
-    IndexGroupIdError(crate::datastream::GroupType),
-    #[error("No tenant name found")]
-    NoTenantName,
-    #[cfg(feature = "bootstrap")]
-    #[error("Error getting topic name {0}, Topic not found in datastreams.")]
-    NotFoundTopicError(String),
-    #[cfg(feature = "bootstrap")]
-    #[error("Error in topic permissions: {0} does not have {1:?} permissions.")]
-    TopicPermissionsError(String, crate::datastream::ReadWriteAccess),
-    #[cfg(feature = "metrics")]
-    #[error("Prometheus error: {0}")]
-    Prometheus(#[from] prometheus::Error),
-    #[cfg(feature = "metrics")]
-    #[error("Hyper error: {0}")]
-    HyperError(#[from] hyper::http::Error),
 }
 
 pub(crate) fn report(mut err: &dyn std::error::Error) -> String {

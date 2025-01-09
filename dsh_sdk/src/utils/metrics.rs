@@ -12,7 +12,7 @@
 //!
 //! ### Example
 //! ```
-//! use dsh_sdk::metrics::*;
+//! use dsh_sdk::utils::metrics::*;
 //!
 //! lazy_static! {
 //!     pub static ref HIGH_FIVE_COUNTER: IntCounter =
@@ -28,9 +28,9 @@
 //!
 //! ### Example:
 //! ```
-//! use dsh_sdk::metrics::start_http_server;
-//!#[tokio::main]
-//!async fn main() {
+//! use dsh_sdk::utils::metrics::start_http_server;
+//! #[tokio::main]
+//! async fn main() {
 //!    start_http_server(9090);
 //!}
 //! ```
@@ -61,15 +61,25 @@ use hyper_util::rt::TokioIo;
 pub use lazy_static::lazy_static;
 use log::{error, warn};
 pub use prometheus::*;
+use thiserror::Error;
 use tokio::net::TcpListener;
 use tokio::task::JoinHandle;
 
-use crate::error::DshError;
-
-type DshResult<T> = std::result::Result<T, DshError>;
+type MetricsResult<T> = std::result::Result<T, MetricsError>;
 type BoxBody = http_body_util::combinators::BoxBody<Bytes, hyper::Error>;
 
 static NOTFOUND: &[u8] = b"404: Not Found";
+
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum MetricsError {
+    #[error("IO Error: {0}")]
+    IoError(#[from] std::io::Error),
+    #[error("Hyper error: {0}")]
+    HyperError(#[from] hyper::http::Error),
+    #[error("Prometheus error: {0}")]
+    Prometheus(#[from] prometheus::Error),
+}
 
 /// Start a http server to expose prometheus metrics.
 ///
@@ -119,7 +129,7 @@ static NOTFOUND: &[u8] = b"404: Not Found";
 ///    }
 /// }
 /// ```
-pub fn start_http_server(port: u16) -> JoinHandle<DshResult<()>> {
+pub fn start_http_server(port: u16) -> JoinHandle<MetricsResult<()>> {
     tokio::spawn(async move {
         let result = run_server(port).await;
         warn!("HTTP server stopped: {:?}", result);
@@ -128,15 +138,15 @@ pub fn start_http_server(port: u16) -> JoinHandle<DshResult<()>> {
 }
 
 /// Encode metrics to a string (UTF8)
-pub fn metrics_to_string() -> DshResult<String> {
+pub fn metrics_to_string() -> MetricsResult<String> {
     let encoder = prometheus::TextEncoder::new();
 
     let mut buffer = Vec::new();
     encoder.encode(&prometheus::gather(), &mut buffer)?;
-    Ok(String::from_utf8(buffer)?)
+    Ok(String::from_utf8_lossy(&buffer).into_owned())
 }
 
-async fn run_server(port: u16) -> DshResult<()> {
+async fn run_server(port: u16) -> MetricsResult<()> {
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = TcpListener::bind(addr).await?;
 
@@ -155,21 +165,21 @@ async fn handle_connection(stream: tokio::net::TcpStream) {
     }
 }
 
-async fn routes(req: Request<Incoming>) -> DshResult<Response<BoxBody>> {
+async fn routes(req: Request<Incoming>) -> MetricsResult<Response<BoxBody>> {
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/metrics") => get_metrics(),
         (_, _) => not_found(),
     }
 }
 
-fn get_metrics() -> DshResult<Response<BoxBody>> {
+fn get_metrics() -> MetricsResult<Response<BoxBody>> {
     Ok(Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, prometheus::TEXT_FORMAT)
         .body(full(metrics_to_string().unwrap_or_default()))?)
 }
 
-fn not_found() -> DshResult<Response<BoxBody>> {
+fn not_found() -> MetricsResult<Response<BoxBody>> {
     Ok(Response::builder()
         .status(StatusCode::NOT_FOUND)
         .body(full(NOTFOUND))?)

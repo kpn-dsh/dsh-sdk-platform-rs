@@ -99,6 +99,7 @@ pub use dsh::Dsh;
 pub use protocol_adapters::kafka_protocol::DshKafkaConfig;
 
 #[cfg(feature = "management-api-token-fetcher")]
+#[doc(inline)]
 pub use management_api::token_fetcher::{
     ManagementApiTokenFetcher, ManagementApiTokenFetcherBuilder,
 };

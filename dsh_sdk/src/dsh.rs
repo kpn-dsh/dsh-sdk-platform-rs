@@ -29,7 +29,7 @@ use log::{error, warn};
 use std::env;
 use std::sync::{Arc, OnceLock};
 
-use crate::certificates::Cert;
+use crate::certificates::{Cert, CertificatesError};
 use crate::datastream::Datastream;
 use crate::error::DshError;
 use crate::utils;
@@ -41,7 +41,7 @@ use crate::protocol_adapters::kafka_protocol::config::KafkaConfig;
 // TODO: Remove at v0.6.0
 pub use crate::dsh_old::*;
 
-/// DSH properties struct. Create new to initialize all related components to connect to the DSH kafka clusters
+/// DSH struct. Lazily initialize all related components to connect to the DSH
 ///  - Contains info from datastreams.json
 ///  - Metadata of running container/task
 ///  - Certificates for Kafka and DSH Schema Registry
@@ -223,11 +223,11 @@ impl Dsh {
     /// # }
     /// ```
     pub fn certificates(&self) -> Result<&Cert, DshError> {
-        if let Some(cert) = &self.certificates {
+        Ok(if let Some(cert) = &self.certificates {
             Ok(cert)
         } else {
-            Err(DshError::NoCertificates)
-        }
+            Err(CertificatesError::NoCertificates)
+        }?)
     }
 
     /// Get the client id based on the task id.
@@ -269,7 +269,7 @@ impl Dsh {
                 .build()
                 .expect("Could not build reqwest client for fetching datastream")
         });
-        Datastream::fetch(client, &self.config_host, &self.tenant_name, &self.task_id).await
+        Ok(Datastream::fetch(client, &self.config_host, &self.tenant_name, &self.task_id).await?)
     }
 
     /// High level method to fetch the kafka properties provided by DSH (datastreams.json) in a blocking way.
@@ -289,7 +289,12 @@ impl Dsh {
                 .build()
                 .expect("Could not build reqwest client for fetching datastream")
         });
-        Datastream::fetch_blocking(client, &self.config_host, &self.tenant_name, &self.task_id)
+        Ok(Datastream::fetch_blocking(
+            client,
+            &self.config_host,
+            &self.tenant_name,
+            &self.task_id,
+        )?)
     }
 
     /// Get schema host of DSH.

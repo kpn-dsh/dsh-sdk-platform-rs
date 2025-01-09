@@ -2,7 +2,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 #[non_exhaustive]
-pub enum ManagementTokenError {
+pub enum ManagementApiTokenError {
     #[error("Client ID is unknown")]
     UnknownClientId,
     #[error("Client secret not set")]
