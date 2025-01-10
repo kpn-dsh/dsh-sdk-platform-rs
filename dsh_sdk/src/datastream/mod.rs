@@ -1,48 +1,57 @@
-//! Module to handle the datastreams.json file.
+//! Datastream properties
 //!
 //! The datastreams.json can be parsed into a Datastream struct using serde_json.
-//! This struct contains all the information from the datastreams.json file.
-//!
-//! You can get the Datastream struct via the 'Properties' struct.
+//! This struct contains all the information from the datastreams properties file.
 //!
 //! # Example
-//! ```
-//! use dsh_sdk::Properties;
+//! ```no_run
+//! use dsh_sdk::Dsh;
 //!
-//! let properties = Properties::get();
-//! let datastream = properties.datastream();
+//! # #[tokio::main]
+//! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+//! let dsh = Dsh::get();
+//! let datastream = dsh.datastream(); // immutable datastream which is fetched at initialization of SDK
+//! // Or
+//! let datastream = dsh.fetch_datastream().await?; // fetch a fresh datastream from dsh server
 //!
 //! let brokers = datastream.get_brokers();
-//! let schema_store = datastream.schema_store();
+//! let schema_store_url = datastream.schema_store();
+//! # Ok(())
+//! }
 //! ```
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io::Read;
 
-use log::{debug, error, info, warn};
+use log::{debug, error, info};
 use serde::{Deserialize, Serialize};
 
-use crate::error::DshError;
 use crate::{
     utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_LOCAL_DATASTREAMS_JSON,
     VAR_SCHEMA_REGISTRY_HOST,
 };
+#[doc(inline)]
+pub use error::DatastreamError;
+
+mod error;
 
 const FILE_NAME: &str = "local_datastreams.json";
 
-/// This struct is equivalent to the datastreams.json
+/// Datastream properties file
+///
+/// Read from datastreams.json
 ///
 /// # Example
 /// ```
-/// use dsh_sdk::Properties;
+/// use dsh_sdk::Dsh;
 ///
-/// let properties = Properties::get();
+/// let properties = Dsh::get();
 /// let datastream = properties.datastream();
 ///
 /// let brokers = datastream.get_brokers();
 /// let streams = datastream.streams();
-/// let schema_store = datastream.schema_store();
+/// let schema_store_url = datastream.schema_store();
 /// ```
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Datastream {
@@ -70,14 +79,14 @@ impl Datastream {
     /// # Error
     /// If the index is greater then amount of groups in the datastreams
     /// (index out of bounds)
-    pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DshError> {
+    pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DatastreamError> {
         let group_id = match group_type {
             GroupType::Private(i) => self.private_consumer_groups.get(i),
             GroupType::Shared(i) => self.shared_consumer_groups.get(i),
         };
         match group_id {
             Some(id) => Ok(id),
-            None => Err(DshError::IndexGroupIdError(group_type)),
+            None => Err(DatastreamError::IndexGroupIdError(group_type)),
         }
     }
 
@@ -100,7 +109,7 @@ impl Datastream {
         &self,
         topics: &Vec<T>,
         access: ReadWriteAccess,
-    ) -> Result<(), DshError> {
+    ) -> Result<(), DatastreamError> {
         let read_topics = self
             .streams()
             .values()
@@ -129,7 +138,7 @@ impl Datastream {
                 .collect::<Vec<&str>>()
                 .join(".");
             if !read_topics.contains(&topic_name) {
-                return Err(DshError::NotFoundTopicError(topic.to_string()));
+                return Err(DatastreamError::NotFoundTopicError(topic.to_string()));
             }
         }
         Ok(())
@@ -151,12 +160,12 @@ impl Datastream {
     ///
     /// # Example
     /// ```no_run
-    /// # use dsh_sdk::dsh::datastream::Datastream;
+    /// # use dsh_sdk::datastream::Datastream;
     /// # let datastream = Datastream::default();
     /// let path = std::path::PathBuf::from("/path/to/directory");
     /// datastream.to_file(&path).unwrap();
     /// ```
-    pub fn to_file(&self, path: &std::path::Path) -> Result<(), DshError> {
+    pub fn to_file(&self, path: &std::path::Path) -> Result<(), DatastreamError> {
         let json_string = serde_json::to_string_pretty(self)?;
         std::fs::write(path.join("datastreams.json"), json_string)?;
         info!("File created ({})", path.display());
@@ -172,11 +181,11 @@ impl Datastream {
         host: &str,
         tenant: &str,
         task_id: &str,
-    ) -> Result<Self, DshError> {
+    ) -> Result<Self, DatastreamError> {
         let url = Self::datastreams_endpoint(host, tenant, task_id);
         let response = client.get(&url).send().await?;
         if !response.status().is_success() {
-            return Err(DshError::DshCallError {
+            return Err(DatastreamError::DshCallError {
                 url,
                 status_code: response.status(),
                 error_body: response.text().await.unwrap_or_default(),
@@ -194,11 +203,11 @@ impl Datastream {
         host: &str,
         tenant: &str,
         task_id: &str,
-    ) -> Result<Self, DshError> {
+    ) -> Result<Self, DatastreamError> {
         let url = Self::datastreams_endpoint(host, tenant, task_id);
         let response = client.get(&url).send()?;
         if !response.status().is_success() {
-            return Err(DshError::DshCallError {
+            return Err(DatastreamError::DshCallError {
                 url,
                 status_code: response.status(),
                 error_body: response.text().unwrap_or_default(),
@@ -215,7 +224,7 @@ impl Datastream {
     /// If it does not parse or the file is not found based on on Environment Variable, it will panic.
     /// If the Environment Variable is not set, it will look in the current directory. If it is not found,
     /// it will return a Error on the Result. Based on this it will use default Datastreams.
-    pub(crate) fn load_local_datastreams() -> Result<Self, DshError> {
+    pub(crate) fn load_local_datastreams() -> Result<Self, DatastreamError> {
         let path_buf = if let Ok(path) = utils::get_env_var(VAR_LOCAL_DATASTREAMS_JSON) {
             let path = std::path::PathBuf::from(path);
             if !path.exists() {
@@ -233,7 +242,7 @@ impl Datastream {
                 path_buf.display(),
                 e
             );
-            DshError::IoError(e)
+            DatastreamError::IoError(e)
         })?;
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
@@ -241,6 +250,9 @@ impl Datastream {
             .unwrap_or_else(|e| panic!("Failed to parse {}, {:?}", path_buf.display(), e));
         if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
             datastream.brokers = brokers.split(',').map(|s| s.to_string()).collect();
+        }
+        if let Ok(schema_store) = utils::get_env_var(VAR_SCHEMA_REGISTRY_HOST) {
+            datastream.schema_store = schema_store;
         }
         Ok(datastream)
     }
@@ -349,11 +361,11 @@ impl Stream {
     ///
     /// ## Error
     /// If the topic does not have read access it returns a `TopicPermissionsError`
-    pub fn read_pattern(&self) -> Result<&str, DshError> {
+    pub fn read_pattern(&self) -> Result<&str, DatastreamError> {
         if self.read_access() {
             Ok(&self.read)
         } else {
-            Err(DshError::TopicPermissionsError(
+            Err(DatastreamError::TopicPermissionsError(
                 self.name.clone(),
                 ReadWriteAccess::Read,
             ))
@@ -364,11 +376,11 @@ impl Stream {
     ///
     /// ## Error
     /// If the topic does not have write access it returns a `TopicPermissionsError`
-    pub fn write_pattern(&self) -> Result<&str, DshError> {
+    pub fn write_pattern(&self) -> Result<&str, DatastreamError> {
         if self.write_access() {
             Ok(&self.write)
         } else {
-            Err(DshError::TopicPermissionsError(
+            Err(DatastreamError::TopicPermissionsError(
                 self.name.clone(),
                 ReadWriteAccess::Write,
             ))
@@ -383,6 +395,7 @@ pub enum ReadWriteAccess {
     Write,
 }
 
+/// Enum to indicate the group type (private or shared)
 #[derive(Debug, PartialEq)]
 pub enum GroupType {
     Private(usize),
@@ -402,7 +415,7 @@ impl GroupType {
                 GroupType::Shared(0)
             }
             Err(_) => {
-                warn!("KAFKA_CONSUMER_GROUP_TYPE is not set, defaulting to shared group type.");
+                debug!("KAFKA_CONSUMER_GROUP_TYPE is not set, defaulting to shared group type.");
                 GroupType::Shared(0)
             }
         }
@@ -667,7 +680,7 @@ mod tests {
 
         assert!(matches!(
             e,
-            DshError::TopicPermissionsError(_, ReadWriteAccess::Write)
+            DatastreamError::TopicPermissionsError(_, ReadWriteAccess::Write)
         ));
     }
 

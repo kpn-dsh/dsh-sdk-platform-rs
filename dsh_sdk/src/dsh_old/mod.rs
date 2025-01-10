@@ -10,7 +10,7 @@
 //! # Example
 //! ```
 //! use dsh_sdk::Properties;
-//! use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+//! use rdkafka::consumer::{Consumer, StreamConsumer};
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -25,6 +25,7 @@ mod bootstrap;
 pub mod certificates;
 mod config;
 pub mod datastream;
+pub mod error;
 mod pki_config_dir;
 pub mod properties;
 

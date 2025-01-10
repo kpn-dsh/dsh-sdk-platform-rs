@@ -14,7 +14,7 @@
 //! # Example
 //! ```
 //! use dsh_sdk::Properties;
-//! use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+//! use rdkafka::consumer::{Consumer, StreamConsumer};
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -30,8 +30,8 @@ use std::env;
 use std::sync::OnceLock;
 
 use super::bootstrap::bootstrap;
+use super::error::DshError;
 use super::{certificates, config, datastream, pki_config_dir};
-use crate::error::DshError;
 use crate::utils;
 use crate::*;
 static PROPERTIES: OnceLock<Properties> = OnceLock::new();
@@ -50,7 +50,7 @@ static PRODUCER_CONFIG: OnceLock<config::ProducerConfig> = OnceLock::new();
 /// # Example
 /// ```
 /// use dsh_sdk::Properties;
-/// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+/// use rdkafka::consumer::{Consumer, StreamConsumer};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -106,7 +106,7 @@ impl Properties {
     /// # Example
     /// ```
     /// use dsh_sdk::Properties;
-    /// use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
+    /// use rdkafka::consumer::{Consumer, StreamConsumer};
     ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -181,8 +181,8 @@ impl Properties {
     /// # Example
     /// ```
     /// use dsh_sdk::Properties;
-    /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
-    /// use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
+    /// use rdkafka::config::RDKafkaLogLevel;
+    /// use rdkafka::consumer::stream_consumer::StreamConsumer;
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -214,7 +214,7 @@ impl Properties {
     /// ## Environment variables
     /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
     /// configuring the consmer via environment variables.
-    #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
+    #[cfg(feature = "rdkafka-config")]
     pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         let consumer_config = CONSUMER_CONFIG.get_or_init(config::ConsumerConfig::new);
         let mut config = rdkafka::config::ClientConfig::new();
@@ -260,8 +260,8 @@ impl Properties {
     ///
     /// # Example
     /// ```
-    /// use dsh_sdk::rdkafka::config::RDKafkaLogLevel;
-    /// use dsh_sdk::rdkafka::producer::FutureProducer;
+    /// use rdkafka::config::RDKafkaLogLevel;
+    /// use rdkafka::producer::FutureProducer;
     /// use dsh_sdk::Properties;
     ///
     /// #[tokio::main]
@@ -290,7 +290,7 @@ impl Properties {
     /// ## Environment variables
     /// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for more information
     /// configuring the producer via environment variables.
-    #[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
+    #[cfg(feature = "rdkafka-config")]
     pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         let producer_config = PRODUCER_CONFIG.get_or_init(config::ProducerConfig::new);
         let mut config = rdkafka::config::ClientConfig::new();
@@ -366,8 +366,7 @@ impl Properties {
     /// ```
     /// # use dsh_sdk::Properties;
     /// # use reqwest::blocking::Client;
-    /// # use dsh_sdk::error::DshError;
-    /// # fn main() -> Result<(), DshError> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh_properties = Properties::get();
     /// let client = dsh_properties.reqwest_blocking_client_config()?.build()?;
     /// #    Ok(())
@@ -388,8 +387,7 @@ impl Properties {
     /// # Example
     /// ```no_run
     /// # use dsh_sdk::Properties;
-    /// # use dsh_sdk::error::DshError;
-    /// # fn main() -> Result<(), DshError> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>>{
     /// let dsh_properties = Properties::get();
     /// let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();
     /// #    Ok(())
@@ -737,12 +735,14 @@ mod tests {
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_kafka_auto_commit() {
         let properties = Properties::default();
         assert!(!properties.kafka_auto_commit());
     }
 
     #[test]
+    #[serial(env_dependency)]
     fn test_kafka_auto_offset_reset() {
         let properties = Properties::default();
         assert_eq!(properties.kafka_auto_offset_reset(), "earliest");

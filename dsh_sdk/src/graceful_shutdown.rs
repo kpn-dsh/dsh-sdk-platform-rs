@@ -1,4 +1,4 @@
-//! Graceful shutdown for tokio tasks.
+//! Graceful shutdown
 //!
 //! This module provides a shutdown handle for graceful shutdown of (tokio tasks within) your service.
 //! It listens for SIGTERM requests and sends out shutdown requests to all shutdown handles.

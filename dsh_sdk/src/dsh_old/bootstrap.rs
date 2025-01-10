@@ -10,7 +10,7 @@
 use log::{debug, info};
 use reqwest::blocking::Client;
 
-use crate::error::DshError;
+use super::error::DshError;
 
 use super::certificates::Cert;
 use crate::utils;
@@ -56,12 +56,14 @@ impl<'a> DshConfig<'a> {
             Err(_) => {
                 // if DSH_SECRET_TOKEN is not set, try to read it from a file (for system space applications)
                 debug!("trying to read DSH_SECRET_TOKEN from file");
-                let secret_token_path = utils::get_env_var(VAR_DSH_SECRET_TOKEN_PATH)?;
+                let secret_token_path = utils::get_env_var(VAR_DSH_SECRET_TOKEN_PATH)
+                    .map_err(|_| DshError::EnvVarError(VAR_DSH_SECRET_TOKEN_PATH))?;
                 let path = std::path::PathBuf::from(secret_token_path);
                 std::fs::read_to_string(path)?
             }
         };
-        let dsh_ca_certificate = utils::get_env_var(VAR_DSH_CA_CERTIFICATE)?;
+        let dsh_ca_certificate = utils::get_env_var(VAR_DSH_CA_CERTIFICATE)
+            .map_err(|_| DshError::EnvVarError(VAR_DSH_CA_CERTIFICATE))?;
         Ok(DshConfig {
             config_host,
             task_id,

@@ -33,7 +33,7 @@ use std::path::PathBuf;
 
 use super::bootstrap::{Dn, DshBootstapCall, DshConfig};
 
-use crate::error::DshError;
+use super::error::DshError;
 
 use pem;
 use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};

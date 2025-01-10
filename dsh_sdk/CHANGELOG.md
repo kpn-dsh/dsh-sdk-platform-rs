@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - unreleased
+### Added
+- DSH Kafka Config trait to configure kafka client with RDKafka implementation
+- DSH Schema store API Client
+- New public functions `dsh_sdk::certificates::Cert`
+  - Bootstrap to DSH
+  - Read certificates from PKI_CONFIG_DIR
+  - Add support reading private key in DER format when reading from PKI_CONFIG_DIR
+
+### Changed
+- **Breaking change:** `DshError` is now split into error enums per feature flag to untangle mess
+  - `dsh_sdk::DshError` only applies on `bootstrap` feature flag
+- **Breaking change:** `dsh_sdk::Dsh::reqwest_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
+- **Breaking change:** `dsh_sdk::Dsh::reqwest_blocking_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
+- **Breaking change:** `dsh_sdk::utils::Dlq` does not require `Dsh`/`Properties` as argument anymore
+- Deprecated `dsh_sdk::dsh::properties` module
+- Moved `dsh_sdk::rest_api_token_fetcher` to `dsh_sdk::management_api::token_fetcher` and renamed `RestApiTokenFetcher` to `ManagementApiTokenFetcher`
+- `dsh_sdk::error::DshRestTokenError` renamed to `dsh_sdk::management_api::error::ManagementApiTokenError`
+  - **NOTE** Cargo.toml feature flag `rest-token-fetcher` renamed to`management-api-token-fetcher` 
+- Moved `dsh_sdk::dsh::datastreams` to `dsh_sdk::datastreams` 
+- Moved `dsh_sdk::dsh::certificates` to `dsh_sdk::certificates`
+  - Private module `dsh_sdk::dsh::bootstrap` and `dsh_sdk::dsh::pki_config_dir` are now part of `certificates` module
+- Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token_fetcher` and renamed to `ProtocolTokenFetcher`
+  - Cargo.toml feature flag `mqtt-token-fetcher`  renamed to `protocol-token-fetcher`
+- **Breaking change:** Moved `dsh_sdk::dlq` to `dsh_sdk::utils::dlq` 
+- **Breaking change:** Moved `dsh_sdk::graceful_shutdown` to `dsh_sdk::utils::graceful_shutdown`
+- **Breaking change:** Moved `dsh_sdk::metrics` to `dsh_sdk::utils::metrics`
+
+### Removed
+- Removed `dsh_sdk::rdkafka` public re-export, import `rdkafka` directly
+  - **NOTE** Feature-flag `rdkafka-ssl` and `rdkafka-ssl-vendored` are removed!
+- Removed re-export of `prometheus` and `lazy_static` in `metrics` module, if needed import them directly
+  - **NOTE** See [examples](./examples/expose_metrics.rs) how to use the http server
+
+- Removed `Default` trait for `Dsh` (original `Properties`) struct as this should be public
+
+### Fixed
+
 ## [0.4.11] -2024-09-30
 ### Fixed
 - Retry mechanism for when PKI endpoint is not yet avaialble during rolling restart DSH ([#101](https://github.com/kpn-dsh/dsh-sdk-platform-rs/issues/101))

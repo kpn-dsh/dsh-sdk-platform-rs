@@ -1,12 +1,19 @@
-use dsh_sdk::rdkafka::consumer::CommitMode;
-use dsh_sdk::rdkafka::consumer::{Consumer, StreamConsumer};
-use dsh_sdk::rdkafka::producer::{FutureProducer, FutureRecord};
-use dsh_sdk::rdkafka::Message;
-use dsh_sdk::Properties;
+//! Simple producer and consumer example that sends and receives messages from a Kafka topic
+//!
+//! Run the example with:
+//! ```bash
+//! cargo run --example kafka_example features=rdkafka-config
+//! ```
+use dsh_sdk::DshKafkaConfig;
+use rdkafka::consumer::CommitMode;
+use rdkafka::consumer::{Consumer, StreamConsumer};
+use rdkafka::producer::{FutureProducer, FutureRecord};
+use rdkafka::ClientConfig;
+use rdkafka::Message;
 
 const TOTAL_MESSAGES: usize = 10;
 
-async fn produce(producer: &mut FutureProducer, topic: &str) {
+async fn produce(producer: FutureProducer, topic: &str) {
     for key in 0..TOTAL_MESSAGES {
         let payload = format!("hello world {}", key);
         let msg = producer
@@ -24,7 +31,7 @@ async fn produce(producer: &mut FutureProducer, topic: &str) {
     }
 }
 
-async fn consume(consumer: &mut StreamConsumer, topic: &str) {
+async fn consume(consumer: StreamConsumer, topic: &str) {
     consumer.subscribe(&[topic]).unwrap();
     let mut i = 0;
     while i < TOTAL_MESSAGES {
@@ -39,21 +46,18 @@ async fn consume(consumer: &mut StreamConsumer, topic: &str) {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create a new DSH Properties instance (requires local_datastreams.json in root of project, as it runs in local mode)
-    let dsh_properties = Properties::get();
-
     // Define your topic
     let topic = "test";
 
-    // Create a new producer based on the properties default config
-    let mut producer: FutureProducer = dsh_properties.producer_rdkafka_config().create()?;
+    // Create a new producer from the RDkafka Client Config together with dsh_prodcer_config form DshKafkaConfig trait
+    let producer: FutureProducer = ClientConfig::new().set_dsh_producer_config().create()?;
 
     // Produce messages towards topic
-    produce(&mut producer, topic).await;
+    produce(producer, topic).await;
 
-    // Create a new consumer based on the properties default config
-    let mut consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
+    // Create a new consumer from the RDkafka Client Config together with dsh_consumer_config form DshKafkaConfig trait
+    let consumer: StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
 
-    consume(&mut consumer, topic).await;
+    consume(consumer, topic).await;
     Ok(())
 }
