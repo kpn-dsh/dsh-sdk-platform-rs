@@ -64,7 +64,7 @@ pub mod graceful_shutdown;
 )]
 pub mod metrics;
 
-#[cfg(feature = "protocol-token-fetcher")]
+#[cfg(all(feature = "protocol-token-fetcher", feature = "bootstrap"))]
 #[deprecated(
     since = "0.5.0",
     note = "`dsh_sdk::mqtt_token_fetcher` is moved to `dsh_sdk::protocol_adapters::token_fetcher`"
