@@ -111,18 +111,17 @@ For more information, see the [CONNECT_PROXY_VPN_LOCAL.md](CONNECT_PROXY_VPN_LOC
 
 Below is an overview of the available features:
 
-| **Feature**                  | **Default?** | **Description**                                                                      | **Example**                                                                            |
-|------------------------------|--------------|--------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| `bootstrap`                  | &check;      | Certificate signing process and datastreams property retrieval                       | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)        |
-| `kafka`                      | &check;      | Enables `DshKafkaConfig` trait and config structs for DSH Kafka connections          | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)        |
-| `rdkafka-config`             | &check;      | Provides a `DshKafkaConfig` implementation for RDKafka                               | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)        |
-| `schema-store`               | &cross;      | Interacts with the DSH Schema Store                                                 | [Schema Store API](./examples/schema_store_api.rs)                                    |
-| `protocol-token-fetcher`     | &cross;      | Fetches tokens for DSH MQTT and HTTP protocol adapters                               | [Token fetcher](./examples/protocol_token_fetcher.rs) / [Specific claims](./examples/protocol_token_fetcher_specific_claims.rs) |
-| `management-api-token-fetcher` | &cross;    | Fetches tokens for the DSH Management API                                           | [Token fetcher](./examples/management_api_token_fetcher.rs)                           |
-| `metrics`                    | &cross;      | Adds Prometheus metrics (via an HTTP server) and re-exports `metrics` crate          | [Expose metrics](./examples/expose_metrics.rs) / [Custom metrics](./examples/custom_metrics.rs) |
-| `graceful-shutdown`          | &cross;      | Adds a Tokio-based graceful shutdown handler                                        | [Graceful shutdown](./examples/graceful_shutdown.rs)                                  |
-| `dlq`                        | &cross;      | Dead Letter Queue implementation                                                    | [Full example](./examples/dlq_implementation.rs)                                       |
-
+| **feature**                    | **default** | **Description**                                                   | **Example**                                                                                                                          |
+|--------------------------------|-------------|-------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `bootstrap`                    | ✓           | Certificate signing process and fetch datastreams properties      | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)                                                      |
+| `kafka`                        | ✓           | Enable `DshKafkaConfig` trait and Config struct to connect to DSH | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)                                                      |
+| `rdkafka-config`               | ✓           | Enable `DshKafkaConfig` implementation for RDKafka                | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)                                                      |
+| `schema-store`                 | ✗           | Interact with DSH Schema Store                                    | [Schema Store API](./examples/schema_store_api.rs)                                                                                   |
+| `protocol-token-fetcher`       | ✗           | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP)         | [Token fetcher](./examples/protocol_token_fetcher.rs) / [with specific claims](./examples/protocol_token_fetcher_specific_claims.rs) |
+| `management-api-token-fetcher` | ✗           | Fetch tokens to use DSH Management API                            | [ Token fetcher](./examples/management_api_token_fetcher.rs)                                                                         |
+| `metrics`                      | ✗           | Enable prometheus metrics including http server                   | [Expose metrics](./examples/expose_metrics.rs)                                                                                       |
+| `graceful-shutdown`            | ✗           | Tokio based graceful shutdown handler                             | [Graceful shutdown](./examples/graceful_shutdown.rs)                                                                                 |
+| `dlq`                          | ✗           | Dead Letter Queue implementation                                  | [Full implementation example](./examples/dlq_implementation.rs)                                                                      |
 ### Selecting Features
 
 To pick only the features you need, disable the default features and enable specific ones. For instance, if you only want the Management API Token Fetcher:

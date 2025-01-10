@@ -15,7 +15,8 @@ The following versions of this project are currently being supported with securi
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.4.x   | :white_check_mark: |
+| 0.5.x   | :white_check_mark: |
+| 0.4.x   | :white_check_mark: (till 28/02/2025) |
 | 0.3.x   | :x:                | 
 | 0.2.x   | :x:                |
 | 0.1.x   | :x:                |
@@ -23,7 +24,6 @@ The following versions of this project are currently being supported with securi
 ## Known dependency vulnerabilities
 
 [![dependency status](https://deps.rs/repo/github/kpn-dsh/dsh-sdk-platform-rs/status.svg)](https://deps.rs/repo/github/kpn-dsh/dsh-sdk-platform-rs).
-
 
 
 ## Reporting a Vulnerability

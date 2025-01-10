@@ -1,99 +1,86 @@
-//! # DSH
-//!
-//! Dsh properties struct. Create new to initialize all related components to connect to the DSH kafka clusters and get metadata of your tenant.
-//! - Availablable datastreams info
-//! - Metadata of running container/task
-//! - Certificates for Kafka and DSH
-//!
-//! ## High level API
-//!
-//! The properties struct contains a high level API to interact with the DSH.
-//! This includes generating RDKafka config for creating a consumer/producer and Reqwest config builder for Schema Registry.
-//!
-//! ### Example:
-//! ```
-//! use dsh_sdk::Properties;
-//! use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
-//!
-//! # #[tokio::main]
-//! # async fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! let dsh_properties = Properties::get();
-//! let consumer: StreamConsumer = dsh_properties.consumer_rdkafka_config().create()?;
-//! # Ok(())
-//! # }
-//! ```
-//!
-//! ## Low level API
-//! It is also possible to get avaiable metadata or the certificates from the properties struct.
-//!
-//! ### Example:
-//! ```no_run
-//! # use dsh_sdk::Properties;
-//! # use dsh_sdk::rdkafka::consumer::stream_consumer::StreamConsumer;
-//! # fn main() -> Result<(), Box<dyn std::error::Error>>{
-//! #    let dsh_properties = Properties::get();
-//! // check for write access to topic
-//! let write_access = dsh_properties.datastream().get_stream("scratch.local.local-tenant").expect("Topic not found").write_access();
-//! // get the certificates, for example DSH_KAFKA_CERTIFICATE
-//! let dsh_kafka_certificate = dsh_properties.certificates()?.dsh_kafka_certificate_pem();
-//! #     Ok(())
-//! # }
-//! ```
-//! ## Kafka Proxy / VPN / Local
-//! Read [CONNECT_PROXY_VPN_LOCAL.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md) on how to connect to DSH with Kafka Proxy, VPN or to a local Kafka cluster.
-//!
-//! # Metrics
-//! The metrics module provides a way to expose prometheus metrics. This module is a re-export of the `prometheus` crate. It also contains a function to start a http server to expose the metrics to DSH.
-//!
-//! See [metrics](metrics/index.html) for more information.
-//!
-//! # Graceful shutdown
-//! To implement a graceful shutdown in your service, you can use the `Shutdown` struct. This struct has an implementation based on the best practices example of Tokio.
-//!
-//! This gives you the option to properly handle shutdown in your components/tasks.
-//! It listens for SIGTERM requests and sends out shutdown requests to all shutdown handles.
-//!
-//! See [graceful_shutdown](graceful_shutdown/index.html) for more information.
-//!
-//! # DLQ (Dead Letter Queue)
-//! `OPTIONAL feature: dlq`
-//!
-//! This is an experimental feature and is not yet finalized.
-//!
-//! This implementation only includes pushing messages towards a kafka topic. (Dead or Retry topic)
-//!
-//! ### NOTE:
-//! This implementation does not (and will not) handle any other DLQ related tasks like:
-//!     - Retrying messages
-//!     - Handling messages in DLQ
-//!     - Monitor the DLQ
-//! Above tasks should be handled by a seperate component set up by the user, as these tasks are use case specific and can handle different strategies.
-//!
-//! The DLQ is implemented by running the `Dlq` struct to push messages towards the DLQ topics.
-//! The `ErrorToDlq` trait can be implemented on your defined errors, to be able to send messages towards the DLQ Struct.
+#![doc = include_str!("../README.md")]
+#![allow(deprecated)]
 
-#[cfg(feature = "dlq")]
-pub mod dlq;
+// to be kept in v0.6.0
+#[cfg(feature = "bootstrap")]
+pub mod certificates;
+#[cfg(feature = "bootstrap")]
+pub mod datastream;
 #[cfg(feature = "bootstrap")]
 pub mod dsh;
-pub mod error;
-#[cfg(feature = "graceful_shutdown")]
-pub mod graceful_shutdown;
-#[cfg(feature = "metrics")]
-pub mod metrics;
-#[cfg(any(feature = "rdkafka-ssl", feature = "rdkafka-ssl-vendored"))]
-pub use rdkafka;
-#[cfg(feature = "mqtt-token-fetcher")]
-pub mod mqtt_token_fetcher;
-#[cfg(feature = "rest-token-fetcher")]
-mod rest_api_token_fetcher;
-mod utils;
+#[cfg(feature = "bootstrap")]
+mod error;
+
+#[cfg(feature = "management-api-token-fetcher")]
+pub mod management_api;
+pub mod protocol_adapters;
+pub mod utils;
+
+#[cfg(feature = "schema-store")]
+pub mod schema_store;
 
 #[cfg(feature = "bootstrap")]
-pub use dsh::Properties;
-#[cfg(feature = "rest-token-fetcher")]
-pub use rest_api_token_fetcher::{RestTokenFetcher, RestTokenFetcherBuilder};
+#[doc(inline)]
+pub use {dsh::Dsh, error::DshError};
+
+#[cfg(feature = "kafka")]
+#[doc(inline)]
+pub use protocol_adapters::kafka_protocol::DshKafkaConfig;
+
+#[cfg(feature = "management-api-token-fetcher")]
+#[doc(inline)]
+pub use management_api::{ManagementApiTokenFetcher, ManagementApiTokenFetcherBuilder};
+
+#[doc(inline)]
 pub use utils::Platform;
+
+// TODO: to be removed in v0.6.0
+#[cfg(feature = "dlq")]
+#[deprecated(since = "0.5.0", note = "The DLQ is moved to `dsh_sdk::utils::dlq`")]
+pub mod dlq;
+
+#[cfg(feature = "bootstrap")]
+#[deprecated(
+    since = "0.5.0",
+    note = "The `Properties` struct phased out. Use
+    `dsh_sdk::Dsh` for an all-in-one struct, similar to the original `Properties`;
+    `dsh_sdk::certificates` for all certificate related info;
+    `dsh_sdk::datastream` for all datastream related info;
+    "
+)]
+pub mod dsh_old;
+
+#[cfg(feature = "graceful-shutdown")]
+#[deprecated(
+    since = "0.5.0",
+    note = "`dsh_sdk::graceful_shutdown` is moved to `dsh_sdk::utils::graceful_shutdown`"
+)]
+pub mod graceful_shutdown;
+
+#[cfg(feature = "metrics")]
+#[deprecated(
+    since = "0.5.0",
+    note = "`dsh_sdk::metrics` is moved to `dsh_sdk::utils::metrics`"
+)]
+pub mod metrics;
+
+#[cfg(all(feature = "protocol-token-fetcher", feature = "bootstrap"))]
+#[deprecated(
+    since = "0.5.0",
+    note = "`dsh_sdk::mqtt_token_fetcher` is moved to `dsh_sdk::protocol_adapters::token_fetcher`"
+)]
+pub mod mqtt_token_fetcher;
+#[cfg(feature = "bootstrap")]
+pub use dsh_old::Properties;
+
+#[cfg(feature = "management-api-token-fetcher")]
+#[deprecated(
+    since = "0.5.0",
+    note = "`RestTokenFetcher` and `RestTokenFetcherBuilder` are renamed to `ManagementApiTokenFetcher` and `ManagementApiTokenFetcherBuilder`"
+)]
+mod rest_api_token_fetcher;
+#[cfg(feature = "management-api-token-fetcher")]
+pub use rest_api_token_fetcher::{RestTokenFetcher, RestTokenFetcherBuilder};
 
 // Environment variables
 const VAR_APP_ID: &str = "MARATHON_APP_ID";

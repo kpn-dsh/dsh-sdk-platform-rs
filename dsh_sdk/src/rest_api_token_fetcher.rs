@@ -40,7 +40,7 @@ use std::time::{Duration, Instant};
 use log::debug;
 use serde::Deserialize;
 
-use crate::error::DshRestTokenError;
+use crate::management_api::ManagementApiTokenError as DshRestTokenError;
 use crate::utils::Platform;
 
 /// Access token of the authentication serveice of DSH.
@@ -242,7 +242,7 @@ impl RestTokenFetcher {
         if !response.status().is_success() {
             Err(DshRestTokenError::StatusCode {
                 status_code: response.status(),
-                error_body: response,
+                error_body: response.text().await.unwrap_or_default(),
             })
         } else {
             response
@@ -507,7 +507,7 @@ mod test {
                 error_body,
             } => {
                 assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
-                assert_eq!(error_body.text().await.unwrap(), "Bad request");
+                assert_eq!(error_body, "Bad request");
             }
             _ => panic!("Unexpected error: {:?}", err),
         }

@@ -5,12 +5,13 @@ use std::fmt::{Display, Formatter};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::Mutex;
 
-use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};
+use std::collections::HashMap;
+use std::sync::Arc;
 
-use crate::{error::DshError, Platform};
+use crate::{dsh_old::error::DshError, Platform};
 
 /// `MqttTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
 ///
@@ -22,7 +23,7 @@ pub struct MqttTokenFetcher {
     rest_api_key: String,
     rest_token: Mutex<RestToken>,
     rest_auth_url: String,
-    mqtt_token: DashMap<String, MqttToken>, // Mapping from Client ID to MqttToken
+    mqtt_token: Arc<Mutex<HashMap<String, MqttToken>>>, // Mapping from Client ID to MqttToken
     mqtt_auth_url: String,
     client: reqwest::Client,
     //token_lifetime: Option<i32>, // TODO: Implement option of passing token lifetime to request token for specific duration
@@ -114,7 +115,7 @@ impl MqttTokenFetcher {
             rest_api_key: api_key,
             rest_token: Mutex::new(rest_token),
             rest_auth_url: platform.endpoint_rest_token().to_string(),
-            mqtt_token: DashMap::new(),
+            mqtt_token: Arc::new(Mutex::new(HashMap::new())),
             mqtt_auth_url: platform.endpoint_mqtt_token().to_string(),
             client,
         }
@@ -136,15 +137,15 @@ impl MqttTokenFetcher {
         client_id: &str,
         claims: Option<Vec<Claims>>,
     ) -> Result<MqttToken, DshError> {
-        match self.mqtt_token.entry(client_id.to_string()) {
-            dashmap::Entry::Occupied(mut entry) => {
+        match self.mqtt_token.lock().await.entry(client_id.to_string()) {
+            std::collections::hash_map::Entry::Occupied(mut entry) => {
                 let mqtt_token = entry.get_mut();
                 if !mqtt_token.is_valid() {
                     *mqtt_token = self.fetch_new_mqtt_token(client_id, claims).await?;
                 };
                 Ok(mqtt_token.clone())
             }
-            dashmap::Entry::Vacant(entry) => {
+            std::collections::hash_map::Entry::Vacant(entry) => {
                 let mqtt_token = self.fetch_new_mqtt_token(client_id, claims).await?;
                 entry.insert(mqtt_token.clone());
                 Ok(mqtt_token)
@@ -515,7 +516,7 @@ mod tests {
     use mockito::Matcher;
     use tokio::sync::Mutex;
 
-    fn create_valid_fetcher() -> MqttTokenFetcher {
+    async fn create_valid_fetcher() -> MqttTokenFetcher {
         let exp_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
@@ -530,8 +531,11 @@ mod tests {
             exp: exp_time,
             raw_token: "valid.token.payload".to_string(),
         };
-        let mqtt_token_map = DashMap::new();
-        mqtt_token_map.insert("test_client".to_string(), mqtt_token.clone());
+        let mqtt_token_map = Arc::new(Mutex::new(HashMap::new()));
+        mqtt_token_map
+            .lock()
+            .await
+            .insert("test_client".to_string(), mqtt_token.clone());
         MqttTokenFetcher {
             tenant_name: "test_tenant".to_string(),
             rest_api_key: "test_api_key".to_string(),
@@ -551,7 +555,7 @@ mod tests {
 
         let fetcher = MqttTokenFetcher::new(tenant_name, rest_api_key, platform);
 
-        assert!(fetcher.mqtt_token.is_empty());
+        assert!(fetcher.mqtt_token.lock().await.is_empty());
     }
 
     #[tokio::test]
@@ -564,7 +568,7 @@ mod tests {
         let fetcher =
             MqttTokenFetcher::new_with_client(tenant_name, rest_api_key, platform, client);
 
-        assert!(fetcher.mqtt_token.is_empty());
+        assert!(fetcher.mqtt_token.lock().await.is_empty());
     }
 
     #[tokio::test]
@@ -590,7 +594,7 @@ mod tests {
             client,
             tenant_name: "test_tenant".to_string(),
             rest_api_key: "test_api_key".to_string(),
-            mqtt_token: DashMap::new(),
+            mqtt_token: Arc::new(Mutex::new(HashMap::new())),
             rest_auth_url: mockito_server.url() + "/rest_auth_url",
             mqtt_auth_url: mockito_server.url() + "/mqtt_auth_url",
             rest_token: Mutex::new(rest_token),
@@ -605,7 +609,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_mqtt_token_fetcher_get_token() {
-        let fetcher = create_valid_fetcher();
+        let fetcher = create_valid_fetcher().await;
         let token = fetcher.get_token("test_client", None).await.unwrap();
         assert_eq!(token.raw_token, "valid.token.payload");
     }
