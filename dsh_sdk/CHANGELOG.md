@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed `dsh_sdk::rdkafka` public re-export, import `rdkafka` directly
   - **NOTE** Feature-flag `rdkafka-ssl` and `rdkafka-ssl-vendored` are removed!
+- Removed re-export of `prometheus` and `lazy_static` in `metrics` module, if needed import them directly
+  - **NOTE** See [examples](./examples/expose_metrics.rs) how to use the http server
+
 - Removed `Default` trait for `Dsh` (original `Properties`) struct as this should be public
 
 ### Fixed

@@ -30,7 +30,7 @@ async fn consume(consumer: StreamConsumer, shutdown: Shutdown) {
         tokio::select! {
             Ok(msg) = consumer.recv() => {
                     // Increment the counter that is defined in src/metrics.rs
-                    custom_metrics::CONSUMED_MESSAGES.inc();
+                    custom_metrics::consumed_messages().inc();
                     // Deserialize and print the message
                     deserialize_and_print(&msg);
                     // Commit the message
@@ -56,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     // Start http server for exposing prometheus metrics, note that in Dockerfile we expose port 8080 as well
-    dsh_sdk::utils::metrics::start_http_server(8080);
+    dsh_sdk::utils::metrics::start_http_server(8080, custom_metrics::gather_and_encode);
 
     // Get the configured topics from env variable TOPICS (comma separated)
     let topics_string = std::env::var("TOPICS").expect("TOPICS env variable not set");
