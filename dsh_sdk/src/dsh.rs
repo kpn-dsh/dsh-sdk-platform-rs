@@ -1,4 +1,4 @@
-//! High-level API to interact with DSH.
+//! High-level API to interact with DSH when your container is running on DSH.
 //!
 //! From [Dsh] there are level functions to get the correct config to connect to Kafka and schema store.
 //! For more low level functions, see

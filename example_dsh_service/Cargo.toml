@@ -9,4 +9,5 @@ dsh_sdk = { path = "../dsh_sdk", version = "0.5.0-rc.1", features = ["rdkafka-co
 rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"] }
 log = "0.4"
 env_logger = "0.11"
+prometheus = "0.13"
 tokio = { version = "^1.35", features = ["full"] }

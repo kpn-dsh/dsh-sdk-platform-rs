@@ -7,8 +7,6 @@ pub enum DshError {
     DatastreamError(#[from] crate::datastream::DatastreamError),
     #[error("Utils error: {0}")]
     UtilsError(#[from] crate::utils::UtilsError),
-    #[error("Reqwest: {0}")]
-    ReqwestError(#[from] reqwest::Error),
 }
 
 pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
