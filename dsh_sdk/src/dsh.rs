@@ -110,9 +110,9 @@ impl Dsh {
 
     /// Initializes the properties and bootstraps to DSH.
     fn init() -> Self {
-        let tenant_name = utils::tenant_name().unwrap_or_else(|| "local_tenant".to_string());
+        let tenant_name = utils::tenant_name().unwrap_or_else(|_| "local_tenant".to_string());
         let task_id =
-            utils::get_env_var(VAR_TASK_ID).unwrap_or_else(|| "local_task_id".to_string());
+            utils::get_env_var(VAR_TASK_ID).unwrap_or_else(|_| "local_task_id".to_string());
         let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(ensure_https_prefix);
 
         let certificates = if let Ok(cert) = Cert::from_pki_config_dir::<std::path::PathBuf>(None) {
@@ -125,7 +125,7 @@ impl Dsh {
             None
         };
 
-        let config_host = config_host.unwrap_or_else(|| DEFAULT_CONFIG_HOST.to_string());
+        let config_host = config_host.unwrap_or_else(|_| DEFAULT_CONFIG_HOST.to_string());
         let fetched_datastreams = certificates.as_ref().and_then(|cert| {
             cert.reqwest_blocking_client_config()
                 .build()

@@ -325,7 +325,7 @@ impl Default for Datastream {
         };
 
         let schema_store = utils::get_env_var(VAR_SCHEMA_REGISTRY_HOST)
-            .unwrap_or_else(|| "http://localhost:8081/apis/ccompat/v7".to_string());
+            .unwrap_or_else(|_| "http://localhost:8081/apis/ccompat/v7".to_string());
 
         Datastream {
             brokers,
