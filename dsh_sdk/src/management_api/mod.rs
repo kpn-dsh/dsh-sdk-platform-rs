@@ -38,4 +38,4 @@ mod token_fetcher;
 pub use error::ManagementApiTokenError;
 
 #[doc(inline)]
-pub use token_fetcher::{ManagementApiTokenFetcher, ManagementApiTokenFetcherBuilder};
+pub use token_fetcher::{ManagementApiTokenFetcher, ManagementApiTokenFetcherBuilder}
