@@ -1,13 +1,12 @@
-//! High-level API to interact with DSH when your container is running on DSH.
+//! High-level API for interacting with DSH when your container is running on DSH.
 //!
-//! From [Dsh] there are level functions to get the correct config to connect to Kafka and schema store.
-//! For more low level functions, see
-//!     - [datastream] module.
-//!     - [certificates] module.
+//! From [`Dsh`] you can retrieve the correct configuration to connect to Kafka and the schema store.
 //!
-//! ## Environment variables
-//! See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for
-//! more information configuring the consmer or producer via environment variables.
+//! For more low-level functions, see the [`datastream`] and [`certificates`] modules.
+//!
+//! ## Environment Variables
+//! Refer to [`ENV_VARIABLES.md`](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md)
+//! for more information on configuring the consumer or producer via environment variables.
 //!
 //! # Example
 //! ```no_run
@@ -17,12 +16,11 @@
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let dsh = Dsh::get();
-//! let certificates =  dsh.certificates()?;
+//! let certificates = dsh.certificates()?;
 //! let datastreams = dsh.datastream();
 //! let kafka_config = dsh.kafka_config();
 //! let tenant_name = dsh.tenant_name();
 //! let task_id = dsh.task_id();
-//!
 //! # Ok(())
 //! # }
 //! ```
@@ -42,15 +40,14 @@ use crate::protocol_adapters::kafka_protocol::config::KafkaConfig;
 // TODO: Remove at v0.6.0
 pub use crate::dsh_old::*;
 
-/// Lazily initialize all related components to connect to the DSH
-///  - Contains info from datastreams.json
-///  - Metadata of running container/task
-///  - Certificates for Kafka and DSH Schema Registry
+/// Lazily initializes all related components to connect to DSH:
+/// - Information from `datastreams.json`
+/// - Metadata of the running container/task
+/// - Certificates for Kafka and DSH Schema Registry
 ///
-/// ## Environment variables
-/// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for
-/// more information configuring the consmer or producer via environment variables.
-
+/// ## Environment Variables
+/// Refer to [`ENV_VARIABLES.md`](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md)
+/// for details on configuring the consumer or producer via environment variables.
 #[derive(Debug, Clone)]
 pub struct Dsh {
     config_host: String,
@@ -63,7 +60,7 @@ pub struct Dsh {
 }
 
 impl Dsh {
-    /// New `Dsh` struct
+    /// Constructs a new `Dsh` struct. This is internal and should typically be accessed via [`Dsh::get()`].
     pub(crate) fn new(
         config_host: String,
         task_id: String,
@@ -82,19 +79,18 @@ impl Dsh {
             kafka_config: KafkaConfig::new(Some(datastream)),
         }
     }
-    /// Get the DSH Dsh on a lazy way. If not already initialized, it will initialize the properties
-    /// and bootstrap to DSH.
+
+    /// Returns a reference to the global `Dsh` instance, initializing it if necessary.
     ///
-    /// This struct contains all configuration and certificates needed to connect to Kafka and DSH.
-    ///
-    ///  - Contains a struct equal to datastreams.json
-    ///  - Metadata of running container/task
-    ///  - Certificates for Kafka and DSH
+    /// This struct contains configuration and certificates needed to connect to Kafka and DSH:
+    /// - A struct mirroring `datastreams.json`
+    /// - Metadata for the running container/task
+    /// - Certificates for Kafka and DSH
     ///
     /// # Panics
-    /// This method can panic when running on local machine and tries to load incorrect [local_datastream.json](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/local_datastreams.json).
-    /// When no file is available in root or path on env variable `LOCAL_DATASTREAMS_JSON` is not set, it will
-    /// return a default datastream struct and NOT panic.
+    /// Panics if attempting to load an incorrect `local_datastream.json` on a local machine.
+    /// If no file is available or the `LOCAL_DATASTREAMS_JSON` env variable is unset, it returns a default
+    /// `datastream` struct and does **not** panic.
     ///
     /// # Example
     /// ```
@@ -112,24 +108,24 @@ impl Dsh {
         PROPERTIES.get_or_init(|| tokio::task::block_in_place(Self::init))
     }
 
-    /// Initialize the properties and bootstrap to DSH
+    /// Initializes the properties and bootstraps to DSH.
     fn init() -> Self {
-        let tenant_name = utils::tenant_name().unwrap_or("local_tenant".to_string());
-        let task_id = utils::get_env_var(VAR_TASK_ID).unwrap_or("local_task_id".to_string());
-        let config_host =
-            utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(|host| ensure_https_prefix(host));
+        let tenant_name = utils::tenant_name().unwrap_or_else(|| "local_tenant".to_string());
+        let task_id =
+            utils::get_env_var(VAR_TASK_ID).unwrap_or_else(|| "local_task_id".to_string());
+        let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(ensure_https_prefix);
+
         let certificates = if let Ok(cert) = Cert::from_pki_config_dir::<std::path::PathBuf>(None) {
             Some(cert)
         } else if let Ok(config_host) = &config_host {
             Cert::from_bootstrap(config_host, &tenant_name, &task_id)
-                .inspect_err(|e| {
-                    warn!("Could not bootstrap to DSH, due to: {}", e);
-                })
+                .inspect_err(|e| warn!("Could not bootstrap to DSH, due to: {}", e))
                 .ok()
         } else {
             None
         };
-        let config_host = config_host.unwrap_or(DEFAULT_CONFIG_HOST.to_string());
+
+        let config_host = config_host.unwrap_or_else(|| DEFAULT_CONFIG_HOST.to_string());
         let fetched_datastreams = certificates.as_ref().and_then(|cert| {
             cert.reqwest_blocking_client_config()
                 .build()
@@ -138,17 +134,19 @@ impl Dsh {
                     Datastream::fetch_blocking(&client, &config_host, &tenant_name, &task_id).ok()
                 })
         });
+
         let datastream = if let Some(datastream) = fetched_datastreams {
             datastream
         } else {
-            warn!("Could not fetch datastreams.json, using local or default datastreams");
+            warn!("Could not fetch datastreams.json; using local or default datastreams");
             Datastream::load_local_datastreams().unwrap_or_default()
         };
+
         Self::new(config_host, task_id, tenant_name, datastream, certificates)
     }
 
-    /// Get reqwest async client config to connect to DSH Schema Registry.
-    /// If certificates are present, it will use SSL to connect to Schema Registry.
+    /// Returns a `reqwest::ClientBuilder` configured to connect to the DSH Schema Registry.
+    /// If certificates are present, SSL is used. Otherwise, it falls back to a non-SSL connection.
     ///
     /// # Example
     /// ```
@@ -158,7 +156,7 @@ impl Dsh {
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh = Dsh::get();
     /// let client = dsh.reqwest_client_config().build()?;
-    /// #    Ok(())
+    /// # Ok(())
     /// # }
     /// ```
     pub fn reqwest_client_config(&self) -> reqwest::ClientBuilder {
@@ -169,8 +167,8 @@ impl Dsh {
         }
     }
 
-    /// Get reqwest blocking client config to connect to DSH Schema Registry.
-    /// If certificates are present, it will use SSL to connect to Schema Registry.
+    /// Returns a `reqwest::blocking::ClientBuilder` configured to connect to the DSH Schema Registry.
+    /// If certificates are present, SSL is used. Otherwise, it falls back to a non-SSL connection.
     ///
     /// # Example
     /// ```
@@ -179,7 +177,7 @@ impl Dsh {
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh = Dsh::get();
     /// let client = dsh.reqwest_blocking_client_config().build()?;
-    /// #    Ok(())
+    /// # Ok(())
     /// # }
     /// ```
     pub fn reqwest_blocking_client_config(&self) -> reqwest::blocking::ClientBuilder {
@@ -190,7 +188,7 @@ impl Dsh {
         }
     }
 
-    /// Get the certificates and private key. Returns an error when running on local machine.
+    /// Retrieves the certificates and private key. Returns an error when running on a local machine.
     ///
     /// # Example
     /// ```no_run
@@ -198,48 +196,43 @@ impl Dsh {
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh = Dsh::get();
     /// let dsh_kafka_certificate = dsh.certificates()?.dsh_kafka_certificate_pem();
-    /// #    Ok(())
+    /// # Ok(())
     /// # }
     /// ```
     pub fn certificates(&self) -> Result<&Cert, DshError> {
-        Ok(if let Some(cert) = &self.certificates {
-            Ok(cert)
-        } else {
-            Err(CertificatesError::NoCertificates)
-        }?)
+        match &self.certificates {
+            Some(cert) => Ok(cert),
+            None => Err(CertificatesError::NoCertificates.into()),
+        }
     }
 
-    /// Get the client id based on the task id.
+    /// Returns the client ID derived from the task ID.
     pub fn client_id(&self) -> &str {
         &self.task_id
     }
 
-    /// Get the tenant name of running container.
+    /// Returns the tenant name of the running container.
     pub fn tenant_name(&self) -> &str {
         &self.tenant_name
     }
 
-    /// Get the task id of running container.
+    /// Returns the task ID of the running container.
     pub fn task_id(&self) -> &str {
         &self.task_id
     }
 
-    /// Get the kafka properties provided by DSH (datastreams.json)
-    ///
-    /// This datastream is fetched at initialization of the properties, and can not be updated during runtime.
+    /// Returns the current datastream object (fetched at initialization). This cannot be updated at runtime.
     pub fn datastream(&self) -> &Datastream {
         self.datastream.as_ref()
     }
 
-    /// High level method to fetch the kafka properties provided by DSH (datastreams.json)
-    /// This will fetch the datastream from DSH. This can be used to update the datastream during runtime.
-    ///
-    /// This method keeps the reqwest client in memory to prevent creating a new client for every request.
+    /// Fetches the latest datastream (Kafka properties) from DSH asynchronously.  
+    /// This can be used to update the datastream during runtime.
     ///
     /// # Panics
-    /// This method panics when it can't initialize a reqwest client.
+    /// Panics if it fails to build a reqwest client.
     ///
-    /// Use [Datastream::fetch] as a lowlevel method where you can provide your own client.
+    /// For a lower-level method allowing a custom client, see [`Datastream::fetch`].
     pub async fn fetch_datastream(&self) -> Result<Datastream, DshError> {
         static ASYNC_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
 
@@ -248,18 +241,17 @@ impl Dsh {
                 .build()
                 .expect("Could not build reqwest client for fetching datastream")
         });
+
         Ok(Datastream::fetch(client, &self.config_host, &self.tenant_name, &self.task_id).await?)
     }
 
-    /// High level method to fetch the kafka properties provided by DSH (datastreams.json) in a blocking way.
-    /// This will fetch the datastream from DSH. This can be used to update the datastream during runtime.
-    ///
-    /// This method keeps the reqwest client in memory to prevent creating a new client for every request.
+    /// Fetches the latest datastream from DSH in a blocking manner.  
+    /// This can be used to update the datastream during runtime.
     ///
     /// # Panics
-    /// This method panics when it can't initialize a reqwest client.
+    /// Panics if it fails to build a reqwest blocking client.
     ///
-    /// Use [Datastream::fetch_blocking] as a lowlevel method where you can provide your own client.
+    /// For a lower-level method allowing a custom client, see [`Datastream::fetch_blocking`].
     pub fn fetch_datastream_blocking(&self) -> Result<Datastream, DshError> {
         static BLOCKING_CLIENT: OnceLock<reqwest::blocking::Client> = OnceLock::new();
 
@@ -268,6 +260,7 @@ impl Dsh {
                 .build()
                 .expect("Could not build reqwest client for fetching datastream")
         });
+
         Ok(Datastream::fetch_blocking(
             client,
             &self.config_host,
@@ -276,7 +269,7 @@ impl Dsh {
         )?)
     }
 
-    /// Get schema host of DSH.
+    /// Returns the schema registry host as defined by the datastream.
     pub fn schema_registry_host(&self) -> &str {
         self.datastream().schema_store()
     }
@@ -284,17 +277,13 @@ impl Dsh {
     #[cfg(feature = "kafka")]
     #[deprecated(
         since = "0.5.0",
-        note = "Moved to `Dsh::kafka_config().kafka_brokers()` and is part of the `kafka` feature"
+        note = "Moved to `Dsh::kafka_config().kafka_brokers()`. Part of the `kafka` feature."
     )]
-    /// Get the Kafka brokers.
+    /// Returns the Kafka brokers.
     ///
-    /// ## Environment variables
-    /// To manipulate the hastnames of the brokers, you can set the following environment variables.
-    ///
-    /// ### `KAFKA_BOOTSTRAP_SERVERS`
-    /// - Usage: Overwrite hostnames of brokers
-    /// - Default: Brokers based on datastreams
-    /// - Required: `false`
+    /// ## Environment Variables
+    /// - `KAFKA_BOOTSTRAP_SERVERS`: Overwrites broker hostnames (optional).
+    ///   Defaults to brokers from the datastream.
     pub fn kafka_brokers(&self) -> String {
         self.datastream().get_brokers_string()
     }
@@ -302,24 +291,15 @@ impl Dsh {
     #[cfg(feature = "kafka")]
     #[deprecated(
         since = "0.5.0",
-        note = "Moved to `Dsh::kafka_config().group_id()` and is part of the `kafka` feature"
+        note = "Moved to `Dsh::kafka_config().group_id()`. Part of the `kafka` feature."
     )]
-    /// Get the kafka_group_id based.
+    /// Returns the Kafka group ID.
     ///
-    /// ## Environment variables
-    /// To manipulate the group id, you can set the following environment variables.
-    ///  
-    /// ### `KAFKA_CONSUMER_GROUP_TYPE`
-    /// - Usage: Picks group_id based on type from datastreams
-    /// - Default: Shared
-    /// - Options: private, shared
-    /// - Required: `false`
+    /// ## Environment Variables
+    /// - `KAFKA_CONSUMER_GROUP_TYPE`: Chooses a group ID type (private or shared).  
+    /// - `KAFKA_GROUP_ID`: Custom group ID. Overrules `KAFKA_CONSUMER_GROUP_TYPE`.
     ///
-    /// ### `KAFKA_GROUP_ID`
-    /// - Usage: Custom group id
-    /// - Default: NA
-    /// - Required: `false`
-    /// - Remark: Overrules `KAFKA_CONSUMER_GROUP_TYPE`. Mandatory to start with tenant name. (will prefix tenant name automatically if not set)
+    /// If the group ID doesn't start with the tenant name, it's automatically prefixed.
     pub fn kafka_group_id(&self) -> String {
         if let Ok(group_id) = env::var(VAR_KAFKA_GROUP_ID) {
             if !group_id.starts_with(self.tenant_name()) {
@@ -338,18 +318,12 @@ impl Dsh {
     #[cfg(feature = "kafka")]
     #[deprecated(
         since = "0.5.0",
-        note = "Moved to `Dsh::kafka_config().enable_auto_commit()` and is part of the `kafka` feature"
+        note = "Moved to `Dsh::kafka_config().enable_auto_commit()`. Part of the `kafka` feature."
     )]
-    /// Get the confifured kafka auto commit setinngs.
+    /// Returns the configured Kafka auto-commit setting.
     ///
-    /// ## Environment variables
-    /// To manipulate the auto commit settings, you can set the following environment variables.
-    ///
-    /// ### `KAFKA_ENABLE_AUTO_COMMIT`
-    /// - Usage: Enable/Disable auto commit
-    /// - Default: `false`
-    /// - Required: `false`
-    /// - Options: `true`, `false`
+    /// ## Environment Variables
+    /// - `KAFKA_ENABLE_AUTO_COMMIT`: Enables/disables auto commit (default: `false`).
     pub fn kafka_auto_commit(&self) -> bool {
         self.kafka_config.enable_auto_commit()
     }
@@ -357,33 +331,28 @@ impl Dsh {
     #[cfg(feature = "kafka")]
     #[deprecated(
         since = "0.5.0",
-        note = "Moved to `Dsh::kafka_config().auto_offset_reset()` and is part of the `kafka` feature"
+        note = "Moved to `Dsh::kafka_config().auto_offset_reset()`. Part of the `kafka` feature."
     )]
-    /// Get the kafka auto offset reset settings.
+    /// Returns the Kafka auto-offset-reset setting.
     ///
-    /// ## Environment variables
-    /// To manipulate the auto offset reset settings, you can set the following environment variables.
-    ///
-    /// ### `KAFKA_AUTO_OFFSET_RESET`
-    /// - Usage: Set the offset reset settings to start consuming from set option.
-    /// - Default: earliest
-    /// - Required: `false`
-    /// - Options: smallest, earliest, beginning, largest, latest, end
+    /// ## Environment Variables
+    /// - `KAFKA_AUTO_OFFSET_RESET`: Set the offset reset policy (default: `earliest`).
     pub fn kafka_auto_offset_reset(&self) -> String {
         self.kafka_config.auto_offset_reset().to_string()
     }
 
     #[cfg(feature = "kafka")]
-    /// Get the kafka config from initiated Dsh struct.
+    /// Returns the [`KafkaConfig`] from this `Dsh` instance.
     pub fn kafka_config(&self) -> &KafkaConfig {
         &self.kafka_config
     }
 
     #[deprecated(
         since = "0.5.0",
-        note = "Use `Dsh::DshKafkaConfig` trait instead, see https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)"
+        note = "Use the `DshKafkaConfig` trait instead. See wiki for migration details."
     )]
     #[cfg(feature = "rdkafka-config")]
+    /// Returns an `rdkafka::config::ClientConfig` for a consumer, configured via Dsh.
     pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
         let mut config = rdkafka::config::ClientConfig::new();
@@ -393,9 +362,10 @@ impl Dsh {
 
     #[deprecated(
         since = "0.5.0",
-        note = "Use `Dsh::DshKafkaConfig` trait instead, see https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)"
+        note = "Use the `DshKafkaConfig` trait instead. See wiki for migration details."
     )]
     #[cfg(feature = "rdkafka-config")]
+    /// Returns an `rdkafka::config::ClientConfig` for a producer, configured via Dsh.
     pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
         use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
         let mut config = rdkafka::config::ClientConfig::new();
@@ -426,7 +396,7 @@ mod tests {
         }
     }
 
-    // maybe replace with local_datastreams.json?
+    // Helper to load test datastreams from a file.
     fn datastreams_json() -> String {
         std::fs::File::open("test_resources/valid_datastreams.json")
             .map(|mut file| {
@@ -437,9 +407,9 @@ mod tests {
             .unwrap()
     }
 
-    // Define a reusable Dsh instance
+    // Helper to create a test Datastream.
     fn datastream() -> Datastream {
-        serde_json::from_str(datastreams_json().as_str()).unwrap()
+        serde_json::from_str(&datastreams_json()).unwrap()
     }
 
     #[test]
@@ -461,7 +431,7 @@ mod tests {
     fn test_reqwest_client_config() {
         let properties = Dsh::default();
         let _ = properties.reqwest_client_config();
-        assert!(true)
+        assert!(true);
     }
 
     #[test]
