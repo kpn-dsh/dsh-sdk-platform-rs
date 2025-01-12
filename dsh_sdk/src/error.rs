@@ -2,8 +2,8 @@
 //!
 //! This module defines the primary error enum, [`DshError`], which aggregates
 //! sub-errors from certificates, datastreams, and various utilities. It also
-//! includes a helper function, [`report`], for generating a readable error
-//! trace.
+//! includes a helper function, [`report`], for generating a more readable error
+//! trace by iterating over source causes.
 
 /// The main error type for the DSH SDK.
 ///
@@ -12,13 +12,13 @@
 /// - [`DatastreamError`](crate::datastream::DatastreamError)
 /// - [`UtilsError`](crate::utils::UtilsError)
 ///
-/// Each variant implements `std::error::Error`, and can be conveniently
-/// converted from the underlying error types (using `#[from]`).
+/// Each variant implements `std::error::Error` and can be conveniently converted
+/// from the underlying error types (via `#[from]`).
 ///
 /// # Example
 /// ```
-/// use dsh_sdk::error::DshError;
-/// use dsh_sdk::certificates::CertificatesError;
+/// use crate::error::DshError;
+/// use crate::certificates::CertificatesError;
 ///
 /// // Construct a DshError from a CertificatesError:
 /// let cert_err = CertificatesError::NoCertificates;
@@ -43,29 +43,23 @@ pub enum DshError {
 /// Generates a user-friendly error trace by traversing all `source()`
 /// causes in the given error.
 ///
-/// The returned `String` contains the primary error message followed
-/// by each causal error on separate lines, prefixed by `"Caused by:"`.
+/// The returned `String` contains the primary error message, followed
+/// by each causal error (if any) on separate lines, preceded by `"Caused by:"`.
 ///
-/// This can be helpful for logging or displaying a chain of errors
-/// when debugging.
+/// This is helpful for logging or displaying the entire chain of errors.
 ///
 /// # Example
 /// ```
-/// use std::fmt;
-/// use dsh_sdk::error::{DshError, report};
-/// # // A simple dummy error to simulate nested error sources:
-/// #[derive(Debug)]
-/// struct DummyError;
-/// impl fmt::Display for DummyError {
-///     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-///         write!(f, "Dummy error occurred")
-///     }
-/// }
-/// impl std::error::Error for DummyError {}
+/// use crate::error::{DshError, report};
+/// use crate::certificates::CertificatesError;
 ///
-/// let nested_err = DshError::UtilsError(Box::new(DummyError).into());
-/// let report_str = report(&nested_err);
-/// assert!(report_str.contains("Dummy error occurred"));
+/// // Create a wrapped DshError variant:
+/// let cert_err = CertificatesError::NoCertificates;
+/// let dsh_err = DshError::from(cert_err);
+///
+/// // Generate a multi-line string describing the full error chain:
+/// let report_str = report(&dsh_err);
+/// assert!(report_str.contains("NoCertificates"));
 /// println!("{}", report_str);
 /// ```
 pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
