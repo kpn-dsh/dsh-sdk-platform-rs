@@ -15,16 +15,6 @@
 /// Each variant implements `std::error::Error` and can be conveniently converted
 /// from the underlying error types (via `#[from]`).
 ///
-/// # Example
-/// ```
-/// use crate::error::DshError;
-/// use crate::certificates::CertificatesError;
-///
-/// // Construct a DshError from a CertificatesError:
-/// let cert_err = CertificatesError::NoCertificates;
-/// let dsh_err = DshError::from(cert_err);
-/// println!("{}", dsh_err);
-/// ```
 #[derive(Debug, thiserror::Error)]
 pub enum DshError {
     /// Wraps an error originating from certificate handling.
