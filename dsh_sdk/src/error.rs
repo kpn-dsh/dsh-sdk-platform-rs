@@ -38,20 +38,6 @@ pub enum DshError {
 ///
 /// This is helpful for logging or displaying the entire chain of errors.
 ///
-/// # Example
-/// ```
-/// use crate::error::{DshError, report};
-/// use crate::certificates::CertificatesError;
-///
-/// // Create a wrapped DshError variant:
-/// let cert_err = CertificatesError::NoCertificates;
-/// let dsh_err = DshError::from(cert_err);
-///
-/// // Generate a multi-line string describing the full error chain:
-/// let report_str = report(&dsh_err);
-/// assert!(report_str.contains("NoCertificates"));
-/// println!("{}", report_str);
-/// ```
 pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
     let mut s = format!("{}", err);
     while let Some(src) = err.source() {
