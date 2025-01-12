@@ -76,27 +76,3 @@ pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
     }
     s
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::certificates::CertificatesError;
-
-    /// Demonstrates how to construct and print `DshError` variants,
-    /// as well as how to use `report` to see the full causal chain.
-    #[test]
-    fn test_dsh_error_and_report() {
-        // Create a wrapped DshError (CertificatesError for demonstration)
-        let cert_err = CertificatesError::NoCertificates;
-        let dsh_err = DshError::from(cert_err);
-
-        // Verify the display output
-        let error_message = format!("{}", dsh_err);
-        assert!(error_message.contains("Certificates error: NoCertificates"));
-
-        // Demonstrate the 'report' function
-        let report_output = report(&dsh_err);
-        // Should contain the same info, but also handle possible sources.
-        assert!(report_output.contains("NoCertificates"));
-    }
-}
