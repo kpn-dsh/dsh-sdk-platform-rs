@@ -14,8 +14,8 @@ pub use error::UtilsError;
 pub mod dlq;
 #[cfg(feature = "graceful-shutdown")]
 pub mod graceful_shutdown;
-#[cfg(feature = "hyper-client")] // TODO: to be implemented
-pub(crate) mod http_client;
+// #[cfg(feature = "hyper-client")] // TODO: to be implemented
+// pub(crate) mod http_client;
 #[cfg(feature = "metrics")]
 pub mod metrics;
 

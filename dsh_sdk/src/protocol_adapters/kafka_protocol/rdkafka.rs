@@ -68,7 +68,7 @@ impl DshKafkaConfig for ClientConfig {
         if group_id.starts_with(tenant) {
             self.set("group.id", group_id)
         } else {
-            self.set("group.id", &format!("{}_{}", tenant, group_id))
+            self.set("group.id", format!("{}_{}", tenant, group_id))
         }
     }
 

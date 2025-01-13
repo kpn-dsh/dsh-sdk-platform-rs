@@ -7,7 +7,8 @@
 //! Most metrics libraries provide a way to encode the metrics to a string. For example,
 //!  - [prometheus-client](https://crates.io/crates/prometheus-client) library provides a [render](https://docs.rs/prometheus-client/latest/prometheus_client/encoding/text/index.html) function to encode the metrics to a string.
 //!  - [prometheus](https://crates.io/crates/prometheus) library provides a [TextEncoder](https://docs.rs/prometheus/latest/prometheus/struct.TextEncoder.html) to encode the metrics to a string.
-//! See [expose_metrics.rs](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs) for a full example implementation.
+//!
+//!  See [expose_metrics.rs](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs) for a full example implementation.
 //!
 //! ### Example:
 //! ```
@@ -79,6 +80,7 @@ pub enum MetricsError {
 /// Most metrics libraries provide a way to encode the metrics to a string. For example,
 ///  - [prometheus-client](https://crates.io/crates/prometheus-client) library provides a [render](https://docs.rs/prometheus-client/latest/prometheus_client/encoding/text/index.html) function to encode the metrics to a string.
 ///  - [prometheus](https://crates.io/crates/prometheus) library provides a [TextEncoder](https://docs.rs/prometheus/latest/prometheus/struct.TextEncoder.html) to encode the metrics to a string.
+///
 /// See [expose_metrics.rs](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs) for a full example implementation.
 ///
 /// ## Example
