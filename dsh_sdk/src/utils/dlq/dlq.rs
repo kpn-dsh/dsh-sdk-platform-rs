@@ -19,11 +19,19 @@ use crate::DshKafkaConfig;
 
 /// The dead letter queue
 ///
-/// ## How to use
-/// 1. Implement the [ErrorToDlq](super::ErrorToDlq) trait on top your (custom) error type.
-/// 2. Use the [Dlq::start] in your main or at start of your process logic. (this will start the DLQ in a separate tokio task)
-/// 3. Get the dlq [DlqChannel] from the [Dlq::start] method and use this channel to communicate errored messages with the [Dlq] via the [ErrorToDlq::to_dlq](super::ErrorToDlq::to_dlq) method.
+/// # How to use
+/// 1. Implement the [`ErrorToDlq`](super::ErrorToDlq) trait on top your (custom) error type.
+/// 2. Use the [`Dlq::start`] in your main or at start of your process logic. (this will start the DLQ in a separate tokio task)
+/// 3. Get the dlq [`DlqChannel`] from the [`Dlq::start`] method and use this channel to communicate errored messages with the [`Dlq`] via the [`ErrorToDlq::to_dlq`](super::ErrorToDlq::to_dlq) method.
 ///
+/// # Importance of `DlqChannel` in the graceful shutdown procedure
+/// The [`Dlq::start`] will return a [`DlqChannel`]. The [`Dlq`] will keep running till the moment [`DlqChannel`] is dropped and finished processing all messages. 
+/// This also means that the [`Shutdown`] procedure will wait for the [`Dlq`] to finish processing all messages before the application is shut down. 
+/// This is to make sure that **all** messages are properly processed before the application is shut down.
+/// 
+/// **NEVER** borrow the [`DlqChannel`] but provide the channel as owned/cloned version to your processing logic and **NEVER** keep an owned version in main function, as this will result in a **deadlock**  and your application will never shut down. 
+/// It is fine to start the [`Dlq`] in the main function, but make sure the [`DlqChannel`] is moved to your processing logic.
+/// 
 /// # Example
 /// See full implementation example [here](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs)
 pub struct Dlq {
@@ -40,14 +48,18 @@ impl Dlq {
     /// The DLQ will run until the return `Sender` is dropped.
     ///
     /// # Arguments
-    /// * `shutdown` - The shutdown is required to keep the DLQ alive until the DLQ Sender is dropped
+    /// * `shutdown` - The [`Shutdown`] is required to keep the DLQ alive until the [`DlqChannel`] is dropped
     ///
     /// # Returns
     /// * The [DlqChannel] to send messages to the DLQ
     ///
-    /// # Note
-    /// **NEVER** borrow the [DlqChannel] to your consumer, always use an owned [DlqChannel].
-    /// This is required to stop the gracefull shutdown the DLQ as it depends on the [DlqChannel] to be dropped.
+    /// # Importance of `DlqChannel` in the graceful shutdown procedure
+    /// The [`Dlq::start`] will return a [`DlqChannel`]. The [`Dlq`] will keep running till the moment [`DlqChannel`] is dropped and finished processing all messages. 
+    /// This also means that the [`Shutdown`] procedure will wait for the [`Dlq`] to finish processing all messages before the application is shut down. 
+    /// This is to make sure that **all** messages are properly processed before the application is shut down.
+    /// 
+    /// **NEVER** borrow the [`DlqChannel`] but provide the channel as owned/cloned version to your processing logic and **NEVER** keep an owned version in main function, as this will result in a **deadlock**  and your application will never shut down. 
+    /// It is fine to start the [`Dlq`] in the main function, but make sure the [`DlqChannel`] is moved to your processing logic.
     ///
     /// # Example
     /// ```no_run
