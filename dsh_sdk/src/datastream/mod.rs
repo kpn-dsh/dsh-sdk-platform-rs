@@ -6,8 +6,7 @@
 //!
 //! # Usage Overview
 //! - **Local Loading**: By default, you can load `datastreams.json` from the local filesystem
-//!   (see [`load_local_datastreams`] or [`Datastream::default`]) if running in a development or
-//!   test environment.  
+//!   (see [`load_local_datastreams`] or [`Datastream::default`]) if running on an environment outside of DSH.
 //! - **Remote Fetching**: You can also fetch an up-to-date `datastreams.json` from a DSH server
 //!   using [`Datastream::fetch`] (async) or [`Datastream::fetch_blocking`] (blocking).  
 //!
