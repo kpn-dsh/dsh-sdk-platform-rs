@@ -47,8 +47,9 @@ The `dsh-sdk-platform-rs` library offers:
   - **Management API Token Fetcher**: For use with [`dsh_rest_api_client`](https://crates.io/crates/dsh_rest_api_client).  
   - **Protocol Token Fetcher**: Obtain tokens for MQTT and HTTP protocol adapters.
 
-- **Kafka Configuration**  
-  - RDKafka-based configuration, including vendored SSL support.
+- **DSH Kafka Configuration**  
+  - Trait for getting DSH Compatible Kafka Clients (DSH, Proxy, VPN and Local)
+  - **RDKafka** implementation
 
 - **Common Utilities**  
   - Prometheus metrics (built-in HTTP server, plus re-export of the `metrics` crate).  
