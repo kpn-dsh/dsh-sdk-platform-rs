@@ -101,7 +101,7 @@ This SDK accommodates multiple deployment environments:
 - Running on a machine with Kafka Proxy/VPN
 - Running locally with a local Kafka instance
 
-For more information, see the [CONNECT_PROXY_VPN_LOCAL.md](CONNECT_PROXY_VPN_LOCAL.md) document.
+For more information, see the [CONNECT_PROXY_VPN_LOCAL.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md) document.
 
 ---
 
@@ -114,15 +114,16 @@ Below is an overview of the available features:
 
 | **feature**                    | **default** | **Description**                                                   | **Example**                                                                                                                          |
 |--------------------------------|-------------|-------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| `bootstrap`                    | ✓           | Certificate signing process and fetch datastreams properties      | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)                                                      |
-| `kafka`                        | ✓           | Enable `DshKafkaConfig` trait and Config struct to connect to DSH | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)                                                      |
-| `rdkafka-config`               | ✓           | Enable `DshKafkaConfig` implementation for RDKafka                | [Kafka](./examples/kafka_example.rs) / [Kafka Proxy](./examples/kafka_proxy.rs)                                                      |
-| `schema-store`                 | ✗           | Interact with DSH Schema Store                                    | [Schema Store API](./examples/schema_store_api.rs)                                                                                   |
-| `protocol-token-fetcher`       | ✗           | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP)         | [Token fetcher](./examples/protocol_token_fetcher.rs) / [with specific claims](./examples/protocol_token_fetcher_specific_claims.rs) |
-| `management-api-token-fetcher` | ✗           | Fetch tokens to use DSH Management API                            | [ Token fetcher](./examples/management_api_token_fetcher.rs)                                                                         |
-| `metrics`                      | ✗           | Enable prometheus metrics including http server                   | [Expose metrics](./examples/expose_metrics.rs)                                                                                       |
-| `graceful-shutdown`            | ✗           | Tokio based graceful shutdown handler                             | [Graceful shutdown](./examples/graceful_shutdown.rs)                                                                                 |
-| `dlq`                          | ✗           | Dead Letter Queue implementation                                  | [Full implementation example](./examples/dlq_implementation.rs)                                                                      |
+| `bootstrap`                    | ✓           | Certificate signing process and fetch datastreams properties      | [Kafka](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_example.rs) / [Kafka Proxy](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_proxy.rs)                                                      |
+| `kafka`                        | ✓           | Enable `DshKafkaConfig` trait and Config struct to connect to DSH | [Kafka](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_example.rs) / [Kafka Proxy](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_proxy.rs)                                                      |
+| `rdkafka-config`               | ✓           | Enable `DshKafkaConfig` implementation for RDKafka                | [Kafka](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_example.rs) / [Kafka Proxy](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_proxy.rs)                                                      |
+| `schema-store`                 | ✗           | Interact with DSH Schema Store                                    | [Schema Store API](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/schema_store_api.rs)                                                                                   |
+| `protocol-token-fetcher`       | ✗           | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP)         | [Token fetcher](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_token_fetcher.rs) / [with specific claims](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_token_fetcher_specific_claims.rs) |
+| `management-api-token-fetcher` | ✗           | Fetch tokens to use DSH Management API                            | [ Token fetcher](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/management_api_token_fetcher.rs)                                                                         |
+| `metrics`                      | ✗           | Enable prometheus metrics including http server                   | [Expose metrics](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs)                                                                                       |
+| `graceful-shutdown`            | ✗           | Tokio based graceful shutdown handler                             | [Graceful shutdown](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/graceful_shutdown.rs)                                                                                 |
+| `dlq`                          | ✗           | Dead Letter Queue implementation                                  | [Full implementation example](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs)                                                                      |
+
 ### Selecting Features
 
 To pick only the features you need, disable the default features and enable specific ones. For instance, if you only want the Management API Token Fetcher:
@@ -142,41 +143,41 @@ This SDK uses certain environment variables to configure connections to DSH. For
 
 ## Examples
 
-You can find simple usage examples in the [`examples/` directory](./examples/).
+You can find simple usage examples in the [`examples/` directory](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/).
 
 ### Full Service Example
 
-A more complete example is provided in the [`example_dsh_service/`](../example_dsh_service/) directory, showcasing:
+A more complete example is provided in the [`example_dsh_service/`](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/example_dsh_service/) directory, showcasing:
 
 - How to build the Rust project
 - How to package and push it to Harbor
 - An end-to-end setup of a DSH service
 
-See the [README](../example_dsh_service/README.md) in that directory for more information.
+See the [README](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/example_dsh_service/README.md) in that directory for more information.
 
 ---
 
 ## Changelog
 
-All changes per version are documented in [CHANGELOG.md](CHANGELOG.md).
+All changes per version are documented in [CHANGELOG.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/CHANGELOG.md).
 
 ---
 
 ## Contributing
 
-Contributions are welcome! For details on how to help improve this project, please see [CONTRIBUTING.md](../CONTRIBUTING.md).
+Contributions are welcome! For details on how to help improve this project, please see [CONTRIBUTING.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/CONTRIBUTING.md).
 
 ---
 
 ## License
 
-This project is licensed under the [Apache License 2.0](../LICENSE).
+This project is licensed under the [Apache License 2.0](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/LICENSE).
 
 ---
 
 ## Security
 
-For information about the security policy of this project, including how to report vulnerabilities, see [SECURITY.md](../SECURITY.md).
+For information about the security policy of this project, including how to report vulnerabilities, see [SECURITY.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/SECURITY.md).
 
 ---
 

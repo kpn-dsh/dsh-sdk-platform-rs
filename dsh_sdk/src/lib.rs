@@ -1,21 +1,6 @@
 #![doc = include_str!("../README.md")]
 #![allow(deprecated)]
 
-//! This crate provides core functionalities, environment variable references, and feature-gated
-//! modules for working with DSH (Data Services Hub). It also includes deprecated items from
-//! older versions of the API that remain available for backward compatibility until v0.6.0.
-//!
-//! # Crate Overview
-//! - **Feature-gated modules**: Certain modules like [`certificates`], [`datastream`], [`dsh`], etc.
-//!   are only compiled if the `bootstrap` feature is enabled.  
-//! - **Environment variables**: Constants representing environment variables are declared for
-//!   configuring Kafka, schema registry, and other components.  
-//! - **Deprecated modules**: Modules such as [`dlq`], [`dsh_old`], [`graceful_shutdown`], and
-//!   [`metrics`], among others, are slated for removal in v0.6.0 or have been moved to new
-//!   namespaces.  
-//!
-//! Refer to the included `README.md` for more information on usage, setup, and features.
-
 // Keep in v0.6.0 for backward compatibility
 #[cfg(feature = "bootstrap")]
 pub mod certificates;
