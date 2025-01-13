@@ -117,7 +117,7 @@ const VAR_APP_ID: &str = "MARATHON_APP_ID";
 /// Environment variable for retrieving the Mesos task ID.
 const VAR_TASK_ID: &str = "MESOS_TASK_ID";
 
-/// Specifies the path to a CA certificate for the DSH platform.
+/// Environment variable for retrieving the DSH CA certificate
 const VAR_DSH_CA_CERTIFICATE: &str = "DSH_CA_CERTIFICATE";
 
 /// Inline secret token used to authorize requests to DSH.
@@ -135,7 +135,7 @@ const VAR_KAFKA_CONFIG_HOST: &str = "KAFKA_CONFIG_HOST";
 /// PKI configuration directory.
 const VAR_PKI_CONFIG_DIR: &str = "PKI_CONFIG_DIR";
 
-/// Local datastream configurations in JSON format (e.g., for local testing).
+/// Local datastream configurations in JSON format (e.g., for Kafka Proxy or local testing).
 const VAR_LOCAL_DATASTREAMS_JSON: &str = "LOCAL_DATASTREAMS_JSON";
 
 // -------------------- Kafka general environment variables --------------------

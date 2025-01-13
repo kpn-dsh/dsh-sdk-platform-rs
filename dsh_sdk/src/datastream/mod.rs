@@ -7,7 +7,7 @@
 //! # Usage Overview
 //! - **Local Loading**: By default, you can load `datastreams.json` from the local filesystem
 //!   (see [`load_local_datastreams`] or [`Datastream::default`]) if running on an environment outside of DSH.
-//! - **Remote Fetching**: You can also fetch an up-to-date `datastreams.json` from a DSH server
+//! - **Server Fetching**: You can also fetch an up-to-date `datastreams.json` from a DSH server (only works when running on DSH)
 //!   using [`Datastream::fetch`] (async) or [`Datastream::fetch_blocking`] (blocking).  
 //!
 //! The [`Dsh`](crate::dsh::Dsh) struct uses these methods internally to provide either an
@@ -367,14 +367,14 @@ impl Stream {
 
     /// Returns the read pattern (regex or exact topic name).
     ///
-    /// Use [`read_access`] or [`read_pattern`] to confirm read permissions.
+    /// Use [`Self::read_access`] or [`Self::read_pattern`] to confirm read permissions.
     pub fn read(&self) -> &str {
         &self.read
     }
 
     /// Returns the write pattern (regex or exact topic name).
     ///
-    /// Use [`write_access`] or [`write_pattern`] to confirm write permissions.
+    /// Use [`Self::write_access`] or [`Self::write_pattern`] to confirm write permissions.
     pub fn write(&self) -> &str {
         &self.write
     }
