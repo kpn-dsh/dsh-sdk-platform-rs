@@ -17,13 +17,13 @@
 //! 3. Get the dlq [DlqChannel] from the [Dlq::start] method and use this channel to communicate errored messages with the [Dlq] via the [ErrorToDlq::to_dlq] method which is implemented on your Error.
 //!
 //! The topics are set via environment variables `DLQ_DEAD_TOPIC` and `DLQ_RETRY_TOPIC`.
-//! 
+//!
 //! ## Importance of `DlqChannel` in the graceful shutdown procedure
-//! The [`Dlq::start`] will return a [`DlqChannel`]. The [`Dlq`] will keep running till the moment [`DlqChannel`] is dropped and finished processing all messages. 
-//! This also means that the [`Shutdown`] procedure will wait for the [`Dlq`] to finish processing all messages before the application is shut down. 
+//! The [`Dlq::start`] will return a [`DlqChannel`]. The [`Dlq`] will keep running till the moment [`DlqChannel`] is dropped and finished processing all messages.
+//! This also means that the [`Shutdown`] procedure will wait for the [`Dlq`] to finish processing all messages before the application is shut down.
 //! This is to make sure that **all** messages are properly processed before the application is shut down.
-//! 
-//! **NEVER** borrow the [`DlqChannel`] but provide the channel as owned/cloned version to your processing logic and **NEVER** keep an owned version in main function, as this will result in a **deadlock** and your application will never shut down. 
+//!
+//! **NEVER** borrow the [`DlqChannel`] but provide the channel as owned/cloned version to your processing logic and **NEVER** keep an owned version in main function, as this will result in a **deadlock** and your application will never shut down.
 //! It is fine to start the [`Dlq`] in the main function, but make sure the [`DlqChannel`] is moved to your processing logic.
 //!
 //! ### Example:
