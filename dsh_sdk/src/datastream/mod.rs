@@ -1,7 +1,17 @@
-//! Datastream properties
+//! Datastream properties for DSH.
 //!
-//! The datastreams.json can be parsed into a Datastream struct using serde_json.
-//! This struct contains all the information from the datastreams properties file.
+//! This module provides the [`Datastream`] struct, which represents the contents of
+//! a `datastreams.json` file. This file contains the Kafka broker URLs, streams, consumer groups,
+//! and additional metadata needed for interacting with DSH.  
+//!
+//! # Usage Overview
+//! - **Local Loading**: By default, you can load `datastreams.json` from the local filesystem
+//!   (see [`load_local_datastreams`] or [`Datastream::default`]) if running on an environment outside of DSH.
+//! - **Server Fetching**: You can also fetch an up-to-date `datastreams.json` from a DSH server (only works when running on DSH)
+//!   using [`Datastream::fetch`] (async) or [`Datastream::fetch_blocking`] (blocking).  
+//!
+//! The [`Dsh`](crate::dsh::Dsh) struct uses these methods internally to provide either an
+//! immutable, initialized `Datastream` or a freshly fetched copy.  
 //!
 //! # Example
 //! ```no_run
@@ -10,14 +20,17 @@
 //! # #[tokio::main]
 //! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
 //! let dsh = Dsh::get();
-//! let datastream = dsh.datastream(); // immutable datastream which is fetched at initialization of SDK
-//! // Or
-//! let datastream = dsh.fetch_datastream().await?; // fetch a fresh datastream from dsh server
+//!
+//! // An immutable Datastream, fetched at SDK initialization
+//! let datastream = dsh.datastream();
+//!
+//! // Or fetch a new Datastream from the DSH server at runtime
+//! let datastream = dsh.fetch_datastream().await?;
 //!
 //! let brokers = datastream.get_brokers();
 //! let schema_store_url = datastream.schema_store();
 //! # Ok(())
-//! }
+//! # }
 //! ```
 use std::collections::HashMap;
 use std::env;
@@ -31,23 +44,29 @@ use crate::{
     utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_LOCAL_DATASTREAMS_JSON,
     VAR_SCHEMA_REGISTRY_HOST,
 };
+
 #[doc(inline)]
 pub use error::DatastreamError;
 
 mod error;
 
+/// Default filename for local datastream definitions.
 const FILE_NAME: &str = "local_datastreams.json";
 
-/// Datastream properties file
+/// The main struct representing the datastream properties file (`datastreams.json`).
 ///
-/// Read from datastreams.json
+/// This file generally includes:
+/// - A list of Kafka brokers  
+/// - Configurable private/shared consumer groups  
+/// - Mapping of topic names to [`Stream`] configurations  
+/// - A Schema Store URL  
 ///
 /// # Example
 /// ```
 /// use dsh_sdk::Dsh;
 ///
-/// let properties = Dsh::get();
-/// let datastream = properties.datastream();
+/// let dsh = Dsh::get();
+/// let datastream = dsh.datastream(); // Typically loaded at init
 ///
 /// let brokers = datastream.get_brokers();
 /// let streams = datastream.streams();
@@ -64,21 +83,21 @@ pub struct Datastream {
 }
 
 impl Datastream {
-    /// Get the kafka brokers from the datastreams as a vector of strings
+    /// Returns a list of Kafka brokers (as `&str`) from this datastream configuration.
     pub fn get_brokers(&self) -> Vec<&str> {
         self.brokers.iter().map(|s| s.as_str()).collect()
     }
 
-    /// Get the kafka brokers as comma seperated string from the datastreams
+    /// Returns the Kafka brokers as a comma-separated string.
     pub fn get_brokers_string(&self) -> String {
         self.brokers.join(", ")
     }
 
-    /// Get the group id from the datastreams based on GroupType
+    /// Returns the consumer group ID based on the specified [`GroupType`].
     ///
-    /// # Error
-    /// If the index is greater then amount of groups in the datastreams
-    /// (index out of bounds)
+    /// # Errors
+    /// Returns [`DatastreamError::IndexGroupIdError`] if the index is out of bounds or
+    /// if no such group ID exists.
     pub fn get_group_id(&self, group_type: GroupType) -> Result<&str, DatastreamError> {
         let group_id = match group_type {
             GroupType::Private(i) => self.private_consumer_groups.get(i),
@@ -90,21 +109,27 @@ impl Datastream {
         }
     }
 
-    /// Get all available datastreams (scratch topics, internal topics and stream topics)
+    /// Returns a reference to the map of all configured streams.
+    ///
+    /// Each entry typically corresponds to a topic or topic group in Kafka.
     pub fn streams(&self) -> &HashMap<String, Stream> {
         &self.streams
     }
 
-    /// Get a specific datastream based on the topic name
-    /// If the topic is not found, it will return None
+    /// Looks up a specific stream by its topic name (truncating to the first two segments of the topic).
+    ///
+    /// If the topic is not found in the `streams` map, returns `None`.
     pub fn get_stream(&self, topic: &str) -> Option<&Stream> {
-        // if topic name contains 2 dots, get the first 2 parts of the topic name
-        // this is needed because the topic name in datastreams.json is only the first 2 parts
         let topic_name = topic.split('.').take(2).collect::<Vec<&str>>().join(".");
         self.streams().get(&topic_name)
     }
 
-    /// Check if a list of topics is present in the read topics of datastreams
+    /// Verifies that a list of topic names exist in either the `read` or `write` patterns
+    /// (depending on the specified [`ReadWriteAccess`]).
+    ///
+    /// # Errors
+    /// Returns [`DatastreamError::NotFoundTopicError`] if any provided topic is missing
+    /// the required read or write patterns.
     pub fn verify_list_of_topics<T: std::fmt::Display>(
         &self,
         topics: &Vec<T>,
@@ -144,19 +169,17 @@ impl Datastream {
         Ok(())
     }
 
-    /// Get schema store url from datastreams.
+    /// Returns the schema store (registry) URL from this datastream configuration.
     ///
-    /// ## How to connect to schema registry
-    /// Use the Reqwest client from `Cert` to connect to the schema registry.
-    /// As this client is already configured with the correct certificates.
-    ///
-    /// You can use [schema_registry_converter](https://crates.io/crates/schema_registry_converter)
-    /// to fetch the schema and decode your payload.
+    /// # Connecting to the Schema Registry
+    /// Use a [`reqwest::Client`] built from [`crate::certificates::Cert`] to connect securely.
+    /// Tools like [`schema_registry_converter`](https://crates.io/crates/schema_registry_converter)
+    /// can help fetch and decode messages.
     pub fn schema_store(&self) -> &str {
         &self.schema_store
     }
 
-    /// Write datastreams.json in a directory
+    /// Writes the current `Datastream` to a file named `datastreams.json` in the specified directory.
     ///
     /// # Example
     /// ```no_run
@@ -165,6 +188,9 @@ impl Datastream {
     /// let path = std::path::PathBuf::from("/path/to/directory");
     /// datastream.to_file(&path).unwrap();
     /// ```
+    ///
+    /// # Errors
+    /// Returns [`DatastreamError::IoError`] if the file cannot be written.
     pub fn to_file(&self, path: &std::path::Path) -> Result<(), DatastreamError> {
         let json_string = serde_json::to_string_pretty(self)?;
         std::fs::write(path.join("datastreams.json"), json_string)?;
@@ -172,10 +198,15 @@ impl Datastream {
         Ok(())
     }
 
-    /// Fetch datastreams from the dsh server (async)
+    /// Asynchronously fetches a `Datastream` from the DSH server using a provided [`reqwest::Client`].
     ///
-    /// Make sure you use a Reqwest client from `Cert` to connect to the dsh server.
-    /// As this client is already configured with the correct certificates.
+    /// The client should typically be built from [`crate::certificates::Cert::reqwest_client_config`]
+    /// to include the required SSL certificates.
+    ///
+    /// # Errors
+    /// Returns:
+    /// - [`DatastreamError::DshCallError`] if the server responds with a non-success status code.
+    /// - Any networking or deserialization errors wrapped by [`DatastreamError`].
     pub async fn fetch(
         client: &reqwest::Client,
         host: &str,
@@ -194,10 +225,15 @@ impl Datastream {
         Ok(response.json().await?)
     }
 
-    /// Fetch datastreams from the dsh server (blocking)
+    /// Fetches a `Datastream` from the DSH server in a **blocking** manner using a [`reqwest::blocking::Client`].
     ///
-    /// Make sure you use a Reqwest client from `Cert` to connect to the dsh server.
-    /// As this client is already configured with the correct certificates.
+    /// The client should typically be built from [`crate::certificates::Cert::reqwest_blocking_client_config`]
+    /// to include the required SSL certificates.
+    ///
+    /// # Errors
+    /// Returns:
+    /// - [`DatastreamError::DshCallError`] if the server responds with a non-success status code.
+    /// - Any networking or deserialization errors wrapped by [`DatastreamError`].
     pub fn fetch_blocking(
         client: &reqwest::blocking::Client,
         host: &str,
@@ -216,14 +252,19 @@ impl Datastream {
         Ok(response.json()?)
     }
 
+    /// Constructs the URL endpoint for fetching datastreams from the DSH server.
     pub(crate) fn datastreams_endpoint(host: &str, tenant: &str, task_id: &str) -> String {
         format!("{}/kafka/config/{}/{}", host, tenant, task_id)
     }
 
-    /// If local_datastreams.json is found, it will load the datastreams from this file.
-    /// If it does not parse or the file is not found based on on Environment Variable, it will panic.
-    /// If the Environment Variable is not set, it will look in the current directory. If it is not found,
-    /// it will return a Error on the Result. Based on this it will use default Datastreams.
+    /// Attempts to load a local `datastreams.json` from either the current directory or
+    /// from the path specified by the [`VAR_LOCAL_DATASTREAMS_JSON`] environment variable.
+    ///
+    /// If the file cannot be opened or parsed, the method will panic.  
+    /// If the file isn’t found and no environment variable is set, returns an error wrapped in [`DatastreamError`].
+    ///
+    /// # Panics
+    /// Panics if it finds a file but fails to parse valid JSON.
     pub(crate) fn load_local_datastreams() -> Result<Self, DatastreamError> {
         let path_buf = if let Ok(path) = utils::get_env_var(VAR_LOCAL_DATASTREAMS_JSON) {
             let path = std::path::PathBuf::from(path);
@@ -235,10 +276,11 @@ impl Datastream {
         } else {
             std::env::current_dir().unwrap().join(FILE_NAME)
         };
+
         debug!("Reading local datastreams from {}", path_buf.display());
         let mut file = File::open(&path_buf).map_err(|e| {
             debug!(
-                "Failed opening local_datastreams.json ({}): {}",
+                "Failed to open local_datastreams.json ({}): {}",
                 path_buf.display(),
                 e
             );
@@ -246,31 +288,44 @@ impl Datastream {
         })?;
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
+
         let mut datastream: Datastream = serde_json::from_str(&contents)
-            .unwrap_or_else(|e| panic!("Failed to parse {}, {:?}", path_buf.display(), e));
+            .unwrap_or_else(|e| panic!("Failed to parse {}: {:?}", path_buf.display(), e));
+
+        // Allow env vars to override broker or schema store values
         if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
             datastream.brokers = brokers.split(',').map(|s| s.to_string()).collect();
         }
         if let Ok(schema_store) = utils::get_env_var(VAR_SCHEMA_REGISTRY_HOST) {
             datastream.schema_store = schema_store;
         }
+
         Ok(datastream)
     }
 }
 
 impl Default for Datastream {
+    /// Returns a `Datastream` with:
+    /// - Default or environment-derived brokers
+    /// - Placeholder consumer groups
+    /// - A default schema store URL or the environment variable override
+    ///
+    /// Typically useful for local development if no `datastreams.json` is present.
     fn default() -> Self {
         let group_id = format!(
             "{}_default_group",
             utils::tenant_name().unwrap_or("local".to_string())
         );
+
         let brokers = if let Ok(brokers) = utils::get_env_var(VAR_KAFKA_BOOTSTRAP_SERVERS) {
             brokers.split(',').map(|s| s.to_string()).collect()
         } else {
             vec!["localhost:9092".to_string()]
         };
+
         let schema_store = utils::get_env_var(VAR_SCHEMA_REGISTRY_HOST)
-            .unwrap_or("http://localhost:8081/apis/ccompat/v7".to_string());
+            .unwrap_or_else(|_| "http://localhost:8081/apis/ccompat/v7".to_string());
+
         Datastream {
             brokers,
             streams: HashMap::new(),
@@ -282,7 +337,9 @@ impl Default for Datastream {
     }
 }
 
-/// Struct containing all topic information which also is provided in datastreams.json
+/// Represents a single stream's information as provided by `datastreams.json`.
+///
+/// Includes topic names, partitioning information, read/write access patterns, and more.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Stream {
@@ -298,69 +355,69 @@ pub struct Stream {
 }
 
 impl Stream {
-    /// Get the Stream's name
+    /// Returns this stream’s `name` field.
     pub fn name(&self) -> &str {
         &self.name
     }
 
-    /// Get the Stream's cluster
+    /// Returns this stream’s `cluster` field (e.g., “/tt”).
     pub fn cluster(&self) -> &str {
         &self.cluster
     }
 
-    /// Get the read pattern as stated in datastreams.
+    /// Returns the read pattern (regex or exact topic name).
     ///
-    /// Use `read_pattern` method to validate if read access is allowed.
+    /// Use [`Self::read_access`] or [`Self::read_pattern`] to confirm read permissions.
     pub fn read(&self) -> &str {
         &self.read
     }
 
-    /// Get the write pattern
+    /// Returns the write pattern (regex or exact topic name).
     ///
-    /// Use `write_pattern` method to validate if write access is allowed.
+    /// Use [`Self::write_access`] or [`Self::write_pattern`] to confirm write permissions.
     pub fn write(&self) -> &str {
         &self.write
     }
 
-    /// Get the Stream's number of partitions
+    /// Returns the number of partitions for this stream.
     pub fn partitions(&self) -> i32 {
         self.partitions
     }
 
-    /// Get the Stream's replication factor
+    /// Returns the replication factor for this stream.
     pub fn replication(&self) -> i32 {
         self.replication
     }
 
-    /// Get the Stream's partitioner
+    /// Returns the partitioner (e.g., “default-partitioner”).
     pub fn partitioner(&self) -> &str {
         &self.partitioner
     }
 
-    /// Get the Stream's partitioning depth
+    /// Returns the partitioning depth (a more advanced Kafka concept).
     pub fn partitioning_depth(&self) -> i32 {
         self.partitioning_depth
     }
 
-    /// Get the Stream's can retain value
+    /// Indicates whether data retention is possible for this stream.
     pub fn can_retain(&self) -> bool {
         self.can_retain
     }
 
-    /// Check read access on topic based on datastream
+    /// Checks if the stream has a `read` pattern configured.
     pub fn read_access(&self) -> bool {
         !self.read.is_empty()
     }
 
-    /// Check write access on topic based on datastream
+    /// Checks if the stream has a `write` pattern configured.
     pub fn write_access(&self) -> bool {
         !self.write.is_empty()
     }
 
-    /// Get the Stream's Read whitelist pattern
+    /// Returns the read pattern, or errors if the stream has no read access.
     ///
-    /// ## Error
-    /// If the topic does not have read access it returns a `TopicPermissionsError`
+    /// # Errors
+    /// Returns [`DatastreamError::TopicPermissionsError`] if the stream has no read pattern set.
     pub fn read_pattern(&self) -> Result<&str, DatastreamError> {
         if self.read_access() {
             Ok(&self.read)
@@ -372,10 +429,10 @@ impl Stream {
         }
     }
 
-    /// Get the Stream's Write pattern
+    /// Returns the write pattern, or errors if the stream has no write access.
     ///
-    /// ## Error
-    /// If the topic does not have write access it returns a `TopicPermissionsError`
+    /// # Errors
+    /// Returns [`DatastreamError::TopicPermissionsError`] if the stream has no write pattern set.
     pub fn write_pattern(&self) -> Result<&str, DatastreamError> {
         if self.write_access() {
             Ok(&self.write)
@@ -388,14 +445,15 @@ impl Stream {
     }
 }
 
-/// Enum to indicate if we want to check the read or write topics
+/// Indicates whether the caller needs read or write access.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ReadWriteAccess {
     Read,
     Write,
 }
 
-/// Enum to indicate the group type (private or shared)
+/// Specifies whether a consumer group is private or shared, along with an index
+/// for selecting from the corresponding array in `Datastream`.
 #[derive(Debug, PartialEq)]
 pub enum GroupType {
     Private(usize),
@@ -403,15 +461,15 @@ pub enum GroupType {
 }
 
 impl GroupType {
-    /// Get the group type from the environment variable KAFKA_CONSUMER_GROUP_TYPE
-    /// If KAFKA_CONSUMER_GROUP_TYPE is not (properly) set, it defaults to shared
+    /// Determines the group type from the `KAFKA_CONSUMER_GROUP_TYPE` environment variable,
+    /// defaulting to [`GroupType::Shared(0)`] if unset or invalid.
     pub fn from_env() -> Self {
         let group_type = env::var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
         match group_type {
-            Ok(s) if s.to_lowercase() == *"private" => GroupType::Private(0),
-            Ok(s) if s.to_lowercase() == *"shared" => GroupType::Shared(0),
+            Ok(s) if s.eq_ignore_ascii_case("private") => GroupType::Private(0),
+            Ok(s) if s.eq_ignore_ascii_case("shared") => GroupType::Shared(0),
             Ok(_) => {
-                error!("KAFKA_CONSUMER_GROUP_TYPE is not set with \"shared\" or \"private\", defaulting to shared group type.");
+                error!("KAFKA_CONSUMER_GROUP_TYPE is not set to \"shared\" or \"private\". Defaulting to shared group type.");
                 GroupType::Shared(0)
             }
             Err(_) => {
@@ -425,8 +483,8 @@ impl GroupType {
 impl std::fmt::Display for GroupType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GroupType::Private(i) => write!(f, "private; index: {}", i),
-            GroupType::Shared(i) => write!(f, "shared; index: {}", i),
+            GroupType::Private(i) => write!(f, "private; index: {i}"),
+            GroupType::Shared(i) => write!(f, "shared; index: {i}"),
         }
     }
 }
