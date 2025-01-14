@@ -23,7 +23,7 @@ impl RawSchemaWithType {
     }
 
     /// Raw schema string
-    pub fn schema(&self) -> &str {
+    pub fn content(&self) -> &str {
         &self.schema
     }
 
@@ -153,7 +153,7 @@ mod tests {
             r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let schema = RawSchemaWithType::parse(raw_schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -161,7 +161,7 @@ mod tests {
         let raw_schema = r#"{"fields":[{"name":"name","type":"string"}],"name":"User"}"#;
         let schema = RawSchemaWithType::parse(raw_schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::JSON);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -169,7 +169,7 @@ mod tests {
         let raw_schema = r#"syntax = "proto3"; message User { string name = 1; }"#;
         let schema = RawSchemaWithType::parse(raw_schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::PROTOBUF);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -190,7 +190,7 @@ mod tests {
         let schema = apache_avro::Schema::parse_str(raw_schema).unwrap();
         let schema = RawSchemaWithType::try_from(schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -199,7 +199,7 @@ mod tests {
         let schema = serde_json::from_str::<JsonValue>(raw_schema).unwrap();
         let schema = RawSchemaWithType::try_from(schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::JSON);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -207,7 +207,7 @@ mod tests {
         let raw_schema = r#"syntax = "proto3"; message User { string name = 1; }"#;
         let schema = RawSchemaWithType::try_from(raw_schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::PROTOBUF);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -215,7 +215,7 @@ mod tests {
         let raw_schema = r#"{"name":"User","fields":[{"name":"name","type":"string"}]}"#;
         let schema = RawSchemaWithType::try_from((raw_schema, SchemaType::JSON)).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::JSON);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -224,7 +224,7 @@ mod tests {
             r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let schema = RawSchemaWithType::try_from((raw_schema, SchemaType::AVRO)).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -232,7 +232,7 @@ mod tests {
         let raw_schema = r#"syntax = "proto3"; message User { string name = 1; }"#;
         let schema = RawSchemaWithType::try_from((raw_schema, SchemaType::PROTOBUF)).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::PROTOBUF);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -259,18 +259,18 @@ mod tests {
         let raw_schema = r#"{"name":"User","fields":[{"name":"name","type":"string"}]}"#;
         let schema = RawSchemaWithType::try_from(raw_schema.to_string()).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::JSON);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
 
         let raw_schema =
             r#"{"name":"User","type":"record","fields":[{"name":"name","type":"string"}]}"#;
         let schema = RawSchemaWithType::try_from(raw_schema.to_string()).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
 
         let raw_schema = r#"syntax = "proto3"; message User { string name = 1; }"#;
         let schema = RawSchemaWithType::try_from(raw_schema.to_string()).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::PROTOBUF);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
 
         let raw_schema = r#"not a schema"#;
         let schema = RawSchemaWithType::try_from(raw_schema.to_string());
@@ -301,7 +301,7 @@ mod tests {
         };
         let schema = RawSchemaWithType::from(subject);
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -310,7 +310,7 @@ mod tests {
         let schema = serde_json::from_str::<JsonValue>(raw_schema).unwrap();
         let schema = RawSchemaWithType::try_from(schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::JSON);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 
     #[test]
@@ -320,6 +320,6 @@ mod tests {
         let schema = AvroSchema::parse_str(raw_schema).unwrap();
         let schema = RawSchemaWithType::try_from(schema).unwrap();
         assert_eq!(schema.schema_type(), SchemaType::AVRO);
-        assert_eq!(schema.schema(), raw_schema);
+        assert_eq!(schema.content(), raw_schema);
     }
 }

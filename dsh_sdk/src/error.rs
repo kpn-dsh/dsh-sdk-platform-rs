@@ -37,7 +37,6 @@ pub enum DshError {
 /// by each causal error (if any) on separate lines, preceded by `"Caused by:"`.
 ///
 /// This is helpful for logging or displaying the entire chain of errors.
-///
 pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
     let mut s = format!("{}", err);
     while let Some(src) = err.source() {
@@ -45,4 +44,29 @@ pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
         err = src;
     }
     s
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::certificates::CertificatesError;
+
+    /// Demonstrates how to construct and print `DshError` variants,
+    /// as well as how to use `report` to see the full causal chain.
+    #[test]
+    fn test_dsh_error_and_report() {
+        // Create a wrapped DshError (CertificatesError for demonstration)
+        let cert_err = CertificatesError::NoCertificates;
+        let dsh_err = DshError::from(cert_err);
+
+        // Verify the display output
+        let error_message = format!("{}", dsh_err);
+        println!("{}", error_message);
+        assert!(error_message.contains("Certificates error: Certificates are not set"));
+
+        // Demonstrate the 'report' function
+        let report_output = report(&dsh_err);
+        // Should contain the same info, but also handle possible sources.
+        assert!(report_output.contains("Certificates are not set"));
+    }
 }

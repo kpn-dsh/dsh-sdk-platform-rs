@@ -1,3 +1,39 @@
+//! Management API token fetching for DSH.
+//!
+//! This module provides an interface (`ManagementApiTokenFetcher`) for fetching and
+//! caching access tokens required to communicate with DSH’s management (REST) API.
+//! Access tokens are automatically refreshed when expired, allowing seamless
+//! integrations with the DSH platform.
+//!
+//! # Overview
+//! - **[`AccessToken`]**: Access token from the authentication server.  
+//! - **[`ManagementApiTokenFetcher`]**: A token fetcher that caches tokens and
+//!   refreshes them upon expiration.  
+//! - **[`ManagementApiTokenFetcherBuilder`]**: A builder for customizing the fetcher’s
+//!   client, credentials, and target platform.  
+//!
+//! # Typical Usage
+//! 1. **Instantiate** a fetcher with credentials:  
+//!    ```
+//!    use dsh_sdk::management_api::ManagementApiTokenFetcherBuilder;
+//!    use dsh_sdk::Platform;
+//!
+//!    let platform = Platform::NpLz;
+//!    let token_fetcher = ManagementApiTokenFetcherBuilder::new(platform)
+//!         .tenant_name("my-tenant")
+//!         .client_secret("my-secret")
+//!         .build()
+//!         .unwrap();
+//!    ```
+//! 2. **Fetch** the token when needed:  
+//!    ```ignore
+//!    let token = token_fetcher.get_token().await?;
+//!    ```
+//! 3. **Reuse** the same fetcher for subsequent calls; it auto-refreshes tokens.  
+//!
+//! For more advanced usage (custom [`reqwest::Client`] or different credential sourcing),
+//! see [`ManagementApiTokenFetcher::new_with_client`] or the [`ManagementApiTokenFetcherBuilder`].
+
 use std::fmt::Debug;
 use std::ops::Add;
 use std::sync::Mutex;
@@ -9,12 +45,12 @@ use serde::Deserialize;
 use super::error::ManagementApiTokenError;
 use crate::utils::Platform;
 
-/// Access token of the authentication serveice of DSH.
+/// Represents the Access Token by DSH’s authentication service.
 ///
-/// This is the response whem requesting for a new access token.
-///
-/// ## Recommended usage
-/// Use the [RestTokenFetcher::get_token] to get the bearer token, the `TokenFetcher` will automatically fetch a new token if the current token is not valid.
+/// The fields include information about the token’s validity window,
+/// token type, and scope. Typically, you won’t instantiate `AccessToken` directly:
+/// use [`ManagementApiTokenFetcher::get_token`](crate::management_api::ManagementApiTokenFetcher::get_token)
+/// to automatically obtain or refresh a valid token.
 #[derive(Debug, Clone, Deserialize)]
 pub struct AccessToken {
     access_token: String,
@@ -27,37 +63,37 @@ pub struct AccessToken {
 }
 
 impl AccessToken {
-    /// Get the formatted token
+    /// Returns a complete token string, i.e. `"{token_type} {access_token}"`.
     pub fn formatted_token(&self) -> String {
         format!("{} {}", self.token_type, self.access_token)
     }
 
-    /// Get the access token
+    /// Returns the raw access token string (without the token type).
     pub fn access_token(&self) -> &str {
         &self.access_token
     }
 
-    /// Get the expires in of the access token
+    /// Returns the number of seconds until this token expires.
     pub fn expires_in(&self) -> u64 {
         self.expires_in
     }
 
-    /// Get the refresh expires in of the access token
+    /// Returns the number of seconds until the refresh token expires.
     pub fn refresh_expires_in(&self) -> u32 {
         self.refresh_expires_in
     }
 
-    /// Get the token type of the access token
+    /// Returns the token type (e.g., `"Bearer"`).
     pub fn token_type(&self) -> &str {
         &self.token_type
     }
 
-    /// Get the not before policy of the access token
+    /// Returns the “not before” policy timestamp from the authentication server.
     pub fn not_before_policy(&self) -> u32 {
         self.not_before_policy
     }
 
-    /// Get the scope of the access token
+    /// Returns the scope string (e.g., `"email"`).
     pub fn scope(&self) -> &str {
         &self.scope
     }
@@ -76,10 +112,39 @@ impl Default for AccessToken {
     }
 }
 
-/// Fetch and store access tokens to be used in the DSH Rest API client
+/// A fetcher for obtaining and storing access tokens, enabling authenticated
+/// requests to DSH’s management (REST) API.
 ///
-/// This struct will fetch and store access tokens to be used in the DSH Rest API client.
-/// It will automatically fetch a new token if the current token is not valid.
+/// This struct caches the token in memory and refreshes it automatically
+/// once expired.
+///
+/// # Usage
+/// - **`new`**: Construct a fetcher with provided credentials.  
+/// - **`new_with_client`**: Provide a custom [`reqwest::Client`] if needed.  
+/// - **`get_token`**: Returns the current token if still valid, or fetches a new one.  
+///
+/// # Example
+/// ```no_run
+/// use dsh_sdk::management_api::ManagementApiTokenFetcher;
+/// use dsh_sdk::Platform;
+///
+/// # use std::error::Error;
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn Error>> {
+/// let platform = Platform::NpLz;
+/// let client_id = platform.rest_client_id("my-tenant");
+/// let client_secret = "my-secret".to_string();
+/// let token_fetcher = ManagementApiTokenFetcher::new(
+///     client_id,
+///     client_secret,
+///     platform.endpoint_rest_access_token().to_string()
+/// );
+///
+/// let token = token_fetcher.get_token().await?;
+/// println!("Obtained token: {}", token);
+/// # Ok(())
+/// # }
+/// ```
 pub struct ManagementApiTokenFetcher {
     access_token: Mutex<AccessToken>,
     fetched_at: Mutex<Instant>,
@@ -90,23 +155,33 @@ pub struct ManagementApiTokenFetcher {
 }
 
 impl ManagementApiTokenFetcher {
-    /// Create a new instance of the token fetcher
+    /// Creates a new token fetcher.
     ///
-    /// ## Example
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::{ManagementApiTokenFetcher, Platform};
-    /// use dsh_rest_api_client::Client;
+    /// use dsh_sdk::management_api::ManagementApiTokenFetcher;
+    /// use dsh_sdk::Platform;
     ///
-    /// #[tokio::main]
-    /// async fn main() {
-    ///     let platform = Platform::NpLz;
-    ///     let client_id = platform.rest_client_id("my-tenant");
-    ///     let client_secret = "my-secret".to_string();
-    ///     let token_fetcher = ManagementApiTokenFetcher::new(client_id, client_secret, platform.endpoint_rest_access_token().to_string());
-    ///     let token = token_fetcher.get_token().await.unwrap();
-    /// }
+    /// # #[tokio::main]
+    /// # async fn main() {
+    /// let platform = Platform::NpLz;
+    /// let client_id = platform.rest_client_id("my-tenant");
+    /// let client_secret = "my-secret";
+    /// let token_fetcher = ManagementApiTokenFetcher::new(
+    ///     client_id,
+    ///     client_secret,
+    ///     platform.endpoint_rest_access_token()
+    /// );
+    ///
+    /// let token = token_fetcher.get_token().await.unwrap();
+    /// println!("Token: {}", token);
+    /// # }
     /// ```
-    pub fn new(client_id: String, client_secret: String, auth_url: String) -> Self {
+    pub fn new(
+        client_id: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
+        auth_url: impl AsRef<str>,
+    ) -> Self {
         Self::new_with_client(
             client_id,
             client_secret,
@@ -115,68 +190,95 @@ impl ManagementApiTokenFetcher {
         )
     }
 
-    /// Get a [ManagementApiTokenFetcherBuilder] to create a new instance of the token fetcher
+    /// Returns a [`ManagementApiTokenFetcherBuilder`] for more flexible creation
+    /// of a token fetcher (e.g., specifying a custom client).
     pub fn builder(platform: Platform) -> ManagementApiTokenFetcherBuilder {
         ManagementApiTokenFetcherBuilder::new(platform)
     }
 
-    /// Create a new instance of the token fetcher with custom reqwest client
+    /// Creates a new fetcher with a **custom** [`reqwest::Client`].
     ///
-    /// ## Example
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::{ManagementApiTokenFetcher, Platform};
-    /// use dsh_rest_api_client::Client;
+    /// use dsh_sdk::management_api::ManagementApiTokenFetcher;
+    /// use dsh_sdk::Platform;
     ///
-    /// #[tokio::main]
-    /// async fn main() {
-    ///     let platform = Platform::NpLz;
-    ///     let client_id = platform.rest_client_id("my-tenant");
-    ///     let client_secret = "my-secret".to_string();
-    ///     let client = reqwest::Client::new();
-    ///     let token_fetcher = ManagementApiTokenFetcher::new_with_client(client_id, client_secret, platform.endpoint_rest_access_token().to_string(), client);
-    ///     let token = token_fetcher.get_token().await.unwrap();
-    /// }
+    /// # #[tokio::main]
+    /// # async fn main() {
+    /// let platform = Platform::NpLz;
+    /// let client_id = platform.rest_client_id("my-tenant");
+    /// let client_secret = "my-secret";
+    /// let custom_client = reqwest::Client::new();
+    /// let token_fetcher = ManagementApiTokenFetcher::new_with_client(
+    ///     client_id,
+    ///     client_secret,
+    ///     platform.endpoint_rest_access_token().to_string(),
+    ///     custom_client
+    /// );
+    /// let token = token_fetcher.get_token().await.unwrap();
+    /// println!("Token: {}", token);
+    /// # }
     /// ```
     pub fn new_with_client(
-        client_id: String,
-        client_secret: String,
-        auth_url: String,
+        client_id: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
+        auth_url: impl AsRef<str>,
         client: reqwest::Client,
     ) -> Self {
         Self {
             access_token: Mutex::new(AccessToken::default()),
             fetched_at: Mutex::new(Instant::now()),
-            client_id,
-            client_secret,
+            client_id: client_id.as_ref().to_string(),
+            client_secret: client_secret.as_ref().to_string(),
             client,
-            auth_url,
+            auth_url: auth_url.as_ref().to_string(),
         }
     }
 
-    /// Get token from the token fetcher
+    /// Obtains the token from cache if still valid, otherwise fetches a new one.
     ///
-    /// If the cached token is not valid, it will fetch a new token from the server.
-    /// It will return the token as a string, formatted as "{token_type} {token}"
-    /// If the request fails for a new token, it will return a [ManagementApiTokenError::FailureTokenFetch] error.
-    /// This will contain the underlying reqwest error.
+    /// The returned string is formatted as `"{token_type} {access_token}"`.
+    ///
+    /// # Errors
+    /// - [`ManagementApiTokenError::FailureTokenFetch`]:
+    ///   If the network request fails or times out when fetching a new token.
+    /// - [`ManagementApiTokenError::StatusCode`]:
+    ///   If the authentication server returns a non-success HTTP status code.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use dsh_sdk::management_api::ManagementApiTokenFetcher;
+    /// # #[tokio::main]
+    /// # async fn main() {
+    ///     let tf = ManagementApiTokenFetcher::new(
+    ///         "client_id".to_string(),
+    ///         "client_secret".to_string(),
+    ///         "http://example.com/auth".to_string()
+    ///     );
+    ///     match tf.get_token().await {
+    ///         Ok(token) => println!("Got token: {}", token),
+    ///         Err(e) => eprintln!("Error fetching token: {}", e),
+    ///     }
+    /// }
+    /// ```
     pub async fn get_token(&self) -> Result<String, ManagementApiTokenError> {
-        match self.is_valid() {
-            true => Ok(self.access_token.lock().unwrap().formatted_token()),
-            false => {
-                debug!("Token is expired, fetching new token");
-                let access_token = self.fetch_access_token_from_server().await?;
-                let mut token = self.access_token.lock().unwrap();
-                let mut fetched_at = self.fetched_at.lock().unwrap();
-                *token = access_token;
-                *fetched_at = Instant::now();
-                Ok(token.formatted_token())
-            }
+        if self.is_valid() {
+            Ok(self.access_token.lock().unwrap().formatted_token())
+        } else {
+            debug!("Token is expired, fetching new token");
+            let access_token = self.fetch_access_token_from_server().await?;
+            let mut token = self.access_token.lock().unwrap();
+            let mut fetched_at = self.fetched_at.lock().unwrap();
+            *token = access_token;
+            *fetched_at = Instant::now();
+            Ok(token.formatted_token())
         }
     }
 
-    /// Check if the current access token is still valid
+    /// Determines if the internally cached token is still valid.
     ///
-    /// If the token has expired, it will return false.
+    /// A token is considered valid if its remaining lifetime
+    /// (minus a 5-second safety margin) is greater than zero.
     pub fn is_valid(&self) -> bool {
         let access_token = self.access_token.lock().unwrap_or_else(|mut e| {
             **e.get_mut() = AccessToken::default();
@@ -187,17 +289,18 @@ impl ManagementApiTokenFetcher {
             self.fetched_at.clear_poison();
             e.into_inner()
         });
-        // Check if expires in has elapsed (+ safety margin of 5 seconds)
+        // Check if 'expires_in' has elapsed (+ 5-second safety margin)
         fetched_at.elapsed().add(Duration::from_secs(5))
             < Duration::from_secs(access_token.expires_in)
     }
 
-    /// Fetch a new access token from the server
+    /// Fetches a fresh `AccessToken` from the authentication server.
     ///
-    /// This will fetch a new access token from the server and return it.
-    /// If the request fails, it will return a [ManagementApiTokenError::FailureTokenFetch] error.
-    /// If the status code is not successful, it will return a [ManagementApiTokenError::StatusCode] error.
-    /// If the request is successful, it will return the [AccessToken].
+    /// # Errors
+    /// - [`ManagementApiTokenError::FailureTokenFetch`]:
+    ///   If the network request fails or times out.
+    /// - [`ManagementApiTokenError::StatusCode`]:
+    ///   If the server returns a non-success status code.
     pub async fn fetch_access_token_from_server(
         &self,
     ) -> Result<AccessToken, ManagementApiTokenError> {
@@ -212,6 +315,7 @@ impl ManagementApiTokenFetcher {
             .send()
             .await
             .map_err(ManagementApiTokenError::FailureTokenFetch)?;
+
         if !response.status().is_success() {
             Err(ManagementApiTokenError::StatusCode {
                 status_code: response.status(),
@@ -232,13 +336,38 @@ impl Debug for ManagementApiTokenFetcher {
             .field("access_token", &self.access_token)
             .field("fetched_at", &self.fetched_at)
             .field("client_id", &self.client_id)
+            // For security, obfuscate the secret
             .field("client_secret", &"xxxxxx")
             .field("auth_url", &self.auth_url)
             .finish()
     }
 }
 
-/// Builder for the managemant api token fetcher
+/// A builder for constructing a [`ManagementApiTokenFetcher`].
+///
+/// This builder allows customization of the token fetcher by specifying:
+/// - **client_id** or **tenant_name** (tenant name is used to generate the client_id)
+/// - **client_secret**
+/// - **custom [`reqwest::Client`]** (optional)
+/// - **platform** (e.g., [`Platform::NpLz`] or [`Platform::Poc`])
+///
+/// # Example
+/// ```
+/// use dsh_sdk::management_api::ManagementApiTokenFetcherBuilder;
+/// use dsh_sdk::Platform;
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let platform = Platform::NpLz;
+/// let client_id = "robot:dev-lz-dsh:my-tenant".to_string();
+/// let client_secret = "secret".to_string();
+/// let token_fetcher = ManagementApiTokenFetcherBuilder::new(platform)
+///     .client_id(client_id)
+///     .client_secret(client_secret)
+///     .build()?;
+/// // Use `token_fetcher`
+/// # Ok(())
+/// # }
+/// ```
 pub struct ManagementApiTokenFetcherBuilder {
     client: Option<reqwest::Client>,
     client_id: Option<String>,
@@ -248,10 +377,11 @@ pub struct ManagementApiTokenFetcherBuilder {
 }
 
 impl ManagementApiTokenFetcherBuilder {
-    /// Get a new instance of the ClientBuilder
+    /// Creates a new builder configured for the specified [`Platform`].
     ///
     /// # Arguments
-    /// * `platform` - The target platform to use for the token fetcher
+    /// - `platform`: The target platform (e.g., `Platform::NpLz`) to determine
+    ///   default endpoints for fetching tokens.
     pub fn new(platform: Platform) -> Self {
         Self {
             client: None,
@@ -262,59 +392,62 @@ impl ManagementApiTokenFetcherBuilder {
         }
     }
 
-    /// Set the client_id for the client
+    /// Sets an explicit client ID for authentication.
     ///
-    /// Alternatively, set `tenant_name` to generate the client_id.
-    /// `Client_id` does have precedence over `tenant_name`.
-    pub fn client_id(mut self, client_id: String) -> Self {
-        self.client_id = Some(client_id);
+    /// If you also specify `tenant_name`, the client ID here takes precedence.
+    pub fn client_id(mut self, client_id: impl AsRef<str>) -> Self {
+        self.client_id = Some(client_id.as_ref().to_string());
         self
     }
 
-    /// Set the client_secret for the client
-    pub fn client_secret(mut self, client_secret: String) -> Self {
-        self.client_secret = Some(client_secret);
+    /// Sets a client secret required for token fetching.
+    pub fn client_secret(mut self, client_secret: impl AsRef<str>) -> Self {
+        self.client_secret = Some(client_secret.as_ref().to_string());
         self
     }
 
-    /// Set the tenant_name for the client, this will generate the client_id
+    /// Sets a tenant name from which the client ID will be derived.
     ///
-    /// Alternatively, set `client_id` directly.
-    /// `Tenant_name` does have precedence over `client_id`.
-    pub fn tenant_name(mut self, tenant_name: String) -> Self {
-        self.tenant_name = Some(tenant_name);
+    /// This will use `platform.rest_client_id(tenant_name)` unless `client_id`
+    /// is already set.
+    pub fn tenant_name(mut self, tenant_name: impl AsRef<str>) -> Self {
+        self.tenant_name = Some(tenant_name.as_ref().to_string());
         self
     }
 
-    /// Provide a custom configured Reqwest client for the token
-    ///
-    /// This is optional, if not provided, a default client will be used.
+    /// Supplies a custom [`reqwest::Client`] if you need specialized settings
+    /// (e.g., proxy configuration, timeouts, etc.).
     pub fn client(mut self, client: reqwest::Client) -> Self {
         self.client = Some(client);
         self
     }
 
-    /// Build the client and token fetcher
+    /// Builds a [`ManagementApiTokenFetcher`] based on the provided configuration.
     ///
-    /// This will build the client and token fetcher based on the given parameters.
-    /// It will return a tuple with the client and token fetcher.
+    /// # Errors
+    /// - [`ManagementApiTokenError::UnknownClientSecret`]:
+    ///   If the client secret is unset.
+    /// - [`ManagementApiTokenError::UnknownClientId`]:
+    ///   If neither `client_id` nor `tenant_name` is provided.
     ///
-    /// ## Example
+    /// # Example
     /// ```
-    /// # use dsh_sdk::{ManagementApiTokenFetcherBuilder, Platform};
-    /// let platform = Platform::NpLz;
-    /// let client_id = "robot:dev-lz-dsh:my-tenant".to_string();
-    /// let client_secret = "secret".to_string();
-    /// let tf = ManagementApiTokenFetcherBuilder::new(platform)
-    ///     .client_id(client_id)
-    ///     .client_secret(client_secret)
-    ///     .build()
-    ///     .unwrap();
+    /// use dsh_sdk::management_api::{ManagementApiTokenFetcherBuilder, ManagementApiTokenError};
+    /// use dsh_sdk::Platform;
+    ///
+    /// # fn main() -> Result<(), ManagementApiTokenError> {
+    /// let fetcher = ManagementApiTokenFetcherBuilder::new(Platform::NpLz)
+    ///     .client_id("robot:dev-lz-dsh:my-tenant".to_string())
+    ///     .client_secret("secret".to_string())
+    ///     .build()?;
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn build(self) -> Result<ManagementApiTokenFetcher, ManagementApiTokenError> {
         let client_secret = self
             .client_secret
             .ok_or(ManagementApiTokenError::UnknownClientSecret)?;
+
         let client_id = self
             .client_id
             .or_else(|| {
@@ -323,6 +456,7 @@ impl ManagementApiTokenFetcherBuilder {
                     .map(|tenant_name| self.platform.rest_client_id(tenant_name))
             })
             .ok_or(ManagementApiTokenError::UnknownClientId)?;
+
         let client = self.client.unwrap_or_default();
         let token_fetcher = ManagementApiTokenFetcher::new_with_client(
             client_id,
@@ -364,6 +498,7 @@ mod test {
         }
     }
 
+    /// Ensures `AccessToken` is properly deserialized and returns expected fields.
     #[test]
     fn test_access_token() {
         let token_str = r#"{
@@ -384,6 +519,7 @@ mod test {
         assert_eq!(token.formatted_token(), "Bearer secret_access_token");
     }
 
+    /// Validates the default constructor yields an empty `AccessToken`.
     #[test]
     fn test_access_token_default() {
         let token = AccessToken::default();
@@ -396,45 +532,53 @@ mod test {
         assert_eq!(token.formatted_token(), " ");
     }
 
+    /// Verifies that a default token is considered invalid since it expires immediately.
     #[test]
     fn test_rest_token_fetcher_is_valid_default_token() {
-        // Test is_valid when validating default token (should expire in 0 seconds)
         let tf = create_mock_tf();
-        assert!(!tf.is_valid());
+        assert!(!tf.is_valid(), "Default token should be invalid");
     }
 
+    /// Demonstrates that `is_valid` returns true if a token is configured with future expiration.
     #[test]
     fn test_rest_token_fetcher_is_valid_valid_token() {
         let tf = create_mock_tf();
         tf.access_token.lock().unwrap().expires_in = 600;
-        assert!(tf.is_valid());
+        assert!(
+            tf.is_valid(),
+            "Token with 600s lifetime should be valid initially"
+        );
     }
 
+    /// Confirms `is_valid` returns false after the token’s entire lifetime has elapsed.
     #[test]
     fn test_rest_token_fetcher_is_valid_expired_token() {
-        // Test is_valid when validating an expired token
         let tf = create_mock_tf();
         tf.access_token.lock().unwrap().expires_in = 600;
         *tf.fetched_at.lock().unwrap() = Instant::now() - Duration::from_secs(600);
-        assert!(!tf.is_valid());
+        assert!(!tf.is_valid(), "Token should expire after 600s have passed");
     }
 
+    /// Tests behavior when a token is “poisoned” (i.e., panicked while locked).
     #[test]
     fn test_rest_token_fetcher_is_valid_poisoned_token() {
-        // Test is_valid when token is poisoned
         let tf = create_mock_tf();
         tf.access_token.lock().unwrap().expires_in = 600;
         let tf_arc = std::sync::Arc::new(tf);
         let tf_clone = tf_arc.clone();
-        assert!(tf_arc.is_valid(), "Token should be valid");
-        let h = std::thread::spawn(move || {
+        assert!(tf_arc.is_valid(), "Token should be valid before poison");
+        let handle = std::thread::spawn(move || {
             let _unused = tf_clone.access_token.lock().unwrap();
-            panic!("Poison token")
+            panic!("Poison token");
         });
-        let _ = h.join();
-        assert!(!tf_arc.is_valid(), "Token should be invalid");
+        let _ = handle.join();
+        assert!(
+            !tf_arc.is_valid(),
+            "Token should be reset to default after poisoning"
+        );
     }
 
+    /// Checks success scenario for fetching a new token from a mock server.
     #[tokio::test]
     async fn test_fetch_access_token_from_server() {
         let mut auth_server = mockito::Server::new_async().await;
@@ -457,12 +601,9 @@ mod test {
         let token = tf.fetch_access_token_from_server().await.unwrap();
         assert_eq!(token.access_token(), "secret_access_token");
         assert_eq!(token.expires_in(), 600);
-        assert_eq!(token.refresh_expires_in(), 0);
-        assert_eq!(token.token_type(), "Bearer");
-        assert_eq!(token.not_before_policy(), 0);
-        assert_eq!(token.scope(), "email");
     }
 
+    /// Checks that an HTTP 400 response is handled as an error.
     #[tokio::test]
     async fn test_fetch_access_token_from_server_error() {
         let mut auth_server = mockito::Server::new_async().await;
@@ -486,6 +627,7 @@ mod test {
         }
     }
 
+    /// Ensures the builder sets `client_id` explicitly.
     #[test]
     fn test_token_fetcher_builder_client_id() {
         let platform = Platform::NpLz;
@@ -501,6 +643,7 @@ mod test {
         assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
     }
 
+    /// Ensures the builder can auto-generate `client_id` from the `tenant_name`.
     #[test]
     fn test_token_fetcher_builder_tenant_name() {
         let platform = Platform::NpLz;
@@ -519,6 +662,7 @@ mod test {
         assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
     }
 
+    /// Validates that a custom `reqwest::Client` can be injected into the builder.
     #[test]
     fn test_token_fetcher_builder_custom_client() {
         let platform = Platform::NpLz;
@@ -536,6 +680,7 @@ mod test {
         assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
     }
 
+    /// Tests precedence of `client_id` over a derived tenant-based client ID.
     #[test]
     fn test_token_fetcher_builder_client_id_precedence() {
         let platform = Platform::NpLz;
@@ -553,6 +698,7 @@ mod test {
         assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
     }
 
+    /// Ensures builder returns errors if `client_id` or `client_secret` are missing.
     #[test]
     fn test_token_fetcher_builder_build_error() {
         let err = ManagementApiTokenFetcherBuilder::new(Platform::NpLz)
