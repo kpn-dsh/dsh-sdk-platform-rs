@@ -20,7 +20,7 @@
 //! 4. **Configure** your DSH or Docker environment accordingly (if needed).
 //!
 //! ## Example
-//! ```no_run
+//! ```
 //! use dsh_sdk::utils::metrics::start_http_server;
 //!
 //! fn encode_metrics() -> String {
@@ -42,16 +42,17 @@
 //!
 //! # Configuration with DSH
 //!
-//! In your DSH service configuration (assuming JSON), specify the port and path for the metrics:
+//! In your Dockerfile, be sure to expose that port:
+//! ```dockerfile
+//! EXPOSE 9090
+//! ```
+//! 
+//! Then, in your DSH service configuration, specify the port and path for the metrics:
 //! ```json
 //! "metrics": {
 //!     "port": 9090,
 //!     "path": "/metrics"
 //! },
-//! ```
-//! Then, in your Dockerfile, be sure to expose that port:
-//! ```dockerfile
-//! EXPOSE 9090
 //! ```
 //!
 //! # Monitoring the Server Task
