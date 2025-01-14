@@ -46,7 +46,7 @@
 //! ```dockerfile
 //! EXPOSE 9090
 //! ```
-//! 
+//!
 //! Then, in your DSH service configuration, specify the port and path for the metrics:
 //! ```json
 //! "metrics": {

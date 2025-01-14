@@ -21,7 +21,7 @@ use crate::DshKafkaConfig;
 /// Once started via [`Dlq::start`], it listens on an `mpsc` channel for [`SendToDlq`] items.
 /// Each received item is routed to the configured “dead” or “retry” Kafka topics,
 /// depending on whether it is [`Retryable::Retryable`] or not.
-/// 
+///
 /// A full implementation can be found in the [DLQ example]((https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs).
 pub struct Dlq {
     dlq_producer: FutureProducer,

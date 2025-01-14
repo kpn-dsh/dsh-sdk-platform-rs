@@ -107,8 +107,8 @@ impl Shutdown {
     ///   signal indicating all tasks have ended (`complete`).
     ///
     /// # Note
-    /// Ensure that you only keep the original handle in your main function or 
-    /// manager. 
+    /// Ensure that you only keep the original handle in your main function or
+    /// manager.
     pub fn new() -> Self {
         let cancel_token = CancellationToken::new();
         let (shutdown_complete_tx, shutdown_complete_rx) = mpsc::channel(1);
