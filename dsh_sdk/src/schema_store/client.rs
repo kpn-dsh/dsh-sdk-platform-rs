@@ -16,23 +16,6 @@ use crate::Dsh;
 /// By default, the client’s base URL is derived from [`Dsh::get().schema_registry_host()`].
 /// You can override this behavior with [`SchemaStoreClient::new_with_base_url`].
 ///
-/// ## Key Methods
-///
-/// | **Method**                               | **Description**                                                                                                         |
-/// |----------------------------------------- |-------------------------------------------------------------------------------------------------------------------------|
-/// | [`subject_compatibility`]                | Gets the compatibility level for a specific subject.                                                                    |
-/// | [`subject_compatibility_update`]         | Sets the compatibility level for a subject.                                                                             |
-/// | [`subjects`]                             | Lists all subjects in the registry.                                                                                     |
-/// | [`subject_versions`]                     | Retrieves version IDs for a particular subject.                                                                         |
-/// | [`subject`]                              | Fetches the schema for a specific subject/version.                                                                      |
-/// | [`subject_raw_schema`]                   | Fetches the raw schema string for a particular subject/version.                                                         |
-/// | [`subject_all_schemas`]                  | Retrieves **all** schema versions for a subject (iterates over each version).                                           |
-/// | [`subject_add_schema`]                   | Registers a new schema under a subject.                                                                                 |
-/// | [`subject_schema_exist`]                 | Checks if a given schema already exists in a subject.                                                                   |
-/// | [`subject_new_schema_compatibility`]     | Determines whether a new schema is compatible with a specific subject version.                                          |
-/// | [`schema`]                               | Retrieves a schema by its ID (regardless of subject).                                                                   |
-/// | [`schema_subjects`]                      | Lists all subjects that use a particular schema ID.                                                                     |
-///
 /// Most methods return a [`Result<T, SchemaStoreError>`], which encapsulates
 /// potential network failures or schema parsing issues.
 ///

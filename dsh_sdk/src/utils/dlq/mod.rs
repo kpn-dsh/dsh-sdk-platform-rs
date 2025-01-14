@@ -17,7 +17,7 @@
 //! 1. **Implement** the [`ErrorToDlq`] trait on your custom error type.  
 //! 2. **Start** the DLQ by calling [`Dlq::start`], which returns a [`DlqChannel`].  
 //! 3. **Own** the [`DlqChannel`] in your processing logic (do **not** hold it in `main`!), and
-//!    call [`ErrorToDlq::to_dlq`](super::ErrorToDlq::to_dlq) when you need to push a message/error into the queue.  
+//!    call [`ErrorToDlq::to_dlq`] when you need to push a message/error into the queue.  
 //! 4. **Graceful Shutdown**: The [`DlqChannel`] should naturally drop during shutdown, letting
 //!    the `Dlq` finish processing any remaining messages before the application fully closes.  
 //!
