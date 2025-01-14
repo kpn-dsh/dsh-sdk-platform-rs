@@ -46,7 +46,6 @@ pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
     s
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
