@@ -17,12 +17,12 @@
 //! # Table of Methods
 //! | **Method**                  | **Description**                                                                                                    |
 //! |---------------------------- |--------------------------------------------------------------------------------------------------------------------|
-//! | [`Shutdown::new`]          | Creates a fresh `Shutdown` handle, along with a channel to track completion.                                       |
-//! | [`Shutdown::clone`]        | Produces a new `Shutdown` handle that can listen for and trigger the same shutdown signals.                        |
+//! | [`Shutdown::new`]          | Creates a fresh [`Shutdown`] handle, along with a channel to track completion.                                      |
+//! | [`Shutdown::clone`]        | Clone a [`Shutdown`] handle which is linked to the original handle.                                                |
 //! | [`Shutdown::start`]        | Signals all clones that a shutdown is in progress, causing each to break out of their loops.                       |
 //! | [`Shutdown::recv`]         | Awaitable method for a cloned handle to detect when a shutdown has started.                                        |
-//! | [`Shutdown::signal_listener`] | Waits for `SIGTERM`/`SIGINT`, then calls [`start`](Shutdown::start) automatically.                             |
-//! | [`Shutdown::complete`]     | Waits for all tasks to finish before returning, ensuring a graceful final exit.                                    |
+//! | [`Shutdown::signal_listener`] | Waits for `SIGTERM`/`SIGINT`, then calls [`start`](Shutdown::start) automatically to notify the other handles.  |
+//! | [`Shutdown::complete`]     | Waits for all handles are finished before returning, ensuring a graceful final exit.                               |
 //!
 //! # Usage Example
 //! ```no_run
@@ -52,9 +52,9 @@
 //!     let shutdown = Shutdown::new();
 //!
 //!     // Clone the handle for use in background tasks
-//!     let task_shutdown = shutdown.clone();
+//!     let cloned_shutdown = shutdown.clone();
 //!     let process_task_handle = tokio::spawn(async move {
-//!         process_task(task_shutdown).await;
+//!         process_task(cloned_shutdown).await;
 //!     });
 //!
 //!     // Concurrently wait for OS signals OR for the background task to exit
@@ -83,7 +83,7 @@ use tokio_util::sync::CancellationToken;
 ///
 /// Cloning this handle allows tasks to listen for shutdown signals (internal or
 /// from the OS). The original handle can trigger the shutdown and subsequently
-/// await the completion of all tasks through [`Shutdown::complete`].
+/// await the completion of all other handles through [`Shutdown::complete`].
 ///
 /// # Usage
 /// 1. **Create** a primary handle with [`Shutdown::new`].  
@@ -107,9 +107,8 @@ impl Shutdown {
     ///   signal indicating all tasks have ended (`complete`).
     ///
     /// # Note
-    /// Ensure that you only keep the `Receiver` on the original handle in
-    /// your main function or manager. Cloned handles do not have this
-    /// receiver part (they set it to `None`).
+    /// Ensure that you only keep the original handle in your main function or 
+    /// manager. 
     pub fn new() -> Self {
         let cancel_token = CancellationToken::new();
         let (shutdown_complete_tx, shutdown_complete_rx) = mpsc::channel(1);
@@ -123,10 +122,11 @@ impl Shutdown {
     /// Initiates the shutdown sequence, notifying all clone holders to stop.
     ///
     /// This effectively cancels the [`CancellationToken`], causing any tasks
-    /// awaiting [`recv`](Self::recv) to return immediately.
+    /// awaiting [`recv`](Self::recv) to return immediately. With this, all the
+    /// other handles know when to gracefully shut down.
     ///
     /// # Example
-    /// ```no_run
+    /// ```
     /// # use dsh_sdk::utils::graceful_shutdown::Shutdown;
     /// let shutdown = Shutdown::new();
     /// // ... spawn tasks ...
@@ -211,12 +211,12 @@ impl Shutdown {
 
     /// Waits for all tasks to confirm they have shut down.
     ///
-    /// This consumes the original `Shutdown` handle (the one that includes the
+    /// This consumes the original [`Shutdown`] handle (the one that includes the
     /// receiver), dropping the `Sender` so that `recv` eventually returns.
     /// Useful to ensure that no tasks remain active before final exit.
     ///
     /// # Note
-    /// Calling `complete` on a cloned handle is invalid, as clones do not hold
+    /// Calling `complete` on a cloned handle is invalid, as clones can not hold
     /// the completion receiver.
     ///
     /// # Example
