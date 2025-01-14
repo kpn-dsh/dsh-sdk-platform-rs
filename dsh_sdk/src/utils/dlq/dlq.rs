@@ -53,7 +53,7 @@ impl Dlq {
     ///
     /// # Example
     /// A full implementation can be found in the [DLQ example](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs),
-    /// ```
+    /// ```no_run
     /// use dsh_sdk::utils::graceful_shutdown::Shutdown;
     /// use dsh_sdk::utils::dlq::Dlq;
     ///
