@@ -1,4 +1,70 @@
-//! Dead Letter Queue client
+//! Dead Letter Queue (DLQ) client for handling messages that cannot be processed successfully.
+//!
+//! The `Dlq` provides an asynchronous mechanism to route unprocessable messages to special
+//! “dead” or “retry” topics. It coordinates with [`Shutdown`](crate::utils::graceful_shutdown::Shutdown)
+//! to ensure messages are handled before the application exits.
+//!
+//! # Overview
+//!  
+//! | **Component**        | **Description**                                                                       |
+//! |----------------------|---------------------------------------------------------------------------------------|
+//! | [`Dlq`]             | Main struct managing the producer, dead/retry topics, and queue of failed messages.   |
+//! | [`DlqChannel`]      | An `mpsc` sender returned by [`Dlq::start`], used by tasks to submit errored messages.|
+//! | [`SendToDlq`]       | Wrapper carrying both the original Kafka message and error details.                   |
+//! | [`Retryable`]       | Enum indicating whether a message is retryable or should be permanently “dead.”       |
+//!
+//! # Usage Flow
+//! 1. **Implement** the [`ErrorToDlq`](super::ErrorToDlq) trait on your custom error type.  
+//! 2. **Start** the DLQ by calling [`Dlq::start`], which returns a [`DlqChannel`].  
+//! 3. **Own** the [`DlqChannel`] in your processing logic (do **not** hold it in `main`!), and
+//!    call [`ErrorToDlq::to_dlq`](super::ErrorToDlq::to_dlq) when you need to push a message/error into the queue.  
+//! 4. **Graceful Shutdown**: The [`DlqChannel`] should naturally drop during shutdown, letting
+//!    the `Dlq` finish processing any remaining messages before the application fully closes.  
+//!
+//! # Important Graceful Shutdown Notes
+//! - The [`Dlq`] remains active until the [`DlqChannel`] is dropped and all messages are processed.  
+//! - Keep the [`DlqChannel`] **in your worker logic** and not in `main`, preventing deadlocks.  
+//! - The [`Shutdown`](crate::utils::graceful_shutdown::Shutdown) will wait for the DLQ to finish once
+//!   all channels have closed, ensuring no messages are lost.  
+//!
+//! # Example
+//! ```no_run
+//! use dsh_sdk::utils::dlq::{Dlq, DlqChannel, SendToDlq};
+//! use dsh_sdk::utils::graceful_shutdown::Shutdown;
+//!
+//! async fn consume(dlq_channel: DlqChannel) {
+//!     // Some consumer logic with error handling.
+//!     // On error, push the message to the DLQ.
+//!     loop {
+//!         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+//!         // ...
+//!     }
+//! }
+//!
+//! #[tokio::main]
+//! async fn main() {
+//!     // Create a shutdown handle
+//!     let shutdown = Shutdown::new();
+//!     // Start the DLQ, obtaining a channel to push failing messages
+//!     let dlq_channel = Dlq::start(shutdown.clone()).unwrap();
+//!
+//!     tokio::select! {
+//!         // In real usage, spawn `consume` with the owned `dlq_channel` here:
+//!         _ = async move {
+//!             consume(dlq_channel).await;
+//!         } => {},
+//!
+//!         // Or wait for a Ctrl+C or SIGTERM signal
+//!         _ = shutdown.signal_listener() => {
+//!             println!("Shutdown signal received!");
+//!         }
+//!     }
+//!
+//!     // Wait for the DLQ to flush messages before exiting
+//!     shutdown.complete().await;
+//!     println!("Application fully terminated");
+//! }
+//! ```
 
 use std::str::from_utf8;
 
@@ -11,93 +77,69 @@ use rdkafka::ClientConfig;
 use tokio::sync::mpsc;
 
 use super::headers::{DlqHeaders, HashMapToKafkaHeaders};
-
 use super::{DlqChannel, DlqErrror, Retryable, SendToDlq};
 use crate::utils::get_env_var;
 use crate::utils::graceful_shutdown::Shutdown;
 use crate::DshKafkaConfig;
 
-/// The dead letter queue
+/// Dead Letter Queue (DLQ) struct that runs asynchronously and processes error messages.
 ///
-/// # How to use
-/// 1. Implement the [`ErrorToDlq`](super::ErrorToDlq) trait on top your (custom) error type.
-/// 2. Use the [`Dlq::start`] in your main or at start of your process logic. (this will start the DLQ in a separate tokio task)
-/// 3. Get the dlq [`DlqChannel`] from the [`Dlq::start`] method and use this channel to communicate errored messages with the [`Dlq`] via the [`ErrorToDlq::to_dlq`](super::ErrorToDlq::to_dlq) method.
+/// Once started via [`Dlq::start`], it listens on an `mpsc` channel for [`SendToDlq`] items.
+/// Each received item is routed to the configured “dead” or “retry” Kafka topics,
+/// depending on whether it is [`Retryable::Retryable`] or not.
 ///
-/// # Importance of `DlqChannel` in the graceful shutdown procedure
-/// The [`Dlq::start`] will return a [`DlqChannel`]. The [`Dlq`] will keep running till the moment [`DlqChannel`] is dropped and finished processing all messages.
-/// This also means that the [`Shutdown`] procedure will wait for the [`Dlq`] to finish processing all messages before the application is shut down.
-/// This is to make sure that **all** messages are properly processed before the application is shut down.
-///
-/// **NEVER** borrow the [`DlqChannel`] but provide the channel as owned/cloned version to your processing logic and **NEVER** keep an owned version in main function, as this will result in a **deadlock**  and your application will never shut down.
-/// It is fine to start the [`Dlq`] in the main function, but make sure the [`DlqChannel`] is moved to your processing logic.
-///
-/// # Example
-/// See full implementation example [here](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs)
+/// See the [module-level docs](self) for an overview and usage instructions.
 pub struct Dlq {
     dlq_producer: FutureProducer,
     dlq_rx: mpsc::Receiver<SendToDlq>,
     dlq_dead_topic: String,
     dlq_retry_topic: String,
-    _shutdown: Shutdown, // hold the shutdown alive until exit
+    // Holding the shutdown handle ensures it remains valid until the DLQ stops.
+    _shutdown: Shutdown,
 }
 
 impl Dlq {
-    /// Start the dlq on a tokio task
+    /// Spawns the DLQ in a dedicated Tokio task, returning a [`DlqChannel`] for sending error messages.
     ///
-    /// The DLQ will run until the return `Sender` is dropped.
-    ///
-    /// # Arguments
-    /// * `shutdown` - The [`Shutdown`] is required to keep the DLQ alive until the [`DlqChannel`] is dropped
+    /// - Internally creates a Kafka producer with [`set_dsh_producer_config`](DshKafkaConfig::set_dsh_producer_config).
+    /// - Reads environment variables for `DLQ_DEAD_TOPIC` and `DLQ_RETRY_TOPIC` to determine the topics
+    ///   used for permanently-dead and retryable messages.
     ///
     /// # Returns
-    /// * The [DlqChannel] to send messages to the DLQ
+    /// A `DlqChannel` (an `mpsc::Sender<SendToDlq>`) used by your worker logic to push errored messages.
     ///
-    /// # Importance of `DlqChannel` in the graceful shutdown procedure
-    /// The [`Dlq::start`] will return a [`DlqChannel`]. The [`Dlq`] will keep running till the moment [`DlqChannel`] is dropped and finished processing all messages.
-    /// This also means that the [`Shutdown`] procedure will wait for the [`Dlq`] to finish processing all messages before the application is shut down.
-    /// This is to make sure that **all** messages are properly processed before the application is shut down.
+    /// # Shutdown Procedure
+    /// The DLQ runs until its channel is dropped. Once the channel closes, the DLQ finishes pending
+    /// messages and then stops. The [`Shutdown`](crate::utils::graceful_shutdown::Shutdown) handle
+    /// ensures that the main application waits for the DLQ to finish.
     ///
-    /// **NEVER** borrow the [`DlqChannel`] but provide the channel as owned/cloned version to your processing logic and **NEVER** keep an owned version in main function, as this will result in a **deadlock**  and your application will never shut down.
-    /// It is fine to start the [`Dlq`] in the main function, but make sure the [`DlqChannel`] is moved to your processing logic.
+    /// # Errors
+    /// Returns a [`DlqErrror`] if the producer could not be created or if environment variables
+    /// (`DLQ_DEAD_TOPIC`, `DLQ_RETRY_TOPIC`) are missing.
     ///
     /// # Example
     /// ```no_run
     /// use dsh_sdk::utils::graceful_shutdown::Shutdown;
     /// use dsh_sdk::utils::dlq::{Dlq, DlqChannel, SendToDlq};
     ///
-    /// async fn consume(dlq_channel: DlqChannel) {
-    ///     // Your consumer logic together with error handling
-    ///     loop {
-    ///         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-    ///     }
-    /// }
-    ///
     /// #[tokio::main]
     /// async fn main() {
     ///     let shutdown = Shutdown::new();
-    ///     let dlq_channel = Dlq::start(shutdown.clone()).unwrap();
-    ///     
-    ///     tokio::select! {
-    ///        _ = async move {
-    ///             // Your consumer logic together with the owned dlq_channel
-    ///             dlq_channel
-    ///       } => {}
-    ///      _ = shutdown.signal_listener() => {
-    ///        println!("Shutting down consumer");
-    ///         }
-    ///     }
-    ///     // wait for graceful shutdown to complete
-    ///     // NOTE that the `dlq_channel` will go out of scope when shutdown is called and the DLQ will stop
-    ///     shutdown.complete().await;
+    ///     let dlq_channel = Dlq::start(shutdown.clone()).expect("Failed to start DLQ");
+    ///
+    ///     // Spawn your worker logic, pass `dlq_channel` to handle errors...
     /// }
     /// ```
     pub fn start(shutdown: Shutdown) -> Result<DlqChannel, DlqErrror> {
         let (dlq_tx, dlq_rx) = mpsc::channel(200);
+
+        // Build a Kafka producer with standard DSH config
         let dlq_producer: FutureProducer<DefaultClientContext, rdkafka::util::TokioRuntime> =
             ClientConfig::new().set_dsh_producer_config().create()?;
+
         let dlq_dead_topic = get_env_var("DLQ_DEAD_TOPIC")?;
         let dlq_retry_topic = get_env_var("DLQ_RETRY_TOPIC")?;
+
         let dlq = Self {
             dlq_producer,
             dlq_rx,
@@ -105,59 +147,68 @@ impl Dlq {
             dlq_retry_topic,
             _shutdown: shutdown,
         };
+
+        // Spawn the main DLQ processing loop
         tokio::spawn(dlq.run());
         Ok(dlq_tx)
     }
 
-    /// Run the dlq. This will consume messages from the dlq channel and send them to the dlq topics
-    /// This function will run until the shutdown channel is closed
+    /// Core loop for receiving `SendToDlq` messages and forwarding them to the correct Kafka topic.
+    ///
+    /// Runs until the `mpsc::Receiver` is closed (no more references to the channel exist).
     async fn run(mut self) {
-        info!("DLQ started");
-        loop {
-            if let Some(mut dlq_message) = self.dlq_rx.recv().await {
-                match self.send(&mut dlq_message).await {
-                    Ok(_) => {}
-                    Err(e) => error!("Error sending message to DLQ: {}", e),
-                };
-            } else {
-                warn!("DLQ stopped as there is no active DLQ Channel");
-                break;
-            }
+        info!("DLQ started and awaiting messages...");
+        while let Some(mut dlq_message) = self.dlq_rx.recv().await {
+            match self.send(&mut dlq_message).await {
+                Ok(_) => {}
+                Err(e) => error!("Error sending message to DLQ: {}", e),
+            };
         }
+        warn!("DLQ stopped — channel closed, no further messages.");
     }
-    /// Create and send message towards the dlq
+
+    /// Sends an individual message to either the “dead” or “retry” topic based on its [`Retryable`] status.
+    ///
+    /// # Errors
+    /// Returns a [`KafkaError`] if the underlying producer fails to publish the message.
     async fn send(&self, dlq_message: &mut SendToDlq) -> Result<(), KafkaError> {
-        let orignal_kafka_msg: OwnedMessage = dlq_message.get_original_msg();
-        let headers = orignal_kafka_msg
+        let original_kafka_msg: OwnedMessage = dlq_message.get_original_msg();
+
+        // Create Kafka headers with error details.
+        let headers = original_kafka_msg
             .generate_dlq_headers(dlq_message)
             .to_owned_headers();
+
         let topic = self.dlq_topic(dlq_message.retryable);
-        let key: &[u8] = orignal_kafka_msg.key().unwrap_or_default();
-        let payload = orignal_kafka_msg.payload().unwrap_or_default();
-        debug!("Sending message to DLQ topic: {}", topic);
+        let key = original_kafka_msg.key().unwrap_or_default();
+        let payload = original_kafka_msg.payload().unwrap_or_default();
+
+        debug!("Sending DLQ message to topic: {}", topic);
+
         let record = FutureRecord::to(topic)
             .payload(payload)
             .key(key)
             .headers(headers);
-        let send = self.dlq_producer.send(record, None).await;
-        match send {
-            Ok((p, o)) => warn!(
-                "Message {:?} sent to DLQ topic: {}, partition: {}, offset: {}",
+
+        let result = self.dlq_producer.send(record, None).await;
+        match result {
+            Ok((partition, offset)) => warn!(
+                "DLQ message [{:?}] -> topic: {}, partition: {}, offset: {}",
                 from_utf8(key),
                 topic,
-                p,
-                o
+                partition,
+                offset
             ),
-            Err((e, _)) => return Err(e),
+            Err((err, _)) => return Err(err),
         };
         Ok(())
     }
 
+    /// Returns the appropriate DLQ topic, based on whether the message is [`Retryable::Retryable`] or not.
     fn dlq_topic(&self, retryable: Retryable) -> &str {
         match retryable {
             Retryable::Retryable => &self.dlq_retry_topic,
-            Retryable::NonRetryable => &self.dlq_dead_topic,
-            Retryable::Other => &self.dlq_dead_topic,
+            Retryable::NonRetryable | Retryable::Other => &self.dlq_dead_topic,
         }
     }
 }
@@ -177,6 +228,7 @@ mod tests {
         let mut producer = ClientConfig::new();
         producer.set("bootstrap.servers", mock_cluster.bootstrap_servers());
         let producer = producer.create().unwrap();
+
         let dlq = Dlq {
             dlq_producer: producer,
             dlq_rx: mpsc::channel(200).1,
@@ -184,10 +236,14 @@ mod tests {
             dlq_retry_topic: "retry_topic".to_string(),
             _shutdown: Shutdown::new(),
         };
-        let error = MockError::MockErrorRetryable("some_error".to_string());
+
+        // Retryable => "retry_topic"
+        let error = MockError::MockErrorRetryable("some_error".into());
         let topic = dlq.dlq_topic(error.retryable());
         assert_eq!(topic, "retry_topic");
-        let error = MockError::MockErrorDead("some_error".to_string());
+
+        // Non-retryable => "dead_topic"
+        let error = MockError::MockErrorDead("some_error".into());
         let topic = dlq.dlq_topic(error.retryable());
         assert_eq!(topic, "dead_topic");
     }
@@ -201,8 +257,9 @@ mod tests {
         let mut original_headers: OwnedHeaders = OwnedHeaders::new();
         original_headers = original_headers.insert(Header {
             key: "some_key",
-            value: Some("some_value".as_bytes()),
+            value: Some(b"some_value"),
         });
+
         let owned_message = OwnedMessage::new(
             Some(vec![1, 2, 3]),
             Some(vec![4, 5, 6]),
@@ -212,38 +269,16 @@ mod tests {
             offset,
             Some(original_headers),
         );
+
         let dlq_message =
             MockError::MockErrorRetryable("some_error".to_string()).to_dlq(owned_message.clone());
         let result = dlq_message.get_original_msg();
-        assert_eq!(
-            result.payload(),
-            dlq_message.kafka_message.payload(),
-            "payoad does not match"
-        );
-        assert_eq!(
-            result.key(),
-            dlq_message.kafka_message.key(),
-            "key does not match"
-        );
-        assert_eq!(
-            result.topic(),
-            dlq_message.kafka_message.topic(),
-            "topic does not match"
-        );
-        assert_eq!(
-            result.partition(),
-            dlq_message.kafka_message.partition(),
-            "partition does not match"
-        );
-        assert_eq!(
-            result.offset(),
-            dlq_message.kafka_message.offset(),
-            "offset does not match"
-        );
-        assert_eq!(
-            result.timestamp(),
-            dlq_message.kafka_message.timestamp(),
-            "timestamp does not match"
-        );
+
+        assert_eq!(result.payload(), dlq_message.kafka_message.payload());
+        assert_eq!(result.key(), dlq_message.kafka_message.key());
+        assert_eq!(result.topic(), dlq_message.kafka_message.topic());
+        assert_eq!(result.partition(), dlq_message.kafka_message.partition());
+        assert_eq!(result.offset(), dlq_message.kafka_message.offset());
+        assert_eq!(result.timestamp(), dlq_message.kafka_message.timestamp());
     }
 }
