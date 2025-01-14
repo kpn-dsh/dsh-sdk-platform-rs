@@ -1,59 +1,122 @@
-//! DSH Configuration for Kafka.
+//! DSH Configuration for Kafka
 //!
-//! This module contains the required configurations to consume and produce messages from DSH Kafka Cluster.
+//! This module provides all necessary configurations for consuming and producing messages
+//! to/from the DSH (Data Services Hub) Kafka Cluster. The [`DshKafkaConfig`] trait is at
+//! the core of this module, guiding you to set the essential Kafka config parameters
+//! automatically (e.g., brokers, security certificates, group ID).
 //!
-//! ## Example
-//! ```
+//! # Example
+//! ```no_run
 //! use dsh_sdk::DshKafkaConfig;
 //! use rdkafka::ClientConfig;
 //! use rdkafka::consumer::StreamConsumer;
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! let consumer:StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;
+//! // Build an rdkafka consumer with DSH settings.
+//! let consumer: StreamConsumer = ClientConfig::new()
+//!     .set_dsh_consumer_config()
+//!     .create()?;
+//!
+//! // Use your consumer...
 //! # Ok(())
 //! # }
 //! ```
+
 pub mod config;
 
 #[cfg(feature = "rdkafka")]
 mod rdkafka;
 
-/// Set all required configurations to consume messages from DSH Kafka Cluster.
+/// Trait defining core DSH configurations for Kafka consumers and producers.
+///
+/// Implementing `DshKafkaConfig` ensures that the correct settings (including SSL)
+/// are applied for connecting to a DSH-managed Kafka cluster. The trait provides:
+/// - [`set_dsh_consumer_config`](DshKafkaConfig::set_dsh_consumer_config)  
+/// - [`set_dsh_producer_config`](DshKafkaConfig::set_dsh_producer_config)  
+/// - [`set_dsh_group_id`](DshKafkaConfig::set_dsh_group_id)  
+/// - [`set_dsh_certificates`](DshKafkaConfig::set_dsh_certificates)
+///
+/// # Environment Variables
+/// The following environment variables can override or supplement certain default settings:
+///
+/// - `KAFKA_BOOTSTRAP_SERVERS`  
+/// - `KAFKA_GROUP_ID`  
+/// - `KAFKA_CONSUMER_GROUP_TYPE`  
+/// - `KAFKA_ENABLE_AUTO_COMMIT`  
+/// - `KAFKA_AUTO_OFFSET_RESET`  
+///
+/// By configuring these variables, you can control broker endpoints, group IDs, and
+/// various Kafka client behaviors without modifying code.
 pub trait DshKafkaConfig {
-    /// Set all required configurations to consume messages from DSH Kafka Cluster.
+    /// Applies all required consumer settings to connect with the DSH Kafka Cluster.
     ///
-    /// | **config**                | **Default value**                | **Remark**                                                             |
-    /// |---------------------------|----------------------------------|------------------------------------------------------------------------|
-    /// | `bootstrap.servers`       | Brokers based on datastreams     | Overwritable by env variable KAFKA_BOOTSTRAP_SERVERS`                  |
-    /// | `group.id`                | Shared Group ID from datastreams | Overwritable by setting `KAFKA_GROUP_ID` or `KAFKA_CONSUMER_GROUP_TYPE`|
-    /// | `client.id`               | Task_id of service               |                                                                        |
-    /// | `enable.auto.commit`      | `false`                          | Overwritable by setting `KAFKA_ENABLE_AUTO_COMMIT`                     |
-    /// | `auto.offset.reset`       | `earliest`                       | Overwritable by setting `KAFKA_AUTO_OFFSET_RESET`                      |
-    /// | `security.protocol`       | ssl (DSH) / plaintext (local)    | Security protocol                                                      |
-    /// | `ssl.key.pem`             | private key                      | Generated when sdk is initiated                                        |
-    /// | `ssl.certificate.pem`     | dsh kafka certificate            | Signed certificate to connect to kafka cluster                         |
-    /// | `ssl.ca.pem`              | CA certifacte                    | CA certificate, provided by DSH.                                       |
+    /// Below is a table of configurations applied by this function:
+    ///
+    /// | **Config Key**             | **Default Value**                | **Overridable?**                                               | **Description**                                                                 |
+    /// |----------------------------|----------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------|
+    /// | `bootstrap.servers`       | Brokers from `datastreams.json`  | Env var `KAFKA_BOOTSTRAP_SERVERS`                               | List of Kafka brokers to connect to.                                            |
+    /// | `group.id`                | Shared group from `datastreams`  | Env vars `KAFKA_GROUP_ID` / `KAFKA_CONSUMER_GROUP_TYPE`         | Consumer group ID (DSH requires tenant prefix).                                 |
+    /// | `client.id`               | `task_id` of the service         | _No direct override_                                            | Used for consumer identification in logs/metrics.                               |
+    /// | `enable.auto.commit`      | `false`                          | Env var `KAFKA_ENABLE_AUTO_COMMIT`                              | Controls whether offsets are committed automatically.                           |
+    /// | `auto.offset.reset`       | `earliest`                       | Env var `KAFKA_AUTO_OFFSET_RESET`                               | Defines behavior when no valid offset is available (e.g., `earliest`, `latest`).|
+    /// | `security.protocol`       | `ssl` in DSH, `plaintext` locally| _Internal_                                                      | Chooses SSL if DSH certificates are present, otherwise plaintext.               |
+    /// | `ssl.key.pem`             | Private key from certificates    | _Auto-configured_                                               | Loaded from SDK during bootstrap.                                               |
+    /// | `ssl.certificate.pem`     | DSH Kafka certificate            | _Auto-configured_                                               | Signed certificate to connect to the Kafka cluster.                             |
+    /// | `ssl.ca.pem`              | CA certificate from DSH          | _Auto-configured_                                               | Authority certificate for SSL.                                                  |
+    ///
+    /// # Usage
+    /// Typically called on a [`ClientConfig`](rdkafka::ClientConfig) instance, then followed by
+    /// `.create()` to produce a configured consumer.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use rdkafka::ClientConfig;
+    /// use rdkafka::consumer::BaseConsumer;
+    /// use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
+    ///
+    /// let consumer: BaseConsumer = ClientConfig::new()
+    ///     .set_dsh_consumer_config()
+    ///     .create()
+    ///     .expect("Failed to create consumer");
+    /// ```
     fn set_dsh_consumer_config(&mut self) -> &mut Self;
-    /// Set all required configurations to produce messages to DSH Kafka Cluster.
+
+    /// Applies all required producer settings to publish messages to the DSH Kafka Cluster.
     ///
-    /// ## Configurations
-    /// | **config**          | **Default value**              | **Remark**                                                                              |
-    /// |---------------------|--------------------------------|-----------------------------------------------------------------------------------------|
-    /// | bootstrap.servers   | Brokers based on datastreams   | Overwritable by env variable `KAFKA_BOOTSTRAP_SERVERS`                                  |
-    /// | client.id           | task_id of service             | Based on task_id of running service                                                     |
-    /// | security.protocol   | ssl (DSH)) / plaintext (local) | Security protocol                                                                       |
-    /// | ssl.key.pem         | private key                    | Generated when bootstrap is initiated                                                   |
-    /// | ssl.certificate.pem | dsh kafka certificate          | Signed certificate to connect to kafka cluster <br>(signed when bootstrap is initiated) |
-    /// | ssl.ca.pem          | CA certifacte                  | CA certificate, provided by DSH.                                                        |
+    /// ## Producer Configurations
+    /// | **Config Key**             | **Default Value**                | **Overridable?**                                  | **Description**                                                                   |
+    /// |----------------------------|----------------------------------|---------------------------------------------------|-------------------------------------------------------------------------------------|
+    /// | `bootstrap.servers`       | Brokers from `datastreams.json`  | Env var `KAFKA_BOOTSTRAP_SERVERS`                 | List of Kafka brokers to connect to.                                               |
+    /// | `client.id`               | `task_id` of the service         | _No direct override_                              | Used for producer identification in logs/metrics.                                  |
+    /// | `security.protocol`       | `ssl` in DSH, `plaintext` locally| _Internal_                                        | Chooses SSL if DSH certificates are present, otherwise plaintext.                  |
+    /// | `ssl.key.pem`             | Private key from certificates    | _Auto-configured_                                 | Loaded from SDK during bootstrap.                                                  |
+    /// | `ssl.certificate.pem`     | DSH Kafka certificate            | _Auto-configured_                                 | Signed certificate (when bootstrapped) to connect to the Kafka cluster.            |
+    /// | `ssl.ca.pem`              | CA certificate from DSH          | _Auto-configured_                                 | Authority certificate for SSL.                                                     |
+    ///
+    /// # Usage
+    /// Typically called on a [`ClientConfig`](rdkafka::ClientConfig) instance, then followed by
+    /// `.create()` to produce a configured producer.
     fn set_dsh_producer_config(&mut self) -> &mut Self;
-    /// Set a DSH compatible group id.
+
+    /// Applies a DSH-compatible group ID.
     ///
-    /// DSH Requires a group id with the prefix of the tenant name.
+    /// DSH requires the consumer group ID to be prefixed with the tenant name.
+    /// If an environment variable (e.g., `KAFKA_GROUP_ID` or `KAFKA_CONSUMER_GROUP_TYPE`)
+    /// is set, that value can override what is found in `datastreams.json`.
     fn set_dsh_group_id(&mut self, group_id: &str) -> &mut Self;
-    /// Set the required DSH Certificates.
+
+    /// Sets the required DSH certificates for secure SSL connections.
     ///
-    /// This function will set the required SSL configurations if the certificates are present.
-    /// Else it will return plaintext. (for connection to a local kafka cluster)
+    /// If the required certificates are found (via the DSH bootstrap or
+    /// environment variables), this function configures SSL. Otherwise,
+    /// it falls back to plaintext (for local development).
+    ///
+    /// # Note
+    /// This method typically sets:
+    /// - `security.protocol` to `ssl`
+    /// - `ssl.key.pem`, `ssl.certificate.pem`, and `ssl.ca.pem`
+    ///  
+    /// If certificates are missing, `security.protocol` remains `plaintext`.
     fn set_dsh_certificates(&mut self) -> &mut Self;
 }
