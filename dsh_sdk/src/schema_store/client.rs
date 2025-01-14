@@ -453,7 +453,7 @@ where
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let client = SchemaStoreClient::new();
     /// let schema = client.schema(123).await?;
-    /// println!("Schema content: {}", schema.content()?);
+    /// println!("Schema content: {}", schema.content());
     /// # Ok(())
     /// # }
     /// ```
