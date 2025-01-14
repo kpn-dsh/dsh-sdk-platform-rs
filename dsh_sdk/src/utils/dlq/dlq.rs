@@ -1,70 +1,4 @@
 //! Dead Letter Queue (DLQ) client for handling messages that cannot be processed successfully.
-//!
-//! The `Dlq` provides an asynchronous mechanism to route unprocessable messages to special
-//! “dead” or “retry” topics. It coordinates with [`Shutdown`](crate::utils::graceful_shutdown::Shutdown)
-//! to ensure messages are handled before the application exits.
-//!
-//! # Overview
-//!  
-//! | **Component**        | **Description**                                                                       |
-//! |----------------------|---------------------------------------------------------------------------------------|
-//! | [`Dlq`]             | Main struct managing the producer, dead/retry topics, and queue of failed messages.   |
-//! | [`DlqChannel`]      | An `mpsc` sender returned by [`Dlq::start`], used by tasks to submit errored messages.|
-//! | [`SendToDlq`]       | Wrapper carrying both the original Kafka message and error details.                   |
-//! | [`Retryable`]       | Enum indicating whether a message is retryable or should be permanently “dead.”       |
-//!
-//! # Usage Flow
-//! 1. **Implement** the [`ErrorToDlq`](super::ErrorToDlq) trait on your custom error type.  
-//! 2. **Start** the DLQ by calling [`Dlq::start`], which returns a [`DlqChannel`].  
-//! 3. **Own** the [`DlqChannel`] in your processing logic (do **not** hold it in `main`!), and
-//!    call [`ErrorToDlq::to_dlq`](super::ErrorToDlq::to_dlq) when you need to push a message/error into the queue.  
-//! 4. **Graceful Shutdown**: The [`DlqChannel`] should naturally drop during shutdown, letting
-//!    the `Dlq` finish processing any remaining messages before the application fully closes.  
-//!
-//! # Important Graceful Shutdown Notes
-//! - The [`Dlq`] remains active until the [`DlqChannel`] is dropped and all messages are processed.  
-//! - Keep the [`DlqChannel`] **in your worker logic** and not in `main`, preventing deadlocks.  
-//! - The [`Shutdown`](crate::utils::graceful_shutdown::Shutdown) will wait for the DLQ to finish once
-//!   all channels have closed, ensuring no messages are lost.  
-//!
-//! # Example
-//! ```no_run
-//! use dsh_sdk::utils::dlq::{Dlq, DlqChannel, SendToDlq};
-//! use dsh_sdk::utils::graceful_shutdown::Shutdown;
-//!
-//! async fn consume(dlq_channel: DlqChannel) {
-//!     // Some consumer logic with error handling.
-//!     // On error, push the message to the DLQ.
-//!     loop {
-//!         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-//!         // ...
-//!     }
-//! }
-//!
-//! #[tokio::main]
-//! async fn main() {
-//!     // Create a shutdown handle
-//!     let shutdown = Shutdown::new();
-//!     // Start the DLQ, obtaining a channel to push failing messages
-//!     let dlq_channel = Dlq::start(shutdown.clone()).unwrap();
-//!
-//!     tokio::select! {
-//!         // In real usage, spawn `consume` with the owned `dlq_channel` here:
-//!         _ = async move {
-//!             consume(dlq_channel).await;
-//!         } => {},
-//!
-//!         // Or wait for a Ctrl+C or SIGTERM signal
-//!         _ = shutdown.signal_listener() => {
-//!             println!("Shutdown signal received!");
-//!         }
-//!     }
-//!
-//!     // Wait for the DLQ to flush messages before exiting
-//!     shutdown.complete().await;
-//!     println!("Application fully terminated");
-//! }
-//! ```
 
 use std::str::from_utf8;
 
@@ -87,8 +21,8 @@ use crate::DshKafkaConfig;
 /// Once started via [`Dlq::start`], it listens on an `mpsc` channel for [`SendToDlq`] items.
 /// Each received item is routed to the configured “dead” or “retry” Kafka topics,
 /// depending on whether it is [`Retryable::Retryable`] or not.
-///
-/// See the [module-level docs](self) for an overview and usage instructions.
+/// 
+/// A full implementation can be found in the [DLQ example]((https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs).
 pub struct Dlq {
     dlq_producer: FutureProducer,
     dlq_rx: mpsc::Receiver<SendToDlq>,
@@ -118,9 +52,10 @@ impl Dlq {
     /// (`DLQ_DEAD_TOPIC`, `DLQ_RETRY_TOPIC`) are missing.
     ///
     /// # Example
-    /// ```no_run
+    /// A full implementation can be found in the [DLQ example](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs),
+    /// ```
     /// use dsh_sdk::utils::graceful_shutdown::Shutdown;
-    /// use dsh_sdk::utils::dlq::{Dlq, DlqChannel, SendToDlq};
+    /// use dsh_sdk::utils::dlq::Dlq;
     ///
     /// #[tokio::main]
     /// async fn main() {
