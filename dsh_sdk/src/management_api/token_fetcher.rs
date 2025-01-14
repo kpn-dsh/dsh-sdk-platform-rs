@@ -41,28 +41,12 @@ use serde::Deserialize;
 use super::error::ManagementApiTokenError;
 use crate::utils::Platform;
 
-/// Represents the JSON response returned by DSH’s authentication service.
+/// Represents the Access Token by DSH’s authentication service.
 ///
 /// The fields include information about the token’s validity window,
 /// token type, and scope. Typically, you won’t instantiate `AccessToken` directly:
-/// use [`ManagementApiTokenFetcher::get_token`](crate::management_api::token_fetcher::ManagementApiTokenFetcher::get_token)
+/// use [`ManagementApiTokenFetcher::get_token`](crate::management_api::ManagementApiTokenFetcher::get_token)
 /// to automatically obtain or refresh a valid token.
-///
-/// # Example
-/// ```
-/// use crate::management_api::token_fetcher::AccessToken;
-/// let raw_json = r#"{
-///   "access_token": "secret_access_token",
-///   "expires_in": 300,
-///   "refresh_expires_in": 0,
-///   "token_type": "Bearer",
-///   "not-before-policy": 0,
-///   "scope": "email"
-/// }"#;
-/// let token: AccessToken = serde_json::from_str(raw_json).unwrap();
-/// assert_eq!(token.token_type(), "Bearer");
-/// assert_eq!(token.formatted_token(), "Bearer secret_access_token");
-/// ```
 #[derive(Debug, Clone, Deserialize)]
 pub struct AccessToken {
     access_token: String,
@@ -137,8 +121,8 @@ impl Default for AccessToken {
 ///
 /// # Example
 /// ```no_run
-/// use crate::management_api::token_fetcher::ManagementApiTokenFetcher;
-/// use crate::utils::Platform;
+/// use dsh_sdk::management_api::ManagementApiTokenFetcher;
+/// use dsh_sdk::utils::Platform;
 /// # use std::error::Error;
 /// # #[tokio::main]
 /// # async fn main() -> Result<(), Box<dyn Error>> {
@@ -169,8 +153,8 @@ impl ManagementApiTokenFetcher {
     ///
     /// # Example
     /// ```no_run
-    /// use crate::management_api::token_fetcher::ManagementApiTokenFetcher;
-    /// use crate::utils::Platform;
+    /// use dsh_sdk::management_api::ManagementApiTokenFetcher;
+    /// use dsh_sdk::utils::Platform;
     ///
     /// # #[tokio::main]
     /// # async fn main() {
@@ -205,8 +189,8 @@ impl ManagementApiTokenFetcher {
     ///
     /// # Example
     /// ```no_run
-    /// use crate::management_api::token_fetcher::ManagementApiTokenFetcher;
-    /// use crate::utils::Platform;
+    /// use dsh_sdk::management_api::ManagementApiTokenFetcher;
+    /// use dsh_sdk::utils::Platform;
     ///
     /// # #[tokio::main]
     /// # async fn main() {
@@ -252,8 +236,8 @@ impl ManagementApiTokenFetcher {
     ///
     /// # Example
     /// ```no_run
-    /// use crate::management_api::token_fetcher::ManagementApiTokenFetcher;
-    /// # use crate::utils::Platform;
+    /// use dsh_sdk::management_api::ManagementApiTokenFetcher;
+    /// # use dsh_sdk::utils::Platform;
     /// # #[tokio::main]
     /// # async fn main() {
     ///     let tf = ManagementApiTokenFetcher::new(
@@ -359,11 +343,10 @@ impl Debug for ManagementApiTokenFetcher {
 ///
 /// # Example
 /// ```
-/// use crate::management_api::token_fetcher::ManagementApiTokenFetcherBuilder;
-/// use crate::utils::Platform;
-/// # use crate::management_api::token_fetcher::ManagementApiTokenError;
+/// use dsh_sdk::management_api::ManagementApiTokenFetcherBuilder;
+/// use dsh_sdk::utils::Platform;
 ///
-/// # fn main() -> Result<(), ManagementApiTokenError> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let platform = Platform::NpLz;
 /// let client_id = "robot:dev-lz-dsh:my-tenant".to_string();
 /// let client_secret = "secret".to_string();
@@ -439,8 +422,8 @@ impl ManagementApiTokenFetcherBuilder {
     ///
     /// # Example
     /// ```
-    /// use crate::management_api::token_fetcher::{ManagementApiTokenFetcherBuilder, ManagementApiTokenError};
-    /// use crate::utils::Platform;
+    /// use dsh_sdk::management_api::{ManagementApiTokenFetcherBuilder, ManagementApiTokenError};
+    /// use dsh_sdk::utils::Platform;
     ///
     /// # fn main() -> Result<(), ManagementApiTokenError> {
     /// let fetcher = ManagementApiTokenFetcherBuilder::new(Platform::NpLz)

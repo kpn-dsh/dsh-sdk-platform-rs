@@ -73,7 +73,7 @@ pub trait DshKafkaConfig {
     /// ```no_run
     /// use rdkafka::ClientConfig;
     /// use rdkafka::consumer::BaseConsumer;
-    /// use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
+    /// use dsh_sdk::protocol_adapters::kafka_protocol::DshKafkaConfig;
     ///
     /// let consumer: BaseConsumer = ClientConfig::new()
     ///     .set_dsh_consumer_config()
