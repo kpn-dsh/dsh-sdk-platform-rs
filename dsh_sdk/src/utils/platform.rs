@@ -5,13 +5,12 @@
 //! influences how you authenticate and where you send REST/Protocol requests.
 //!
 //! # Platforms
-//! | **Variant** | **Description**                         | **Realm**       | **REST API**                                       | **Access Token**                                                 |
-//! |-------------|-----------------------------------------|-----------------|----------------------------------------------------|------------------------------------------------------------------|
-//! | `Prod`      | Production (kpn-dsh.com)               | `tt-dsh`        | `https://api.kpn-dsh.com/resources/v0`            | `https://auth.prod.cp.kpn-dsh.com/auth/realms/tt-dsh/...`        |
-//! | `ProdAz`    | Production on Azure (az.kpn-dsh.com)   | `prod-azure-dsh`| `https://api.az.kpn-dsh.com/resources/v0`         | `https://auth.prod.cp.kpn-dsh.com/auth/realms/prod-azure-dsh/...`|
-//! | `ProdLz`    | Production Landing Zone (AWS)          | `prod-lz-dsh`   | `https://api.dsh-prod.dsh.prod.aws.kpn.com/...`   | `https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/...`             |
-//! | `NpLz`      | Non-Production (Dev) Landing Zone (AWS)| `dev-lz-dsh`    | `https://api.dsh-dev.dsh.np.aws.kpn.com/...`      | `https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/...`             |
-//! | `Poc`       | Proof of Concept (poc.kpn-dsh.com)      | `poc-dsh`       | `https://api.poc.kpn-dsh.com/resources/v0`        | `https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/...`       |
+//! The platforms defined are:
+//! - `Prod` (kpn-dsh.com)
+//! - `ProdAz` (az.kpn-dsh.com)
+//! - `ProdLz` (dsh-prod.dsh.prod.aws.kpn.com)
+//! - `NpLz` (dsh-dev.dsh.np.aws.kpn.com)
+//! - `Poc` (poc.kpn-dsh.com)
 //!
 //! ## Usage
 //! Use a [`Platform`] variant to generate appropriate URLs and client IDs for your environment.
@@ -20,8 +19,12 @@
 
 /// Represents an available DSH platform and its related metadata.
 ///
-/// Each variant corresponds to a specific environment (e.g., Production, Non-Production),
-/// which determines the correct realm, REST API endpoints, and token endpoints to use.
+/// The platform defined are:
+/// - `Prod` (kpn-dsh.com)
+/// - `ProdAz` (az.kpn-dsh.com)
+/// - `ProdLz` (dsh-prod.dsh.prod.aws.kpn.com)
+/// - `NpLz` (dsh-dev.dsh.np.aws.kpn.com)
+/// - `Poc` (poc.kpn-dsh.com)
 #[derive(Clone, Debug)]
 #[non_exhaustive]
 pub enum Platform {
