@@ -6,7 +6,7 @@
 //! automatically (e.g., brokers, security certificates, group ID).
 //!
 //! # Example
-//! ```no_run
+//! ```
 //! use dsh_sdk::DshKafkaConfig;
 //! use rdkafka::ClientConfig;
 //! use rdkafka::consumer::StreamConsumer;
@@ -38,13 +38,9 @@ mod rdkafka;
 /// - [`set_dsh_certificates`](DshKafkaConfig::set_dsh_certificates)
 ///
 /// # Environment Variables
-/// The following environment variables can override or supplement certain default settings:
+/// Via environment variables you can override or supplement certain default settings:
 ///
-/// - `KAFKA_BOOTSTRAP_SERVERS`  
-/// - `KAFKA_GROUP_ID`  
-/// - `KAFKA_CONSUMER_GROUP_TYPE`  
-/// - `KAFKA_ENABLE_AUTO_COMMIT`  
-/// - `KAFKA_AUTO_OFFSET_RESET`  
+/// See [ENV_VARIABLES.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/ENV_VARIABLES.md) for the full list.
 ///
 /// By configuring these variables, you can control broker endpoints, group IDs, and
 /// various Kafka client behaviors without modifying code.
@@ -60,26 +56,10 @@ pub trait DshKafkaConfig {
     /// | `client.id`               | `task_id` of the service         | _No direct override_                                            | Used for consumer identification in logs/metrics.                               |
     /// | `enable.auto.commit`      | `false`                          | Env var `KAFKA_ENABLE_AUTO_COMMIT`                              | Controls whether offsets are committed automatically.                           |
     /// | `auto.offset.reset`       | `earliest`                       | Env var `KAFKA_AUTO_OFFSET_RESET`                               | Defines behavior when no valid offset is available (e.g., `earliest`, `latest`).|
-    /// | `security.protocol`       | `ssl` in DSH, `plaintext` locally| _Internal_                                                      | Chooses SSL if DSH certificates are present, otherwise plaintext.               |
+    /// | `security.protocol`       | `ssl` to DSH, `plaintext` locally| _Internal_                                                      | Chooses SSL if DSH certificates are present, otherwise plaintext.               |
     /// | `ssl.key.pem`             | Private key from certificates    | _Auto-configured_                                               | Loaded from SDK during bootstrap.                                               |
     /// | `ssl.certificate.pem`     | DSH Kafka certificate            | _Auto-configured_                                               | Signed certificate to connect to the Kafka cluster.                             |
     /// | `ssl.ca.pem`              | CA certificate from DSH          | _Auto-configured_                                               | Authority certificate for SSL.                                                  |
-    ///
-    /// # Usage
-    /// Typically called on a [`ClientConfig`](rdkafka::ClientConfig) instance, then followed by
-    /// `.create()` to produce a configured consumer.
-    ///
-    /// # Example
-    /// ```no_run
-    /// use rdkafka::ClientConfig;
-    /// use rdkafka::consumer::BaseConsumer;
-    /// use dsh_sdk::protocol_adapters::kafka_protocol::DshKafkaConfig;
-    ///
-    /// let consumer: BaseConsumer = ClientConfig::new()
-    ///     .set_dsh_consumer_config()
-    ///     .create()
-    ///     .expect("Failed to create consumer");
-    /// ```
     fn set_dsh_consumer_config(&mut self) -> &mut Self;
 
     /// Applies all required producer settings to publish messages to the DSH Kafka Cluster.
@@ -93,10 +73,6 @@ pub trait DshKafkaConfig {
     /// | `ssl.key.pem`             | Private key from certificates    | _Auto-configured_                                 | Loaded from SDK during bootstrap.                                                  |
     /// | `ssl.certificate.pem`     | DSH Kafka certificate            | _Auto-configured_                                 | Signed certificate (when bootstrapped) to connect to the Kafka cluster.            |
     /// | `ssl.ca.pem`              | CA certificate from DSH          | _Auto-configured_                                 | Authority certificate for SSL.                                                     |
-    ///
-    /// # Usage
-    /// Typically called on a [`ClientConfig`](rdkafka::ClientConfig) instance, then followed by
-    /// `.create()` to produce a configured producer.
     fn set_dsh_producer_config(&mut self) -> &mut Self;
 
     /// Applies a DSH-compatible group ID.
