@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Bootstrap to DSH
   - Read certificates from PKI_CONFIG_DIR
   - Add support reading private key in DER format when reading from PKI_CONFIG_DIR
+- Implement `TryFrom<&Str>` and `RryFrom<String>` for `dsh_sdk::Platform`
 
 ### Changed
 - **Breaking change:** `DshError` is now split into error enums per feature flag to untangle mess
@@ -20,18 +21,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking change:** `dsh_sdk::Dsh::reqwest_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
 - **Breaking change:** `dsh_sdk::Dsh::reqwest_blocking_client_config` now returns `reqwest::ClientConfig` instead of `Result<reqwest::ClientConfig>` 
 - **Breaking change:** `dsh_sdk::utils::Dlq` does not require `Dsh`/`Properties` as argument anymore
-- Deprecated `dsh_sdk::dsh::properties` module
-- Moved `dsh_sdk::rest_api_token_fetcher` to `dsh_sdk::management_api::token_fetcher` and renamed `RestApiTokenFetcher` to `ManagementApiTokenFetcher`
-- `dsh_sdk::error::DshRestTokenError` renamed to `dsh_sdk::management_api::error::ManagementApiTokenError`
+- **Breaking change:** `dsh_sdk::utils::Dlq::new` is removed and replaced with `dsh_sdk::utils::Dlq::start` which starts the DLQ and returns a channel to send dlq messages
+- **Breaking change:** Deprecated `dsh_sdk::dsh::properties` module
+- **Breaking change:** Moved `dsh_sdk::rest_api_token_fetcher` to `dsh_sdk::management_api::token_fetcher` and renamed `RestApiTokenFetcher` to `ManagementApiTokenFetcher`
+- **Breaking change:** `dsh_sdk::error::DshRestTokenError` renamed to `dsh_sdk::management_api::error::ManagementApiTokenError`
   - **NOTE** Cargo.toml feature flag `rest-token-fetcher` renamed to`management-api-token-fetcher` 
 - Moved `dsh_sdk::dsh::datastream` to `dsh_sdk::datastream`
 - Moved `dsh_sdk::dsh::certificates` to `dsh_sdk::certificates`
   - Private module `dsh_sdk::dsh::bootstrap` and `dsh_sdk::dsh::pki_config_dir` are now part of `certificates` module
-- Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token_fetcher` and renamed to `ProtocolTokenFetcher`
-  - Cargo.toml feature flag `mqtt-token-fetcher`  renamed to `protocol-token-fetcher`
+- **Breaking change:** Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token_fetcher` and renamed to `ProtocolTokenFetcher`
+  -  **NOTE** Cargo.toml feature flag `mqtt-token-fetcher`  renamed to `protocol-token-fetcher`
+- **Breaking change:** Renamed  `dsh_sdk::Platform` methods to more meaningful names
 - **Breaking change:** Moved `dsh_sdk::dlq` to `dsh_sdk::utils::dlq` 
 - **Breaking change:** Moved `dsh_sdk::graceful_shutdown` to `dsh_sdk::utils::graceful_shutdown`
 - **Breaking change:** Moved `dsh_sdk::metrics` to `dsh_sdk::utils::metrics`
+- **Breaking change:** `dsh_sdk::utils::metrics::start_metrics_server` requires `fn() -> String` which gathers and encodes metrics
 
 ### Removed
 - Removed `dsh_sdk::rdkafka` public re-export, import `rdkafka` directly
