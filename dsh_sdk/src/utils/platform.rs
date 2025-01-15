@@ -25,7 +25,9 @@
 /// - `ProdLz` (dsh-prod.dsh.prod.aws.kpn.com)
 /// - `NpLz` (dsh-dev.dsh.np.aws.kpn.com)
 /// - `Poc` (poc.kpn-dsh.com)
-#[derive(Clone, Debug)]
+///
+/// Each platform has it's own realm, endpoint for the DSH Rest API and endpoint for the DSH Rest API access token.
+#[derive(Clone, Debug, PartialEq)]
 #[non_exhaustive]
 pub enum Platform {
     /// Production platform (`kpn-dsh.com`).
@@ -41,6 +43,10 @@ pub enum Platform {
 }
 
 impl Platform {
+    #[deprecated(
+        since = "0.5.0",
+        note = "Use `dsh_sdk::Platform::management_api_client_id` instead"
+    )]
     /// Returns a properly formatted client ID for the DSH REST API, given a tenant name.
     ///
     /// The format is:  
@@ -56,10 +62,32 @@ impl Platform {
     /// assert_eq!(client_id, "robot:dev-lz-dsh:my-tenant");
     /// ```
     pub fn rest_client_id(&self, tenant: impl AsRef<str>) -> String {
+        self.management_api_client_id(tenant)
+    }
+
+    /// Returns a properly formatted client ID for the DSH Management API, given a tenant name.
+    ///
+    /// The format is:  
+    /// \[
+    ///    `"robot:{realm}:{tenant_name}"`
+    /// \]
+    ///
+    /// # Example
+    /// ```
+    /// # use dsh_sdk::Platform;
+    /// let platform = Platform::NpLz;
+    /// let client_id = platform.rest_client_id("my-tenant");
+    /// assert_eq!(client_id, "robot:dev-lz-dsh:my-tenant");
+    /// ```
+    pub fn management_api_client_id(&self, tenant: impl AsRef<str>) -> String {
         format!("robot:{}:{}", self.realm(), tenant.as_ref())
     }
 
-    /// Returns the base URL for the DSH REST API, depending on the platform.
+    #[deprecated(
+        since = "0.5.0",
+        note = "Use `dsh_sdk::Platform::endpoint_management_api` instead"
+    )]
+    /// Get the endpoint for the DSH Rest API
     ///
     /// This endpoint is typically used for general resource operations in DSH.  
     ///
@@ -71,6 +99,21 @@ impl Platform {
     /// assert_eq!(endpoint, "https://api.dsh-dev.dsh.np.aws.kpn.com/resources/v0");
     /// ```
     pub fn endpoint_rest_api(&self) -> &str {
+        self.endpoint_management_api()
+    }
+
+    /// Returns the endpoint for the DSH Management API
+    ///
+    /// It will return the endpoint for the DSH Rest API based on the platform
+    ///
+    /// ## Example
+    /// ```
+    /// # use dsh_sdk::Platform;
+    /// let platform = Platform::NpLz;
+    /// let endpoint = platform.endpoint_management_api();
+    /// assert_eq!(endpoint, "https://api.dsh-dev.dsh.np.aws.kpn.com/resources/v0");
+    /// ```
+    pub fn endpoint_management_api(&self) -> &str {
         match self {
             Self::Prod => "https://api.kpn-dsh.com/resources/v0",
             Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/resources/v0",
@@ -99,10 +142,15 @@ impl Platform {
         }
     }
 
-    /// (Deprecated) Returns the DSH REST authentication token endpoint.
+    #[deprecated(
+        since = "0.5.0",
+        note = "Use `dsh_sdk::Platform::endpoint_management_api_token` instead"
+    )]
+    /// Get the endpoint for fetching DSH Rest Authentication Token
     ///
-    /// *Prefer using [`endpoint_management_api_token`](Self::endpoint_management_api_token) instead.*
-    #[deprecated(since = "0.5.0", note = "Use `endpoint_management_api_token` instead")]
+    /// With this token you can authenticate for the mqtt token endpoint
+    ///
+    /// It will return the endpoint for DSH Rest authentication token based on the platform
     pub fn endpoint_rest_token(&self) -> &str {
         self.endpoint_management_api_token()
     }
@@ -129,10 +177,13 @@ impl Platform {
         }
     }
 
+    #[deprecated(
+        since = "0.5.0",
+        note = "Use `dsh_sdk::Platform::endpoint_protocol_token` instead"
+    )]
     /// (Deprecated) Returns the DSH MQTT token endpoint.
     ///
     /// *Prefer using [`endpoint_protocol_token`](Self::endpoint_protocol_token) instead.*
-    #[deprecated(since = "0.5.0", note = "Use `endpoint_protocol_token` instead")]
     pub fn endpoint_mqtt_token(&self) -> &str {
         self.endpoint_protocol_token()
     }
@@ -177,6 +228,29 @@ impl Platform {
     }
 }
 
+impl TryFrom<&str> for Platform {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().replace("-", "").as_str() {
+            "prod" => Ok(Self::Prod),
+            "prodaz" => Ok(Self::ProdAz),
+            "prodlz" => Ok(Self::ProdLz),
+            "nplz" => Ok(Self::NpLz),
+            "poc" => Ok(Self::Poc),
+            _ => Err("Invalid platform"),
+        }
+    }
+}
+
+impl TryFrom<String> for Platform {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::try_from(value.as_str())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -191,16 +265,106 @@ mod tests {
     #[test]
     fn test_platform_client_id() {
         assert_eq!(
-            Platform::NpLz.rest_client_id("my-tenant"),
+            Platform::NpLz.management_api_client_id("my-tenant"),
             "robot:dev-lz-dsh:my-tenant"
         );
         assert_eq!(
-            Platform::ProdLz.rest_client_id("my-tenant".to_string()),
+            Platform::ProdLz.management_api_client_id("my-tenant".to_string()),
             "robot:prod-lz-dsh:my-tenant"
         );
         assert_eq!(
-            Platform::Poc.rest_client_id("my-tenant"),
+            Platform::Poc.management_api_client_id("my-tenant"),
             "robot:poc-dsh:my-tenant"
         );
+    }
+
+    #[test]
+    fn test_try_from_str() {
+        assert_eq!(Platform::try_from("prod").unwrap(), Platform::Prod);
+        assert_eq!(Platform::try_from("PROD").unwrap(), Platform::Prod);
+        assert_eq!(Platform::try_from("prod-az").unwrap(), Platform::ProdAz);
+        assert_eq!(Platform::try_from("PROD-AZ").unwrap(), Platform::ProdAz);
+        assert_eq!(Platform::try_from("prodaz").unwrap(), Platform::ProdAz);
+        assert_eq!(Platform::try_from("PRODAZ").unwrap(), Platform::ProdAz);
+        assert_eq!(Platform::try_from("prod-lz").unwrap(), Platform::ProdLz);
+        assert_eq!(Platform::try_from("PROD-LZ").unwrap(), Platform::ProdLz);
+        assert_eq!(Platform::try_from("prodlz").unwrap(), Platform::ProdLz);
+        assert_eq!(Platform::try_from("PRODLZ").unwrap(), Platform::ProdLz);
+        assert_eq!(Platform::try_from("np-lz").unwrap(), Platform::NpLz);
+        assert_eq!(Platform::try_from("NP-LZ").unwrap(), Platform::NpLz);
+        assert_eq!(Platform::try_from("nplz").unwrap(), Platform::NpLz);
+        assert_eq!(Platform::try_from("NPLZ").unwrap(), Platform::NpLz);
+        assert_eq!(Platform::try_from("poc").unwrap(), Platform::Poc);
+        assert_eq!(Platform::try_from("POC").unwrap(), Platform::Poc);
+        assert!(Platform::try_from("invalid").is_err());
+    }
+
+    #[test]
+    fn test_try_from_string() {
+        assert_eq!(
+            Platform::try_from("prod".to_string()).unwrap(),
+            Platform::Prod
+        );
+        assert_eq!(
+            Platform::try_from("PROD".to_string()).unwrap(),
+            Platform::Prod
+        );
+        assert_eq!(
+            Platform::try_from("prod-az".to_string()).unwrap(),
+            Platform::ProdAz
+        );
+        assert_eq!(
+            Platform::try_from("PROD-AZ".to_string()).unwrap(),
+            Platform::ProdAz
+        );
+        assert_eq!(
+            Platform::try_from("prodaz".to_string()).unwrap(),
+            Platform::ProdAz
+        );
+        assert_eq!(
+            Platform::try_from("PRODAZ".to_string()).unwrap(),
+            Platform::ProdAz
+        );
+        assert_eq!(
+            Platform::try_from("prod-lz".to_string()).unwrap(),
+            Platform::ProdLz
+        );
+        assert_eq!(
+            Platform::try_from("PROD-LZ".to_string()).unwrap(),
+            Platform::ProdLz
+        );
+        assert_eq!(
+            Platform::try_from("prodlz".to_string()).unwrap(),
+            Platform::ProdLz
+        );
+        assert_eq!(
+            Platform::try_from("PRODLZ".to_string()).unwrap(),
+            Platform::ProdLz
+        );
+        assert_eq!(
+            Platform::try_from("np-lz".to_string()).unwrap(),
+            Platform::NpLz
+        );
+        assert_eq!(
+            Platform::try_from("NP-LZ".to_string()).unwrap(),
+            Platform::NpLz
+        );
+        assert_eq!(
+            Platform::try_from("nplz".to_string()).unwrap(),
+            Platform::NpLz
+        );
+        assert_eq!(
+            Platform::try_from("NPLZ".to_string()).unwrap(),
+            Platform::NpLz
+        );
+        assert_eq!(
+            Platform::try_from("poc".to_string()).unwrap(),
+            Platform::Poc
+        );
+        assert_eq!(
+            Platform::try_from("POC".to_string()).unwrap(),
+            Platform::Poc
+        );
+        assert!(Platform::try_from("invalid".to_string()).is_err());
     }
 }
