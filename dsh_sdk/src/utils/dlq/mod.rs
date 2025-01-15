@@ -1,33 +1,36 @@
-//! # Dead Letter Queue
-//! This optional module contains an implementation of pushing unprocessable/invalid messages towards a Dead Letter Queue (DLQ).
-//! It is implemeted with [rdkafka] and [tokio].
+//! Dead Letter Queue (DLQ) client for handling messages that cannot be processed successfully.
 //!
-//! ## Feature flag
-//! Add feature `dlq` to your Cargo.toml to enable this module.
+//! The [`Dlq`] provides an asynchronous mechanism to route unprocessable messages to special
+//! “dead” or “retry” kafka topics. It coordinates with [`Shutdown`](crate::utils::graceful_shutdown::Shutdown)
+//! to ensure messages are handled before the application exits.
 //!
-//! ### NOTE:
-//! This module is meant for pushing messages towards a dead/retry topic only, it does and WILL not handle any logic for retrying messages.
-//! Reason is, it can differ per use case what strategy is needed to retry messages and handle the dead letters.
+//! # Overview
+//!  
+//! | **Component**        | **Description**                                                                       |
+//! |----------------------|---------------------------------------------------------------------------------------|
+//! | [`Dlq`]             | Main struct managing the producer, dead/retry topics, and queue of failed messages.   |
+//! | [`DlqChannel`]      | An `mpsc` sender returned by [`Dlq::start`], used by tasks to submit errored messages.|
+//! | [`SendToDlq`]       | Wrapper carrying both the original Kafka message and error details.                   |
+//! | [`Retryable`]       | Enum indicating whether a message is retryable or should be permanently “dead.”       |
 //!
-//! It is up to the user to implement the strategy and logic for retrying messages.
-//!
-//! ## How to use
-//! 1. Implement the [ErrorToDlq] trait on top your (custom) error type.
-//! 2. Use the [Dlq::start] in your main or at start of your process logic. (this will start the DLQ in a separate tokio task)
-//! 3. Get the dlq [DlqChannel] from the [Dlq::start] method and use this channel to communicate errored messages with the [Dlq] via the [ErrorToDlq::to_dlq] method which is implemented on your Error.
+//! # Usage Flow
+//! 1. **Implement** the [`ErrorToDlq`] trait on your custom error type.  
+//! 2. **Start** the DLQ by calling [`Dlq::start`], which returns a [`DlqChannel`].  
+//! 3. **Own** the [`DlqChannel`] in your processing logic (do **not** hold it in `main`!), and
+//!    call [`ErrorToDlq::to_dlq`] when you need to push a message/error into the queue.  
+//! 4. **Graceful Shutdown**: The [`DlqChannel`] should naturally drop during shutdown, letting
+//!    the `Dlq` finish processing any remaining messages before the application fully closes.  
 //!
 //! The topics are set via environment variables `DLQ_DEAD_TOPIC` and `DLQ_RETRY_TOPIC`.
 //!
-//! ## Importance of `DlqChannel` in the graceful shutdown procedure
-//! The [`Dlq::start`] will return a [`DlqChannel`]. The [`Dlq`] will keep running till the moment [`DlqChannel`] is dropped and finished processing all messages.
-//! This also means that the [`Shutdown`] procedure will wait for the [`Dlq`] to finish processing all messages before the application is shut down.
-//! This is to make sure that **all** messages are properly processed before the application is shut down.
+//! # Important Graceful Shutdown Notes
+//! - The [`Dlq`] remains active until the [`DlqChannel`] is dropped and all messages are processed.  
+//! - Keep the [`DlqChannel`] **in your worker logic** and not in `main`, preventing deadlocks.  
+//! - The [`Shutdown`](crate::utils::graceful_shutdown::Shutdown) will wait for the DLQ to finish once
+//!   all channels have closed, ensuring no messages are lost.  
 //!
-//! **NEVER** borrow the [`DlqChannel`] but provide the channel as owned/cloned version to your processing logic and **NEVER** keep an owned version in main function, as this will result in a **deadlock** and your application will never shut down.
-//! It is fine to start the [`Dlq`] in the main function, but make sure the [`DlqChannel`] is moved to your processing logic.
-//!
-//! ### Example:
-//! <https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs>
+//! # Example:
+//! A detailed implementation example can be found in the [DLQ example](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/dlq_implementation.rs)
 mod dlq;
 mod error;
 mod headers;

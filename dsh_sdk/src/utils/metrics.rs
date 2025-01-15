@@ -1,33 +1,53 @@
-//! Provides a lightweight HTTP server to expose (prometheus) metrics.
+//! Provides a lightweight HTTP server to expose (Prometheus) metrics.
 //!
-//! ## Expose metrics to DSH / HTTP Server
+//! This module runs a simple HTTP server that listens on a specified port
+//! and serves an endpoint (`/metrics`) which returns a plain-text string
+//! representation of your metrics. It can be used to expose metrics to DSH
+//! or any Prometheus-compatible monitoring service.
 //!
-//! This module provides a http server to expose the metrics to DSH. A port number and a function that encode the metrics to [String] needs to be defined.
+//! # Overview
 //!
-//! Most metrics libraries provide a way to encode the metrics to a string. For example,
-//!  - [prometheus-client](https://crates.io/crates/prometheus-client) library provides a [render](https://docs.rs/prometheus-client/latest/prometheus_client/encoding/text/index.html) function to encode the metrics to a string.
-//!  - [prometheus](https://crates.io/crates/prometheus) library provides a [TextEncoder](https://docs.rs/prometheus/latest/prometheus/struct.TextEncoder.html) to encode the metrics to a string.
+//! - **Port**: Chosen at runtime; ensure it’s exposed in your container if using Docker.
+//! - **Metrics Encoder**: You supply a function that returns a `String` representation
+//!   of your metrics (e.g., from a Prometheus client library).
+//! - **Thread Model**: The server runs on a separate Tokio task. You can optionally
+//!   keep the resulting `JoinHandle` if you want to monitor or manage its lifecycle.
 //!
-//!  See [expose_metrics.rs](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs) for a full example implementation.
+//! # Common Usage
+//! 1. **Define a function** that gathers and encodes your metrics to a `String`.  
+//! 2. **Call** [`start_http_server`] with the port and your metrics function.  
+//! 3. **Access** your metrics at `http://<HOST>:<PORT>/metrics`.  
+//! 4. **Configure** your DSH or Docker environment accordingly (if needed).
 //!
-//! ### Example:
+//! ## Example
 //! ```
 //! use dsh_sdk::utils::metrics::start_http_server;
 //!
 //! fn encode_metrics() -> String {
-//!     // Provide here your logic to gather and encode the metrics to a string
-//!     // Check your chosen metrics library for the correct implementation
-//!     "my_metrics 1".to_string() // Dummy example
+//!     // Provide custom logic to gather and encode metrics into a string.
+//!     // Example below is a placeholder.
+//!     "my_counter 1".to_string()
 //! }
 //!
 //! #[tokio::main]
 //! async fn main() {
-//!    start_http_server(9090, encode_metrics);
-//!}
+//!     // Launch a metrics server on port 9090
+//!     start_http_server(9090, encode_metrics);
+//!     // The server runs until the main thread stops or is aborted.
+//!     // ...
+//! }
 //! ```
-//! After starting the http server, the metrics can be found at http://localhost:9090/metrics.
-//! To expose the metrics to DSH, the port number needs to be defined in the DSH service configuration.
 //!
+//! Once running, you can query your metrics at `http://localhost:9090/metrics`.  
+//!
+//! # Configuration with DSH
+//!
+//! In your Dockerfile, be sure to expose that port:
+//! ```dockerfile
+//! EXPOSE 9090
+//! ```
+//!
+//! Then, in your DSH service configuration, specify the port and path for the metrics:
 //! ```json
 //! "metrics": {
 //!     "port": 9090,
@@ -35,9 +55,40 @@
 //! },
 //! ```
 //!
-//! And in your dockerfile expose the port:
-//! ```dockerfile
-//! EXPOSE 9090
+//! # Monitoring the Server Task
+//!
+//! `start_http_server` spawns a Tokio task which returns a [`JoinHandle`]. You can:
+//! - **Ignore** it: The server continues until the main application exits.  
+//! - **Await** it to see if the server encounters an error or closes unexpectedly.
+//!
+//! ```no_run
+//! # use dsh_sdk::utils::metrics::start_http_server;
+//! # use tokio::time::sleep;
+//! # use std::time::Duration;
+//! fn encode_metrics() -> String {
+//!     "my_metrics 1".to_string() // Dummy example
+//! }
+//!
+//! #[tokio::main]
+//! async fn main() {
+//!     let server_handle = start_http_server(9090, encode_metrics);
+//!     tokio::select! {
+//!         // Some app logic or graceful shutdown condition
+//!         _ = sleep(Duration::from_secs(300)) => {
+//!             println!("Main application stopping...");
+//!         }
+//!
+//!         // If the metrics server stops unexpectedly, handle the error
+//!         result = server_handle => {
+//!             match result {
+//!                 Ok(Ok(())) => println!("Metrics server finished gracefully."),
+//!                 Ok(Err(e)) => eprintln!("Metrics server error: {}", e),
+//!                 Err(join_err) => eprintln!("Metrics server thread panicked: {}", join_err),
+//!             }
+//!         }
+//!     }
+//!     println!("All done!");
+//! }
 //! ```
 
 use std::net::SocketAddr;
@@ -58,75 +109,47 @@ type BoxBody = http_body_util::combinators::BoxBody<Bytes, hyper::Error>;
 
 static NOTFOUND: &[u8] = b"404: Not Found";
 
+/// Errors that can occur while running the metrics server.
 #[derive(Error, Debug)]
 #[non_exhaustive]
 pub enum MetricsError {
-    #[error("IO Error: {0}")]
+    /// An I/O error occurred (e.g., binding the port failed).
+    #[error("I/O Error: {0}")]
     IoError(#[from] std::io::Error),
+
+    /// An HTTP error occurred while building or sending a response.
     #[error("Hyper error: {0}")]
     HyperError(#[from] hyper::http::Error),
 }
 
-/// A lihghtweight HTTP server to expose prometheus metrics.
+/// Starts a lightweight HTTP server to expose Prometheus-like metrics on `"/metrics"`.
 ///
-/// The exposed endpoint is /metrics and port number needs to be defined together with your gather and encode function to string.
-/// The server will run on a separate thread and this function will return a JoinHandle of the thread.
-/// It is optional to handle the thread status. If left unhandled, the server will run until the main thread is stopped.
+/// # Parameters
+/// - `port`: The port on which the server listens (e.g., `9090`).
+/// - `metrics_encode_fn`: A function returning a `String` containing all relevant metrics.
 ///
-/// ## Expose metrics to DSH / HTTP Server
+/// # Returns
+/// A [`JoinHandle`] wrapping a [`Result<(), MetricsError>`]. The server:
+/// - Runs until the main process exits or the handle is aborted.  
+/// - May exit early if an underlying error (`MetricsError`) occurs.
 ///
-/// This module provides a http server to expose the metrics to DSH. A port number and a function that encode the metrics to [String] needs to be defined.
+/// # Example
+/// ```no_run
+/// use dsh_sdk::utils::metrics::start_http_server;
 ///
-/// Most metrics libraries provide a way to encode the metrics to a string. For example,
-///  - [prometheus-client](https://crates.io/crates/prometheus-client) library provides a [render](https://docs.rs/prometheus-client/latest/prometheus_client/encoding/text/index.html) function to encode the metrics to a string.
-///  - [prometheus](https://crates.io/crates/prometheus) library provides a [TextEncoder](https://docs.rs/prometheus/latest/prometheus/struct.TextEncoder.html) to encode the metrics to a string.
+/// fn encode_metrics() -> String {
+///     // Provide logic that gathers and encodes your metrics as a string.
+///     "my_counter 123".to_string()
+/// }
 ///
-/// See [expose_metrics.rs](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs) for a full example implementation.
-///
-/// ## Example
-/// This starts a http server on port 9090 on a separate thread. The server will run until the main thread is stopped.
-///  ```
-///  use dsh_sdk::utils::metrics::start_http_server;
-///  
-///  fn encode_metrics() -> String {
-///      // Provide here your logic to gather and encode the metrics to a string
-///      // Check your chosen metrics library for the correct implementation
-///      "my_metrics 1".to_string() // Dummy example
-///  }
-///  
-///  #[tokio::main]
-///  async fn main() {
+/// #[tokio::main]
+/// async fn main() {
 ///     start_http_server(9090, encode_metrics);
+///     // The server runs in the background until main ends.
 /// }
-///  ```
-///
-/// # Optional: Check http server thread status
-/// Await the JoinHandle in a a tokio select besides your application logic to check if the server is still running.
-/// ```rust
-/// # use dsh_sdk::utils::metrics::start_http_server;
-/// # use tokio::time::sleep;
-/// # use std::time::Duration;
-/// # fn encode_metrics() -> String {
-/// #     "my_metrics 1".to_string() // Dummy example
-/// # }
-/// # #[tokio::main]
-/// # async fn main() {
-/// let server = start_http_server(9090, encode_metrics);
-/// tokio::select! {
-///      // Replace sleep with your application logic
-///      _ = sleep(Duration::from_secs(1)) => {println!("Application is stoped!")},
-///      // Check if the server is still running
-///      tokio_result = server => {
-///          match tokio_result   {
-///              Ok(server_result) => if let Err(e) = server_result {
-///                  eprintln!("Metrics server operation failed: {}", e);
-///              },
-///              Err(e) => println!("Server thread stopped unexpectedly: {}", e),
-///          }
-///      }
-/// }
-/// # }
 /// ```
+///
+/// See the module-level docs for more details on usage patterns.
 pub fn start_http_server(
     port: u16,
     metrics_encode_fn: fn() -> String,
@@ -137,17 +160,19 @@ pub fn start_http_server(
     };
     tokio::spawn(async move {
         let result = server.run_server().await;
-        warn!("HTTP server stopped: {:?}", result);
+        warn!("HTTP metrics server stopped: {:?}", result);
         result
     })
 }
 
+/// Internal struct containing server configuration and logic.
 struct MetricsServer {
     port: u16,
     metrics_encode_fn: fn() -> String,
 }
 
 impl MetricsServer {
+    /// Runs the server in a loop, accepting connections and handling them.
     async fn run_server(&self) -> Result<(), MetricsError> {
         let addr = SocketAddr::from(([0, 0, 0, 0], self.port));
         let listener = TcpListener::bind(addr).await?;
@@ -158,6 +183,7 @@ impl MetricsServer {
         }
     }
 
+    /// Handles an individual TCP connection by serving HTTP/1.1 requests.
     async fn handle_connection(&self, stream: tokio::net::TcpStream) {
         let io = TokioIo::new(stream);
         let service = service_fn(|req| self.routes(req));
@@ -166,13 +192,15 @@ impl MetricsServer {
         }
     }
 
+    /// Routes requests to the correct handler based on method & path.
     async fn routes(&self, req: Request<Incoming>) -> Result<Response<BoxBody>, MetricsError> {
         match (req.method(), req.uri().path()) {
             (&Method::GET, "/metrics") => self.get_metrics(),
-            (_, _) => not_found(),
+            _ => not_found(),
         }
     }
 
+    /// Generates a response containing the metrics string.
     fn get_metrics(&self) -> Result<Response<BoxBody>, MetricsError> {
         let body = (self.metrics_encode_fn)();
         Ok(Response::builder()
@@ -182,12 +210,14 @@ impl MetricsServer {
     }
 }
 
+/// Returns a 404 Not Found response.
 fn not_found() -> Result<Response<BoxBody>, MetricsError> {
     Ok(Response::builder()
         .status(StatusCode::NOT_FOUND)
         .body(full(NOTFOUND))?)
 }
 
+/// Converts a string (or byte slice) into a boxed HTTP body.
 fn full<T: Into<Bytes>>(chunk: T) -> BoxBody {
     Full::new(chunk.into())
         .map_err(|never| match never {})
@@ -209,7 +239,7 @@ mod tests {
 
     const PORT: u16 = 9090;
 
-    /// Gather and encode metrics to a string (UTF8)
+    /// Example function to gather metrics from the `prometheus` crate.
     pub fn metrics_to_string() -> String {
         let encoder = prometheus::TextEncoder::new();
         encoder
@@ -219,7 +249,7 @@ mod tests {
 
     lazy_static! {
         pub static ref HIGH_FIVE_COUNTER: IntCounter =
-            register_int_counter!("highfives", "Number of high fives recieved").unwrap();
+            register_int_counter!("highfives", "Number of high fives received").unwrap();
     }
 
     async fn create_client(
@@ -228,7 +258,7 @@ mod tests {
         SendRequest<Empty<Bytes>>,
         Connection<TokioIo<TcpStream>, Empty<Bytes>>,
     ) {
-        let host = url.host().expect("uri has no host");
+        let host = url.host().expect("URI has no host");
         let port = url.port_u16().unwrap_or(PORT);
         let addr = format!("{}:{}", host, port);
 
@@ -242,8 +272,8 @@ mod tests {
         Request::builder()
             .uri(url)
             .method(Method::GET)
-            .header(header::HOST, url.authority().unwrap().clone().as_str())
-            .body(Empty::<Bytes>::new())
+            .header(header::HOST, url.authority().unwrap().as_str())
+            .body(Empty::new())
             .unwrap()
     }
 
@@ -256,22 +286,14 @@ mod tests {
             port: PORT,
             metrics_encode_fn: metrics_to_string,
         };
-        // Call the function
-        let res = server.get_metrics();
-
-        // Check if the function returns a result
-        assert!(res.is_ok());
-
-        // Check if the result is not an empty string
-        let response = res.unwrap();
-        let status_code = response.status();
-
-        assert_eq!(status_code, StatusCode::OK);
-        assert!(response.body().size_hint().exact().unwrap() > 0);
+        let response = server.get_metrics().expect("failed to get metrics");
+        assert_eq!(response.status(), StatusCode::OK);
         assert_eq!(
             response.headers().get(header::CONTENT_TYPE).unwrap(),
             "text/plain"
         );
+        // Ensure the body is non-empty
+        assert!(response.body().size_hint().exact().unwrap() > 0);
     }
 
     #[tokio::test]
@@ -308,11 +330,9 @@ mod tests {
         // Check if the response body is not empty
         let buf = response.collect().await.unwrap().to_bytes();
         let res = String::from_utf8(buf.to_vec()).unwrap();
-
-        println!("{}", res);
         assert!(!res.is_empty());
 
-        // Terminate the server
+        // Stop the server
         server.abort();
     }
 
@@ -333,21 +353,17 @@ mod tests {
             }
         });
 
-        // Send a request to the server
+        // Send a request to the server with no path (i.e., "/")
         let request = to_get_req(&url);
-
         let response = request_sender.send_request(request).await.unwrap();
-
-        // Check if the server returns a 404 status
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
-        // Check if the response body is not empty
+        // Check the 404 body
         let buf = response.collect().await.unwrap().to_bytes();
         let res = String::from_utf8(buf.to_vec()).unwrap();
-
         assert_eq!(res, String::from_utf8_lossy(NOTFOUND));
 
-        // Terminate the server
+        // Stop the server
         server.abort();
     }
 }

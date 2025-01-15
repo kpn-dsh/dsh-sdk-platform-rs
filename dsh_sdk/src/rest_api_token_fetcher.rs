@@ -226,7 +226,7 @@ impl RestTokenFetcher {
     /// This will fetch a new access token from the server and return it.
     /// If the request fails, it will return a [DshRestTokenError::FailureTokenFetch] error.
     /// If the status code is not successful, it will return a [DshRestTokenError::StatusCode] error.
-    /// If the request is successful, it will return the [AccessToken].
+    /// If the request is successful, it will return the AccesToken
     pub async fn fetch_access_token_from_server(&self) -> Result<AccessToken, DshRestTokenError> {
         let response = self
             .client

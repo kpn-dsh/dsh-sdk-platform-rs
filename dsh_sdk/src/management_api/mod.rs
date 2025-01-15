@@ -1,6 +1,6 @@
 //! Fetch and store tokens for the DSH Management Rest API client
 //!
-//! This module is meant to be used together with the [dsh_rest_api_client].
+//! This module is meant to be used together with the [dsh_rest_api_client](https://crates.io/crates/dsh_rest_api_client).
 //!
 //! The TokenFetcher will fetch and store access tokens to be used in the DSH Rest API client.
 //!

@@ -4,20 +4,73 @@ use super::types::*;
 use super::SchemaStoreError;
 use crate::Dsh;
 
-/// High level Schema Store Client
+/// A high-level client for interacting with the DSH Schema Store API.
 ///
-/// Client to interact with the Schema Store API.
+/// This client wraps various schema registry operations, such as:
+/// - Retrieving or setting a subject’s compatibility level.
+/// - Listing all subjects and versions.
+/// - Fetching a specific schema (by subject/version or by schema ID).
+/// - Adding new schemas or checking if they’re already registered.
+/// - Verifying schema compatibility against an existing subject/version.
+///
+/// By default, the client’s base URL is derived from [`Dsh::get().schema_registry_host()`].
+/// You can override this behavior with [`SchemaStoreClient::new_with_base_url`].
+///
+/// Most methods return a [`Result<T, SchemaStoreError>`], which encapsulates
+/// potential network failures or schema parsing issues.
+///
+/// # Example
+/// ```no_run
+/// use dsh_sdk::schema_store::{SchemaStoreClient, types::SubjectName};
+///
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let client = SchemaStoreClient::new();
+///     let subject_name: SubjectName = "my.topic-name.tenant-value".try_into()?;
+///     let subjects = client.subjects().await?;
+///     println!("All subjects: {:?}", subjects);
+///     let versions = client.subject_versions(&subject_name).await?;
+///     println!("Versions of {:?}: {:?}", subject_name, versions);
+///     Ok(())
+/// }
+/// ```
 pub struct SchemaStoreClient<C: Request> {
     pub(crate) base_url: String,
     pub(crate) client: C,
 }
 
 impl SchemaStoreClient<reqwest::Client> {
+    /// Creates a new `SchemaStoreClient` using the default schema registry URL from
+    /// [`Dsh::get().schema_registry_host()`].
+    ///
+    /// # Example
+    /// ```no_run
+    /// use dsh_sdk::schema_store::SchemaStoreClient;
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let client = SchemaStoreClient::new();
+    ///     // Use `client` to interact with the schema store...
+    /// }
+    /// ```
     pub fn new() -> Self {
         Self::new_with_base_url(Dsh::get().schema_registry_host())
     }
 
-    /// Create SchemaStoreClient with a custom base URL
+    /// Creates a `SchemaStoreClient` with a **custom** base URL.
+    ///
+    /// This is useful if you want to target a non-default or test endpoint.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use dsh_sdk::schema_store::SchemaStoreClient;
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let base_url = "http://my.custom-registry/api";
+    ///     let client = SchemaStoreClient::new_with_base_url(base_url);
+    /// }
+    /// ```
     pub fn new_with_base_url(base_url: &str) -> Self {
         Self {
             base_url: base_url.trim_end_matches('/').to_string(),
@@ -30,27 +83,30 @@ impl<C> SchemaStoreClient<C>
 where
     C: Request,
 {
-    /// Get the compatibility level for a subject
+    /// Retrieves the compatibility level for a given subject.
     ///
-    /// ## Returns
-    /// Returns a Result of the compatibility level of given subject
+    /// # Returns
+    /// - `Ok(Compatibility)` if successful, representing the subject’s configured compatibility level.
     ///
-    /// ## Arguments
-    /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
+    /// # Arguments
+    /// - `subject`: A [`SubjectName`]. Conversion from a `&str` or `String` can be done via `try_into()`.
     ///
-    /// ## Example
+    /// # Errors
+    /// Returns [`SchemaStoreError`] if the request fails or if the subject name is invalid.
+    ///
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::schema_store::SchemaStoreClient;
-    /// use dsh_sdk::schema_store::types::SubjectName;
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::SubjectName};
     ///
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let client = SchemaStoreClient::new();
-    /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
-    /// println!("Config: {:?}", client.subject_compatibility(&subject_name).await);
-    /// # Ok(())
-    /// # }
-    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let subject_name: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     let comp = client.subject_compatibility(&subject_name).await?;
+    ///     println!("Subject compatibility: {:?}", comp);
+    ///     Ok(())
+    /// }
+    /// ```
     pub async fn subject_compatibility(
         &self,
         subject: &SubjectName,
@@ -58,29 +114,29 @@ where
         Ok(self.get_config_subject(subject.name()).await?.into())
     }
 
-    /// Set the compatibility level for a subject
+    /// Sets (updates) the compatibility level for a given subject.
     ///
-    /// Set compatibility on subject level. With 1 schema stored in the subject, you can change it to any compatibility level.
-    /// Else, you can only change into a less restrictive level.
+    /// - If the subject has no existing schema, you can set any compatibility.
+    /// - If the subject already has schemas, you can only switch to a **less restrictive** level.
     ///
-    /// ## Arguments
-    /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
+    /// # Returns
+    /// - `Ok(Compatibility)` representing the **new** compatibility level.
     ///
-    /// ## Returns
-    /// Returns a Result of the new compatibility level
+    /// # Errors
+    /// Returns [`SchemaStoreError`] if the network call fails, if the subject doesn’t exist,
+    /// or if the requested compatibility is not allowed.
     ///
-    /// ## Example
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::schema_store::SchemaStoreClient;
-    /// use dsh_sdk::schema_store::types::{Compatibility, SubjectName};
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::{SubjectName, Compatibility}};
     ///
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let client = SchemaStoreClient::new();
-    /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
-    /// client.subject_compatibility_update(&subject_name, Compatibility::FULL).await?;
-    /// # Ok(())
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let subject: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     client.subject_compatibility_update(&subject, Compatibility::FULL).await?;
+    ///     Ok(())
+    /// }
     /// ```
     pub async fn subject_compatibility_update(
         &self,
@@ -93,42 +149,48 @@ where
             .into())
     }
 
-    /// Get a list of all registered subjects
+    /// Lists **all** registered subjects in the schema registry.
     ///
-    /// ## Returns
-    /// Returns a Result of of all registered subjects from the schema registry
+    /// # Returns
+    /// - `Ok(Vec<String>)` containing subject names.
     ///
-    /// ## Example
+    /// # Errors
+    /// Returns [`SchemaStoreError`] if the HTTP request or JSON deserialization fails.
+    ///
+    /// # Example
     /// ```no_run
     /// use dsh_sdk::schema_store::SchemaStoreClient;
     ///
-    /// # #[tokio::main]
-    /// # async fn main() {
-    /// let client = SchemaStoreClient::new();
-    /// println!("Subjects: {:?}", client.subjects().await);
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let client = SchemaStoreClient::new();
+    ///     match client.subjects().await {
+    ///         Ok(subjs) => println!("Registered subjects: {:?}", subjs),
+    ///         Err(e) => eprintln!("Error: {}", e),
+    ///     }
+    /// }
     /// ```
     pub async fn subjects(&self) -> Result<Vec<String>, SchemaStoreError> {
         self.get_subjects().await
     }
 
-    /// Get a list of all versions of a subject
+    /// Retrieves the version IDs for a specified subject.
     ///
-    /// ## Returns
-    /// Returns a Result of all version ID's of a subject from the schema registry
+    /// # Returns
+    /// - `Ok(Vec<i32>)` containing the version numbers registered for this subject.
     ///
-    /// ## Example
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::schema_store::SchemaStoreClient;
-    /// use dsh_sdk::schema_store::types::SubjectName;
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::SubjectName};
     ///
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let client = SchemaStoreClient::new();
-    /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
-    /// println!("Available versions: {:?}", client.subject_versions(&subject_name).await);
-    /// # Ok(())
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let subject: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     let versions = client.subject_versions(&subject).await?;
+    ///     println!("Subject versions: {:?}", versions);
+    ///     Ok(())
+    /// }
     /// ```
     pub async fn subject_versions(
         &self,
@@ -137,30 +199,28 @@ where
         self.get_subjects_subject_versions(subject.name()).await
     }
 
-    /// Get subject for specific version
+    /// Fetches a specific schema for a given subject at a specified version.
     ///
-    /// ## Returns
-    /// Returns a Result of the schema for the given subject and version
+    /// - Use [`SubjectVersion::Latest`] for the latest version.
+    /// - Use [`SubjectVersion::Version(i32)`] for a specific numbered version.
     ///
-    /// ## Example
+    /// # Returns
+    /// - `Ok(Subject)` containing metadata and the schema content.
+    ///
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::schema_store::SchemaStoreClient;
-    /// use dsh_sdk::schema_store::types::{SubjectName, SubjectVersion};
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::{SubjectName, SubjectVersion}};
     ///
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let client = SchemaStoreClient::new();
-    /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
-    ///
-    /// // Get the latest version of the schema
-    /// let subject = client.subject(&subject_name, SubjectVersion::Latest).await?;
-    /// let raw_schema = subject.schema;
-    ///
-    /// // Get a specific version of the schema
-    /// let subject = client.subject(&subject_name, SubjectVersion::Version(1)).await?;
-    /// let raw_schema = subject.schema;
-    /// # Ok(())
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let subject: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     // Latest version
+    ///     let latest = client.subject(&subject, SubjectVersion::Latest).await?;
+    ///     // Specific version
+    ///     let specific = client.subject(&subject, SubjectVersion::Version(2)).await?;
+    ///     Ok(())
+    /// }
     /// ```
     pub async fn subject<V>(
         &self,
@@ -176,27 +236,25 @@ where
             .await
     }
 
-    /// Get the raw schema string for the specified version of subject.
+    /// Retrieves **only** the raw schema string for a specified subject version.
     ///
-    /// ## Arguments
-    /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
-    /// - `schema`: [RawSchemaWithType], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SchemaType)
+    /// This is useful if you only need the JSON/Avro/Protobuf text, without additional metadata.
     ///
-    /// ## Returns
-    /// Returns a Result of the raw schema string for the given subject and version
+    /// # Returns
+    /// - `Ok(String)` containing the schema definition in its raw form.
     ///
-    /// ## Example
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::schema_store::SchemaStoreClient;
-    /// use dsh_sdk::schema_store::types::SubjectName;
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::SubjectName};
     ///
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let client = SchemaStoreClient::new();
-    /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
-    /// let raw_schema = client.subject_raw_schema(&subject_name, 1).await.unwrap();
-    /// # Ok(())
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let subject: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     let raw = client.subject_raw_schema(&subject, 1).await?;
+    ///     println!("Schema text: {}", raw);
+    ///     Ok(())
+    /// }
     /// ```
     pub async fn subject_raw_schema<V>(
         &self,
@@ -210,94 +268,75 @@ where
             .await
     }
 
-    /// Get all schemas for a subject
-    ///    
-    /// ## Arguments
-    /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
+    /// Retrieves **all** schema versions for a specified subject, returning a vector of [`Subject`].
     ///
-    /// ## Returns
-    /// Returns a Result of all schemas for the given subject
+    /// This method simply calls [`subject_versions`](Self::subject_versions) and then iterates
+    /// over each version to fetch the schema details.  
+    /// _Note: This can be more expensive than retrieving a single version._
     ///
-    /// ## Example
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::schema_store::SchemaStoreClient;
-    /// use dsh_sdk::schema_store::types::SubjectName;
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::SubjectName};
     ///
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let client = SchemaStoreClient::new();
-    /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
-    /// let subjects = client.subject_all_schemas(&subject_name).await?;
-    /// # Ok(())
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let subject: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     let all_schemas = client.subject_all_schemas(&subject).await?;
+    ///     println!("All schemas: {:?}", all_schemas);
+    ///     Ok(())
+    /// }
+    /// ```
     pub async fn subject_all_schemas(
         &self,
         subject: &SubjectName,
     ) -> Result<Vec<Subject>, SchemaStoreError> {
-        let versions = self.subject_versions(&subject).await?;
+        let versions = self.subject_versions(subject).await?;
         let mut subjects = Vec::new();
         for version in versions {
-            let subject = self.subject(&subject, version).await?;
-            subjects.push(subject);
+            let subject_schema = self.subject(subject, version).await?;
+            subjects.push(subject_schema);
         }
         Ok(subjects)
     }
 
-    /// Get all schemas for a topic
-    ///
-    /// ## Arguments
-    /// - `topic`: &str/String of the topic name
-    ///
-    /// ## Returns
-    ///
-    // pub async fn topic_all_schemas<S>(&self, topic: S) -> Result<(Vec<Subject>,Vec<Subject>)>
+    // Example of a commented-out method that’s not fully implemented yet:
+    // /// Gets all schemas for a given topic.
+    // /// This might differentiate key vs. value schemas.
+    // pub async fn topic_all_schemas<S>(&self, topic: S) -> Result<(Vec<Subject>, Vec<Subject>), SchemaStoreError>
     // where
     //     S: AsRef<str>,
     // {
-    //     let key_schemas = self.subject_all_schemas((topic.as_ref(), true)).await?;
-    //     let value_schemas = self.subject_all_schemas((topic.as_ref(), false)).await?;
-    //     Ok(subjects)
+    //     // Implementation to fetch key_schemas and value_schemas is pending.
     // }
 
-    /// Post a new schema for a (new) subject
+    /// Registers a **new** schema under the given subject.
     ///
-    /// ## Errors
-    /// - If the given schema cannot be converted into a String with given schema type
-    /// - The API call will retun a error when
-    ///     - subject already has a schema and it's compatibility does not allow it
-    ///     - subject already has a schema with a different schema type
-    ///     - schema is invalid
+    /// - If the subject doesn’t exist, it is created with the provided schema.
+    /// - If the subject **does** exist and is incompatible with this schema, the registry
+    ///   returns an error. If the schema is identical, the existing ID is returned.
     ///
-    /// ## Arguments
-    /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
-    /// - `schema`: [RawSchemaWithType], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SchemaType)
+    /// # Returns
+    /// - `Ok(i32)` containing the new or existing schema ID.
     ///
-    /// ## Returns
-    /// Returns a Result of the new schema ID.
-    /// If schema already exists, it will return with the existing schema ID.
+    /// # Errors
+    /// - If the schema can’t be converted into a valid `RawSchemaWithType`.
+    /// - If the API call fails due to network/compatibility issues.
     ///
-    /// ## Example
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::schema_store::SchemaStoreClient;
-    /// use dsh_sdk::schema_store::types::{RawSchemaWithType, SubjectName};
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::{RawSchemaWithType, SubjectName}};
     ///
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let client = SchemaStoreClient::new();
-    ///
-    /// // Get subjectname (note it ends on "-value")
-    /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
-    ///
-    /// // You can provide the schema as a raw string (Schema type is optional, it will be detected automatically)
-    /// let raw_schema = r#"{ "type": "record", "name": "User", "fields": [ { "name": "name", "type": "string" } ] }"#;
-    /// let schema_with_type:RawSchemaWithType = raw_schema.try_into()?;
-    /// let schema_version = client.subject_add_schema(&subject_name, schema_with_type).await?;
-    ///
-    /// // Or if you have a schema object
-    /// let avro_schema:RawSchemaWithType  = apache_avro::Schema::parse_str(raw_schema)?.try_into()?; // or ProtoBuf or JSON schema
-    /// let schema_version = client.subject_add_schema(&subject_name, avro_schema).await?;
-    /// # Ok(())
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let subject: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     let raw_schema = r#"{"type":"record","name":"User","fields":[{"name":"name","type":"string"}]}"#;
+    ///     let schema_with_type: RawSchemaWithType = raw_schema.try_into()?;
+    ///     let schema_id = client.subject_add_schema(&subject, schema_with_type).await?;
+    ///     println!("Schema ID: {}", schema_id);
+    ///     Ok(())
+    /// }
     /// ```
     pub async fn subject_add_schema(
         &self,
@@ -310,38 +349,31 @@ where
             .id())
     }
 
-    /// Check if schema already been registred for a subject
+    /// Checks if a given schema already exists under the specified subject.
     ///
-    /// If it returns 404, it means the schema is not yet registered (even when it states "unable to process")
+    /// - Returns 404 if the schema is not registered under that subject.
+    /// - Returns [`Subject`] info (including schema ID) if it **is** already present.
     ///
-    /// ## Errors
-    /// - If the given schema cannot be converted into a String with given schema type
-    /// - The API call will retun a error when
-    ///     - provided schema is different
-    ///     - schema is invalid
+    /// # Returns
+    /// - `Ok(Subject)` if the schema matches an existing registration.
+    /// - `Err(SchemaStoreError)` if the request fails or the schema is invalid.
     ///
-    /// ## Arguments
-    /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
-    /// - `schema`: [RawSchemaWithType], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SchemaType)
-    ///
-    /// ## Returns
-    /// If schema exists, it will return with the existing version and schema ID.
-    ///
-    /// ## Example
+    /// # Example
     /// ```no_run
-    /// use dsh_sdk::schema_store::SchemaStoreClient;
-    /// use dsh_sdk::schema_store::types::{SubjectName, SchemaType, RawSchemaWithType};
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::{SubjectName, RawSchemaWithType}};
     ///
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let client = SchemaStoreClient::new();
-    ///
-    /// // You can provide the schema as a raw string (Schema type is optional, it will be detected automatically)
-    /// let raw_schema: RawSchemaWithType = r#"{ "type": "record", "name": "User", "fields": [ { "name": "name", "type": "string" } ] }"#.try_into()?;
-    /// let subject_name: SubjectName = "scratch.example-topic.tenant-value".try_into()?;
-    /// let subject = client.subject_schema_exist(&subject_name, raw_schema).await?;
-    /// # Ok(())
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let raw_schema = r#"{"type":"record","name":"User","fields":[{"name":"age","type":"int"}]}"#;
+    ///     let schema: RawSchemaWithType = raw_schema.try_into()?;
+    ///     let subject: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     match client.subject_schema_exist(&subject, schema).await {
+    ///         Ok(existing) => println!("Schema already registered: {:?}", existing.id),
+    ///         Err(e) => eprintln!("Not found or error: {}", e),
+    ///     }
+    ///     Ok(())
+    /// }
     /// ```
     pub async fn subject_schema_exist(
         &self,
@@ -351,18 +383,28 @@ where
         self.post_subjects_subject(subject.name(), schema).await
     }
 
-    /// Check if schema is compatible with a specific version of a subject based on the compatibility level
+    /// Checks if a **new** schema is compatible with a specific version of the subject.
     ///
-    /// Note that the compatibility level applied for the check is the configured compatibility level for the subject.
-    /// If this subject’s compatibility level was never changed, then the global compatibility level applies.
+    /// This leverages the configured compatibility level for the subject (or global level if none is explicitly set).
     ///
-    /// ## Arguments
-    /// - `subject`: [SubjectName], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SubjectStrategy)
-    /// - `version`: Anything that can be converted into a [SubjectVersion]
-    /// - `schema`: [RawSchemaWithType], use [TryInto] to convert from &str/String (Returns [SchemaStoreError] error if invalid SchemaType)
+    /// # Returns
+    /// - `Ok(bool)` indicating whether the new schema is compatible (`true`) or incompatible (`false`).
     ///
-    /// ## Returns
-    /// Returns a Result of a boolean if the schema is compatible with the given version of the subject
+    /// # Example
+    /// ```no_run
+    /// use dsh_sdk::schema_store::{SchemaStoreClient, types::{SubjectName, RawSchemaWithType, SubjectVersion}};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = SchemaStoreClient::new();
+    ///     let raw_schema = r#"{"type":"record","name":"User","fields":[{"name":"name","type":"string"}]}"#;
+    ///     let schema: RawSchemaWithType = raw_schema.try_into()?;
+    ///     let subject: SubjectName = "example-topic.tenant-value".try_into()?;
+    ///     let is_compatible = client.subject_new_schema_compatibility(&subject, SubjectVersion::Latest, schema).await?;
+    ///     println!("Is compatible? {}", is_compatible);
+    ///     Ok(())
+    /// }
+    /// ```
     pub async fn subject_new_schema_compatibility<Sv>(
         &self,
         subject: &SubjectName,
@@ -382,10 +424,22 @@ where
             .is_compatible())
     }
 
-    /// Get the schema based in schema ID.
+    /// Retrieves a schema by its **global** schema ID.
     ///
-    /// ## Arguments
-    /// - `id`: The schema ID (Into<[i32]>)
+    /// # Arguments
+    /// - `id`: schema ID (`i32`) referencing the global schema registry ID.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use dsh_sdk::schema_store::SchemaStoreClient;
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = SchemaStoreClient::new();
+    /// let schema = client.schema(123).await?;
+    /// println!("Schema content: {}", schema.content());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn schema<Si>(&self, id: Si) -> Result<RawSchemaWithType, SchemaStoreError>
     where
         Si: Into<i32>,
@@ -393,10 +447,22 @@ where
         self.get_schemas_ids_id(id.into()).await
     }
 
-    /// Get all subjects that are using the given schema
+    /// Lists all subjects that use the specified **global** schema ID.
     ///
-    /// ## Arguments
-    /// - `id`: The schema ID (Into<[i32]>)
+    /// # Returns
+    /// - `Ok(Vec<SubjectVersionInfo>)` detailing each subject and version that references the schema.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use dsh_sdk::schema_store::SchemaStoreClient;
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = SchemaStoreClient::new();
+    /// let references = client.schema_subjects(123).await?;
+    /// println!("Subjects referencing schema #123: {:?}", references);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn schema_subjects<Si>(
         &self,
         id: Si,
