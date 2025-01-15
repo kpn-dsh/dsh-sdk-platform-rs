@@ -61,10 +61,7 @@ impl Platform {
     /// let client_id = platform.rest_client_id("my-tenant");
     /// assert_eq!(client_id, "robot:dev-lz-dsh:my-tenant");
     /// ```
-    pub fn rest_client_id(&self, tenant: impl AsRef<str>) -> String
-    where
-        T: AsRef<str>,
-    {
+    pub fn rest_client_id(&self, tenant: impl AsRef<str>) -> String {
         self.management_api_client_id(tenant)
     }
 
@@ -82,10 +79,7 @@ impl Platform {
     /// let client_id = platform.rest_client_id("my-tenant");
     /// assert_eq!(client_id, "robot:dev-lz-dsh:my-tenant");
     /// ```
-    pub fn management_api_client_id(&self, tenant: impl AsRef<str>) -> String
-    where
-        T: AsRef<str>,
-    {
+    pub fn management_api_client_id(&self, tenant: impl AsRef<str>) -> String {
         format!("robot:{}:{}", self.realm(), tenant.as_ref())
     }
 
