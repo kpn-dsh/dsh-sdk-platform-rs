@@ -123,25 +123,6 @@ impl Platform {
         }
     }
 
-    /// Returns the URL endpoint for retrieving DSH REST API OAuth tokens.
-    ///
-    /// # Example
-    /// ```
-    /// # use dsh_sdk::Platform;
-    /// let platform = Platform::NpLz;
-    /// let token_url = platform.endpoint_rest_access_token();
-    /// assert_eq!(token_url, "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token");
-    /// ```
-    pub fn endpoint_rest_access_token(&self) -> &str {
-        match self {
-            Self::Prod => "https://auth.prod.cp.kpn-dsh.com/auth/realms/tt-dsh/protocol/openid-connect/token",
-            Self::NpLz => "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token",
-            Self::ProdLz => "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/prod-lz-dsh/protocol/openid-connect/token",
-            Self::ProdAz => "https://auth.prod.cp.kpn-dsh.com/auth/realms/prod-azure-dsh/protocol/openid-connect/token",
-            Self::Poc => "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token",
-        }
-    }
-
     #[deprecated(
         since = "0.5.0",
         note = "Use `dsh_sdk::Platform::endpoint_management_api_token` instead"
@@ -169,23 +150,23 @@ impl Platform {
     /// ```
     pub fn endpoint_management_api_token(&self) -> &str {
         match self {
-            Self::Prod => "https://api.kpn-dsh.com/auth/v0/token",
-            Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/auth/v0/token",
-            Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/auth/v0/token",
-            Self::ProdAz => "https://api.az.kpn-dsh.com/auth/v0/token",
-            Self::Poc => "https://api.poc.kpn-dsh.com/auth/v0/token",
+            Self::Prod => "https://auth.prod.cp.kpn-dsh.com/auth/realms/tt-dsh/protocol/openid-connect/token",
+            Self::NpLz => "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token",
+            Self::ProdLz => "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/prod-lz-dsh/protocol/openid-connect/token",
+            Self::ProdAz => "https://auth.prod.cp.kpn-dsh.com/auth/realms/prod-azure-dsh/protocol/openid-connect/token",
+            Self::Poc => "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token",
         }
     }
 
     #[deprecated(
         since = "0.5.0",
-        note = "Use `dsh_sdk::Platform::endpoint_protocol_token` instead"
+        note = "Use `dsh_sdk::Platform::endpoint_protocol_access_token` instead"
     )]
     /// (Deprecated) Returns the DSH MQTT token endpoint.
     ///
-    /// *Prefer using [`endpoint_protocol_token`](Self::endpoint_protocol_token) instead.*
+    /// *Prefer using [`endpoint_protocol_access_token`](Self::endpoint_protocol_access_token) instead.*
     pub fn endpoint_mqtt_token(&self) -> &str {
-        self.endpoint_protocol_token()
+        self.endpoint_protocol_access_token()
     }
 
     /// Returns the endpoint for fetching DSH protocol tokens (e.g., for MQTT).
@@ -194,10 +175,10 @@ impl Platform {
     /// ```
     /// # use dsh_sdk::Platform;
     /// let platform = Platform::Prod;
-    /// let protocol_token_url = platform.endpoint_protocol_token();
+    /// let protocol_token_url = platform.endpoint_protocol_access_token();
     /// assert_eq!(protocol_token_url, "https://api.kpn-dsh.com/datastreams/v0/mqtt/token");
     /// ```
-    pub fn endpoint_protocol_token(&self) -> &str {
+    pub fn endpoint_protocol_access_token(&self) -> &str {
         match self {
             Self::Prod => "https://api.kpn-dsh.com/datastreams/v0/mqtt/token",
             Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/datastreams/v0/mqtt/token",
@@ -205,6 +186,26 @@ impl Platform {
             Self::ProdAz => "https://api.az.kpn-dsh.com/datastreams/v0/mqtt/token",
             Self::Poc => "https://api.poc.kpn-dsh.com/datastreams/v0/mqtt/token",
         }
+    }
+
+     /// Returns the URL endpoint for retrieving DSH REST API OAuth tokens.
+    ///
+    /// # Example
+    /// ```
+    /// # use dsh_sdk::Platform;
+    /// let platform = Platform::NpLz;
+    /// let token_url = platform.endpoint_protocol_rest_token();
+    /// assert_eq!(token_url, "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token");
+    /// ```
+    pub fn endpoint_protocol_rest_token(&self) -> &str {
+        match self {
+            Self::Prod => "https://api.kpn-dsh.com/auth/v0/token",
+            Self::NpLz => "https://api.dsh-dev.dsh.np.aws.kpn.com/auth/v0/token",
+            Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/auth/v0/token",
+            Self::ProdAz => "https://api.az.kpn-dsh.com/auth/v0/token",
+            Self::Poc => "https://api.poc.kpn-dsh.com/auth/v0/token",
+        }
+
     }
 
     /// Returns the Keycloak realm string associated with this platform.
