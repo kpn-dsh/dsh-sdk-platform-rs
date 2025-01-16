@@ -146,7 +146,7 @@ impl Platform {
     /// # use dsh_sdk::Platform;
     /// let platform = Platform::NpLz;
     /// let mgmt_token_url = platform.endpoint_management_api_token();
-    /// assert_eq!(mgmt_token_url, "https://api.dsh-dev.dsh.np.aws.kpn.com/auth/v0/token");
+    /// assert_eq!(mgmt_token_url, "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token");
     /// ```
     pub fn endpoint_management_api_token(&self) -> &str {
         match self {
@@ -188,14 +188,14 @@ impl Platform {
         }
     }
 
-     /// Returns the URL endpoint for retrieving DSH REST API OAuth tokens.
+    /// Returns the URL endpoint for retrieving DSH REST API OAuth tokens.
     ///
     /// # Example
     /// ```
     /// # use dsh_sdk::Platform;
     /// let platform = Platform::NpLz;
     /// let token_url = platform.endpoint_protocol_rest_token();
-    /// assert_eq!(token_url, "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token");
+    /// assert_eq!(token_url, "https://api.dsh-dev.dsh.np.aws.kpn.com/auth/v0/token");
     /// ```
     pub fn endpoint_protocol_rest_token(&self) -> &str {
         match self {
@@ -205,7 +205,6 @@ impl Platform {
             Self::ProdAz => "https://api.az.kpn-dsh.com/auth/v0/token",
             Self::Poc => "https://api.poc.kpn-dsh.com/auth/v0/token",
         }
-
     }
 
     /// Returns the Keycloak realm string associated with this platform.
