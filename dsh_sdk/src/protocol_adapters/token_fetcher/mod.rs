@@ -10,8 +10,13 @@ use serde_json::json;
 use sha2::{Digest, Sha256};
 use tokio::sync::RwLock;
 
-use super::ProtocolTokenError;
+pub mod api_client_token_fetcher;
+pub mod data_access_token;
+mod error;
+pub mod rest_token;
+
 use crate::Platform;
+pub use error::ProtocolTokenError;
 
 /// `ProtocolTokenFetcher` is responsible for fetching and managing tokens for the DSH Mqtt and Http protocol adapters.
 ///
@@ -52,20 +57,6 @@ impl ProtocolTokenFetcher {
     ///
     /// # Example
     ///
-    /// ```no_run
-    /// use dsh_sdk::protocol_adapters::ProtocolTokenFetcher;
-    /// use dsh_sdk::Platform;
-    ///
-    /// # #[tokio::main]
-    /// # async fn main() {
-    /// let tenant_name = "test_tenant".to_string();
-    /// let api_key = "aAbB123".to_string();
-    /// let platform = Platform::NpLz;
-    ///
-    /// let fetcher = ProtocolTokenFetcher::new(tenant_name, api_key, platform);
-    /// let token = fetcher.get_token("test_client", None).await.unwrap();
-    /// # }
-    /// ```
     pub fn new(tenant_name: String, api_key: String, platform: Platform) -> Self {
         const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -88,21 +79,7 @@ impl ProtocolTokenFetcher {
     /// * `client` - User configured reqwest client to be used for fetching tokens
     ///
     /// # Example
-    ///
-    /// ```no_run
-    /// use dsh_sdk::protocol_adapters::ProtocolTokenFetcher;
-    /// use dsh_sdk::Platform;
-    ///
-    /// # #[tokio::main]
-    /// # async fn main() {
-    /// let tenant_name = "test_tenant".to_string();
-    /// let api_key = "aAbB123".to_string();
-    /// let platform = Platform::NpLz;
-    /// let client = reqwest::Client::new();
-    /// let fetcher = ProtocolTokenFetcher::new_with_client(tenant_name, api_key, platform, client);
-    /// let token = fetcher.get_token("test_client", None).await.unwrap();
-    /// # }
-    /// ```
+
     pub fn new_with_client(
         tenant_name: String,
         api_key: String,
@@ -116,7 +93,7 @@ impl ProtocolTokenFetcher {
             rest_token: RwLock::new(rest_token),
             rest_auth_url: platform.endpoint_rest_token().to_string(),
             protocol_token: RwLock::new(HashMap::new()),
-            protocol_auth_url: platform.endpoint_protocol_token().to_string(),
+            protocol_auth_url: platform.endpoint_protocol_access_token().to_string(),
             client,
         }
     }
@@ -348,9 +325,9 @@ impl ProtocolToken {
     ///
     /// A Result containing the created ProtocolToken or an error.
     pub fn new(raw_token: String) -> Result<ProtocolToken, ProtocolTokenError> {
-        let header_payload = extract_header_and_payload(&raw_token)?;
+        let jwt = JwtToken::parse(&raw_token)?;
 
-        let decoded_token = decode_base64(header_payload)?;
+        let decoded_token = jwt.b64_decode_payload()?;
 
         let token_attributes: ProtocolTokenAttributes = serde_json::from_slice(&decoded_token)?;
         let token = ProtocolToken {
@@ -419,9 +396,9 @@ impl RestToken {
     ) -> Result<RestToken, ProtocolTokenError> {
         let raw_token = Self::fetch_token(client, tenant, api_key, auth_url).await?;
 
-        let header_payload = extract_header_and_payload(&raw_token)?;
+        let jwt = JwtToken::parse(&raw_token)?;
 
-        let decoded_token = decode_base64(header_payload)?;
+        let decoded_token = jwt.b64_decode_payload()?;
 
         let token_attributes: RestTokenAttributes = serde_json::from_slice(&decoded_token)?;
         let token = RestToken {
@@ -478,42 +455,86 @@ impl Default for RestToken {
     }
 }
 
-/// Extracts the header and payload part of a JWT token.
-///
-/// # Arguments
-///
-/// * `raw_token` - The raw JWT token string.
-///
-/// # Returns
-///
-/// A Result containing the header and payload part of the JWT token or a `ProtocolTokenError`.
-fn extract_header_and_payload(raw_token: &str) -> Result<&str, ProtocolTokenError> {
-    let parts: Vec<&str> = raw_token.split('.').collect();
-    parts.get(1).copied().ok_or_else(|| {
-        ProtocolTokenError::Jwt("Cannot extract header and payload from raw_token".to_string())
-    })
+#[allow(dead_code)]
+#[derive(Debug, Clone)]
+struct JwtToken {
+    header: String,
+    payload: String,
+    signature: String,
 }
 
-/// Decodes a Base64-encoded string.
-///
-/// # Arguments
-///
-/// * `payload` - The Base64-encoded string.
-///
-/// # Returns
-///
-/// A Result containing the decoded byte vector or a `ProtocolTokenError`.
-fn decode_base64(payload: &str) -> Result<Vec<u8>, ProtocolTokenError> {
-    use base64::{alphabet, engine, read};
-    use std::io::Read;
+impl JwtToken {
+    /// Extracts the header, payload and signature part of a JWT token.
+    ///
+    /// # Arguments
+    ///
+    /// * `raw_token` - The raw JWT token string.
+    ///
+    /// # Returns
+    ///
+    /// A Result containing the [JwtToken] or a [`ProtocolTokenError`].
+    fn parse(raw_token: &str) -> Result<Self, ProtocolTokenError> {
+        let parts: Vec<&str> = raw_token.split('.').collect();
+        if parts.len() != 3 {
+            return Err(ProtocolTokenError::Jwt(format!(
+                "Invalid JWT token {}",
+                raw_token
+            )));
+        }
+        Ok(JwtToken {
+            header: parts[0].to_string(),
+            payload: parts[1].to_string(),
+            signature: parts[2].to_string(),
+        })
+    }
 
-    let engine = engine::GeneralPurpose::new(&alphabet::STANDARD, engine::general_purpose::NO_PAD);
-    let mut decoder = read::DecoderReader::new(payload.as_bytes(), &engine);
+    fn b64_decode_payload(&self) -> Result<Vec<u8>, ProtocolTokenError> {
+        use base64::engine::general_purpose::STANDARD_NO_PAD;
+        use base64::Engine;
+        Ok(STANDARD_NO_PAD.decode(self.payload.as_bytes())?)
+    }
+}
 
-    let mut decoded_token = Vec::new();
-    decoder.read_to_end(&mut decoded_token)?;
-
-    Ok(decoded_token)
+/// Validates if a string can be used as a client_id
+///
+/// DSH Allows the following as a client_id:
+/// - A maximum of 64 characters
+/// - Can only contain:
+///     - Alphanumeric characters (a-z, A-z, 0-9)
+///     - @, -, _, . and :
+///
+/// it will return an [ProtocolTokenError::InvalidClientId] if the client_id is invalid
+/// including the reason why it is invalid
+///
+/// # Example
+/// ```
+/// # use dsh_sdk::protocol_adapters::token_fetcher::validate_client_id;
+/// // valid client id's
+/// assert!(validate_client_id("client-12345").is_ok());
+/// assert!(validate_client_id("ABCDEFasbcdef1234567890@-_.:").is_ok());
+///
+/// // invalid client id's
+/// assert!(validate_client_id("client A").is_err());
+/// assert!(validate_client_id("1234567890qwertyuiopasdfghjklzxcvbnmz1234567890qwertyuiopasdfghjklzxcvbnmz").is_err());
+/// ```
+pub fn validate_client_id(id: impl AsRef<str>) -> Result<(), ProtocolTokenError> {
+    let ref_id = id.as_ref();
+    if !ref_id.chars().all(|c| {
+        c.is_ascii_alphanumeric() || c == '@' || c == '-' || c == '_' || c == '.' || c == ':'
+    }) {
+        Err(ProtocolTokenError::InvalidClientId(
+            ref_id.to_string(),
+            "client_id: Can only contain: Alphanumeric characters (a-z, A-z, 0-9) @, -, _, . and :",
+        ))
+    } else if ref_id.len() > 64 {
+        // Note this works because all valid characters are ASCII and have a single byte
+        Err(ProtocolTokenError::InvalidClientId(
+            ref_id.to_string(),
+            "Exceeded a maximum of 64 characters",
+        ))
+    } else {
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -794,17 +815,19 @@ mod tests {
     }
 
     #[test]
-    fn test_extract_header_and_payload() {
+    fn test_parse_jwt() {
         let raw = "header.payload.signature";
-        let result = extract_header_and_payload(raw).unwrap();
-        assert_eq!(result, "payload");
+        let result = JwtToken::parse(raw).unwrap();
+        assert_eq!(result.header, "header");
+        assert_eq!(result.payload, "payload");
+        assert_eq!(result.signature, "signature");
 
         let raw = "header.payload";
-        let result = extract_header_and_payload(raw).unwrap();
-        assert_eq!(result, "payload");
+        let result = JwtToken::parse(raw);
+        assert!(result.is_err());
 
         let raw = "header";
-        let result = extract_header_and_payload(raw);
+        let result = JwtToken::parse(raw);
         assert!(result.is_err());
     }
 
@@ -865,5 +888,18 @@ mod tests {
         } else {
             panic!("Expected DshCallError");
         }
+    }
+
+    #[test]
+    fn test_validate_client_id() {
+        assert!(validate_client_id("ABCDEF1234567890@-_.:asbcdef").is_ok());
+        assert!(validate_client_id("!").is_err());
+        assert!(validate_client_id(
+            "1234567890qwertyuiopasdfghjklzxcvbnmz1234567890qwertyuiopasdfghjklzxcvbnmz"
+        )
+        .is_err());
+        assert!(validate_client_id("client A").is_err());
+        assert!(validate_client_id("client\nA").is_err());
+        assert!(validate_client_id(r#"client\nA"#).is_err());
     }
 }
