@@ -1,12 +1,12 @@
 //! This example demonstrates how to connect to the DSH MQTT broker and consume data using the DSH SDK and Rumqttc.
-//! 
+//!
 //! Run example with:
 //! ```bash
 //! API_KEY={API_KEY} TENANT={TENANT} CLIENT_ID=sdk_example_client cargo run --all-features --example mqtt_example
 //! ```
-//! 
+//!
 //! NEVER distribute the API_KEY to an external client, this is only for demonstration purposes.
-//! 
+//!
 //! The example will:
 //! - Request a DataAccessToken
 //! - Create a new MqttOptions based on the fetched token

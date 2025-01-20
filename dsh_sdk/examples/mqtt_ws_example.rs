@@ -1,13 +1,13 @@
-//! This example demonstrates how to connect to the DSH MQTT broker over websockets 
+//! This example demonstrates how to connect to the DSH MQTT broker over websockets
 //! and consume data using the DSH SDK and Rumqttc.
-//! 
+//!
 //! Run example with:
 //! ```bash
 //! API_KEY={API_KEY} TENANT={TENANT} CLIENT_ID=sdk_example_client cargo run --all-features --example mqtt_ws_example
 //! ```
-//! 
+//!
 //! NEVER distribute the API_KEY to an external client, this is only for demonstration purposes.
-//! 
+//!
 //! The example will:
 //! - Request a DataAccessToken
 //! - Create a new MqttOptions based on the fetched token
@@ -42,7 +42,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let token = ApiClientAuthenticationService::get_data_access_token(request).await;
 
     // Create a new MqttOptions based on info from  token
-    let mut mqttoptions = MqttOptions::new(token.client_id(), token.endpoint_wss(), token.port_wss());
+    let mut mqttoptions =
+        MqttOptions::new(token.client_id(), token.endpoint_wss(), token.port_wss());
     mqttoptions.set_credentials("", token.raw_token());
     mqttoptions.set_transport(Transport::wss_with_default_config());
 
