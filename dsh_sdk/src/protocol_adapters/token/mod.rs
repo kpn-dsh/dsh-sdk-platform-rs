@@ -1,7 +1,4 @@
-//! Protocol Token
-//!
-//! `ProtocolTokenFetcher` is responsible for fetching and managing MQTT tokens for DSH.
-
+//! The [`RestToken`] and [`DataAccessToken`] which can be used to authenticate against the DSH platform.
 pub mod api_client_token_fetcher;
 pub mod data_access_token;
 mod error;
