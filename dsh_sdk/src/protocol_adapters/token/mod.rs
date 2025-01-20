@@ -7,7 +7,12 @@ pub mod data_access_token;
 mod error;
 pub mod rest_token;
 
+#[doc(inline)]
+pub use data_access_token::{Action, DataAccessToken, RequestDataAccessToken, TopicPermission};
+#[doc(inline)]
 pub use error::ProtocolTokenError;
+#[doc(inline)]
+pub use rest_token::{Claims, DatastreamsMqttTokenClaim, RequestRestToken, RestToken};
 
 #[allow(dead_code)]
 #[derive(Debug, Clone)]

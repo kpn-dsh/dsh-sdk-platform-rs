@@ -4,7 +4,7 @@ use super::claims::Claims;
 use super::token::RestToken;
 use crate::protocol_adapters::token::ProtocolTokenError;
 
-/// Request for geting a Rest token which can be used to get a [`DataAccessToken`](super::data_access_token::DataAccessToken)
+/// Request for geting a [`RestToken`] which can be used to get a [`DataAccessToken`](super::data_access_token::DataAccessToken)
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct RequestRestToken {

@@ -1,3 +1,4 @@
+//! Data Access Token to authenticate to the DSH Mqtt or Http brokers
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
@@ -5,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use super::claims::TopicPermission;
 use crate::protocol_adapters::token::{JwtToken, ProtocolTokenError};
 
-/// Represents attributes associated with a mqtt token.
+/// Data Access Token to authenticate to the DSH Mqtt or Http brokers
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct DataAccessToken {
@@ -29,6 +30,7 @@ pub struct Ports {
 }
 
 impl DataAccessToken {
+    /// Creates a new [`DataAccessToken`] instance based on a raw JWT Token.
     pub fn parse(raw_token: impl Into<String>) -> Result<Self, ProtocolTokenError> {
         let raw_token = raw_token.into();
         let jwt_token = JwtToken::parse(&raw_token)?;
@@ -57,58 +59,72 @@ impl DataAccessToken {
         }
     }
 
+    /// Returns the generation of the token.
     pub fn gen(&self) -> i32 {
         self.gen
     }
 
+    /// Returns the endpoint which the MQTT client should connect to.
     pub fn endpoint(&self) -> &str {
         &self.endpoint
     }
 
+    /// Returns the endpoint which the MQTT websocket client should connect to.
     pub fn endpoint_wss(&self) -> String {
         format!("wss://{}/mqtt", self.endpoint)
     }
 
+    /// Returns the port number which the MQTT client should connect to for `mqtt` protocol.
     pub fn port_mqtt(&self) -> u16 {
         *self.ports.mqtts.get(0).unwrap_or(&8883)
     }
 
+    /// Returns the port number which the MQTT client should connect to for `websocket` protocol.
     pub fn port_wss(&self) -> u16 {
         *self.ports.mqttwss.get(0).unwrap_or(&443)
     }
 
+    /// Returns the [`Ports`] which the MQTT client can connect to.
     pub fn ports(&self) -> &Ports {
         &self.ports
     }
 
+    /// Returns the iss.
     pub fn iss(&self) -> &str {
         &self.iss
     }
 
+    /// Returns the [`TopicPermission`] of the token
     pub fn claims(&self) -> &Vec<TopicPermission> {
         &self.claims
     }
 
+    /// Returns the expiration time (in seconds since UNIX epoch).
     pub fn exp(&self) -> i64 {
         self.exp
     }
 
+    /// Returns the client_id
     pub fn client_id(&self) -> &str {
         &self.client_id
     }
 
+    /// Returns the issued at time (in seconds since UNIX epoch).
     pub fn iat(&self) -> i32 {
         self.iat
     }
 
+    /// Returns the tenant name.
     pub fn tenant_id(&self) -> &str {
         &self.tenant_id
     }
 
+    /// Returns the raw JWT token.
     pub fn raw_token(&self) -> &str {
         &self.raw_token
     }
 
+    /// Checks if the token is valid.
     pub fn is_valid(&self) -> bool {
         let current_unixtime = SystemTime::now()
             .duration_since(UNIX_EPOCH)

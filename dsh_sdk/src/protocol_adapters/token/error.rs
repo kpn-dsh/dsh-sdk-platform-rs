@@ -1,5 +1,5 @@
 #[cfg(feature = "protocol-token-fetcher")]
-/// Error type for the protocol adapter token fetcher
+/// Error type for the protocol tokens
 #[derive(Debug, thiserror::Error)]
 pub enum ProtocolTokenError {
     #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]

@@ -40,10 +40,12 @@ impl RequestDataAccessToken {
         }
     }
 
+    /// Returns the set tenant name
     pub fn tenant(&self) -> &str {
         &self.tenant
     }
 
+    /// Returns the set client ID
     pub fn id(&self) -> &str {
         &self.id
     }
@@ -93,7 +95,26 @@ impl RequestDataAccessToken {
     ///
     /// # Arguments
     /// - `client` - The reqwest client to use for the request.
-    /// - `rest_token` - The rest token to use for the request.   
+    /// - `rest_token` - The rest token to use for the request.
+    ///
+    /// # Returns
+    /// The [`DataAccessToken`] if the request was successful.
+    /// Otherwise a [`ProtocolTokenError`] is returned.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use dsh_sdk::protocol_adapters::token::data_access_token::RequestDataAccessToken;
+    /// use dsh_sdk::protocol_adapters::token::rest_token::RestToken;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = reqwest::Client::new();
+    /// let rest_token = RestToken::parse("valid.jwt.token")?;
+    /// let request = RequestDataAccessToken::new("example_tenant", "Example-client-id");
+    /// let token = request.send(&client, rest_token).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(
         &self,
         client: &reqwest::Client,

@@ -5,9 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::claims::Claims;
 use crate::protocol_adapters::token::{JwtToken, ProtocolTokenError};
 
-/// Token to request a [`DataAccessToken`](super::data_access_token::DataAccessToken).
-///
-/// The token is used to fetch a [`DataAccessToken`](super::data_access_token::DataAccessToken).
+/// Token to request a [`DataAccessToken`](crate::protocol_adapters::token::data_access_token::DataAccessToken).
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct RestToken {

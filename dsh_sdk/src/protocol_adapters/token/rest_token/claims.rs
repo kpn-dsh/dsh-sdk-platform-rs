@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-/// Represents the claims for the Rest token
+/// Represents the claims for the [`RestToken`](super::RestToken)
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Claims {
     // TODO: inverstigate if this is complete

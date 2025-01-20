@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-/// Represent Claims information for MQTT request
-/// * `action` - can be subscribe or publish
+/// Claims in the [`DataAccessToken`](super::DataAccessToken) that represents the permissions per topic.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct TopicPermission {
@@ -11,7 +10,7 @@ pub struct TopicPermission {
     resource: Resource,
 }
 
-/// Enumeration representing possible actions in MQTT claims.
+/// Publis or Subscripe permisison for [`TopicPermission`].
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Copy, Hash)]
 pub enum Action {
     #[serde(alias = "publish")]
@@ -66,7 +65,7 @@ impl TopicPermission {
         )
     }
 
-    /// topic prefix, e.g. /tt
+    /// topic prefix, e.g. `/tt`
     pub fn prefix(&self) -> &str {
         &self.resource.prefix
     }
@@ -81,7 +80,7 @@ impl TopicPermission {
         &self.resource.topic
     }
 
-    /// Returns the action to define what the client can do with the resource.
+    /// Returns the [`Action`] to define what the client can do with the resource.
     pub fn action(&self) -> Action {
         self.action
     }

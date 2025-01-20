@@ -1,3 +1,4 @@
+//! Data Access Token to authenticate to the DSH Mqtt or Http brokers
 use super::ProtocolTokenError;
 
 mod claims;
