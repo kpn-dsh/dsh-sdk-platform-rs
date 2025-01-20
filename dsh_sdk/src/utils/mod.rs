@@ -111,6 +111,15 @@ pub(crate) fn get_env_var(var_name: &'static str) -> Result<String, UtilsError> 
     }
 }
 
+/// Helper function to ensure that the host starts with `https://` or `http://`.
+pub(crate) fn ensure_https_prefix(host: impl AsRef<str>) -> String {
+    if host.as_ref().starts_with("http://") || host.as_ref().starts_with("https://") {
+        host.as_ref().to_string()
+    } else {
+        format!("https://{}", host.as_ref())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -156,5 +165,20 @@ mod tests {
         env::set_var("TEST_ENV_VAR", "test_value");
         let result = get_env_var("TEST_ENV_VAR").unwrap();
         assert_eq!(result, "test_value");
+    }
+
+    #[test]
+    fn test_ensure_https_prefix() {
+        let host = "http://example.com";
+        let result = ensure_https_prefix(host);
+        assert_eq!(result, "http://example.com");
+
+        let host = "https://example.com";
+        let result = ensure_https_prefix(host);
+        assert_eq!(result, "https://example.com");
+
+        let host = "example.com";
+        let result = ensure_https_prefix(host);
+        assert_eq!(result, "https://example.com");
     }
 }

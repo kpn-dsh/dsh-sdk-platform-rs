@@ -14,8 +14,8 @@
 //! - Create a new async client
 //! - Subscribe to a topic
 //! - Print received messages
-use dsh_sdk::protocol_adapters::token_fetcher::api_client_token_fetcher::ApiClientTokenFetcher;
-use dsh_sdk::protocol_adapters::token_fetcher::data_access_token::{
+use dsh_sdk::protocol_adapters::token::api_client_token_fetcher::ApiClientTokenFetcher;
+use dsh_sdk::protocol_adapters::token::data_access_token::{
     DataAccessToken, RequestDataAccessToken,
 };
 

@@ -10,9 +10,9 @@
 //! for devices and this API_KEY should never be distributed
 use std::time::SystemTime;
 
-use dsh_sdk::protocol_adapters::token_fetcher::api_client_token_fetcher::ApiClientTokenFetcher;
-use dsh_sdk::protocol_adapters::token_fetcher::data_access_token::RequestDataAccessToken;
-use dsh_sdk::protocol_adapters::token_fetcher::rest_token::{
+use dsh_sdk::protocol_adapters::token::api_client_token_fetcher::ApiClientTokenFetcher;
+use dsh_sdk::protocol_adapters::token::data_access_token::RequestDataAccessToken;
+use dsh_sdk::protocol_adapters::token::rest_token::{
     DatastreamsMqttTokenClaim, RequestRestToken, RestToken,
 };
 
@@ -20,9 +20,9 @@ use dsh_sdk::protocol_adapters::token_fetcher::rest_token::{
 const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::NpLz;
 
 #[tokio::main]
-async fn main() {
-    let tenant_name = std::env::var("TENANT").unwrap().to_string();
-    let api_key = std::env::var("API_KEY").unwrap().to_string();
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let tenant_name = std::env::var("TENANT").expect("TENANT env variable is not set");
+    let api_key = std::env::var("API_KEY").expect("API_KEY env variable is not set");
 
     // Start logger to Stdout to show what is happening
     env_logger::builder()
@@ -55,13 +55,13 @@ async fn main() {
         .set_exp(
             SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
+                .expect("Time went backwards")
                 .as_secs() as i64
                 + (60 * 10),
         )
         .set_claims(claim);
 
-    let partial_token = token_fetcher.fetch_rest_token(request).await.unwrap();
+    let partial_token = token_fetcher.get_or_fetch_rest_token(request).await?;
     println!(
         "\nRest token with partial permission = {:?}\n",
         partial_token
@@ -70,11 +70,18 @@ async fn main() {
     // send the token as raw token to the external client
     let raw_token = partial_token.raw_token();
 
+    // -------------------------------------------------------------------------------------
+    // External Client code:
+    //
     // When the external client receives the raw_token it can fetch it's own DataAccessToken
+    // - Parse the raw token to a RestToken
+    // - Prepare a request for a DataAccessToken with the external client id
+    // - Fetch the DataAccessToken
+    // -------------------------------------------------------------------------------------
     println!("\nExternal Client code:\n");
 
     // Parse the raw token to a RestToken
-    let rest_token = RestToken::parse(raw_token).unwrap();
+    let rest_token = RestToken::parse(raw_token)?;
     println!("Parsed rest token: {:?}\n", rest_token);
 
     // Prepare a request for a DataAccessToken with the external client id
@@ -82,6 +89,8 @@ async fn main() {
     let client = reqwest::Client::new();
 
     // Fetch the DataAccessToken
-    let data_access_token = request.send(&client, rest_token);
-    println!("Data access token: {:#?}", data_access_token.await.unwrap());
+    let data_access_token = request.send(&client, rest_token).await?;
+    println!("Data access token: {:#?}", data_access_token);
+
+    Ok(())
 }

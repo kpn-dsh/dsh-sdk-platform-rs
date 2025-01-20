@@ -10,8 +10,8 @@
 //! for devices and this API_KEY should never be distributed
 use std::time::SystemTime;
 
-use dsh_sdk::protocol_adapters::token_fetcher::api_client_token_fetcher::ApiClientTokenFetcher;
-use dsh_sdk::protocol_adapters::token_fetcher::data_access_token::{
+use dsh_sdk::protocol_adapters::token::api_client_token_fetcher::ApiClientTokenFetcher;
+use dsh_sdk::protocol_adapters::token::data_access_token::{
     Action, RequestDataAccessToken, TopicPermission,
 };
 
@@ -19,9 +19,9 @@ use dsh_sdk::protocol_adapters::token_fetcher::data_access_token::{
 const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::NpLz;
 
 #[tokio::main]
-async fn main() {
-    let tenant_name = std::env::var("TENANT").unwrap().to_string();
-    let api_key = std::env::var("API_KEY").unwrap().to_string();
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let tenant_name = std::env::var("TENANT").expect("TENANT env variable is not set");
+    let api_key = std::env::var("API_KEY").expect("API_KEY env variable is not set");
 
     // Start logger to Stdout to show what is happening
     env_logger::builder()
@@ -54,7 +54,7 @@ async fn main() {
         .set_exp(
             SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
+                .expect("Time went backwards")
                 .as_secs() as i64
                 + (60 * 10),
         )
@@ -62,9 +62,8 @@ async fn main() {
         .set_claims(claim);
 
     let token = token_fetcher
-        .fetch_data_access_token(request)
-        .await
-        .unwrap();
+        .get_or_fetch_data_access_token(request)
+        .await?;
     println!(
         "\nData acccess token with partial permission = {:?}\n",
         token
@@ -73,4 +72,6 @@ async fn main() {
     // send the token as raw token to the external client
     let raw_token = token.raw_token();
     println!("Token that can be send to external client = {}", raw_token);
+
+    Ok(())
 }

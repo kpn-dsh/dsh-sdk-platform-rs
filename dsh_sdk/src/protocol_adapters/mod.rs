@@ -7,4 +7,4 @@ pub mod kafka_protocol;
 // #[cfg(feature = "mqtt-protocol-adapter")]
 // pub mod mqtt_protocol;
 #[cfg(feature = "protocol-token-fetcher")]
-pub mod token_fetcher;
+pub mod token;
