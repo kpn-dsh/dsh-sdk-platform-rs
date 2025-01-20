@@ -1,95 +1,96 @@
-//! Demonstrates how an API Client Authentication service can fetch a REST token for a device.
+//! Example: API Client Authentication service fetching a REST token for a device.
 //!
-//! With this [RestToken], the device can fetch it's own DataAccessToken to connect to the protocol adapters.
+//! The REST token enables a device to fetch its own DataAccessToken to connect to protocol adapters.
 //!
-//! NEVER implement this logic in a device application/external clients!
-//!
-//! This logic is part of API Client role in the DSH architecture, where the API Client
-//! delegates short lived tokens to devices with proper permissions. The API_KEY in this
-//! code is the long lived REST token that the API Client uses to fetch short lived tokens
-//! for devices and this API_KEY should never be distributed
-use std::time::SystemTime;
+//! ## Important Notes:
+//! - **Do NOT implement this logic in device applications or external clients!**
+//! - This logic is part of the **API Client role** in the DSH architecture.
+//! - The API Client uses a long-lived API_KEY (REST token) to fetch short-lived tokens for devices.
+//! - **The API_KEY must never be distributed.**
 
-use dsh_sdk::protocol_adapters::token::api_client_token_fetcher::ApiClientTokenFetcher;
+use std::time::{SystemTime, UNIX_EPOCH};
 use dsh_sdk::protocol_adapters::token::{
-    DatastreamsMqttTokenClaim, RequestDataAccessToken, RequestRestToken, RestToken,
+    api_client_token_fetcher::ApiClientTokenFetcher, DatastreamsMqttTokenClaim, 
+    RequestDataAccessToken, RequestRestToken, RestToken,
 };
 
-/// The platform to fetch the token for.
+/// Target platform for fetching the token.
 const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::NpLz;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let tenant_name = std::env::var("TENANT").expect("TENANT env variable is not set");
-    let api_key = std::env::var("API_KEY").expect("API_KEY env variable is not set");
+    // Retrieve environment variables
+    let tenant_name = std::env::var("TENANT").expect("TENANT environment variable is not set");
+    let api_key = std::env::var("API_KEY").expect("API_KEY environment variable is not set");
 
-    // Start logger to Stdout to show what is happening
+    // Initialize logger to display detailed SDK activity in stdout
     env_logger::builder()
         .filter(Some("dsh_sdk"), log::LevelFilter::Trace)
         .target(env_logger::Target::Stdout)
         .init();
 
-    // Let's say that for example your API Authentication service receives a request from an external client
-    // and you want to delegate a Rest token with the following partial permissions to the external client:
-    // - The RestToken
-    //      - Is valid for 10 minutes/
-    //      - Can be used to fetch a DataAccessToken with the following permissions
-    //          - Have a maximum expiration time of 5 minutes
-    //          - Only be used by the external client with the id "External-client-id"
+    // Example Scenario:
+    // Assume the API Authentication service receives a request from an external client.
+    // We want to delegate a short-lived REST token with the following properties:
+    // - REST token:
+    //   - Valid for 10 minutes
+    //   - Allows fetching a DataAccessToken with:
+    //     - Maximum expiration of 5 minutes
+    //     - Usage restricted to the external client ID "External-client-id"
 
-    println!("API Authetication service code:");
+    println!("API Authentication Service Code:\n");
 
-    // Create a token fetcher with the API key and platform
+    // Instantiate the API Client Token Fetcher
     let token_fetcher = ApiClientTokenFetcher::new(api_key, PLATFORM);
 
-    // Create claim for MqttToken endpoint
+    // Define the claim for the DatastreamsMqttToken endpoint
     let claim = DatastreamsMqttTokenClaim::new()
-        // Set the client id to the external client id (should be unique)
-        .set_id("External-client-id")
-        // Set the expiration time of DataAcessToken Token to expire in 5 minutes from now
-        .set_relexp(60 * 5);
-    // Create a token request with claim and specific expiration time
-    let request = RequestRestToken::new(&tenant_name)
-        // Set the expiration time of Rest Token to expire in 10 minutes from now
-        .set_exp(
-            SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .expect("Time went backwards")
-                .as_secs() as i64
-                + (60 * 10),
-        )
+        .set_id("External-client-id") // External client ID (should be unique)
+        .set_relexp(300); // Relative expiration of 5 minutes (300 seconds)
+
+    // Create a token request with the claim and expiration time
+    let expiration_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("System time is before UNIX epoch")
+        .as_secs() as i64
+        + 600; // 10 minutes in seconds
+
+    let rest_token_request = RequestRestToken::new(&tenant_name)
+        .set_exp(expiration_time)
         .set_claims(claim);
 
-    let partial_token = token_fetcher.get_or_fetch_rest_token(request).await?;
+    // Fetch the REST token
+    let partial_token = token_fetcher.get_or_fetch_rest_token(rest_token_request).await?;
     println!(
-        "\nRest token with partial permission = {:?}\n",
+        "\nGenerated REST token with partial permissions: {:?}",
         partial_token
     );
 
-    // send the token as raw token to the external client
+    // Send the raw token to the external client
     let raw_token = partial_token.raw_token();
+    println!("\nRaw token to send to external client: {}", raw_token);
 
     // -------------------------------------------------------------------------------------
-    // External Client code:
+    // External Client Code:
     //
-    // When the external client receives the raw_token it can fetch it's own DataAccessToken
-    // - Parse the raw token to a RestToken
-    // - Prepare a request for a DataAccessToken with the external client id
-    // - Fetch the DataAccessToken
+    // When the external client receives the raw_token, it can fetch its own DataAccessToken:
+    // 1. Parse the raw token into a RestToken.
+    // 2. Prepare a request for a DataAccessToken with the external client ID.
+    // 3. Fetch the DataAccessToken using the RestToken.
     // -------------------------------------------------------------------------------------
-    println!("\nExternal Client code:\n");
+    println!("\nExternal Client Code:");
 
-    // Parse the raw token to a RestToken
+    // Parse the raw token into a RestToken
     let rest_token = RestToken::parse(raw_token)?;
-    println!("Parsed rest token: {:?}\n", rest_token);
+    println!("\nParsed REST token: {:?}", rest_token);
 
-    // Prepare a request for a DataAccessToken with the external client id
-    let request = RequestDataAccessToken::new(rest_token.tenant_id(), "External-client-id");
-    let client = reqwest::Client::new();
+    // Prepare a request for a DataAccessToken using the external client ID
+    let data_access_request = RequestDataAccessToken::new(rest_token.tenant_id(), "External-client-id");
 
-    // Fetch the DataAccessToken
-    let data_access_token = request.send(&client, rest_token).await?;
-    println!("Data access token: {:#?}", data_access_token);
+    // Use an HTTP client to send the request and fetch the DataAccessToken
+    let http_client = reqwest::Client::new();
+    let data_access_token = data_access_request.send(&http_client, rest_token).await?;
+    println!("\nFetched DataAccessToken: {:#?}", data_access_token);
 
     Ok(())
 }
