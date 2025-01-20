@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-/// Claims in the [`DataAccessToken`](super::DataAccessToken) that represents the permissions per topic.
+/// Permissions per topic for the [`DataAccessToken`](super::DataAccessToken).
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct TopicPermission {
@@ -10,7 +10,7 @@ pub struct TopicPermission {
     resource: Resource,
 }
 
-/// Publis or Subscripe permisison for [`TopicPermission`].
+/// `publish` or `subscribe` permisison for [`TopicPermission`].
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Copy, Hash)]
 pub enum Action {
     #[serde(alias = "publish")]
@@ -19,7 +19,7 @@ pub enum Action {
     Subscribe,
 }
 
-/// Represents a resource in the MQTT claim.
+/// Represents a resource/datastream in the [`TopicPermission`] claim.
 ///
 /// The resource defines what the client can access in terms of stream, prefix, topic, and type.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Hash)]

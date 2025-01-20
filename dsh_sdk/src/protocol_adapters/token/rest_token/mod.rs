@@ -1,7 +1,4 @@
-//! Protocol Rest token
-//!
-//!
-
+//! Rest token to be used for fetching [`DataAccessToken`](crate::protocol_adapters::token::data_access_token::DataAccessToken)
 mod claims;
 mod request;
 mod token;

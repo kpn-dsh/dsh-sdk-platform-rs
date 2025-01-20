@@ -6,7 +6,7 @@ use crate::protocol_adapters::token::rest_token::RestToken;
 use crate::protocol_adapters::token::ProtocolTokenError;
 use crate::utils::ensure_https_prefix;
 
-/// Request for geting a [DataAccessToken] which can be used to authenticate to the DSH Mqtt or Http brokers
+/// Request for geting a [`DataAccessToken`] which can be used to authenticate to the DSH Mqtt or Http brokers
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RequestDataAccessToken {
     /// Tenant name

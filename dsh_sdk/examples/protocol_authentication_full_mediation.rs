@@ -11,9 +11,7 @@
 use std::time::SystemTime;
 
 use dsh_sdk::protocol_adapters::token::api_client_token_fetcher::ApiClientTokenFetcher;
-use dsh_sdk::protocol_adapters::token::data_access_token::{
-    Action, RequestDataAccessToken, TopicPermission,
-};
+use dsh_sdk::protocol_adapters::token::{Action, RequestDataAccessToken, TopicPermission};
 
 /// The platform to fetch the token for.
 const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::NpLz;

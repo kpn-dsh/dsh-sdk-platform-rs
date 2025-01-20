@@ -11,9 +11,8 @@
 use std::time::SystemTime;
 
 use dsh_sdk::protocol_adapters::token::api_client_token_fetcher::ApiClientTokenFetcher;
-use dsh_sdk::protocol_adapters::token::data_access_token::RequestDataAccessToken;
-use dsh_sdk::protocol_adapters::token::rest_token::{
-    DatastreamsMqttTokenClaim, RequestRestToken, RestToken,
+use dsh_sdk::protocol_adapters::token::{
+    DatastreamsMqttTokenClaim, RequestDataAccessToken, RequestRestToken, RestToken,
 };
 
 /// The platform to fetch the token for.

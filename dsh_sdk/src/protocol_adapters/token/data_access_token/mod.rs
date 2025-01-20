@@ -1,4 +1,4 @@
-//! Data Access Token to authenticate to the DSH Mqtt or Http brokers
+//! Access Token to authenticate to the DSH Mqtt or Http brokers
 use super::ProtocolTokenError;
 
 mod claims;
@@ -10,7 +10,7 @@ pub use claims::{Action, TopicPermission};
 #[doc(inline)]
 pub use request::RequestDataAccessToken;
 #[doc(inline)]
-pub use token::DataAccessToken;
+pub use token::{DataAccessToken, Ports};
 
 /// Validates if a string can be used as a client_id
 ///

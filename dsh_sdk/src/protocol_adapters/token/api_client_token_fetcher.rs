@@ -1,4 +1,4 @@
-//! Token fetcher for fetching Rest and Data Access tokens by an API Client authentication service.
+//! Token fetcher for fetching [`RestToken`]s and [`DataAccessToken`]s by an API Client authentication service.
 //!
 //! An API client is an organization that develops or supplies services (applications)
 //! and devices (external clients) that will read data from or publish data on the public

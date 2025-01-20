@@ -1,4 +1,4 @@
-//! Data Access Token to authenticate to the DSH Mqtt or Http brokers
+//! Access Token to authenticate to the DSH Mqtt or Http brokers
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use super::claims::TopicPermission;
 use crate::protocol_adapters::token::{JwtToken, ProtocolTokenError};
 
-/// Data Access Token to authenticate to the DSH Mqtt or Http brokers
+/// Access Token to authenticate to the DSH Mqtt or Http brokers
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct DataAccessToken {

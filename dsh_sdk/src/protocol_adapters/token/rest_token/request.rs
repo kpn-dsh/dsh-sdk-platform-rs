@@ -4,7 +4,7 @@ use super::claims::Claims;
 use super::token::RestToken;
 use crate::protocol_adapters::token::ProtocolTokenError;
 
-/// Request for geting a [`RestToken`] which can be used to get a [`DataAccessToken`](super::data_access_token::DataAccessToken)
+/// Request for geting a [`RestToken`] which can be used to get a [`DataAccessToken`](crate::protocol_adapters::token::data_access_token::DataAccessToken).
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct RequestRestToken {
@@ -13,7 +13,7 @@ pub struct RequestRestToken {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Requested expiration time in seconds (in seconds since UNIX epoch)
     exp: Option<i64>,
-    /// Requested claims and permissions that the [`DataAccessToken`](super::data_access_token::DataAccessToken) should have
+    /// Requested claims and permissions that the [`DataAccessToken`](crate::protocol_adapters::token::data_access_token::DataAccessToken) should have
     #[serde(skip_serializing_if = "Option::is_none")]
     claims: Option<Claims>,
 }
@@ -41,8 +41,18 @@ impl RequestRestToken {
     ///
     /// # Example
     /// ```no_run
-    /// use dsh_sdk::protocol_adapters::token::rest_token::RequestRestToken;
-
+    /// use dsh_sdk::protocol_adapters::token::RequestRestToken;
+    /// use dsh_sdk::Platform;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let request = RequestRestToken::new("example_tenant");
+    /// let client = reqwest::Client::new();
+    /// let platform = Platform::NpLz;
+    /// let token = request.send(&client, "API_KEY", platform.endpoint_protocol_rest_token()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(
         &self,
         client: &reqwest::Client,

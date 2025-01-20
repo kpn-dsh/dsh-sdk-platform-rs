@@ -28,7 +28,7 @@ impl Claims {
     }
 }
 
-/// Represents the claims for the "datastreams/v0/mqtt/token" endpoint
+/// "datastreams/v0/mqtt/token" endpoint claim in the [`RestToken`](super::RestToken)
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct DatastreamsMqttTokenClaim {
     /// External Client ID
@@ -54,13 +54,13 @@ impl DatastreamsMqttTokenClaim {
         Self::default()
     }
 
-    /// Sets the external client ID for which the [`RestToken`]] is requested
+    /// Sets the external client ID for which the [`RestToken`](super::RestToken) is requested
     pub fn set_id(mut self, id: impl Into<String>) -> Self {
         self.id = Some(id.into());
         self
     }
 
-    /// Returns the external client ID for which the [`RestToken`] is requested
+    /// Returns the external client ID for which the [`RestToken`](super::RestToken) is requested
     pub fn id(&self) -> Option<&str> {
         self.id.as_deref()
     }
@@ -76,7 +76,7 @@ impl DatastreamsMqttTokenClaim {
         self.tenant.as_deref()
     }
 
-    /// Sets the requested expiration time in seconds for [`DataAccessToken`](super::data_access_token::DataAccessToken) (in seconds since from now)
+    /// Sets the requested expiration time in seconds for [`DataAccessToken`](crate::protocol_adapters::token::DataAccessToken) (in seconds since from moment of request)
     pub fn set_relexp(mut self, relexp: i32) -> Self {
         self.relexp = Some(relexp);
         self
