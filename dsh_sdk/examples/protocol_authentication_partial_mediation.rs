@@ -8,11 +8,11 @@
 //! - The API Client uses a long-lived API_KEY (REST token) to fetch short-lived tokens for devices.
 //! - **The API_KEY must never be distributed.**
 
-use std::time::{SystemTime, UNIX_EPOCH};
 use dsh_sdk::protocol_adapters::token::{
-    api_client_token_fetcher::ApiClientTokenFetcher, DatastreamsMqttTokenClaim, 
+    api_client_token_fetcher::ApiClientTokenFetcher, DatastreamsMqttTokenClaim,
     RequestDataAccessToken, RequestRestToken, RestToken,
 };
+use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Target platform for fetching the token.
 const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::NpLz;
@@ -60,7 +60,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .set_claims(claim);
 
     // Fetch the REST token
-    let partial_token = token_fetcher.get_or_fetch_rest_token(rest_token_request).await?;
+    let partial_token = token_fetcher
+        .get_or_fetch_rest_token(rest_token_request)
+        .await?;
     println!(
         "\nGenerated REST token with partial permissions: {:?}",
         partial_token
@@ -85,7 +87,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\nParsed REST token: {:?}", rest_token);
 
     // Prepare a request for a DataAccessToken using the external client ID
-    let data_access_request = RequestDataAccessToken::new(rest_token.tenant_id(), "External-client-id");
+    let data_access_request =
+        RequestDataAccessToken::new(rest_token.tenant_id(), "External-client-id");
 
     // Use an HTTP client to send the request and fetch the DataAccessToken
     let http_client = reqwest::Client::new();

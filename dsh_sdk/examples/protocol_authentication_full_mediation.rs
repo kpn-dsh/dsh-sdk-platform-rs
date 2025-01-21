@@ -8,10 +8,11 @@
 //! - The API Client uses a long-lived API_KEY to fetch short-lived tokens for devices.
 //! - **The API_KEY must never be distributed.**
 
-use std::time::{SystemTime, UNIX_EPOCH};
 use dsh_sdk::protocol_adapters::token::{
-    api_client_token_fetcher::ApiClientTokenFetcher, Action, RequestDataAccessToken, TopicPermission,
+    api_client_token_fetcher::ApiClientTokenFetcher, Action, RequestDataAccessToken,
+    TopicPermission,
 };
+use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Target platform for fetching the token.
 const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::NpLz;
