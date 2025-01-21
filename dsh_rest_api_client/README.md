@@ -37,15 +37,15 @@ It is recommended to use the Rest Token Fetcher from the `dsh_sdk` crate. To do 
 
 ```toml
 [dependencies]
-dsh_rest_api_client = "0.2.0"
-dsh_sdk = { version = "0.4", features = ["rest-token-fetcher"], default-features = false }
+dsh_rest_api_client = "0.3.0"
+dsh_sdk = { version = "0.5", features = ["management-api-token-fetcher"], default-features = false }
 tokio = { version = "1", features = ["full"] }
 ```
 
 To use the client in your project:
 ```rust
 use dsh_rest_api_client::Client;
-use dsh_sdk::{Platform, RestTokenFetcherBuilder};
+use dsh_sdk::{Platform, ManagementApiTokenFetcherBuilder};
 
 const CLIENT_SECRET: &str = "";
 const TENANT: &str = "tenant-name";
@@ -55,7 +55,7 @@ async fn main() {
     let platform = Platform::NpLz;
     let client = Client::new(platform.endpoint_rest_api());
 
-    let tf = RestTokenFetcherBuilder::new(platform)
+    let tf = ManagementApiTokenFetcherBuilder::new(platform)
         .tenant_name(TENANT.to_string())
         .client_secret(CLIENT_SECRET.to_string())
         .build()
