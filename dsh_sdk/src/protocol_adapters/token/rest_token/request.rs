@@ -20,6 +20,12 @@ pub struct RequestRestToken {
 
 impl RequestRestToken {
     /// Creates a new [`RequestRestToken`] instance with full access request.
+    ///
+    /// # Arguments
+    /// - `tenant` - The tenant name or API client name.
+    ///
+    /// # Returns
+    /// A new [`RequestRestToken`] instance with full access.
     pub fn new(tenant: impl Into<String>) -> Self {
         Self {
             tenant: tenant.into(),
@@ -31,7 +37,7 @@ impl RequestRestToken {
     /// Send the request to the DSH platform to get a [`RestToken`].
     ///
     /// # Arguments
-    /// - `client` - The reqwest client to use for the request.
+    /// - `client` - The [reqwest client](reqwest::Client) to use for the request.
     /// - `api_key` - The API key to authenticate to the DSH platform.
     /// - `auth_url` - The URL of the DSH platform to send the request to (See [Platform::endpoint_protocol_rest_token](crate::Platform::endpoint_protocol_rest_token)).
     ///
@@ -79,7 +85,7 @@ impl RequestRestToken {
         }
     }
 
-    /// Returns the tenant
+    /// Returns the tenant name or API client name.
     pub fn tenant(&self) -> &str {
         &self.tenant
     }

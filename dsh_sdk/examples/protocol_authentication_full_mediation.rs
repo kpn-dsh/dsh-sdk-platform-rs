@@ -33,9 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Assume the API Authentication service receives a request from an external client.
     // We want to delegate a DataAccessToken with the following properties:
     // - Valid for 10 minutes
-    // - Allows fetching another DataAccessToken with:
-    //   - Maximum expiration of 5 minutes
-    //   - Usage restricted to the external client ID "External-client-id"
+    // - Allows subscribing to the topic "state/app/{tenant_name}" in the "amp" stream
 
     // Instantiate the API Client Token Fetcher
     let token_fetcher = ApiClientTokenFetcher::new(api_key, PLATFORM);
