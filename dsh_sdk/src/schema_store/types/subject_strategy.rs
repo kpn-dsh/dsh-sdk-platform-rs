@@ -31,10 +31,10 @@ pub enum SubjectName {
 impl SubjectName {
     pub fn new_topic_name_strategy<S>(topic: S, key: bool) -> Self
     where
-        S: AsRef<str>,
+        S: Into<String>,
     {
         Self::TopicNameStrategy {
-            topic: topic.as_ref().to_string(),
+            topic: topic.into(),
             key,
         }
     }
