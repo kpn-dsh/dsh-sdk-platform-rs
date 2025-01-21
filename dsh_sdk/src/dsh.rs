@@ -40,7 +40,7 @@ use crate::protocol_adapters::kafka_protocol::config::KafkaConfig;
 // TODO: Remove at v0.6.0
 pub use crate::dsh_old::*;
 
-/// Lazily initializes all related components to connect to DSH:
+/// Lazily initializes all related components to connect to DSH and Kafka.
 /// - Information from `datastreams.json`
 /// - Metadata of the running container/task
 /// - Certificates for Kafka and DSH Schema Registry

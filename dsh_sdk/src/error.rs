@@ -5,7 +5,7 @@
 //! includes a helper function, [`report`], for generating a more readable error
 //! trace by iterating over source causes.
 
-/// The main error type for the DSH SDK.
+/// Errpors defined in [`Dsh`](super::Dsh).
 ///
 /// This enum wraps more specific errors from different parts of the SDK:
 /// - [`CertificatesError`](crate::certificates::CertificatesError)

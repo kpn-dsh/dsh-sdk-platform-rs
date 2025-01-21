@@ -1,7 +1,6 @@
 #![doc = include_str!("../README.md")]
 #![allow(deprecated)]
 
-// Keep in v0.6.0 for backward compatibility
 #[cfg(feature = "bootstrap")]
 pub mod certificates;
 #[cfg(feature = "bootstrap")]
@@ -10,34 +9,26 @@ pub mod datastream;
 pub mod dsh;
 #[cfg(feature = "bootstrap")]
 mod error;
-
-// Management API token fetcher feature
 #[cfg(feature = "management-api-token-fetcher")]
 pub mod management_api;
-
 // Protocol adapters and utilities
 pub mod protocol_adapters;
-pub mod utils;
-
-// Schema Store feature
 #[cfg(feature = "schema-store")]
 pub mod schema_store;
+pub mod utils;
 
 // Re-exports for convenience
-#[cfg(feature = "bootstrap")]
-#[doc(inline)]
-pub use {dsh::Dsh, error::DshError};
-
-#[cfg(feature = "kafka")]
-#[doc(inline)]
-pub use protocol_adapters::kafka_protocol::DshKafkaConfig;
-
 #[cfg(feature = "management-api-token-fetcher")]
 #[doc(inline)]
 pub use management_api::{ManagementApiTokenFetcher, ManagementApiTokenFetcherBuilder};
-
+#[cfg(feature = "kafka")]
+#[doc(inline)]
+pub use protocol_adapters::kafka_protocol::DshKafkaConfig;
 #[doc(inline)]
 pub use utils::Platform;
+#[cfg(feature = "bootstrap")]
+#[doc(inline)]
+pub use {dsh::Dsh, error::DshError};
 
 // TODO: to be removed in v0.6.0
 #[cfg(feature = "dlq")]
@@ -51,6 +42,7 @@ pub mod dlq;
             `dsh_sdk::certificates` for certificate management; `dsh_sdk::datastream` for \
             datastream handling."
 )]
+#[doc(hidden)]
 pub mod dsh_old;
 
 #[cfg(feature = "graceful-shutdown")]
@@ -67,20 +59,28 @@ pub mod graceful_shutdown;
 )]
 pub mod metrics;
 
-#[cfg(all(feature = "protocol-token-fetcher", feature = "bootstrap"))]
+#[cfg(all(
+    any(feature = "protocol-token", feature = "mqtt-token-fetcher"),
+    feature = "bootstrap"
+))]
 #[deprecated(
     since = "0.5.0",
-    note = "`dsh_sdk::mqtt_token_fetcher` is moved to `dsh_sdk::protocol_adapters::token_fetcher`"
+    note = "Use cargo feature `protocol-token` instead of `mqtt-token-fetcher` \
+    `dsh_sdk::mqtt_token_fetcher` is moved to `dsh_sdk::protocol_adapters::token_fetcher`"
 )]
 pub mod mqtt_token_fetcher;
 
 #[cfg(feature = "bootstrap")]
 pub use dsh_old::Properties;
 
-#[cfg(feature = "management-api-token-fetcher")]
+#[cfg(any(
+    feature = "management-api-token-fetcher",
+    feature = "rest-token-fetcher"
+))]
 #[deprecated(
     since = "0.5.0",
-    note = "`RestTokenFetcher` and `RestTokenFetcherBuilder` are renamed to \
+    note = "Use cargo feature flag `management-api-token-fetcher` instead of `rest-token-fetcher` \
+            `RestTokenFetcher` and `RestTokenFetcherBuilder` are renamed to \
             `ManagementApiTokenFetcher` and `ManagementApiTokenFetcherBuilder`"
 )]
 mod rest_api_token_fetcher;

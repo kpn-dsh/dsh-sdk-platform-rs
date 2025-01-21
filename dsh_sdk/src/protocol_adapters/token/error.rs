@@ -1,4 +1,4 @@
-#[cfg(feature = "protocol-token-fetcher")]
+#[cfg(feature = "protocol-token")]
 /// Error type for the protocol tokens
 #[derive(Debug, thiserror::Error)]
 pub enum ProtocolTokenError {
