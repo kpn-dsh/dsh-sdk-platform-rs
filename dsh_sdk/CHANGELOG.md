@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Read certificates from PKI_CONFIG_DIR
   - Add support reading private key in DER format when reading from PKI_CONFIG_DIR
 - Implement `TryFrom<&Str>` and `RryFrom<String>` for `dsh_sdk::Platform`
+- AccessToken is now public in managemant api token fetcher
 
 ### Changed
 - **Breaking change:** `DshError` is now split into error enums per feature flag to untangle mess
@@ -44,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed re-export of `prometheus` and `lazy_static` in `metrics` module, if needed import them directly
   - **NOTE** See [examples](./examples/expose_metrics.rs) how to use the http server
 
-- Removed `Default` trait for `Dsh` (original `Properties`) struct as this should be public
+- Removed `Default` trait for `Dsh` (original `Properties`) struct as this should not be public
 
 ### Fixed
 
