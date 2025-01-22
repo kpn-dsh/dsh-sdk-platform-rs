@@ -137,7 +137,7 @@ impl Default for AccessToken {
 /// let token_fetcher = ManagementApiTokenFetcher::new(
 ///     client_id,
 ///     client_secret,
-///     platform.endpoint_rest_access_token().to_string()
+///     platform.endpoint_management_api_token().to_string()
 /// );
 ///
 /// let token = token_fetcher.get_token().await?;
@@ -170,7 +170,7 @@ impl ManagementApiTokenFetcher {
     /// let token_fetcher = ManagementApiTokenFetcher::new(
     ///     client_id,
     ///     client_secret,
-    ///     platform.endpoint_rest_access_token()
+    ///     platform.endpoint_management_api_token()
     /// );
     ///
     /// let token = token_fetcher.get_token().await.unwrap();
@@ -212,7 +212,7 @@ impl ManagementApiTokenFetcher {
     /// let token_fetcher = ManagementApiTokenFetcher::new_with_client(
     ///     client_id,
     ///     client_secret,
-    ///     platform.endpoint_rest_access_token().to_string(),
+    ///     platform.endpoint_management_api_token().to_string(),
     ///     custom_client
     /// );
     /// let token = token_fetcher.get_token().await.unwrap();
@@ -461,7 +461,7 @@ impl ManagementApiTokenFetcherBuilder {
         let token_fetcher = ManagementApiTokenFetcher::new_with_client(
             client_id,
             client_secret,
-            self.platform.endpoint_rest_access_token().to_string(),
+            self.platform.endpoint_management_api_token().to_string(),
             client,
         );
         Ok(token_fetcher)
@@ -640,7 +640,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     /// Ensures the builder can auto-generate `client_id` from the `tenant_name`.
@@ -659,7 +659,7 @@ mod test {
             format!("robot:{}:{}", Platform::NpLz.realm(), tenant_name)
         );
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     /// Validates that a custom `reqwest::Client` can be injected into the builder.
@@ -677,7 +677,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     /// Tests precedence of `client_id` over a derived tenant-based client ID.
@@ -695,7 +695,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id_override);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     /// Ensures builder returns errors if `client_id` or `client_secret` are missing.

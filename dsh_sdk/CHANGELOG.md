@@ -29,8 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved `dsh_sdk::dsh::datastream` to `dsh_sdk::datastream`
 - Moved `dsh_sdk::dsh::certificates` to `dsh_sdk::certificates`
   - Private module `dsh_sdk::dsh::bootstrap` and `dsh_sdk::dsh::pki_config_dir` are now part of `certificates` module
-- **Breaking change:** Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token_fetcher` and renamed to `ProtocolTokenFetcher`
-  -  **NOTE** Cargo.toml feature flag `mqtt-token-fetcher`  renamed to `protocol-token-fetcher`
+- **Breaking change:** Moved `dsh_sdk::mqtt_token_fetcher` to `dsh_sdk::protocol_adapters::token` and renamed to `ApiClientTokenFetcher`
+  - **NOTE** The code is refactored to follow the partial mediation and full mediation pattern
+  - **NOTE** Cargo.toml feature flag `mqtt-token-fetcher`  renamed to `protocol-token-fetcher`
 - **Breaking change:** Renamed  `dsh_sdk::Platform` methods to more meaningful names
 - **Breaking change:** Moved `dsh_sdk::dlq` to `dsh_sdk::utils::dlq` 
 - **Breaking change:** Moved `dsh_sdk::graceful_shutdown` to `dsh_sdk::utils::graceful_shutdown`

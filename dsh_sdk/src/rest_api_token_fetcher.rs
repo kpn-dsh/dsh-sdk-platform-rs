@@ -136,7 +136,7 @@ impl RestTokenFetcher {
     ///     let platform = Platform::NpLz;
     ///     let client_id = platform.rest_client_id("my-tenant");
     ///     let client_secret = "my-secret".to_string();
-    ///     let token_fetcher = RestTokenFetcher::new(client_id, client_secret, platform.endpoint_rest_access_token().to_string());
+    ///     let token_fetcher = RestTokenFetcher::new(client_id, client_secret, platform.endpoint_management_api_token().to_string());
     ///     let token = token_fetcher.get_token().await.unwrap();
     /// }
     /// ```
@@ -162,7 +162,7 @@ impl RestTokenFetcher {
     ///     let client_id = platform.rest_client_id("my-tenant");
     ///     let client_secret = "my-secret".to_string();
     ///     let client = reqwest::Client::new();
-    ///     let token_fetcher = RestTokenFetcher::new_with_client(client_id, client_secret, platform.endpoint_rest_access_token().to_string(), client);
+    ///     let token_fetcher = RestTokenFetcher::new_with_client(client_id, client_secret, platform.endpoint_management_api_token().to_string(), client);
     ///     let token = token_fetcher.get_token().await.unwrap();
     /// }
     /// ```
@@ -354,7 +354,7 @@ impl RestTokenFetcherBuilder {
         let token_fetcher = RestTokenFetcher::new_with_client(
             client_id,
             client_secret,
-            self.platform.endpoint_rest_access_token().to_string(),
+            self.platform.endpoint_management_api_token().to_string(),
             client,
         );
         Ok(token_fetcher)
@@ -525,7 +525,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     #[test]
@@ -543,7 +543,7 @@ mod test {
             format!("robot:{}:{}", Platform::NpLz.realm(), tenant_name)
         );
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     #[test]
@@ -560,7 +560,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     #[test]
@@ -577,7 +577,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id_override);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     #[test]
