@@ -12,7 +12,7 @@ A Rust SDK to interact with the DSH Platform. This library provides convenient b
 
 ## Table of Contents
 
-1. [Migration Guide 0.4.X -> 0.5.X](#migration-guide-04x---05x)  
+1. [Migration Guide](#migration-guide)  
 2. [Description](#description)  
 3. [Usage](#usage)  
 4. [Connecting to DSH](#connect-to-dsh)  
@@ -26,7 +26,7 @@ A Rust SDK to interact with the DSH Platform. This library provides convenient b
 
 ---
 
-## Migration Guide 0.4.X -> 0.5.X
+## Migration Guide
 
 If you are migrating from `v0.4.X` to `v0.5.X`(or `v0.6.X`), please see the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details on breaking changes and how to update your code accordingly.
 
