@@ -300,16 +300,6 @@ where
         Ok(subjects)
     }
 
-    // Example of a commented-out method that’s not fully implemented yet:
-    // /// Gets all schemas for a given topic.
-    // /// This might differentiate key vs. value schemas.
-    // pub async fn topic_all_schemas<S>(&self, topic: S) -> Result<(Vec<Subject>, Vec<Subject>), SchemaStoreError>
-    // where
-    //     S: AsRef<str>,
-    // {
-    //     // Implementation to fetch key_schemas and value_schemas is pending.
-    // }
-
     /// Registers a **new** schema under the given subject.
     ///
     /// - If the subject doesn’t exist, it is created with the provided schema.

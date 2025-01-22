@@ -178,9 +178,9 @@ impl ManagementApiTokenFetcher {
     /// # }
     /// ```
     pub fn new(
-        client_id: impl AsRef<str>,
-        client_secret: impl AsRef<str>,
-        auth_url: impl AsRef<str>,
+        client_id: impl Into<String>,
+        client_secret: impl Into<String>,
+        auth_url: impl Into<String>,
     ) -> Self {
         Self::new_with_client(
             client_id,
@@ -220,18 +220,18 @@ impl ManagementApiTokenFetcher {
     /// # }
     /// ```
     pub fn new_with_client(
-        client_id: impl AsRef<str>,
-        client_secret: impl AsRef<str>,
-        auth_url: impl AsRef<str>,
+        client_id: impl Into<String>,
+        client_secret: impl Into<String>,
+        auth_url: impl Into<String>,
         client: reqwest::Client,
     ) -> Self {
         Self {
             access_token: Mutex::new(AccessToken::default()),
             fetched_at: Mutex::new(Instant::now()),
-            client_id: client_id.as_ref().to_string(),
-            client_secret: client_secret.as_ref().to_string(),
+            client_id: client_id.into(),
+            client_secret: client_secret.into(),
             client,
-            auth_url: auth_url.as_ref().to_string(),
+            auth_url: auth_url.into(),
         }
     }
 
@@ -395,14 +395,14 @@ impl ManagementApiTokenFetcherBuilder {
     /// Sets an explicit client ID for authentication.
     ///
     /// If you also specify `tenant_name`, the client ID here takes precedence.
-    pub fn client_id(mut self, client_id: impl AsRef<str>) -> Self {
-        self.client_id = Some(client_id.as_ref().to_string());
+    pub fn client_id(mut self, client_id: impl Into<String>) -> Self {
+        self.client_id = Some(client_id.into());
         self
     }
 
     /// Sets a client secret required for token fetching.
-    pub fn client_secret(mut self, client_secret: impl AsRef<str>) -> Self {
-        self.client_secret = Some(client_secret.as_ref().to_string());
+    pub fn client_secret(mut self, client_secret: impl Into<String>) -> Self {
+        self.client_secret = Some(client_secret.into());
         self
     }
 
@@ -410,8 +410,8 @@ impl ManagementApiTokenFetcherBuilder {
     ///
     /// This will use `platform.rest_client_id(tenant_name)` unless `client_id`
     /// is already set.
-    pub fn tenant_name(mut self, tenant_name: impl AsRef<str>) -> Self {
-        self.tenant_name = Some(tenant_name.as_ref().to_string());
+    pub fn tenant_name(mut self, tenant_name: impl Into<String>) -> Self {
+        self.tenant_name = Some(tenant_name.into());
         self
     }
 

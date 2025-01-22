@@ -8,9 +8,6 @@
 
 A Rust SDK to interact with the DSH Platform. This library provides convenient building blocks for services that need to connect to DSH Kafka, fetch tokens for various protocols, manage Prometheus metrics, and more.
 
-> **Note**  
-> This library (v0.5.x) is a _release candidate_. It may contain incomplete features and/or bugs. Future updates might introduce breaking changes. Please report any issues you find.
-
 ---
 
 ## Table of Contents
@@ -31,7 +28,9 @@ A Rust SDK to interact with the DSH Platform. This library provides convenient b
 
 ## Migration Guide 0.4.X -> 0.5.X
 
-If you are migrating from `0.4.X` to `0.5.X`, please see the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details on breaking changes and how to update your code accordingly.
+If you are migrating from `v0.4.X` to `v0.5.X`(or `v0.6.X`), please see the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details on breaking changes and how to update your code accordingly.
+
+`v0.6.0` will not contain any breaking changes, except for the removal of deprecated code. You can use `v0.5.X` as a stepping stone to `v0.6.0` by following the deprecation warnings the compiler gives.
 
 ---
 
@@ -52,7 +51,7 @@ The `dsh-sdk-platform-rs` library offers:
   - **RDKafka** implementation
 
 - **Common Utilities**  
-  - Prometheus metrics (built-in HTTP server, plus re-export of the `metrics` crate).  
+  - Lightweight HTTP server for exposing Metircs.  
   - Tokio-based graceful shutdown handling.  
   - Dead Letter Queue (DLQ) functionality.
 
@@ -64,7 +63,7 @@ To get started, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dsh_sdk = "0.5.0-rc.2"
+dsh_sdk = "0.5"
 rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"] }
 ```
 
@@ -118,7 +117,7 @@ Below is an overview of the available features:
 | `kafka`                        | ✓           | Enable `DshKafkaConfig` trait and Config struct to connect to DSH | [Kafka](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_example.rs) / [Kafka Proxy](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_proxy.rs) |
 | `rdkafka-config`               | ✓           | Enable `DshKafkaConfig` implementation for RDKafka                | [Kafka](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_example.rs) / [Kafka Proxy](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_proxy.rs) |
 | `schema-store`                 | ✗           | Interact with DSH Schema Store                                    | [Schema Store API](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/schema_store_api.rs)                                                                                   |
-| `protocol-token-fetcher`       | ✗           | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP)         | [Mqtt client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs.rs) / [Mqtt websocket client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs.rs) /<br>[token fetcher (full mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_full_mediation.rs) / [token fetcher (partial mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_partial_mediation.rs) |
+| `protocol-token`       | ✗           | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP)         | [Mqtt client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs.rs) / [Mqtt websocket client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs.rs) /<br>[Token fetcher (full mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_full_mediation.rs) / [Token fetcher (partial mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_partial_mediation.rs) |
 | `management-api-token-fetcher` | ✗           | Fetch tokens to use DSH Management API                            | [Token fetcher](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/management_api_token_fetcher.rs)     |
 | `metrics`                      | ✗           | Enable prometheus metrics including http server                   | [Expose metrics](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs)                  |
 | `graceful-shutdown`            | ✗           | Tokio based graceful shutdown handler                             | [Graceful shutdown](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/graceful_shutdown.rs)            |
@@ -130,7 +129,7 @@ To pick only the features you need, disable the default features and enable spec
 
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.5.0-rc.2", default-features = false, features = ["management-api-token-fetcher"] }
+dsh_sdk = { version = "0.5", default-features = false, features = ["management-api-token-fetcher"] }
 ```
 
 ---
@@ -151,7 +150,7 @@ A more complete example is provided in the [`example_dsh_service/`](https://gith
 
 - How to build the Rust project
 - How to package and push it to Harbor
-- An end-to-end setup of a DSH service
+- An end-to-end setup of a DSH service uising Kafka
 
 See the [README](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/example_dsh_service/README.md) in that directory for more information.
 

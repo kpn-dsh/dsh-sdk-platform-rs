@@ -1,4 +1,4 @@
-//! The [`RestToken`] and [`DataAccessToken`] which can be used to authenticate against the DSH platform.
+//! The [`RestToken`] and [`DataAccessToken`] which can be used to authenticate against the DSH Mqtt and Http brokers.
 pub mod api_client_token_fetcher;
 pub mod data_access_token;
 mod error;

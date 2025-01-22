@@ -31,7 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Start logger to Stdout to show what is happening
     env_logger::builder()
-        .filter_level(log::LevelFilter::Trace)
+        .filter(Some("dsh_sdk"), log::LevelFilter::Trace)
         .target(env_logger::Target::Stdout)
         .init();
 

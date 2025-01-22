@@ -9,7 +9,7 @@ license.workspace = true
 name = "dsh_sdk"
 readme = 'README.md'
 repository.workspace = true
-version = "0.5.0-rc.2"
+version = "0.5.0"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -48,13 +48,16 @@ rdkafka-config = ["rdkafka", "kafka"] # Impl of config trait only
 schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
 graceful-shutdown = ["tokio", "tokio-util"]
 management-api-token-fetcher = ["reqwest"]
-protocol-token-fetcher = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
+protocol-token = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
 metrics = [ "hyper/server", "hyper/http1" , "hyper-util", "http-body-util", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 
-# http-protocol-adapter = ["protocol-token-fetcher"]
-# mqtt-protocol-adapter = ["protocol-token-fetcher"]
+# http-protocol-adapter = ["protocol-token"]
+# mqtt-protocol-adapter = ["protocol-token"]
 # hyper-client = ["hyper", "hyper-util", "hyper-rustls", "rustls", "http", "rustls-pemfile"]
+# deprecated!
+mqtt-token-fetcher = ["protocol-token"]
+rest-token-fetcher = ["management-api-token-fetcher"]
 
 
 [dev-dependencies]
