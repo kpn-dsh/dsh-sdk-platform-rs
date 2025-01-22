@@ -8,7 +8,7 @@ use super::DlqChannel;
 ///
 /// Example:
 ///```
-/// use dsh_sdk::dlq;
+/// use dsh_sdk::utils::dlq;
 /// use std::backtrace::Backtrace;
 /// use thiserror::Error;
 ///

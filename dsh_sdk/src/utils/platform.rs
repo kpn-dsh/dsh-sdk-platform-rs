@@ -43,28 +43,6 @@ pub enum Platform {
 }
 
 impl Platform {
-    #[deprecated(
-        since = "0.5.0",
-        note = "Use `dsh_sdk::Platform::management_api_client_id` instead"
-    )]
-    /// Returns a properly formatted client ID for the DSH REST API, given a tenant name.
-    ///
-    /// The format is:  
-    /// \[
-    ///    `"robot:{realm}:{tenant_name}"`
-    /// \]
-    ///
-    /// # Example
-    /// ```
-    /// # use dsh_sdk::Platform;
-    /// let platform = Platform::NpLz;
-    /// let client_id = platform.rest_client_id("my-tenant");
-    /// assert_eq!(client_id, "robot:dev-lz-dsh:my-tenant");
-    /// ```
-    pub fn rest_client_id(&self, tenant: impl AsRef<str>) -> String {
-        self.management_api_client_id(tenant)
-    }
-
     /// Returns a properly formatted client ID for the DSH Management API, given a tenant name.
     ///
     /// The format is:  
@@ -76,30 +54,11 @@ impl Platform {
     /// ```
     /// # use dsh_sdk::Platform;
     /// let platform = Platform::NpLz;
-    /// let client_id = platform.rest_client_id("my-tenant");
+    /// let client_id = platform.management_api_client_id("my-tenant");
     /// assert_eq!(client_id, "robot:dev-lz-dsh:my-tenant");
     /// ```
     pub fn management_api_client_id(&self, tenant: impl AsRef<str>) -> String {
         format!("robot:{}:{}", self.realm(), tenant.as_ref())
-    }
-
-    #[deprecated(
-        since = "0.5.0",
-        note = "Use `dsh_sdk::Platform::endpoint_management_api` instead"
-    )]
-    /// Get the endpoint for the DSH Rest API
-    ///
-    /// This endpoint is typically used for general resource operations in DSH.  
-    ///
-    /// # Example
-    /// ```
-    /// # use dsh_sdk::Platform;
-    /// let platform = Platform::NpLz;
-    /// let endpoint = platform.endpoint_rest_api();
-    /// assert_eq!(endpoint, "https://api.dsh-dev.dsh.np.aws.kpn.com/resources/v0");
-    /// ```
-    pub fn endpoint_rest_api(&self) -> &str {
-        self.endpoint_management_api()
     }
 
     /// Returns the endpoint for the DSH Management API
@@ -122,20 +81,6 @@ impl Platform {
             Self::Poc => "https://api.poc.kpn-dsh.com/resources/v0",
         }
     }
-
-    #[deprecated(
-        since = "0.5.0",
-        note = "Use `dsh_sdk::Platform::endpoint_management_api_token` instead"
-    )]
-    /// Get the endpoint for fetching DSH Rest Authentication Token
-    ///
-    /// With this token you can authenticate for the mqtt token endpoint
-    ///
-    /// It will return the endpoint for DSH Rest authentication token based on the platform
-    pub fn endpoint_rest_token(&self) -> &str {
-        self.endpoint_management_api_token()
-    }
-
     /// Returns the endpoint for fetching a DSH Management API authentication token.
     ///
     /// This endpoint is typically used to authenticate requests to certain management or admin-level
@@ -156,17 +101,6 @@ impl Platform {
             Self::ProdAz => "https://auth.prod.cp.kpn-dsh.com/auth/realms/prod-azure-dsh/protocol/openid-connect/token",
             Self::Poc => "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token",
         }
-    }
-
-    #[deprecated(
-        since = "0.5.0",
-        note = "Use `dsh_sdk::Platform::endpoint_protocol_access_token` instead"
-    )]
-    /// (Deprecated) Returns the DSH MQTT token endpoint.
-    ///
-    /// *Prefer using [`endpoint_protocol_access_token`](Self::endpoint_protocol_access_token) instead.*
-    pub fn endpoint_mqtt_token(&self) -> &str {
-        self.endpoint_protocol_access_token()
     }
 
     /// Returns the endpoint for fetching DSH protocol tokens (e.g., for MQTT).

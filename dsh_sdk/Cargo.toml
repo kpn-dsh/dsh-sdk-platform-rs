@@ -9,7 +9,7 @@ license.workspace = true
 name = "dsh_sdk"
 readme = 'README.md'
 repository.workspace = true
-version = "0.5.0"
+version = "0.6.0"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -55,10 +55,6 @@ dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/s
 # http-protocol-adapter = ["protocol-token"]
 # mqtt-protocol-adapter = ["protocol-token"]
 # hyper-client = ["hyper", "hyper-util", "hyper-rustls", "rustls", "http", "rustls-pemfile"]
-# deprecated!
-mqtt-token-fetcher = ["protocol-token"]
-rest-token-fetcher = ["management-api-token-fetcher"]
-
 
 [dev-dependencies]
 # Dependencies for the test

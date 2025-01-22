@@ -12,7 +12,7 @@ A Rust SDK to interact with the DSH Platform. This library provides convenient b
 
 ## Table of Contents
 
-1. [Migration Guide 0.4.X -> 0.5.X](#migration-guide-04x---05x)  
+1. [Migration Guide](#migration-guide)  
 2. [Description](#description)  
 3. [Usage](#usage)  
 4. [Connecting to DSH](#connect-to-dsh)  
@@ -26,11 +26,9 @@ A Rust SDK to interact with the DSH Platform. This library provides convenient b
 
 ---
 
-## Migration Guide 0.4.X -> 0.5.X
+## Migration Guide
 
 If you are migrating from `v0.4.X` to `v0.5.X`(or `v0.6.X`), please see the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details on breaking changes and how to update your code accordingly.
-
-`v0.6.0` will not contain any breaking changes, except for the removal of deprecated code. You can use `v0.5.X` as a stepping stone to `v0.6.0` by following the deprecation warnings the compiler gives.
 
 ---
 
@@ -63,7 +61,7 @@ To get started, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dsh_sdk = "0.5"
+dsh_sdk = "0.6"
 rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"] }
 ```
 
@@ -129,7 +127,7 @@ To pick only the features you need, disable the default features and enable spec
 
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.5", default-features = false, features = ["management-api-token-fetcher"] }
+dsh_sdk = { version = "0.6", default-features = false, features = ["management-api-token-fetcher"] }
 ```
 
 ---

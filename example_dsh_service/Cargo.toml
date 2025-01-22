@@ -5,7 +5,7 @@ description = "An example of DSH service using the dsh-sdk crate"
 edition = "2021"
 
 [dependencies]
-dsh_sdk = { path = "../dsh_sdk", version = "0.5.0-rc.1", features = ["rdkafka-config", "metrics", "graceful-shutdown"] }
+dsh_sdk = { path = "../dsh_sdk", version = "0.6", features = ["rdkafka-config", "metrics", "graceful-shutdown"] }
 rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"] }
 log = "0.4"
 env_logger = "0.11"

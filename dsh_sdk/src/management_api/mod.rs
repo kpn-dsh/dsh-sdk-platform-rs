@@ -17,7 +17,7 @@
 //! #[tokio::main]
 //! async fn main() {
 //!     let platform = Platform::NpLz;
-//!     let client = Client::new(platform.endpoint_rest_api());
+//!     let client = Client::new(platform.endpoint_management_api());
 //!
 //!     let tf = ManagementApiTokenFetcherBuilder::new(platform)
 //!         .tenant_name(TENANT.to_string())
