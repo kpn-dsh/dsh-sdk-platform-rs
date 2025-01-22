@@ -63,7 +63,7 @@ To get started, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dsh_sdk = "0.5"
+dsh_sdk = "0.6"
 rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"] }
 ```
 
@@ -129,7 +129,7 @@ To pick only the features you need, disable the default features and enable spec
 
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.5", default-features = false, features = ["management-api-token-fetcher"] }
+dsh_sdk = { version = "0.6", default-features = false, features = ["management-api-token-fetcher"] }
 ```
 
 ---

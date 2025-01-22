@@ -25,7 +25,6 @@
 //! # }
 //! ```
 use log::warn;
-use std::env;
 use std::sync::{Arc, OnceLock};
 
 use crate::certificates::{Cert, CertificatesError};
@@ -36,9 +35,6 @@ use crate::*;
 
 #[cfg(feature = "kafka")]
 use crate::protocol_adapters::kafka_protocol::config::KafkaConfig;
-
-// TODO: Remove at v0.6.0
-pub use crate::dsh_old::*;
 
 /// Lazily initializes all related components to connect to DSH and Kafka.
 /// - Information from `datastreams.json`
@@ -275,109 +271,15 @@ impl Dsh {
     }
 
     #[cfg(feature = "kafka")]
-    #[deprecated(
-        since = "0.5.0",
-        note = "Moved to `Dsh::kafka_config().kafka_brokers()`. Part of the `kafka` feature."
-    )]
-    /// Returns the Kafka brokers.
-    ///
-    /// ## Environment Variables
-    /// - `KAFKA_BOOTSTRAP_SERVERS`: Overwrites broker hostnames (optional).
-    ///   Defaults to brokers from the datastream.
-    pub fn kafka_brokers(&self) -> String {
-        self.datastream().get_brokers_string()
-    }
-
-    #[cfg(feature = "kafka")]
-    #[deprecated(
-        since = "0.5.0",
-        note = "Moved to `Dsh::kafka_config().group_id()`. Part of the `kafka` feature."
-    )]
-    /// Returns the Kafka group ID.
-    ///
-    /// ## Environment Variables
-    /// - `KAFKA_CONSUMER_GROUP_TYPE`: Chooses a group ID type (private or shared).  
-    /// - `KAFKA_GROUP_ID`: Custom group ID. Overrules `KAFKA_CONSUMER_GROUP_TYPE`.
-    ///
-    /// If the group ID doesn't start with the tenant name, it's automatically prefixed.
-    pub fn kafka_group_id(&self) -> String {
-        if let Ok(group_id) = env::var(VAR_KAFKA_GROUP_ID) {
-            if !group_id.starts_with(self.tenant_name()) {
-                format!("{}_{}", self.tenant_name(), group_id)
-            } else {
-                group_id
-            }
-        } else {
-            self.datastream()
-                .get_group_id(crate::datastream::GroupType::from_env())
-                .unwrap_or(&format!("{}_CONSUMER", self.tenant_name()))
-                .to_string()
-        }
-    }
-
-    #[cfg(feature = "kafka")]
-    #[deprecated(
-        since = "0.5.0",
-        note = "Moved to `Dsh::kafka_config().enable_auto_commit()`. Part of the `kafka` feature."
-    )]
-    /// Returns the configured Kafka auto-commit setting.
-    ///
-    /// ## Environment Variables
-    /// - `KAFKA_ENABLE_AUTO_COMMIT`: Enables/disables auto commit (default: `false`).
-    pub fn kafka_auto_commit(&self) -> bool {
-        self.kafka_config.enable_auto_commit()
-    }
-
-    #[cfg(feature = "kafka")]
-    #[deprecated(
-        since = "0.5.0",
-        note = "Moved to `Dsh::kafka_config().auto_offset_reset()`. Part of the `kafka` feature."
-    )]
-    /// Returns the Kafka auto-offset-reset setting.
-    ///
-    /// ## Environment Variables
-    /// - `KAFKA_AUTO_OFFSET_RESET`: Set the offset reset policy (default: `earliest`).
-    pub fn kafka_auto_offset_reset(&self) -> String {
-        self.kafka_config.auto_offset_reset().to_string()
-    }
-
-    #[cfg(feature = "kafka")]
     /// Returns the [`KafkaConfig`] from this `Dsh` instance.
     pub fn kafka_config(&self) -> &KafkaConfig {
         &self.kafka_config
-    }
-
-    #[deprecated(
-        since = "0.5.0",
-        note = "Use the `DshKafkaConfig` trait instead. See wiki for migration details."
-    )]
-    #[cfg(feature = "rdkafka-config")]
-    /// Returns an `rdkafka::config::ClientConfig` for a consumer, configured via Dsh.
-    pub fn consumer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
-        use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
-        let mut config = rdkafka::config::ClientConfig::new();
-        config.set_dsh_consumer_config();
-        config
-    }
-
-    #[deprecated(
-        since = "0.5.0",
-        note = "Use the `DshKafkaConfig` trait instead. See wiki for migration details."
-    )]
-    #[cfg(feature = "rdkafka-config")]
-    /// Returns an `rdkafka::config::ClientConfig` for a producer, configured via Dsh.
-    pub fn producer_rdkafka_config(&self) -> rdkafka::config::ClientConfig {
-        use crate::protocol_adapters::kafka_protocol::DshKafkaConfig;
-        let mut config = rdkafka::config::ClientConfig::new();
-        config.set_dsh_producer_config();
-        config
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE};
     use serial_test::serial;
     use std::io::Read;
 
@@ -465,82 +367,6 @@ mod tests {
         );
     }
 
-    #[test]
-    #[serial(env_dependency)]
-    fn test_kafka_brokers() {
-        let properties = Dsh::default();
-        assert_eq!(
-            properties.kafka_brokers(),
-            properties.datastream().get_brokers_string()
-        );
-        env::set_var(VAR_KAFKA_BOOTSTRAP_SERVERS, "test:9092");
-        let properties = Dsh::default();
-        assert_eq!(properties.kafka_brokers(), "test:9092");
-        env::remove_var(VAR_KAFKA_BOOTSTRAP_SERVERS);
-    }
-
-    #[test]
-    #[serial(env_dependency)]
-    fn test_kafka_group_id() {
-        let properties = Dsh::default();
-        assert_eq!(
-            properties.kafka_group_id(),
-            properties
-                .datastream()
-                .get_group_id(crate::datastream::GroupType::Shared(0))
-                .unwrap()
-        );
-        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
-        assert_eq!(
-            properties.kafka_group_id(),
-            properties
-                .datastream()
-                .get_group_id(crate::datastream::GroupType::Private(0))
-                .unwrap()
-        );
-        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
-        assert_eq!(
-            properties.kafka_group_id(),
-            properties
-                .datastream()
-                .get_group_id(crate::datastream::GroupType::Shared(0))
-                .unwrap()
-        );
-        env::set_var(VAR_KAFKA_GROUP_ID, "test_group");
-        assert_eq!(
-            properties.kafka_group_id(),
-            format!("{}_test_group", properties.tenant_name())
-        );
-        env::set_var(
-            VAR_KAFKA_GROUP_ID,
-            format!("{}_test_group", properties.tenant_name()),
-        );
-        assert_eq!(
-            properties.kafka_group_id(),
-            format!("{}_test_group", properties.tenant_name())
-        );
-        env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
-        assert_eq!(
-            properties.kafka_group_id(),
-            format!("{}_test_group", properties.tenant_name())
-        );
-        env::remove_var(VAR_KAFKA_GROUP_ID);
-    }
-
-    #[test]
-    #[serial(env_dependency)]
-    fn test_kafka_auto_commit() {
-        let properties = Dsh::default();
-        assert!(!properties.kafka_auto_commit());
-    }
-
-    #[test]
-    #[serial(env_dependency)]
-    fn test_kafka_auto_offset_reset() {
-        let properties = Dsh::default();
-        assert_eq!(properties.kafka_auto_offset_reset(), "earliest");
-    }
-
     #[tokio::test]
     async fn test_fetch_datastream() {
         let mut server = mockito::Server::new_async().await;
@@ -584,37 +410,5 @@ mod tests {
             .create();
         let fetched_datastream = prop.fetch_datastream_blocking().unwrap();
         assert_eq!(fetched_datastream, datastream());
-    }
-
-    #[test]
-    #[serial(env_dependency)]
-    fn test_consumer_rdkafka_config() {
-        let dsh = Dsh::default();
-        let config = dsh.consumer_rdkafka_config();
-        assert_eq!(
-            config.get("bootstrap.servers").unwrap(),
-            dsh.datastream().get_brokers_string()
-        );
-        assert_eq!(
-            config.get("group.id").unwrap(),
-            dsh.datastream()
-                .get_group_id(crate::datastream::GroupType::from_env())
-                .unwrap()
-        );
-        assert_eq!(config.get("client.id").unwrap(), dsh.client_id());
-        assert_eq!(config.get("enable.auto.commit").unwrap(), "false");
-        assert_eq!(config.get("auto.offset.reset").unwrap(), "earliest");
-    }
-
-    #[test]
-    #[serial(env_dependency)]
-    fn test_producer_rdkafka_config() {
-        let dsh = Dsh::default();
-        let config = dsh.producer_rdkafka_config();
-        assert_eq!(
-            config.get("bootstrap.servers").unwrap(),
-            dsh.datastream().get_brokers_string()
-        );
-        assert_eq!(config.get("client.id").unwrap(), dsh.client_id());
     }
 }

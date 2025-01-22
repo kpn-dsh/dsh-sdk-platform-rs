@@ -71,9 +71,9 @@ impl KafkaConfig {
         }
     }
 
-    /// Get the kafka properties provided by DSH (datastreams.json)
+    /// Get the kafka config provided by DSH (datastreams.json)
     ///
-    /// This datastream is fetched at initialization of the properties, and can not be updated during runtime.
+    /// This datastream is fetched at initialization of the config, and can not be updated during runtime.
     pub fn datastream(&self) -> &Datastream {
         self.datastream.as_ref()
     }
@@ -316,5 +316,54 @@ mod tests {
         env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES);
         env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_KBYTES);
         env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS);
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_kafka_group_id() {
+        let config = KafkaConfig::default();
+        let dsh = Dsh::default();
+        assert_eq!(
+            config.group_id(),
+            config
+                .datastream()
+                .get_group_id(crate::datastream::GroupType::Shared(0))
+                .unwrap()
+        );
+        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
+        assert_eq!(
+            config.group_id(),
+            config
+                .datastream()
+                .get_group_id(crate::datastream::GroupType::Private(0))
+                .unwrap()
+        );
+        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
+        assert_eq!(
+            config.group_id(),
+            config
+                .datastream()
+                .get_group_id(crate::datastream::GroupType::Shared(0))
+                .unwrap()
+        );
+        env::set_var(VAR_KAFKA_GROUP_ID, "test_group");
+        assert_eq!(
+            config.group_id(),
+            format!("{}_test_group", dsh.tenant_name())
+        );
+        env::set_var(
+            VAR_KAFKA_GROUP_ID,
+            format!("{}_test_group", dsh.tenant_name()),
+        );
+        assert_eq!(
+            config.group_id(),
+            format!("{}_test_group", dsh.tenant_name())
+        );
+        env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
+        assert_eq!(
+            config.group_id(),
+            format!("{}_test_group", dsh.tenant_name())
+        );
+        env::remove_var(VAR_KAFKA_GROUP_ID);
     }
 }

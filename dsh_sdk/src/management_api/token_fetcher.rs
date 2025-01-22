@@ -132,7 +132,7 @@ impl Default for AccessToken {
 /// # #[tokio::main]
 /// # async fn main() -> Result<(), Box<dyn Error>> {
 /// let platform = Platform::NpLz;
-/// let client_id = platform.rest_client_id("my-tenant");
+/// let client_id = platform.management_api_client_id("my-tenant");
 /// let client_secret = "my-secret".to_string();
 /// let token_fetcher = ManagementApiTokenFetcher::new(
 ///     client_id,
@@ -165,7 +165,7 @@ impl ManagementApiTokenFetcher {
     /// # #[tokio::main]
     /// # async fn main() {
     /// let platform = Platform::NpLz;
-    /// let client_id = platform.rest_client_id("my-tenant");
+    /// let client_id = platform.management_api_client_id("my-tenant");
     /// let client_secret = "my-secret";
     /// let token_fetcher = ManagementApiTokenFetcher::new(
     ///     client_id,
@@ -206,7 +206,7 @@ impl ManagementApiTokenFetcher {
     /// # #[tokio::main]
     /// # async fn main() {
     /// let platform = Platform::NpLz;
-    /// let client_id = platform.rest_client_id("my-tenant");
+    /// let client_id = platform.management_api_client_id("my-tenant");
     /// let client_secret = "my-secret";
     /// let custom_client = reqwest::Client::new();
     /// let token_fetcher = ManagementApiTokenFetcher::new_with_client(
@@ -453,7 +453,7 @@ impl ManagementApiTokenFetcherBuilder {
             .or_else(|| {
                 self.tenant_name
                     .as_ref()
-                    .map(|tenant_name| self.platform.rest_client_id(tenant_name))
+                    .map(|tenant_name| self.platform.management_api_client_id(tenant_name))
             })
             .ok_or(ManagementApiTokenError::UnknownClientId)?;
 
