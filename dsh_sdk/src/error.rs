@@ -1,58 +1,42 @@
-use thiserror::Error;
+//! Error types and reporting utilities for the DSH SDK.
+//!
+//! This module defines the primary error enum, [`DshError`], which aggregates
+//! sub-errors from certificates, datastreams, and various utilities. It also
+//! includes a helper function, [`report`], for generating a more readable error
+//! trace by iterating over source causes.
 
-#[derive(Error, Debug)]
-#[non_exhaustive]
+/// Errpors defined in [`Dsh`](super::Dsh).
+///
+/// This enum wraps more specific errors from different parts of the SDK:
+/// - [`CertificatesError`](crate::certificates::CertificatesError)
+/// - [`DatastreamError`](crate::datastream::DatastreamError)
+/// - [`UtilsError`](crate::utils::UtilsError)
+///
+/// Each variant implements `std::error::Error` and can be conveniently converted
+/// from the underlying error types (via `#[from]`).
+///
+#[derive(Debug, thiserror::Error)]
 pub enum DshError {
-    #[error("IO Error: {0}")]
-    IoError(#[from] std::io::Error),
-    #[error("Env var error: {0}")]
-    EnvVarError(#[from] std::env::VarError),
-    #[error("Convert bytes to utf8 error: {0}")]
-    Utf8(#[from] std::string::FromUtf8Error),
-    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
-    #[error("Error calling: {url}, status code: {status_code}, error body: {error_body}")]
-    DshCallError {
-        url: String,
-        status_code: reqwest::StatusCode,
-        error_body: String,
-    },
-    #[cfg(feature = "bootstrap")]
-    #[error("Certificates are not set")]
-    NoCertificates,
-    #[cfg(feature = "bootstrap")]
-    #[error("Invalid PEM certificate: {0}")]
-    PemError(#[from] pem::PemError),
-    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
-    #[error("Reqwest: {0}")]
-    ReqwestError(#[from] reqwest::Error),
-    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
-    #[error("Serde_json error: {0}")]
-    JsonError(#[from] serde_json::Error),
-    #[cfg(feature = "bootstrap")]
-    #[error("Rcgen error: {0}")]
-    PrivateKeyError(#[from] rcgen::Error),
-    #[cfg(any(feature = "bootstrap", feature = "mqtt-token-fetcher"))]
-    #[error("Error parsing: {0}")]
-    ParseDnError(String),
-    #[cfg(feature = "bootstrap")]
-    #[error("Error getting group id, index out of bounds for {0}")]
-    IndexGroupIdError(crate::dsh::datastream::GroupType),
-    #[error("No tenant name found")]
-    NoTenantName,
-    #[cfg(feature = "bootstrap")]
-    #[error("Error getting topic name {0}, Topic not found in datastreams.")]
-    NotFoundTopicError(String),
-    #[cfg(feature = "bootstrap")]
-    #[error("Error in topic permissions: {0} does not have {1:?} permissions.")]
-    TopicPermissionsError(String, crate::dsh::datastream::ReadWriteAccess),
-    #[cfg(feature = "metrics")]
-    #[error("Prometheus error: {0}")]
-    Prometheus(#[from] prometheus::Error),
-    #[cfg(feature = "metrics")]
-    #[error("Hyper error: {0}")]
-    HyperError(#[from] hyper::http::Error),
+    /// Wraps an error originating from certificate handling.
+    #[error("Certificates error: {0}")]
+    CertificatesError(#[from] crate::certificates::CertificatesError),
+
+    /// Wraps an error originating from datastream operations or configuration.
+    #[error("Datastream error: {0}")]
+    DatastreamError(#[from] crate::datastream::DatastreamError),
+
+    /// Wraps an error from general utilities or environment lookups.
+    #[error("Utils error: {0}")]
+    UtilsError(#[from] crate::utils::UtilsError),
 }
 
+/// Generates a user-friendly error trace by traversing all `source()`
+/// causes in the given error.
+///
+/// The returned `String` contains the primary error message, followed
+/// by each causal error (if any) on separate lines, preceded by `"Caused by:"`.
+///
+/// This is helpful for logging or displaying the entire chain of errors.
 pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
     let mut s = format!("{}", err);
     while let Some(src) = err.source() {
@@ -62,19 +46,27 @@ pub(crate) fn report(mut err: &dyn std::error::Error) -> String {
     s
 }
 
-#[cfg(feature = "rest-token-fetcher")]
-#[derive(Error, Debug)]
-#[non_exhaustive]
-pub enum DshRestTokenError {
-    #[error("Client ID is unknown")]
-    UnknownClientId,
-    #[error("Client secret not set")]
-    UnknownClientSecret,
-    #[error("Unexpected failure while fetching token from server: {0}")]
-    FailureTokenFetch(reqwest::Error),
-    #[error("Unexpected status code: {status_code}, error body: {error_body:#?}")]
-    StatusCode {
-        status_code: reqwest::StatusCode,
-        error_body: reqwest::Response,
-    },
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::certificates::CertificatesError;
+
+    /// Demonstrates how to construct and print `DshError` variants,
+    /// as well as how to use `report` to see the full causal chain.
+    #[test]
+    fn test_dsh_error_and_report() {
+        // Create a wrapped DshError (CertificatesError for demonstration)
+        let cert_err = CertificatesError::NoCertificates;
+        let dsh_err = DshError::from(cert_err);
+
+        // Verify the display output
+        let error_message = format!("{}", dsh_err);
+        println!("{}", error_message);
+        assert!(error_message.contains("Certificates error: Certificates are not set"));
+
+        // Demonstrate the 'report' function
+        let report_output = report(&dsh_err);
+        // Should contain the same info, but also handle possible sources.
+        assert!(report_output.contains("Certificates are not set"));
+    }
 }

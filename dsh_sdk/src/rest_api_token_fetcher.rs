@@ -40,7 +40,7 @@ use std::time::{Duration, Instant};
 use log::debug;
 use serde::Deserialize;
 
-use crate::error::DshRestTokenError;
+use crate::management_api::ManagementApiTokenError as DshRestTokenError;
 use crate::utils::Platform;
 
 /// Access token of the authentication serveice of DSH.
@@ -136,7 +136,7 @@ impl RestTokenFetcher {
     ///     let platform = Platform::NpLz;
     ///     let client_id = platform.rest_client_id("my-tenant");
     ///     let client_secret = "my-secret".to_string();
-    ///     let token_fetcher = RestTokenFetcher::new(client_id, client_secret, platform.endpoint_rest_access_token().to_string());
+    ///     let token_fetcher = RestTokenFetcher::new(client_id, client_secret, platform.endpoint_management_api_token().to_string());
     ///     let token = token_fetcher.get_token().await.unwrap();
     /// }
     /// ```
@@ -162,7 +162,7 @@ impl RestTokenFetcher {
     ///     let client_id = platform.rest_client_id("my-tenant");
     ///     let client_secret = "my-secret".to_string();
     ///     let client = reqwest::Client::new();
-    ///     let token_fetcher = RestTokenFetcher::new_with_client(client_id, client_secret, platform.endpoint_rest_access_token().to_string(), client);
+    ///     let token_fetcher = RestTokenFetcher::new_with_client(client_id, client_secret, platform.endpoint_management_api_token().to_string(), client);
     ///     let token = token_fetcher.get_token().await.unwrap();
     /// }
     /// ```
@@ -226,7 +226,7 @@ impl RestTokenFetcher {
     /// This will fetch a new access token from the server and return it.
     /// If the request fails, it will return a [DshRestTokenError::FailureTokenFetch] error.
     /// If the status code is not successful, it will return a [DshRestTokenError::StatusCode] error.
-    /// If the request is successful, it will return the [AccessToken].
+    /// If the request is successful, it will return the AccesToken
     pub async fn fetch_access_token_from_server(&self) -> Result<AccessToken, DshRestTokenError> {
         let response = self
             .client
@@ -242,7 +242,7 @@ impl RestTokenFetcher {
         if !response.status().is_success() {
             Err(DshRestTokenError::StatusCode {
                 status_code: response.status(),
-                error_body: response,
+                error_body: response.text().await.unwrap_or_default(),
             })
         } else {
             response
@@ -354,7 +354,7 @@ impl RestTokenFetcherBuilder {
         let token_fetcher = RestTokenFetcher::new_with_client(
             client_id,
             client_secret,
-            self.platform.endpoint_rest_access_token().to_string(),
+            self.platform.endpoint_management_api_token().to_string(),
             client,
         );
         Ok(token_fetcher)
@@ -507,7 +507,7 @@ mod test {
                 error_body,
             } => {
                 assert_eq!(status_code, reqwest::StatusCode::BAD_REQUEST);
-                assert_eq!(error_body.text().await.unwrap(), "Bad request");
+                assert_eq!(error_body, "Bad request");
             }
             _ => panic!("Unexpected error: {:?}", err),
         }
@@ -525,7 +525,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     #[test]
@@ -543,7 +543,7 @@ mod test {
             format!("robot:{}:{}", Platform::NpLz.realm(), tenant_name)
         );
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     #[test]
@@ -560,7 +560,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     #[test]
@@ -577,7 +577,7 @@ mod test {
             .unwrap();
         assert_eq!(tf.client_id, client_id_override);
         assert_eq!(tf.client_secret, client_secret);
-        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_rest_access_token());
+        assert_eq!(tf.auth_url, Platform::NpLz.endpoint_management_api_token());
     }
 
     #[test]

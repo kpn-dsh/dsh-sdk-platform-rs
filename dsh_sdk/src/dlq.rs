@@ -23,6 +23,8 @@
 //! ### Example:
 //! See the examples folder on github for a working example.
 
+//pub use crate::utils::dlq::*;
+
 use std::collections::HashMap;
 use std::env;
 use std::str::from_utf8;
@@ -141,7 +143,7 @@ impl Dlq {
         dsh_prop: &Properties,
         shutdown: Shutdown,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        use crate::dsh::datastream::ReadWriteAccess;
+        use crate::dsh_old::datastream::ReadWriteAccess;
         let (dlq_tx, dlq_rx) = mpsc::channel(200);
         let dlq_producer = Self::build_producer(dsh_prop)?;
         let dlq_dead_topic = env::var("DLQ_DEAD_TOPIC")?;
