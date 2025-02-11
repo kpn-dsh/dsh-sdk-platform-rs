@@ -38,7 +38,7 @@ pub trait Request {
 
 impl Request for reqwest::Client {
     fn new_client() -> Self {
-        // TODO: replace with hyper client
+        // TODO: replace with hyper client (optional)
         Dsh::get()
             .reqwest_client_config()
             .build()

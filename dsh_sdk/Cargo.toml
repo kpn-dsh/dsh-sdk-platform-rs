@@ -18,13 +18,9 @@ all-features = true
 apache-avro = {version = "0.17", optional = true }
 base64 = {version = "0.22", optional = true }
 bytes = { version = "1.6", optional = true }
+hyper = { version = "1.5", default-features = false, optional = true }
 http-body-util = { version = "0.1", optional = true }
-hyper = { version = "1.5", features = ["client", "http1"], optional = true }
-hyper-util = { version = "0.1", features = ["tokio","client-legacy"], optional = true }
-hyper-rustls = { version = "0.27",features = ["ring","http1", "native-tokio", "logging"], default-features = false, optional = true }
-http = { version = "1.2", optional = true }
-rustls = { version = "0.23", features = ["ring", "tls12", "logging"], default-features = false, optional = true }
-rustls-pemfile = { version = "2.2", optional = true }
+hyper-util = { version = "0.1", default-features = false, optional = true }
 log = "0.4"
 pem = {version = "3", optional = true }
 protofish = { version = "0.5.2", optional = true }
@@ -49,12 +45,11 @@ schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"
 graceful-shutdown = ["tokio", "tokio-util"]
 management-api-token-fetcher = ["reqwest"]
 protocol-token = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
-metrics = [ "hyper/server", "hyper/http1" , "hyper-util", "http-body-util", "tokio", "bytes"]
+metrics = [ "hyper/server", "hyper/http1" , "hyper-util/tokio", "http-body-util", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 
 # http-protocol-adapter = ["protocol-token"]
 # mqtt-protocol-adapter = ["protocol-token"]
-# hyper-client = ["hyper", "hyper-util", "hyper-rustls", "rustls", "http", "rustls-pemfile"]
 
 [dev-dependencies]
 # Dependencies for the test
