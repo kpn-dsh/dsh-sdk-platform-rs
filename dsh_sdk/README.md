@@ -49,7 +49,7 @@ The `dsh-sdk-platform-rs` library offers:
   - **RDKafka** implementation
 
 - **Common Utilities**  
-  - Lightweight HTTP server for exposing Metircs.  
+  - Lightweight HTTP server for exposing Metrics.  
   - Tokio-based graceful shutdown handling.  
   - Dead Letter Queue (DLQ) functionality.
 
@@ -115,7 +115,7 @@ Below is an overview of the available features:
 | `kafka`                        | ✓           | Enable `DshKafkaConfig` trait and Config struct to connect to DSH | [Kafka](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_example.rs) / [Kafka Proxy](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_proxy.rs) |
 | `rdkafka-config`               | ✓           | Enable `DshKafkaConfig` implementation for RDKafka                | [Kafka](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_example.rs) / [Kafka Proxy](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_proxy.rs) |
 | `schema-store`                 | ✗           | Interact with DSH Schema Store                                    | [Schema Store API](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/schema_store_api.rs)                                                                                   |
-| `protocol-token`       | ✗           | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP)         | [Mqtt client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs.rs) / [Mqtt websocket client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs.rs) /<br>[Token fetcher (full mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_full_mediation.rs) / [Token fetcher (partial mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_partial_mediation.rs) |
+| `protocol-token`       | ✗           | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP)         | [Mqtt client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs) / [Mqtt websocket client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs) /<br>[Token fetcher (full mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_full_mediation.rs) / [Token fetcher (partial mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_partial_mediation.rs) |
 | `management-api-token-fetcher` | ✗           | Fetch tokens to use DSH Management API                            | [Token fetcher](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/management_api_token_fetcher.rs)     |
 | `metrics`                      | ✗           | Enable prometheus metrics including http server                   | [Expose metrics](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs)                  |
 | `graceful-shutdown`            | ✗           | Tokio based graceful shutdown handler                             | [Graceful shutdown](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/graceful_shutdown.rs)            |
