@@ -95,7 +95,7 @@ impl Platform {
     /// ```
     pub fn endpoint_management_api_token(&self) -> &str {
         match self {
-            Self::Prod => "https://auth.prod.cp.kpn-dsh.com/auth/realms/tt-dsh/protocol/openid-connect/token",
+            Self::Prod => "https://auth.prod.cp.kpn-dsh.com/auth/realms/prod-dsh/protocol/openid-connect/token",
             Self::NpLz => "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/dev-lz-dsh/protocol/openid-connect/token",
             Self::ProdLz => "https://auth.prod.cp-prod.dsh.prod.aws.kpn.com/auth/realms/prod-lz-dsh/protocol/openid-connect/token",
             Self::ProdAz => "https://auth.prod.cp.kpn-dsh.com/auth/realms/prod-azure-dsh/protocol/openid-connect/token",
@@ -149,7 +149,7 @@ impl Platform {
     /// ```
     /// # use dsh_sdk::Platform;
     /// let realm = Platform::Prod.realm();
-    /// assert_eq!(realm, "tt-dsh");
+    /// assert_eq!(realm, "prod-dsh");
     /// ```
     pub fn realm(&self) -> &str {
         match self {
