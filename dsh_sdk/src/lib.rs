@@ -1,8 +1,8 @@
 #![doc(
-    html_favicon_url = "https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/63989eb23690d26bcd4fe69b1ec1f4d0f8b8d5e0/doc/kpn.svg"
+    html_favicon_url = "https://raw.githubusercontent.com/kpn-dsh/dsh-sdk-platform-rs/63989eb23690d26bcd4fe69b1ec1f4d0f8b8d5e0/doc/kpn.svg"
 )]
 #![doc(
-    html_logo_url = "https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/63989eb23690d26bcd4fe69b1ec1f4d0f8b8d5e0/doc/kpn.svg"
+    html_logo_url = "https://raw.githubusercontent.com/kpn-dsh/dsh-sdk-platform-rs/63989eb23690d26bcd4fe69b1ec1f4d0f8b8d5e0/doc/kpn.svg"
 )]
 #![doc = include_str!("../README.md")]
 #![deny(deprecated)]
