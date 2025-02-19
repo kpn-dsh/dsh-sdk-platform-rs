@@ -153,7 +153,7 @@ impl Platform {
     /// ```
     pub fn realm(&self) -> &str {
         match self {
-            Self::Prod => "tt-dsh",
+            Self::Prod => "prod-dsh",
             Self::NpLz => "dev-lz-dsh",
             Self::ProdLz => "prod-lz-dsh",
             Self::ProdAz => "prod-azure-dsh",
