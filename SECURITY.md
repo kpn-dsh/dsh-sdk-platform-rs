@@ -14,7 +14,8 @@ This document outlines security procedures and general policies for the `dsh-sdk
 The following versions of this project are currently being supported with security updates.
 
 | Version | Supported          |
-| ------- | ------------------ |
+|---------| ------------------ |
+| 0.6.x   | :white_check_mark: |
 | 0.5.x   | :white_check_mark: |
 | 0.4.x   | :white_check_mark: (till 28/02/2025) |
 | 0.3.x   | :x:                | 

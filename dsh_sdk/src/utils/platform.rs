@@ -149,11 +149,11 @@ impl Platform {
     /// ```
     /// # use dsh_sdk::Platform;
     /// let realm = Platform::Prod.realm();
-    /// assert_eq!(realm, "tt-dsh");
+    /// assert_eq!(realm, "prod-dsh");
     /// ```
     pub fn realm(&self) -> &str {
         match self {
-            Self::Prod => "tt-dsh",
+            Self::Prod => "prod-dsh",
             Self::NpLz => "dev-lz-dsh",
             Self::ProdLz => "prod-lz-dsh",
             Self::ProdAz => "prod-azure-dsh",
