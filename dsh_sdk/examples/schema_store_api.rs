@@ -1,3 +1,18 @@
+//! This example demonstrates how to interact with the Schema Store API using the dsh_sdk crate.
+//! It uses the SchemaStoreClient to register a schema, retrieve it by ID, and list all registered subjects and schemas.
+//!
+//! This example uses the `schema-store` feature flag
+//!
+//! This example uses the default http://localhost:8081/apis/ccompat/v7 as default when running on a local machine.
+//! This is the default Schema Registry URL of a local APICurio instance.
+//! On DSH it automatically picks up the Schema Registry URL of DSH Schema Store.
+//! You can also set environment variable SCHEMA_REGISTRY_HOST to overwrite the default endpoint.
+//!
+//! Run this example with:
+//! ```bash
+//! SCHEMA_REGISTRY_HOST=http://localhost:8081/apis/ccompat/v7 cargo run --features schema-store --example schema_store_api
+//! ```
+
 use dsh_sdk::schema_store::types::*;
 use dsh_sdk::schema_store::SchemaStoreClient;
 

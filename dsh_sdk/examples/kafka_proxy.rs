@@ -1,3 +1,17 @@
+//! This example shows how to use the dsh_sdk crate to create a Kafka consumer that
+//! connects to a Kafka cluster using the DSH Kafka Proxy.
+//! It demonstrates how to consume messages from a Kafka topic and print them to the console.
+//!
+//! Feature flag `rdkafka-config` is required to run this example (default feature flag).
+//!
+//! It also requires a kafka proxy broker to be set up and running on your tenant, with the proper certificates in your $PKI_CONFIG_DIR on your machine.
+//! Adjust the proper details in the code below.
+//!
+//! Run example with:
+//! ```bash
+//! cargo run --features rdkafka-config --example kafka_proxy
+//! ```
+
 use std::env;
 
 use dsh_sdk::DshKafkaConfig;

@@ -1,3 +1,15 @@
+//! This example demonstrates how to implement a Dead Letter Queue (DLQ) in a Kafka consumer using the `dsh_sdk` library.
+//! It shows how to handle errors during message processing and send failed messages to a DLQ for further analysis.
+//!
+//!  Feature flag `dlq` is required to run this example.
+//!
+//! Run the example against a local kafka broker on localhost:9092
+//! ```bash
+//! cargo r --features dlq --example dlq_implementation
+//! ```
+//! To run this example against Kafka on DSH from your local environment,
+//! check 'dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md' for instructions on how to set up the connection.
+
 use dsh_sdk::utils::dlq::{self, DlqChannel, ErrorToDlq};
 use dsh_sdk::utils::graceful_shutdown::Shutdown;
 use dsh_sdk::DshKafkaConfig;

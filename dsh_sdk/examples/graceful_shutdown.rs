@@ -1,8 +1,11 @@
-//! Example on how to implement a graceful shutdown in a tokio application.
+//! This example demonstrates how to use the `dsh_sdk` library to handle
+//! graceful shutdowns in a tokio application.
+//!
+//! Feature flag `graceful-shutdown` is required to run this example.
 //!
 //! Run the example with:
 //! ```bash
-//! cargo run --example graceful_shutdown
+//! cargo run --features graceful-shutdown --example graceful_shutdown
 //! ```
 
 use dsh_sdk::utils::graceful_shutdown::Shutdown;

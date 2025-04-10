@@ -1,3 +1,14 @@
+//! This example shows how to expose metrics using the `dsh_sdk` library.
+//! It demonstrates how to register and increment metrics using the Prometheus library
+//! and how to start an HTTP server to expose the metrics.
+//!
+//! Feature flag `metrics` is required to run this example.
+//!
+//! To run this example on your local environment:
+//! ```bash
+//! cargo r --features metrics --example expose_metrics
+//! ```
+
 use dsh_sdk::utils::metrics::start_http_server;
 use lazy_static::lazy_static;
 use prometheus::{register_int_counter, IntCounter};
