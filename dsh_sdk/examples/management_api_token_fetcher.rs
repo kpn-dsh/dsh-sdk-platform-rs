@@ -1,7 +1,10 @@
 //! This example demonstrates how to use the `RestTokenFetcher` to get a token and use it to get a list of topics
 //! from the REST API.
 //!
-//! This example uses the `rest-token-fetcher` feature flag.
+//! Example is using the following crates:
+//! - [`dsh_sdk`] with features = ["management-api-token-fetcher"] for fetching token to authenticate to the DSH Management API
+//! - [`dsh_rest_api_client`] for the DSH Management API client
+//! - [`tokio`] with features = ["full"] for async runtime
 //!
 //! Run this example with:
 //! ```sh

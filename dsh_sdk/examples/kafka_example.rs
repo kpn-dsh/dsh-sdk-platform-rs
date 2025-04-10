@@ -1,7 +1,11 @@
 //! This example demonstrates how to use the dsh_sdk crate to produce and consume messages
 //! to and from a Kafka topic using the rdkafka library.
 //!
-//! Feature flag `rdkafka-config` is required to run this example (default feature flag).
+//! Example is using the following crates:
+//! - [`dsh_sdk`] with features = ["rdkafka-config"] for DSH Kafka consumer config
+//! - [`rdkafka`] with features = ["cmake-build", "ssl-vendored"] for kafka cosumer
+//! - [`tokio`] with features = ["full"] for async runtime
+//! - [`env_logger`] for output logging to stdout to show what is happening
 //!
 //! Run the example against a local kafka broker on localhost:9092
 //! ```bash

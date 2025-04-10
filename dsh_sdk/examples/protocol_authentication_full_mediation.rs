@@ -2,7 +2,10 @@
 //!
 //! The DataAccessToken allows a device to connect to protocol adapters (MQTT/HTTP) with specific permissions .
 //!
-//! This example uses the `protocol-token` feature flag.
+//! Example is using the following crates:
+//! - [`dsh_sdk`] with features = ["protocol-token"] to fetch tokens
+//! - [`tokio`] with features = ["full"] for async runtime
+//! - [`env_logger`] for output logging to stdout to show what is happening
 //!
 //! NEVER distribute the API_KEY to an external client, this is only for demonstration purposes.
 //!

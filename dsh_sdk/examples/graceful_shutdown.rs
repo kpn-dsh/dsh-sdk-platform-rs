@@ -1,7 +1,9 @@
 //! This example demonstrates how to use the `dsh_sdk` library to handle
 //! graceful shutdowns in a tokio application.
 //!
-//! Feature flag `graceful-shutdown` is required to run this example.
+//! Example is using the following crates:
+//! - [`dsh_sdk`] with features = ["graceful-shutdown"] for tokio graceful shutdown
+//! - [`tokio`] with features = ["full"] for async runtime
 //!
 //! Run the example with:
 //! ```bash

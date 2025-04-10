@@ -1,6 +1,10 @@
 //! This example demonstrates how to connect to the DSH MQTT broker and consume data using the DSH SDK and Rumqttc.
 //!
-//! This example uses the `protocol-token` feature flag and uses 'rumqttc' crate for MQTT client.
+//! Example is using the following crates:
+//! - [`dsh_sdk`] with features = ["protocol-token"] for using tokens to authenticate to the DSH MQTT broker
+//! - [`rumqttc`] for mqtt client
+//! - [`tokio`] with features = ["full"] for async runtime
+//! - [`env_logger`] for output logging to stdout to show what is happening
 //!
 //! NEVER distribute the API_KEY to an external client, this is only for demonstration purposes
 //!

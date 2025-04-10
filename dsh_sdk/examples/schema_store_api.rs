@@ -1,7 +1,9 @@
 //! This example demonstrates how to interact with the Schema Store API using the dsh_sdk crate.
 //! It uses the SchemaStoreClient to register a schema, retrieve it by ID, and list all registered subjects and schemas.
 //!
-//! This example uses the `schema-store` feature flag
+//! Example is using the following crates:
+//! - [`dsh_sdk`] with features = ["schema-store"] for Schema Store API client
+//! - [`tokio`] with features = ["full"] for async runtime
 //!
 //! This example uses the default http://localhost:8081/apis/ccompat/v7 as default when running on a local machine.
 //! This is the default Schema Registry URL of a local APICurio instance.
