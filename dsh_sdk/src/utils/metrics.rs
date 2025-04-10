@@ -232,9 +232,9 @@ mod tests {
     use hyper::client::conn;
     use hyper::client::conn::http1::{Connection, SendRequest};
     use hyper::Uri;
-    use lazy_static::lazy_static;
     use prometheus::{register_int_counter, IntCounter};
     use serial_test::serial;
+    use std::sync::OnceLock;
     use tokio::net::TcpStream;
 
     const PORT: u16 = 9090;
@@ -247,11 +247,13 @@ mod tests {
             .unwrap_or_default()
     }
 
-    lazy_static! {
-        pub static ref HIGH_FIVE_COUNTER: IntCounter =
-            register_int_counter!("highfives", "Number of high fives received").unwrap();
+    // Create and register counter
+    pub fn high_five_counter() -> &'static IntCounter {
+        static CONSUMED_MESSAGES: OnceLock<IntCounter> = OnceLock::new();
+        CONSUMED_MESSAGES.get_or_init(|| {
+            register_int_counter!("highfives", "Number of highfives given").unwrap()
+        })
     }
-
     async fn create_client(
         url: &Uri,
     ) -> (
@@ -280,7 +282,7 @@ mod tests {
     #[tokio::test]
     async fn test_http_metric_response() {
         // Increment the counter
-        HIGH_FIVE_COUNTER.inc();
+        high_five_counter().inc();
 
         let server = MetricsServer {
             port: PORT,
@@ -303,7 +305,7 @@ mod tests {
         let server = start_http_server(PORT, metrics_to_string);
 
         // increment the counter
-        HIGH_FIVE_COUNTER.inc();
+        high_five_counter().inc();
 
         // Give the server a moment to start
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;

@@ -18,9 +18,8 @@ use std::sync::OnceLock;
 // Create and register counter
 pub fn high_five_counter() -> &'static IntCounter {
     static CONSUMED_MESSAGES: OnceLock<IntCounter> = OnceLock::new();
-    CONSUMED_MESSAGES.get_or_init(|| {
-        register_int_counter!("highfives", "Number of highfives given").unwrap()
-    })
+    CONSUMED_MESSAGES
+        .get_or_init(|| register_int_counter!("highfives", "Number of highfives given").unwrap())
 }
 
 /// Gather and encode metrics to a string (UTF8)

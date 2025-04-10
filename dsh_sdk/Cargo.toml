@@ -63,6 +63,5 @@ dsh_rest_api_client = { path = "../dsh_rest_api_client", version = "0.3.0" }
 dsh_sdk = { features = ["dlq"], path = "." }
 env_logger = "0.11"
 rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"], default-features = true }
-lazy_static = { version = "1.5" }
 prometheus = { version = "0.14", features = ["process"] }
 rumqttc = { version = "0.24", features = ["websocket"] }
