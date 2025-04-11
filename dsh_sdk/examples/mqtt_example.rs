@@ -1,11 +1,17 @@
 //! This example demonstrates how to connect to the DSH MQTT broker and consume data using the DSH SDK and Rumqttc.
 //!
+//! Example is using the following crates:
+//! - [`dsh_sdk`] with features = ["protocol-token"] for using tokens to authenticate to the DSH MQTT broker
+//! - [`rumqttc`] for mqtt client
+//! - [`tokio`] with features = ["full"] for async runtime
+//! - [`env_logger`] for output logging to stdout to show what is happening
+//!
+//! NEVER distribute the API_KEY to an external client, this is only for demonstration purposes
+//!
 //! Run example with:
 //! ```bash
-//! API_KEY={API_KEY} TENANT={TENANT} CLIENT_ID=sdk_example_client cargo run --all-features --example mqtt_example
+//! API_KEY={your_api_key} TENANT={your_tenant} CLIENT_ID=sdk_example_client cargo run  --features protocol-token --example mqtt_example
 //! ```
-//!
-//! NEVER distribute the API_KEY to an external client, this is only for demonstration purposes.
 //!
 //! The example will:
 //! - Request a DataAccessToken
@@ -13,6 +19,7 @@
 //! - Create a new async client
 //! - Subscribe to a topic
 //! - Print received messages
+
 use dsh_sdk::protocol_adapters::token::api_client_token_fetcher::ApiClientTokenFetcher;
 use dsh_sdk::protocol_adapters::token::data_access_token::{
     DataAccessToken, RequestDataAccessToken,
@@ -21,7 +28,7 @@ use dsh_sdk::protocol_adapters::token::data_access_token::{
 use rumqttc::{AsyncClient, MqttOptions, Transport};
 
 /// The platform to fetch the token for.
-const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::NpLz;
+const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::Poc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

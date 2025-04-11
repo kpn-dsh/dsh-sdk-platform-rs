@@ -1,6 +1,17 @@
-//! Example: API Client Authentication service fetching a REST token for a device.
+//! API Client Authentication service fetching a REST token for a device.
 //!
 //! The REST token enables a device to fetch its own DataAccessToken to connect to protocol adapters.
+//!
+//! Example is using the following crates:
+//! - [`dsh_sdk`] with features = ["protocol-token"] to fetch tokens
+//! - [`tokio`] with features = ["full"] for async runtime
+//! - [`env_logger`] for output logging to stdout to show what is happening
+//!
+//! NEVER distribute the API_KEY to an external client, this is only for demonstration purposes.
+//!
+//! ```bash
+//! API_KEY={API_KEY} TENANT={TENANT} cargo run  --features protocol-token --example protocol_authentication_full_mediation
+//! ```
 //!
 //! ## Important Notes:
 //! - **Do NOT implement this logic in device applications or external clients!**
@@ -15,7 +26,7 @@ use dsh_sdk::protocol_adapters::token::{
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Target platform for fetching the token.
-const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::NpLz;
+const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::Poc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
