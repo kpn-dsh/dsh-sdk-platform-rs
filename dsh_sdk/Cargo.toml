@@ -15,7 +15,7 @@ version = "0.6.1"
 all-features = true
 
 [dependencies]
-apache-avro = {version = "0.17", optional = true }
+apache-avro = {version = "0.18", optional = true }
 base64 = {version = "0.22", optional = true }
 bytes = { version = "1.6", optional = true }
 hyper = { version = "1.5", default-features = false, optional = true }
