@@ -2,6 +2,7 @@
 //!
 //! This module contains the configuration for the Kafka protocol adapter.
 use std::sync::Arc;
+use std::env;
 
 use crate::datastream::Datastream;
 use crate::utils::get_env_var;
@@ -108,8 +109,9 @@ impl KafkaConfig {
     /// - Required: `false`
     /// - Remark: Overrules `KAFKA_CONSUMER_GROUP_TYPE`. Mandatory to start with tenant name. (will prefix tenant name automatically if not set)
     pub fn group_id(&self) -> String {
+        // TODO: Stabilize this function to fetch it once and not every time
         let tenant_name = Dsh::get().tenant_name();
-        if let Ok(group_id) = get_env_var(VAR_KAFKA_GROUP_ID) {
+        if let Ok(group_id) = env::var(VAR_KAFKA_GROUP_ID) {
             if !group_id.starts_with(tenant_name) {
                 format!("{}_{}", tenant_name, group_id)
             } else {
