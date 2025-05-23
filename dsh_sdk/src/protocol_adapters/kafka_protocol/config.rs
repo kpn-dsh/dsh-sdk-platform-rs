@@ -1,8 +1,8 @@
 //! Kafka configuration
 //!
 //! This module contains the configuration for the Kafka protocol adapter.
-use std::sync::Arc;
 use std::env;
+use std::sync::Arc;
 
 use crate::datastream::Datastream;
 use crate::utils::get_env_var;
