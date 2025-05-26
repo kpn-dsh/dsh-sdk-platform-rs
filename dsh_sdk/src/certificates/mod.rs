@@ -110,7 +110,7 @@ impl Cert {
         if let Ok(cert) = Self::from_pki_config_dir::<std::path::PathBuf>(None) {
             Ok(cert)
         } else if let (Ok(config_host), Ok(task_id), Ok(tenant_name)) = (
-            utils::get_env_var(VAR_KAFKA_CONFIG_HOST),
+            utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(utils::ensure_https_prefix),
             utils::get_env_var(VAR_TASK_ID),
             utils::tenant_name(),
         ) {
