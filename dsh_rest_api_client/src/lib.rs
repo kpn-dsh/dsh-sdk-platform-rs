@@ -1,4 +1,4 @@
-mod progenitor_client;
+pub mod progenitor_client;
 
 #[allow(unused_imports)]
 use progenitor_client::{encode_path, RequestBuilderExt};

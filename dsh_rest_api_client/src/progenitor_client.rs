@@ -124,7 +124,7 @@ where
     /// Execute the request. Note that for almost any reasonable implementation
     /// this will include code equivalent to this:
     /// ```
-    /// # use progenitor_client::{ClientHooks, ClientInfo, OperationInfo};
+    /// # use dsh_rest_api_client::progenitor_client::{ClientHooks, ClientInfo, OperationInfo};
     /// # struct X;
     /// # impl ClientInfo<()> for X {
     /// #   fn api_version() -> &'static str { panic!() }
