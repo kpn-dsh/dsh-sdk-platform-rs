@@ -4,14 +4,12 @@ mod progenitor_client;
 use progenitor_client::{encode_path, RequestBuilderExt};
 #[allow(unused_imports)]
 pub use progenitor_client::{ByteStream, Error, ResponseValue};
-#[allow(unused_imports)]
-use reqwest::header::{HeaderMap, HeaderValue};
 /// Types used as operation parameters and responses.
 #[allow(clippy::all)]
 pub mod types {
     /// Error types.
     pub mod error {
-        /// Error from a TryFrom or FromStr implementation.
+        /// Error from a `TryFrom` or `FromStr` implementation.
         pub struct ConversionError(::std::borrow::Cow<'static, str>);
         impl ::std::error::Error for ConversionError {}
         impl ::std::fmt::Display for ConversionError {
@@ -70,9 +68,9 @@ pub mod types {
         #[serde(rename = "keySecret")]
         pub key_secret: ::std::string::String,
         #[serde(rename = "notAfter")]
-        pub not_after: chrono::DateTime<chrono::offset::Utc>,
+        pub not_after: ::chrono::DateTime<::chrono::offset::Utc>,
         #[serde(rename = "notBefore")]
-        pub not_before: chrono::DateTime<chrono::offset::Utc>,
+        pub not_before: ::chrono::DateTime<::chrono::offset::Utc>,
         #[serde(
             rename = "passphraseSecret",
             default,
@@ -89,7 +87,7 @@ pub mod types {
         }
     }
 
-    ///ActualCertificateAllOf
+    ///`ActualCertificateAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -135,9 +133,9 @@ pub mod types {
         #[serde(rename = "dnsNames")]
         pub dns_names: ::std::vec::Vec<::std::string::String>,
         #[serde(rename = "notAfter")]
-        pub not_after: chrono::DateTime<chrono::offset::Utc>,
+        pub not_after: ::chrono::DateTime<::chrono::offset::Utc>,
         #[serde(rename = "notBefore")]
-        pub not_before: chrono::DateTime<chrono::offset::Utc>,
+        pub not_before: ::chrono::DateTime<::chrono::offset::Utc>,
         #[serde(rename = "serialNumber")]
         pub serial_number: ::std::string::String,
     }
@@ -148,7 +146,7 @@ pub mod types {
         }
     }
 
-    ///AllocationStatus
+    ///`AllocationStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -223,7 +221,7 @@ pub mod types {
         }
     }
 
-    ///AllocationStatus1
+    ///`AllocationStatus1`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -261,7 +259,7 @@ pub mod types {
         }
     }
 
-    ///AppCatalogApp
+    ///`AppCatalogApp`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -344,7 +342,7 @@ pub mod types {
         }
     }
 
-    ///AppCatalogAppConfiguration
+    ///`AppCatalogAppConfiguration`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -406,7 +404,7 @@ pub mod types {
         }
     }
 
-    ///AppCatalogAppResourcesValue
+    ///`AppCatalogAppResourcesValue`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -498,7 +496,7 @@ pub mod types {
         }
     }
 
-    ///AppCatalogManifest
+    ///`AppCatalogManifest`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -546,7 +544,7 @@ pub mod types {
         }
     }
 
-    ///Application
+    ///`Application`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -919,7 +917,7 @@ pub mod types {
         }
     }
 
-    ///ApplicationVolumes
+    ///`ApplicationVolumes`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -957,7 +955,7 @@ pub mod types {
         }
     }
 
-    ///BaseLimitValue
+    ///`BaseLimitValue`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -979,7 +977,8 @@ pub mod types {
     ///        "partitionCount",
     ///        "consumerRate",
     ///        "producerRate",
-    ///        "requestRate"
+    ///        "requestRate",
+    ///        "kafkaAclGroupCount"
     ///      ]
     ///    }
     ///  }
@@ -997,7 +996,7 @@ pub mod types {
         }
     }
 
-    ///BaseLimitValueName
+    ///`BaseLimitValueName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1013,7 +1012,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -1049,6 +1049,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for BaseLimitValueName {
@@ -1069,6 +1071,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -1086,6 +1089,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -1116,7 +1120,7 @@ pub mod types {
         }
     }
 
-    ///Bucket
+    ///`Bucket`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1156,7 +1160,7 @@ pub mod types {
         }
     }
 
-    ///BucketAccess
+    ///`BucketAccess`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1220,7 +1224,7 @@ pub mod types {
         }
     }
 
-    ///BucketAccessConfiguration
+    ///`BucketAccessConfiguration`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1272,7 +1276,7 @@ pub mod types {
         }
     }
 
-    ///BucketAccessStatus
+    ///`BucketAccessStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1349,7 +1353,7 @@ pub mod types {
         }
     }
 
-    ///BucketStatus
+    ///`BucketStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1420,7 +1424,7 @@ pub mod types {
         }
     }
 
-    ///BucketWatch
+    ///`BucketWatch`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1454,7 +1458,7 @@ pub mod types {
         }
     }
 
-    ///BucketWatchStatus
+    ///`BucketWatchStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1578,7 +1582,7 @@ pub mod types {
         }
     }
 
-    ///CertificateStatus
+    ///`CertificateStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1647,7 +1651,7 @@ pub mod types {
         }
     }
 
-    ///ChildList
+    ///`ChildList`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1688,7 +1692,7 @@ pub mod types {
         }
     }
 
-    ///ClientSecret
+    ///`ClientSecret`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1735,7 +1739,7 @@ pub mod types {
         }
     }
 
-    ///DataCatalogAsset
+    ///`DataCatalogAsset`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1775,7 +1779,7 @@ pub mod types {
         }
     }
 
-    ///DataCatalogAssetStatus
+    ///`DataCatalogAssetStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1846,7 +1850,7 @@ pub mod types {
         }
     }
 
-    ///DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
+    ///`DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -1944,7 +1948,7 @@ pub mod types {
         }
     }
 
-    ///DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
+    ///`DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2038,7 +2042,7 @@ pub mod types {
         }
     }
 
-    ///DataCatalogGetByTenantDatacatalogAssetByKindByNameKind
+    ///`DataCatalogGetByTenantDatacatalogAssetByKindByNameKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2126,7 +2130,7 @@ pub mod types {
         }
     }
 
-    ///DataCatalogGetByTenantDatacatalogAssetByKindKind
+    ///`DataCatalogGetByTenantDatacatalogAssetByKindKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2214,7 +2218,7 @@ pub mod types {
         }
     }
 
-    ///DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
+    ///`DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2308,7 +2312,7 @@ pub mod types {
         }
     }
 
-    ///Database
+    ///`Database`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2420,7 +2424,7 @@ pub mod types {
         }
     }
 
-    ///DatabaseStatus
+    ///`DatabaseStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2509,7 +2513,7 @@ pub mod types {
         }
     }
 
-    ///Empty
+    ///`Empty`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2535,7 +2539,7 @@ pub mod types {
         }
     }
 
-    ///FlinkCluster
+    ///`FlinkCluster`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2609,7 +2613,7 @@ pub mod types {
         }
     }
 
-    ///FlinkClusterStatus
+    ///`FlinkClusterStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2698,7 +2702,7 @@ pub mod types {
         }
     }
 
-    ///FlinkJobManager
+    ///`FlinkJobManager`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2751,7 +2755,7 @@ pub mod types {
         }
     }
 
-    ///FlinkTaskManager
+    ///`FlinkTaskManager`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -2805,7 +2809,7 @@ pub mod types {
     pub struct FlinkTaskManager {
         pub cpus: f64,
         ///Number of Flink task managers (minimum 1)
-        pub instances: std::num::NonZeroU64,
+        pub instances: ::std::num::NonZeroU64,
         ///Memory (MB) for each Flink task manager (minimum 1024 = 1 GB)
         pub mem: i64,
     }
@@ -2816,7 +2820,7 @@ pub mod types {
         }
     }
 
-    ///HealthCheck
+    ///`HealthCheck`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -3050,7 +3054,7 @@ pub mod types {
         }
     }
 
-    ///KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId
+    ///`KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -3090,11 +3094,11 @@ pub mod types {
     impl ::std::str::FromStr for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if regress::Regex::new("[a-z][a-z0-9-]{1,15}")
-                .unwrap()
-                .find(value)
-                .is_none()
-            {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("[a-z][a-z0-9-]{1,15}").unwrap()
+                });
+            if (&*PATTERN).find(value).is_none() {
                 return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
             }
             Ok(Self(value.to_string()))
@@ -3143,7 +3147,7 @@ pub mod types {
         }
     }
 
-    ///KafkaAclGroupGetByTenantAclgroupByIdConfigurationId
+    ///`KafkaAclGroupGetByTenantAclgroupByIdConfigurationId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -3183,11 +3187,11 @@ pub mod types {
     impl ::std::str::FromStr for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if regress::Regex::new("[a-z][a-z0-9-]{1,15}")
-                .unwrap()
-                .find(value)
-                .is_none()
-            {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("[a-z][a-z0-9-]{1,15}").unwrap()
+                });
+            if (&*PATTERN).find(value).is_none() {
                 return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
             }
             Ok(Self(value.to_string()))
@@ -3236,7 +3240,7 @@ pub mod types {
         }
     }
 
-    ///KafkaAclGroupPutByTenantAclgroupByIdConfigurationId
+    ///`KafkaAclGroupPutByTenantAclgroupByIdConfigurationId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -3276,11 +3280,11 @@ pub mod types {
     impl ::std::str::FromStr for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if regress::Regex::new("[a-z][a-z0-9-]{1,15}")
-                .unwrap()
-                .find(value)
-                .is_none()
-            {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("[a-z][a-z0-9-]{1,15}").unwrap()
+                });
+            if (&*PATTERN).find(value).is_none() {
                 return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
             }
             Ok(Self(value.to_string()))
@@ -3371,7 +3375,7 @@ pub mod types {
         }
     }
 
-    ///KafkaAclGroupTopicKind
+    ///`KafkaAclGroupTopicKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -3533,7 +3537,7 @@ pub mod types {
         }
     }
 
-    ///KafkaProxy
+    ///`KafkaProxy`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -3682,7 +3686,7 @@ pub mod types {
         )]
         pub enable_kafka_acl_groups: ::std::option::Option<bool>,
         ///Number of instances
-        pub instances: std::num::NonZeroU64,
+        pub instances: ::std::num::NonZeroU64,
         ///Memory (MB) for each Kafka Proxy (minimum 1024 = 1 GB)
         pub mem: i64,
         ///Name of the new Kafka Proxy
@@ -3723,7 +3727,7 @@ pub mod types {
         }
     }
 
-    ///KafkaProxyStatus
+    ///`KafkaProxyStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4004,7 +4008,7 @@ pub mod types {
         }
     }
 
-    ///LimitValue
+    ///`LimitValue`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4126,7 +4130,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueCertificateCount
+    ///`LimitValueCertificateCount`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4147,7 +4151,7 @@ pub mod types {
     pub struct LimitValueCertificateCount {
         pub name: LimitValueCertificateCountName,
         ///The number of certificates available for the managed tenant
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueCertificateCount> for LimitValueCertificateCount {
@@ -4156,7 +4160,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueCertificateCountAllOf
+    ///`LimitValueCertificateCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4181,7 +4185,7 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueCertificateCountAllOf {
         ///The number of certificates available for the managed tenant
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueCertificateCountAllOf> for LimitValueCertificateCountAllOf {
@@ -4190,7 +4194,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueCertificateCountName
+    ///`LimitValueCertificateCountName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4206,7 +4210,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -4242,6 +4247,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueCertificateCountName {
@@ -4262,6 +4269,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -4279,6 +4287,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -4309,7 +4318,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueConsumerRate
+    ///`LimitValueConsumerRate`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4339,7 +4348,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueConsumerRateAllOf
+    ///`LimitValueConsumerRateAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4372,7 +4381,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueConsumerRateName
+    ///`LimitValueConsumerRateName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4388,7 +4397,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -4424,6 +4434,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueConsumerRateName {
@@ -4444,6 +4456,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -4461,6 +4474,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -4491,7 +4505,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueCpu
+    ///`LimitValueCpu`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4520,7 +4534,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueCpuAllOf
+    ///`LimitValueCpuAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4554,7 +4568,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueCpuName
+    ///`LimitValueCpuName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4570,7 +4584,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -4606,6 +4621,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueCpuName {
@@ -4626,6 +4643,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -4643,6 +4661,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -4673,7 +4692,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueKafkaAclGroupCount
+    ///`LimitValueKafkaAclGroupCount`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4703,7 +4722,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueKafkaAclGroupCountAllOf
+    ///`LimitValueKafkaAclGroupCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4718,7 +4737,7 @@ pub mod types {
     ///      "description": "The number of Kafka ACL groups available for the
     /// managed tenant",
     ///      "type": "integer",
-    ///      "maximum": 50.0,
+    ///      "maximum": 100.0,
     ///      "minimum": 0.0
     ///    }
     ///  }
@@ -4739,7 +4758,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueKafkaAclGroupCountName
+    ///`LimitValueKafkaAclGroupCountName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4755,7 +4774,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -4791,6 +4811,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueKafkaAclGroupCountName {
@@ -4811,6 +4833,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -4828,6 +4851,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -4858,7 +4882,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueMem
+    ///`LimitValueMem`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4879,7 +4903,7 @@ pub mod types {
     pub struct LimitValueMem {
         pub name: LimitValueMemName,
         ///The amount of memory available for the managed tenant (MiB)
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueMem> for LimitValueMem {
@@ -4888,7 +4912,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueMemAllOf
+    ///`LimitValueMemAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4913,7 +4937,7 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueMemAllOf {
         ///The amount of memory available for the managed tenant (MiB)
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueMemAllOf> for LimitValueMemAllOf {
@@ -4922,7 +4946,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueMemName
+    ///`LimitValueMemName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -4938,7 +4962,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -4974,6 +4999,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueMemName {
@@ -4994,6 +5021,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -5011,6 +5039,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -5041,7 +5070,7 @@ pub mod types {
         }
     }
 
-    ///LimitValuePartitionCount
+    ///`LimitValuePartitionCount`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5062,7 +5091,7 @@ pub mod types {
     pub struct LimitValuePartitionCount {
         pub name: LimitValuePartitionCountName,
         ///The number of partitions available for the managed tenant
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValuePartitionCount> for LimitValuePartitionCount {
@@ -5071,7 +5100,7 @@ pub mod types {
         }
     }
 
-    ///LimitValuePartitionCountAllOf
+    ///`LimitValuePartitionCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5096,7 +5125,7 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValuePartitionCountAllOf {
         ///The number of partitions available for the managed tenant
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValuePartitionCountAllOf> for LimitValuePartitionCountAllOf {
@@ -5105,7 +5134,7 @@ pub mod types {
         }
     }
 
-    ///LimitValuePartitionCountName
+    ///`LimitValuePartitionCountName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5121,7 +5150,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -5157,6 +5187,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValuePartitionCountName {
@@ -5177,6 +5209,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -5194,6 +5227,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -5224,7 +5258,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueProducerRate
+    ///`LimitValueProducerRate`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5254,7 +5288,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueProducerRateAllOf
+    ///`LimitValueProducerRateAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5287,7 +5321,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueProducerRateName
+    ///`LimitValueProducerRateName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5303,7 +5337,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -5339,6 +5374,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueProducerRateName {
@@ -5359,6 +5396,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -5376,6 +5414,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -5406,7 +5445,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueRequestRate
+    ///`LimitValueRequestRate`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5427,7 +5466,7 @@ pub mod types {
     pub struct LimitValueRequestRate {
         pub name: LimitValueRequestRateName,
         ///The maximum allowed request rate (%)
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueRequestRate> for LimitValueRequestRate {
@@ -5436,7 +5475,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueRequestRateAllOf
+    ///`LimitValueRequestRateAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5460,7 +5499,7 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueRequestRateAllOf {
         ///The maximum allowed request rate (%)
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueRequestRateAllOf> for LimitValueRequestRateAllOf {
@@ -5469,7 +5508,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueRequestRateName
+    ///`LimitValueRequestRateName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5485,7 +5524,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -5521,6 +5561,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueRequestRateName {
@@ -5541,6 +5583,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -5558,6 +5601,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -5588,7 +5632,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueSecretCount
+    ///`LimitValueSecretCount`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5609,7 +5653,7 @@ pub mod types {
     pub struct LimitValueSecretCount {
         pub name: LimitValueSecretCountName,
         ///The number of secrets available for the managed tenant
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueSecretCount> for LimitValueSecretCount {
@@ -5618,7 +5662,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueSecretCountAllOf
+    ///`LimitValueSecretCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5643,7 +5687,7 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueSecretCountAllOf {
         ///The number of secrets available for the managed tenant
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueSecretCountAllOf> for LimitValueSecretCountAllOf {
@@ -5652,7 +5696,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueSecretCountName
+    ///`LimitValueSecretCountName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5668,7 +5712,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -5704,6 +5749,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueSecretCountName {
@@ -5724,6 +5771,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -5741,6 +5789,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -5771,7 +5820,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueTopicCount
+    ///`LimitValueTopicCount`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5792,7 +5841,7 @@ pub mod types {
     pub struct LimitValueTopicCount {
         pub name: LimitValueTopicCountName,
         ///The number of topics available for the managed tenant
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueTopicCount> for LimitValueTopicCount {
@@ -5801,7 +5850,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueTopicCountAllOf
+    ///`LimitValueTopicCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5826,7 +5875,7 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueTopicCountAllOf {
         ///The number of topics available for the managed tenant
-        pub value: i64,
+        pub value: ::std::num::NonZeroU64,
     }
 
     impl ::std::convert::From<&LimitValueTopicCountAllOf> for LimitValueTopicCountAllOf {
@@ -5835,7 +5884,7 @@ pub mod types {
         }
     }
 
-    ///LimitValueTopicCountName
+    ///`LimitValueTopicCountName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -5851,7 +5900,8 @@ pub mod types {
     ///    "partitionCount",
     ///    "consumerRate",
     ///    "producerRate",
-    ///    "requestRate"
+    ///    "requestRate",
+    ///    "kafkaAclGroupCount"
     ///  ]
     ///}
     /// ```
@@ -5887,6 +5937,8 @@ pub mod types {
         ProducerRate,
         #[serde(rename = "requestRate")]
         RequestRate,
+        #[serde(rename = "kafkaAclGroupCount")]
+        KafkaAclGroupCount,
     }
 
     impl ::std::convert::From<&Self> for LimitValueTopicCountName {
@@ -5907,6 +5959,7 @@ pub mod types {
                 Self::ConsumerRate => write!(f, "consumerRate"),
                 Self::ProducerRate => write!(f, "producerRate"),
                 Self::RequestRate => write!(f, "requestRate"),
+                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
             }
         }
     }
@@ -5924,6 +5977,7 @@ pub mod types {
                 "consumerRate" => Ok(Self::ConsumerRate),
                 "producerRate" => Ok(Self::ProducerRate),
                 "requestRate" => Ok(Self::RequestRate),
+                "kafkaAclGroupCount" => Ok(Self::KafkaAclGroupCount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -5954,7 +6008,7 @@ pub mod types {
         }
     }
 
-    ///ManagedStream
+    ///`ManagedStream`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -6054,11 +6108,14 @@ pub mod types {
     impl ::std::str::FromStr for ManagedStreamId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if regress::Regex::new("^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$")
-                .unwrap()
-                .find(value)
-                .is_none()
-            {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$",
+                    )
+                    .unwrap()
+                });
+            if (&*PATTERN).find(value).is_none() {
                 return Err ("doesn't match pattern \"^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
             }
             Ok(Self(value.to_string()))
@@ -6103,7 +6160,7 @@ pub mod types {
         }
     }
 
-    ///ManagedTenant
+    ///`ManagedTenant`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -6196,7 +6253,7 @@ pub mod types {
         }
     }
 
-    ///ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
+    ///`ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -6212,7 +6269,8 @@ pub mod types {
     ///    "partitioncount",
     ///    "consumerrate",
     ///    "producerrate",
-    ///    "requestrate"
+    ///    "requestrate",
+    ///    "kafkaaclgroupcount"
     ///  ]
     ///}
     /// ```
@@ -6248,6 +6306,8 @@ pub mod types {
         Producerrate,
         #[serde(rename = "requestrate")]
         Requestrate,
+        #[serde(rename = "kafkaaclgroupcount")]
+        Kafkaaclgroupcount,
     }
 
     impl ::std::convert::From<&Self>
@@ -6272,6 +6332,7 @@ pub mod types {
                 Self::Consumerrate => write!(f, "consumerrate"),
                 Self::Producerrate => write!(f, "producerrate"),
                 Self::Requestrate => write!(f, "requestrate"),
+                Self::Kafkaaclgroupcount => write!(f, "kafkaaclgroupcount"),
             }
         }
     }
@@ -6289,6 +6350,7 @@ pub mod types {
                 "consumerrate" => Ok(Self::Consumerrate),
                 "producerrate" => Ok(Self::Producerrate),
                 "requestrate" => Ok(Self::Requestrate),
+                "kafkaaclgroupcount" => Ok(Self::Kafkaaclgroupcount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -6325,7 +6387,7 @@ pub mod types {
         }
     }
 
-    ///ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
+    ///`ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -6341,7 +6403,8 @@ pub mod types {
     ///    "partitioncount",
     ///    "consumerrate",
     ///    "producerrate",
-    ///    "requestrate"
+    ///    "requestrate",
+    ///    "kafkaaclgroupcount"
     ///  ]
     ///}
     /// ```
@@ -6377,6 +6440,8 @@ pub mod types {
         Producerrate,
         #[serde(rename = "requestrate")]
         Requestrate,
+        #[serde(rename = "kafkaaclgroupcount")]
+        Kafkaaclgroupcount,
     }
 
     impl ::std::convert::From<&Self>
@@ -6401,6 +6466,7 @@ pub mod types {
                 Self::Consumerrate => write!(f, "consumerrate"),
                 Self::Producerrate => write!(f, "producerrate"),
                 Self::Requestrate => write!(f, "requestrate"),
+                Self::Kafkaaclgroupcount => write!(f, "kafkaaclgroupcount"),
             }
         }
     }
@@ -6418,6 +6484,7 @@ pub mod types {
                 "consumerrate" => Ok(Self::Consumerrate),
                 "producerrate" => Ok(Self::Producerrate),
                 "requestrate" => Ok(Self::Requestrate),
+                "kafkaaclgroupcount" => Ok(Self::Kafkaaclgroupcount),
                 _ => Err("invalid value".into()),
             }
         }
@@ -6454,7 +6521,7 @@ pub mod types {
         }
     }
 
-    ///ManagedTenantServices
+    ///`ManagedTenantServices`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -6499,7 +6566,7 @@ pub mod types {
         }
     }
 
-    ///ManagedTenantServicesName
+    ///`ManagedTenantServicesName`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -6644,7 +6711,7 @@ pub mod types {
         }
     }
 
-    ///Notification
+    ///`Notification`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -6701,7 +6768,7 @@ pub mod types {
         }
     }
 
-    ///PathSpec
+    ///`PathSpec`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -6739,7 +6806,7 @@ pub mod types {
         }
     }
 
-    ///PortMapping
+    ///`PortMapping`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7045,7 +7112,7 @@ pub mod types {
         }
     }
 
-    ///PublicManagedStreamAllOf
+    ///`PublicManagedStreamAllOf`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7177,7 +7244,7 @@ pub mod types {
         }
     }
 
-    ///PublicManagedStreamKafkaDefaultPartitioner
+    ///`PublicManagedStreamKafkaDefaultPartitioner`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7214,7 +7281,7 @@ pub mod types {
         }
     }
 
-    ///PublicManagedStreamKafkaDefaultPartitionerKind
+    ///`PublicManagedStreamKafkaDefaultPartitionerKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7300,7 +7367,7 @@ pub mod types {
         }
     }
 
-    ///PublicManagedStreamTopicLevelPartitioner
+    ///`PublicManagedStreamTopicLevelPartitioner`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7346,7 +7413,7 @@ pub mod types {
         }
     }
 
-    ///PublicManagedStreamTopicLevelPartitionerKind
+    ///`PublicManagedStreamTopicLevelPartitionerKind`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7432,7 +7499,7 @@ pub mod types {
         }
     }
 
-    ///Secret
+    ///`Secret`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7472,7 +7539,7 @@ pub mod types {
         }
     }
 
-    ///Task
+    ///`Task`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7565,7 +7632,7 @@ pub mod types {
         pub healthy: ::std::option::Option<bool>,
         ///The IP address of the host the task is running on (not the IP
         /// address of the task itself)
-        pub host: std::net::Ipv4Addr,
+        pub host: ::std::net::Ipv4Addr,
         ///Timestamp of the last time the task was updated
         #[serde(
             rename = "lastUpdate",
@@ -7578,10 +7645,10 @@ pub mod types {
         pub logs: ::std::option::Option<::std::string::String>,
         ///Staging time of the task
         #[serde(rename = "stagedAt")]
-        pub staged_at: chrono::DateTime<chrono::offset::Utc>,
+        pub staged_at: ::chrono::DateTime<::chrono::offset::Utc>,
         ///Start time of the task
         #[serde(rename = "startedAt")]
-        pub started_at: chrono::DateTime<chrono::offset::Utc>,
+        pub started_at: ::chrono::DateTime<::chrono::offset::Utc>,
         ///The state the task is in
         pub state: TaskState,
         ///Stopped time of the task
@@ -7590,7 +7657,7 @@ pub mod types {
             default,
             skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub stopped_at: ::std::option::Option<chrono::DateTime<chrono::offset::Utc>>,
+        pub stopped_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
     }
 
     impl ::std::convert::From<&Task> for Task {
@@ -7744,7 +7811,7 @@ pub mod types {
         }
     }
 
-    ///TaskStatus
+    ///`TaskStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7825,7 +7892,7 @@ pub mod types {
         }
     }
 
-    ///ThirdPartyBucketConcession
+    ///`ThirdPartyBucketConcession`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7891,7 +7958,7 @@ pub mod types {
         }
     }
 
-    ///ThirdPartyBucketConcessionConfiguration
+    ///`ThirdPartyBucketConcessionConfiguration`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -7935,7 +8002,7 @@ pub mod types {
         }
     }
 
-    ///ThirdPartyBucketConcessionRegistration
+    ///`ThirdPartyBucketConcessionRegistration`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8000,7 +8067,7 @@ pub mod types {
         }
     }
 
-    ///ThirdPartyBucketConcessionStatus
+    ///`ThirdPartyBucketConcessionStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8076,7 +8143,7 @@ pub mod types {
         }
     }
 
-    ///Topic
+    ///`Topic`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8155,7 +8222,7 @@ pub mod types {
         }
     }
 
-    ///TopicStatus
+    ///`TopicStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8232,7 +8299,7 @@ pub mod types {
         }
     }
 
-    ///Validations
+    ///`Validations`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8340,7 +8407,7 @@ pub mod types {
         }
     }
 
-    ///Vhost
+    ///`Vhost`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8369,7 +8436,7 @@ pub mod types {
         }
     }
 
-    ///Volume
+    ///`Volume`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8404,7 +8471,7 @@ pub mod types {
         }
     }
 
-    ///VolumeStatus
+    ///`VolumeStatus`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8507,7 +8574,7 @@ pub mod types {
         }
     }
 
-    ///ZoneNetwork
+    ///`ZoneNetwork`
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -8599,8 +8666,8 @@ pub mod types {
 
         pub(super) fn default_u64<T, const V: u64>() -> T
         where
-            T: std::convert::TryFrom<u64>,
-            <T as std::convert::TryFrom<u64>>::Error: std::fmt::Debug,
+            T: ::std::convert::TryFrom<u64>,
+            <T as ::std::convert::TryFrom<u64>>::Error: ::std::fmt::Debug,
         {
             T::try_from(V).unwrap()
         }
@@ -8637,7 +8704,7 @@ pub mod types {
 ///
 ///Resource management API for DSH
 ///
-///Version: 1.9.0
+///Version: 1.9.2
 pub struct Client {
     pub(crate) baseurl: String,
     pub(crate) client: reqwest::Client,
@@ -8690,7 +8757,7 @@ impl Client {
     /// This string is pulled directly from the source OpenAPI
     /// document and may be in any format the API selects.
     pub fn api_version(&self) -> &'static str {
-        "1.9.0"
+        "1.9.2"
     }
 }
 
@@ -8718,15 +8785,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -8760,15 +8831,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -8804,8 +8879,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -8843,8 +8922,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -8876,15 +8959,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -8918,15 +9005,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -8959,15 +9050,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9001,15 +9096,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9043,15 +9142,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9088,15 +9191,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9132,15 +9239,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9177,15 +9288,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9224,8 +9339,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9265,8 +9384,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -9300,15 +9423,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appcatalogappid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9337,15 +9464,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9374,15 +9505,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9414,15 +9549,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9455,15 +9594,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9496,8 +9639,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -9529,8 +9676,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -9562,15 +9713,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9603,15 +9758,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9640,15 +9799,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9680,15 +9843,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9721,15 +9888,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9766,8 +9937,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -9804,8 +9979,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -9836,15 +10015,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9876,15 +10059,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9913,15 +10100,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9953,15 +10144,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -9997,15 +10192,19 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10041,15 +10240,19 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10087,8 +10290,12 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10130,8 +10337,12 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -10166,15 +10377,19 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10210,15 +10425,19 @@ impl Client {
             encode_path(&id.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10247,15 +10466,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10287,15 +10510,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10328,15 +10555,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10374,8 +10605,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10412,8 +10647,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -10445,15 +10684,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10485,15 +10728,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10522,15 +10769,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10562,15 +10813,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10603,15 +10858,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10647,8 +10906,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10685,8 +10948,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -10717,15 +10984,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10757,15 +11028,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10797,15 +11072,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&kind.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10841,15 +11120,19 @@ impl Client {
             encode_path(&kind.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10885,15 +11168,19 @@ impl Client {
             encode_path(&kind.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -10931,8 +11218,12 @@ impl Client {
             encode_path(&kind.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -10974,8 +11265,12 @@ impl Client {
             encode_path(&kind.to_string()),
             encode_path(&name.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -11003,15 +11298,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11041,15 +11340,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11084,8 +11387,12 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -11120,8 +11427,12 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -11149,15 +11460,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11186,15 +11501,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11223,15 +11542,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11265,15 +11588,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11308,8 +11635,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -11346,8 +11677,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -11379,15 +11714,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11419,15 +11758,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11456,15 +11799,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11497,15 +11844,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11540,8 +11891,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -11578,8 +11933,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -11607,15 +11966,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .post(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11644,15 +12007,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11683,8 +12050,12 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -11721,15 +12092,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11762,8 +12137,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -11796,15 +12175,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11836,15 +12219,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11876,8 +12263,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.get(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -11910,15 +12301,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .put(url)
             .header(
-                reqwest::header::CONTENT_TYPE,
-                reqwest::header::HeaderValue::from_static("text/plain"),
+                ::reqwest::header::CONTENT_TYPE,
+                ::reqwest::header::HeaderValue::from_static("text/plain"),
             )
             .body(body)
             .headers(header_map)
@@ -11948,15 +12343,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -11988,15 +12387,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&appid.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12031,15 +12434,19 @@ impl Client {
             encode_path(&appid.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12074,15 +12481,19 @@ impl Client {
             encode_path(&appid.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12117,15 +12528,19 @@ impl Client {
             encode_path(&appid.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12155,15 +12570,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12194,15 +12613,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12235,8 +12658,12 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -12273,15 +12700,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12317,15 +12748,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12361,8 +12796,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -12395,15 +12834,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12437,15 +12880,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12474,15 +12921,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12514,15 +12965,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12554,15 +13009,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12599,8 +13058,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -12637,8 +13100,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -12669,15 +13136,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12709,15 +13180,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12746,15 +13221,19 @@ impl Client {
             self.baseurl,
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12786,15 +13265,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12827,15 +13310,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12873,8 +13360,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -12911,8 +13402,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -12943,15 +13438,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -12983,15 +13482,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13021,15 +13524,19 @@ impl Client {
             self.baseurl,
             encode_path(&manager.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13063,15 +13570,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13109,8 +13620,12 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -13149,8 +13664,12 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -13182,15 +13701,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13223,15 +13746,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13264,15 +13791,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13307,8 +13838,12 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -13350,15 +13885,19 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&kind.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13398,8 +13937,12 @@ impl Client {
             encode_path(&tenant.to_string()),
             encode_path(&kind.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -13434,15 +13977,19 @@ impl Client {
             self.baseurl,
             encode_path(&manager.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13472,15 +14019,19 @@ impl Client {
             self.baseurl,
             encode_path(&manager.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13516,15 +14067,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13563,8 +14118,12 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -13605,8 +14164,12 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -13641,15 +14204,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13688,8 +14255,12 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
@@ -13730,8 +14301,12 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -13766,15 +14341,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13813,8 +14392,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -13852,8 +14435,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -13891,8 +14478,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -13928,15 +14519,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -13975,8 +14570,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -14014,8 +14613,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -14053,8 +14656,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -14090,15 +14697,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -14137,8 +14748,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -14176,8 +14791,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -14215,8 +14834,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -14252,15 +14875,19 @@ impl Client {
             encode_path(&manager.to_string()),
             encode_path(&stream_id.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self
             .client
             .get(url)
             .header(
-                reqwest::header::ACCEPT,
-                reqwest::header::HeaderValue::from_static("application/json"),
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
             )
             .headers(header_map)
             .build()?;
@@ -14299,8 +14926,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -14338,8 +14969,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
@@ -14377,8 +15012,12 @@ impl Client {
             encode_path(&stream_id.to_string()),
             encode_path(&tenant.to_string()),
         );
-        let mut header_map = HeaderMap::with_capacity(1usize);
-        header_map.append("Authorization", HeaderValue::try_from(authorization)?);
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
         let result = self.client.execute(request).await;
