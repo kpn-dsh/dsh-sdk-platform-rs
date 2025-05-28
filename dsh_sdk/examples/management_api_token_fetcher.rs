@@ -22,7 +22,7 @@ async fn main() {
     let tenant = env::var("TENANT").expect("TENANT must be set as environment variable");
     let client = Client::new(platform.endpoint_management_api());
     let tf = ManagementApiTokenFetcherBuilder::new(platform)
-        .tenant_name(tenant.clone())
+        .tenant_name(&tenant)
         .client_secret(client_secret)
         .build()
         .unwrap();

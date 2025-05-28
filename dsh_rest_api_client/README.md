@@ -51,7 +51,7 @@ To use the client in your project:
 use dsh_rest_api_client::Client;
 use dsh_sdk::{Platform, ManagementApiTokenFetcherBuilder};
 
-const CLIENT_SECRET: &str = "";
+const CLIENT_SECRET: &str = "YOUR_API_KEY_HERE";
 const TENANT: &str = "tenant-name";
 
 #[tokio::main]
