@@ -72,6 +72,9 @@ const VAR_PKI_CONFIG_DIR: &str = "PKI_CONFIG_DIR";
 /// Local datastream configurations in JSON format (e.g., for Kafka Proxy or local testing).
 const VAR_LOCAL_DATASTREAMS_JSON: &str = "LOCAL_DATASTREAMS_JSON";
 
+/// DNS name for the DSH container.
+const VAR_DSH_CONTAINER_DNS_NAME: &str = "DSH_CONTAINER_DNS_NAME";
+
 // -------------------- Kafka general environment variables --------------------
 
 /// Lists Kafka bootstrap servers.
