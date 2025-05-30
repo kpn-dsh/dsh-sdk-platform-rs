@@ -186,7 +186,7 @@ impl Cert {
     }
 
     /// Returns the Kafka certificate as a PEM string (equivalent to `client.pem`).
-    /// 
+    ///
     /// Alias for [`dsh_signed_certificate_pem`](self::dsh_signed_certificate_pem).
     #[deprecated(
         since = "0.6.3",
@@ -197,13 +197,13 @@ impl Cert {
     }
 
     /// Returns the certificate signed by the platform.
-    /// 
-    /// This is certificate can be used for Kafka connections or mTLS 
+    ///
+    /// This is certificate can be used for Kafka connections or mTLS
     /// connections to the Schema Registry or other DSH services.
-    /// 
+    ///
     /// It has the CN set to the tenant name and the SANs set to the
     /// DNS of the container
-    pub fn dsh_signed_certificate_pem(&self) -> &str  {
+    pub fn dsh_signed_certificate_pem(&self) -> &str {
         &self.dsh_client_certificate_pem
     }
 
@@ -375,7 +375,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dsh_signed_certificate_pem(){
+    fn test_dsh_signed_certificate_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let pem = cert.dsh_signed_certificate_pem();
         assert_eq!(pem, cert.dsh_client_certificate_pem);
