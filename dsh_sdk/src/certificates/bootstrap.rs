@@ -9,13 +9,16 @@
 use log::{debug, info};
 use reqwest::blocking::Client;
 
-use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair};
+use rcgen::{CertificateParams, CertificateSigningRequest, DnType, Ia5String, KeyPair, SanType};
 
 use super::CertificatesError;
 
 use super::Cert;
 use crate::utils;
-use crate::{VAR_DSH_CA_CERTIFICATE, VAR_DSH_SECRET_TOKEN, VAR_DSH_SECRET_TOKEN_PATH};
+use crate::{
+    VAR_DSH_CA_CERTIFICATE, VAR_DSH_CONTAINER_DNS_NAME, VAR_DSH_SECRET_TOKEN,
+    VAR_DSH_SECRET_TOKEN_PATH,
+};
 
 /// Connect to DSH and retrieve the certificates and datastreams.json to create the properties struct
 pub(crate) fn bootstrap(
@@ -76,6 +79,12 @@ fn generate_csr(
     params
         .distinguished_name
         .push(DnType::OrganizationName, dn.o);
+    if let Some(ia5_string) = utils::get_env_var(VAR_DSH_CONTAINER_DNS_NAME)
+        .ok()
+        .and_then(|dns_string| Ia5String::try_from(dns_string).ok())
+    {
+        params.subject_alt_names.push(SanType::DnsName(ia5_string));
+    }
     Ok(params.serialize_request(key_pair)?)
 }
 

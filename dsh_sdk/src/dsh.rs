@@ -191,7 +191,7 @@ impl Dsh {
     /// # use dsh_sdk::Dsh;
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let dsh = Dsh::get();
-    /// let dsh_kafka_certificate = dsh.certificates()?.dsh_kafka_certificate_pem();
+    /// let dsh_kafka_certificate = dsh.certificates()?.dsh_signed_certificate_pem();
     /// # Ok(())
     /// # }
     /// ```

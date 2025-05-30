@@ -5,12 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2025-05-30
+### Added
+- Add container DNS to SAN in CSR request
+
+### Changed
+- Update dev-dependency `openssl`
+- renamed `dsh_kafka_certificate_pem` -> `dsh_signed_certificate_pem` for clarity (dsh_kafka_certificate_pem has a deprecation warning)
+
 ## [0.6.2] - 2025-05-23
+### Added
+- Add DNS of container as SAN to certificates
+
+### Fixed
+- Fixed issue with `dsh_sdk::certificates::bootstrap::from_env` not ensuring `https` for config_host
 
 ### Changed
 - Removed info logging for group_id
 - Update avro dependency to 0.18
-- Update dev dependencie prometheus to 0.14
+- Update dev dependency prometheus to 0.14
 
 ## [0.6.1] - 2025-02-19
 
