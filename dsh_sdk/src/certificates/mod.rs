@@ -151,7 +151,7 @@ impl Cert {
     /// the [`Cert`] was instantiated successfully.
     pub fn reqwest_client_config(&self) -> reqwest::ClientBuilder {
         let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
-            self.dsh_kafka_certificate_pem(),
+            self.dsh_signed_certificate_pem(),
             &self.private_key_pem(),
             self.dsh_ca_certificate_pem(),
         );
@@ -170,7 +170,7 @@ impl Cert {
     /// the [`Cert`] was instantiated successfully.
     pub fn reqwest_blocking_client_config(&self) -> ClientBuilder {
         let (pem_identity, reqwest_cert) = Self::prepare_reqwest_client(
-            self.dsh_kafka_certificate_pem(),
+            self.dsh_signed_certificate_pem(),
             &self.private_key_pem(),
             self.dsh_ca_certificate_pem(),
         );
@@ -186,7 +186,24 @@ impl Cert {
     }
 
     /// Returns the Kafka certificate as a PEM string (equivalent to `client.pem`).
+    /// 
+    /// Alias for [`dsh_signed_certificate_pem`](self::dsh_signed_certificate_pem).
+    #[deprecated(
+        since = "0.6.3",
+        note = "Use `dsh_signed_certificate_pem` instead for clarity."
+    )]
     pub fn dsh_kafka_certificate_pem(&self) -> &str {
+        &self.dsh_client_certificate_pem
+    }
+
+    /// Returns the certificate signed by the platform.
+    /// 
+    /// This is certificate can be used for Kafka connections or mTLS 
+    /// connections to the Schema Registry or other DSH services.
+    /// 
+    /// It has the CN set to the tenant name and the SANs set to the
+    /// DNS of the container
+    pub fn dsh_signed_certificate_pem(&self) -> &str  {
         &self.dsh_client_certificate_pem
     }
 
@@ -232,7 +249,7 @@ impl Cert {
     pub fn to_files(&self, dir: &PathBuf) -> Result<(), CertificatesError> {
         std::fs::create_dir_all(dir)?;
         Self::create_file(dir.join("ca.crt"), self.dsh_ca_certificate_pem())?;
-        Self::create_file(dir.join("client.pem"), self.dsh_kafka_certificate_pem())?;
+        Self::create_file(dir.join("client.pem"), self.dsh_signed_certificate_pem())?;
         Self::create_file(dir.join("client.key"), self.private_key_pem())?;
         Ok(())
     }
@@ -349,10 +366,18 @@ mod tests {
         assert_eq!(pem, cert.dsh_ca_certificate_pem);
     }
 
+    #[allow(deprecated)]
     #[test]
     fn test_dsh_kafka_certificate_pem() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let pem = cert.dsh_kafka_certificate_pem();
+        assert_eq!(pem, cert.dsh_client_certificate_pem);
+    }
+
+    #[test]
+    fn test_dsh_signed_certificate_pem(){
+        let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
+        let pem = cert.dsh_signed_certificate_pem();
         assert_eq!(pem, cert.dsh_client_certificate_pem);
     }
 
@@ -371,7 +396,7 @@ mod tests {
     fn test_create_identity() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let identity = Cert::create_identity(
-            cert.dsh_kafka_certificate_pem().as_bytes(),
+            cert.dsh_signed_certificate_pem().as_bytes(),
             cert.private_key_pem().as_bytes(),
         );
         assert!(identity.is_ok());

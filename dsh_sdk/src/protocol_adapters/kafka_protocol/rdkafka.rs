@@ -79,7 +79,7 @@ impl DshKafkaConfig for ClientConfig {
                 .set("ssl.key.pem", certificates.private_key_pem())
                 .set(
                     "ssl.certificate.pem",
-                    certificates.dsh_kafka_certificate_pem(),
+                    certificates.dsh_signed_certificate_pem(),
                 )
                 .set("ssl.ca.pem", certificates.dsh_ca_certificate_pem())
         } else {
