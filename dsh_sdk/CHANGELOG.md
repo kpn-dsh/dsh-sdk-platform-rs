@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.3] - 2025-05-30
 ### Added
-- Add container DNS to SAN in certificates
+- Add container DNS to SAN in CSR request
 
 ### Changed
 - Update dev-dependency `openssl`
+- renamed `dsh_kafka_certificate_pem` -> `dsh_signed_certificate_pem` for clarity (dsh_kafka_certificate_pem has a deprecation warning)
 
 ## [0.6.2] - 2025-05-23
 ### Added
