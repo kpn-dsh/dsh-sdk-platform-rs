@@ -24,7 +24,7 @@ hyper-util = { version = "0.1", default-features = false, optional = true }
 log = "0.4"
 pem = {version = "3", optional = true }
 protofish = { version = "0.5.2", optional = true }
-rcgen = { version = "0.13", optional = true }
+rcgen = { version = "0.14", optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "blocking"], optional = true }
 rdkafka = { version = "0.37", default-features = false, optional = true }
 serde = { version = "1.0", features = ["derive"] }
