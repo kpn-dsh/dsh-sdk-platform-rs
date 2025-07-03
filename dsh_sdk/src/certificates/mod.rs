@@ -224,7 +224,8 @@ impl Cert {
 
     /// Returns the public key as DER bytes.
     pub fn public_key_der(&self) -> Vec<u8> {
-        self.key_pair.public_key_der()
+        use rcgen::PublicKeyData;
+        self.key_pair.subject_public_key_info()
     }
 
     /// Creates `ca.crt`, `client.pem`, and `client.key` files in the specified directory.
@@ -308,9 +309,9 @@ mod tests {
 
     fn set_test_cert() -> Cert {
         let subject_alt_names = vec!["hello.world.example".to_string(), "localhost".to_string()];
-        let CertifiedKey { cert, key_pair } =
+        let CertifiedKey { cert, signing_key } =
             generate_simple_self_signed(subject_alt_names).unwrap();
-        Cert::new(cert.pem(), cert.pem(), key_pair)
+        Cert::new(cert.pem(), cert.pem(), signing_key)
     }
 
     #[test]
