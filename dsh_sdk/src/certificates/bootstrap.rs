@@ -9,8 +9,8 @@
 use log::{debug, info};
 use reqwest::blocking::Client;
 
-use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair, SanType};
 use rcgen::string::Ia5String;
+use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair, SanType};
 
 use super::CertificatesError;
 
