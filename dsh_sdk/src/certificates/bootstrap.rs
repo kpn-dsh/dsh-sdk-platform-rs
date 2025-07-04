@@ -9,7 +9,8 @@
 use log::{debug, info};
 use reqwest::blocking::Client;
 
-use rcgen::{CertificateParams, CertificateSigningRequest, DnType, Ia5String, KeyPair, SanType};
+use rcgen::string::Ia5String;
+use rcgen::{CertificateParams, CertificateSigningRequest, DnType, KeyPair, SanType};
 
 use super::CertificatesError;
 
@@ -257,9 +258,9 @@ mod tests {
 
     fn set_test_cert() -> Cert {
         let subject_alt_names = vec!["hello.world.example".to_string(), "localhost".to_string()];
-        let CertifiedKey { cert, key_pair } =
+        let CertifiedKey { cert, signing_key } =
             generate_simple_self_signed(subject_alt_names).unwrap();
-        Cert::new(cert.pem(), cert.pem(), key_pair)
+        Cert::new(cert.pem(), cert.pem(), signing_key)
     }
 
     #[test]
