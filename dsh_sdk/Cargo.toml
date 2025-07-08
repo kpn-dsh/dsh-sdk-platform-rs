@@ -25,7 +25,7 @@ log = "0.4"
 pem = {version = "3", optional = true }
 protofish = { version = "0.5.2", optional = true }
 rcgen = { version = "0.14", optional = true }
-reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "blocking"], optional = true }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls-manual-roots", "json", "blocking"], optional = true }
 rdkafka = { version = "0.37", default-features = false, optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"], optional = true }
