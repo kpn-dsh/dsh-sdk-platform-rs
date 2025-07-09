@@ -127,12 +127,12 @@ impl Dlq {
 
         let result = self.dlq_producer.send(record, None).await;
         match result {
-            Ok((partition, offset)) => warn!(
+            Ok(delivery) => warn!(
                 "DLQ message [{:?}] -> topic: {}, partition: {}, offset: {}",
                 from_utf8(key),
                 topic,
-                partition,
-                offset
+                delivery.partition,
+                delivery.offset
             ),
             Err((err, _)) => return Err(err),
         };

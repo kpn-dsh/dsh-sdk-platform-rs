@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-07-09
+### Changed
+- **Breaking change:** Updated DshKafkaConfig to use rdkafka 0.38
+- Internal change in DLQ to be compatible with rdkafka 0.38
+
+### Removed
+- Removed deprecated `dsh_kafka_certificate_pem` function in `Cert` struct, use `dsh_signed_certificate_pem` instead (`dsh_kafka_certificate_pem` was deprecated since 0.6.3)
+
 ## [0.6.4] - 2025-07-09
 ### Changed
 - Removed dependency on webpki-roots, as we use our own Root CA Certificate
