@@ -30,14 +30,19 @@ pub use platform::Platform;
 /// ## Example
 /// ```
 /// # use dsh_sdk::utils::get_configured_topics;
-/// std::env::set_var("TOPICS", "topic1, topic2, topic3");
-///
+/// # unsafe {
+/// # std::env::set_var("TOPICS", "topic1, topic2, topic3");
+/// # }
+/// // In case the environment variable `TOPICS` is set to "topic1, topic2, topic3",
+/// // this function will return a vector with the topics as strings.
 /// let topics = get_configured_topics().unwrap();
 ///
 /// assert_eq!(topics[0], "topic1");
 /// assert_eq!(topics[1], "topic2");
 /// assert_eq!(topics[2], "topic3");
+/// # unsafe {
 /// # std::env::remove_var("TOPICS");
+/// # }
 /// ```
 pub fn get_configured_topics() -> Result<Vec<String>, UtilsError> {
     let kafka_topic_string = get_env_var("TOPICS")?;
@@ -57,17 +62,23 @@ pub fn get_configured_topics() -> Result<Vec<String>, UtilsError> {
 /// ```
 /// # use dsh_sdk::utils::tenant_name;
 /// # use dsh_sdk::utils::UtilsError;
+/// # unsafe {
 /// std::env::set_var("MARATHON_APP_ID", "/dsh-tenant-name/app-name"); // Injected by DSH by default
-///
+/// # }
 /// let tenant = tenant_name().unwrap();
 /// assert_eq!(&tenant, "dsh-tenant-name");
+/// # unsafe {
 /// # std::env::remove_var("MARATHON_APP_ID");
+/// # }
 ///
+/// # unsafe {
 /// std::env::set_var("DSH_TENANT_NAME", "your-tenant-name"); // Set by user, useful when running outside of DSH together with Kafka Proxy or VPN
+/// # }
 /// let tenant = tenant_name().unwrap();
 /// assert_eq!(&tenant, "your-tenant-name");
+/// # unsafe {
 /// # std::env::remove_var("DSH_TENANT_NAME");
-///
+/// # }
 /// // If neither of the environment variables are set, it will return an error
 /// let result = tenant_name();
 /// assert!(matches!(result, Err(UtilsError::NoTenantName)));
