@@ -20,8 +20,8 @@
 //! - **The API_KEY must never be distributed.**
 
 use dsh_sdk::protocol_adapters::token::{
-    api_client_token_fetcher::ApiClientTokenFetcher, Action, RequestDataAccessToken,
-    TopicPermission,
+    Action, RequestDataAccessToken, TopicPermission,
+    api_client_token_fetcher::ApiClientTokenFetcher,
 };
 use std::time::{SystemTime, UNIX_EPOCH};
 

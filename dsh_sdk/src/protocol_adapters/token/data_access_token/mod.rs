@@ -62,10 +62,12 @@ mod tests {
     fn test_validate_client_id() {
         assert!(validate_client_id("ABCDEF1234567890@-_.:asbcdef").is_ok());
         assert!(validate_client_id("!").is_err());
-        assert!(validate_client_id(
-            "1234567890qwertyuiopasdfghjklzxcvbnmz1234567890qwertyuiopasdfghjklzxcvbnmz"
-        )
-        .is_err());
+        assert!(
+            validate_client_id(
+                "1234567890qwertyuiopasdfghjklzxcvbnmz1234567890qwertyuiopasdfghjklzxcvbnmz"
+            )
+            .is_err()
+        );
         assert!(validate_client_id("client A").is_err());
         assert!(validate_client_id("client\nA").is_err());
         assert!(validate_client_id(r#"client\nA"#).is_err());

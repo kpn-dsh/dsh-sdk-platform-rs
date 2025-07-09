@@ -89,7 +89,11 @@ pub fn tenant_name() -> Result<String, UtilsError> {
     } else if let Ok(tenant_name) = get_env_var(VAR_DSH_TENANT_NAME) {
         Ok(tenant_name)
     } else {
-        log::warn!("{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster as the group ID is based on this!. Please set one of these environment variables.", VAR_DSH_TENANT_NAME, VAR_APP_ID);
+        log::warn!(
+            "{} and {} are not set, this may cause unexpected behaviour when connecting to DSH Kafka cluster as the group ID is based on this!. Please set one of these environment variables.",
+            VAR_DSH_TENANT_NAME,
+            VAR_APP_ID
+        );
         Err(UtilsError::NoTenantName)
     }
 }
@@ -126,43 +130,49 @@ mod tests {
     #[test]
     #[serial(env_dependency)]
     fn test_dsh_config_tenant_name() {
-        let result = tenant_name();
-        assert!(matches!(result, Err(UtilsError::NoTenantName)));
-        env::set_var(VAR_APP_ID, "/parsed-tenant-name/app-name");
-        let result = tenant_name().unwrap();
-        assert_eq!(result, "parsed-tenant-name".to_string());
-        env::set_var(VAR_APP_ID, "incorrect_app_id");
-        let result = tenant_name().unwrap();
-        assert_eq!(result, "incorrect_app_id".to_string(),);
-        env::remove_var(VAR_APP_ID);
-        env::set_var(VAR_DSH_TENANT_NAME, "tenant_name");
-        let result = tenant_name().unwrap();
-        assert_eq!(result, "tenant_name".to_string());
-        env::remove_var(VAR_DSH_TENANT_NAME);
+        unsafe {
+            let result = tenant_name();
+            assert!(matches!(result, Err(UtilsError::NoTenantName)));
+            env::set_var(VAR_APP_ID, "/parsed-tenant-name/app-name");
+            let result = tenant_name().unwrap();
+            assert_eq!(result, "parsed-tenant-name".to_string());
+            env::set_var(VAR_APP_ID, "incorrect_app_id");
+            let result = tenant_name().unwrap();
+            assert_eq!(result, "incorrect_app_id".to_string(),);
+            env::remove_var(VAR_APP_ID);
+            env::set_var(VAR_DSH_TENANT_NAME, "tenant_name");
+            let result = tenant_name().unwrap();
+            assert_eq!(result, "tenant_name".to_string());
+            env::remove_var(VAR_DSH_TENANT_NAME);
+        }
     }
 
     #[test]
     #[serial(env_dependency)]
     fn test_get_configured_topics() {
-        std::env::set_var("TOPICS", "topic1, topic2, topic3");
+        unsafe {
+            std::env::set_var("TOPICS", "topic1, topic2, topic3");
 
-        let topics = get_configured_topics().unwrap();
-        assert_eq!(topics.len(), 3);
-        assert_eq!(topics[0], "topic1");
-        assert_eq!(topics[1], "topic2");
-        assert_eq!(topics[2], "topic3");
+            let topics = get_configured_topics().unwrap();
+            assert_eq!(topics.len(), 3);
+            assert_eq!(topics[0], "topic1");
+            assert_eq!(topics[1], "topic2");
+            assert_eq!(topics[2], "topic3");
 
-        std::env::remove_var("TOPICS");
+            std::env::remove_var("TOPICS");
 
-        let topics = get_configured_topics();
-        assert!(topics.is_err());
+            let topics = get_configured_topics();
+            assert!(topics.is_err());
+        }
     }
 
     #[test]
     fn test_get_env_var() {
-        env::set_var("TEST_ENV_VAR", "test_value");
-        let result = get_env_var("TEST_ENV_VAR").unwrap();
-        assert_eq!(result, "test_value");
+        unsafe {
+            env::set_var("TEST_ENV_VAR", "test_value");
+            let result = get_env_var("TEST_ENV_VAR").unwrap();
+            assert_eq!(result, "test_value");
+        }
     }
 
     #[test]

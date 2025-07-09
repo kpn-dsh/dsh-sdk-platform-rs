@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use super::claims::TopicPermission;
 use super::token::DataAccessToken;
-use crate::protocol_adapters::token::rest_token::RestToken;
 use crate::protocol_adapters::token::ProtocolTokenError;
+use crate::protocol_adapters::token::rest_token::RestToken;
 use crate::utils::ensure_https_prefix;
 
 /// Request for geting a [`DataAccessToken`] which can be used to authenticate to the DSH Mqtt or Http brokers

@@ -1,7 +1,7 @@
+use super::SchemaStoreError;
 use super::api::SchemaStoreApi;
 use super::request::Request;
 use super::types::*;
-use super::SchemaStoreError;
 use crate::Dsh;
 
 /// A high-level client for interacting with the DSH Schema Store API.

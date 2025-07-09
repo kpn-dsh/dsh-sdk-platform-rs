@@ -15,8 +15,8 @@
 //! SCHEMA_REGISTRY_HOST=http://localhost:8081/apis/ccompat/v7 cargo run --features schema-store --example schema_store_api
 //! ```
 
-use dsh_sdk::schema_store::types::*;
 use dsh_sdk::schema_store::SchemaStoreClient;
+use dsh_sdk::schema_store::types::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

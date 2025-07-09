@@ -16,11 +16,11 @@
 //! check 'dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md' for instructions on how to set up the connection.
 
 use dsh_sdk::DshKafkaConfig;
+use rdkafka::ClientConfig;
+use rdkafka::Message;
 use rdkafka::consumer::CommitMode;
 use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::producer::{FutureProducer, FutureRecord};
-use rdkafka::ClientConfig;
-use rdkafka::Message;
 
 const TOTAL_MESSAGES: usize = 10;
 

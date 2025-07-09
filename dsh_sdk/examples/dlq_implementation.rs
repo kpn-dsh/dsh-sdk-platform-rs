@@ -14,13 +14,13 @@
 //! To run this example against Kafka on DSH from your local environment,
 //! check 'dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md' for instructions on how to set up the connection.
 
+use dsh_sdk::DshKafkaConfig;
 use dsh_sdk::utils::dlq::{self, DlqChannel, ErrorToDlq};
 use dsh_sdk::utils::graceful_shutdown::Shutdown;
-use dsh_sdk::DshKafkaConfig;
 
+use rdkafka::ClientConfig;
 use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::message::{BorrowedMessage, Message, OwnedMessage};
-use rdkafka::ClientConfig;
 use std::backtrace::Backtrace;
 use thiserror::Error;
 
@@ -103,8 +103,10 @@ async fn consume(
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Set the dlq topics (required)
     // Normally injected via DSH Config
-    std::env::set_var("DLQ_DEAD_TOPIC", DLQ_DEAD_TOPIC);
-    std::env::set_var("DLQ_RETRY_TOPIC", DLQ_RETRY_TOPIC);
+    unsafe {
+        std::env::set_var("DLQ_DEAD_TOPIC", DLQ_DEAD_TOPIC);
+        std::env::set_var("DLQ_RETRY_TOPIC", DLQ_RETRY_TOPIC);
+    }
 
     let shutdown = Shutdown::new();
     let consumer: StreamConsumer = ClientConfig::new().set_dsh_consumer_config().create()?;

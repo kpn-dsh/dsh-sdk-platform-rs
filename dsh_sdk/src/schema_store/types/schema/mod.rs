@@ -4,7 +4,7 @@ mod raw_schema;
 mod r#type;
 
 pub use id::*;
-pub use r#type::*;
 pub use raw_schema::*;
+pub use r#type::*;
 
 use super::Subject;

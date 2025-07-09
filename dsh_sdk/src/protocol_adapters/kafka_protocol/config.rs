@@ -281,91 +281,97 @@ mod tests {
     #[test]
     #[serial(env_dependency)]
     fn test_consumer_kafka_config_env() {
-        env::set_var(VAR_KAFKA_ENABLE_AUTO_COMMIT, "true");
-        env::set_var(VAR_KAFKA_AUTO_OFFSET_RESET, "latest");
-        env::set_var(VAR_KAFKA_CONSUMER_SESSION_TIMEOUT_MS, "1000");
-        env::set_var(
-            VAR_KAFKA_CONSUMER_QUEUED_BUFFERING_MAX_MESSAGES_KBYTES,
-            "1000",
-        );
-        let consumer_config = KafkaConfig::default();
-        assert_eq!(consumer_config.enable_auto_commit(), true);
-        assert_eq!(consumer_config.auto_offset_reset(), "latest");
-        assert_eq!(consumer_config.session_timeout(), Some(1000));
-        assert_eq!(
-            consumer_config.queued_buffering_max_messages_kbytes(),
-            Some(1000)
-        );
-        env::remove_var(VAR_KAFKA_ENABLE_AUTO_COMMIT);
-        env::remove_var(VAR_KAFKA_AUTO_OFFSET_RESET);
-        env::remove_var(VAR_KAFKA_CONSUMER_SESSION_TIMEOUT_MS);
-        env::remove_var(VAR_KAFKA_CONSUMER_QUEUED_BUFFERING_MAX_MESSAGES_KBYTES);
+        unsafe {
+            env::set_var(VAR_KAFKA_ENABLE_AUTO_COMMIT, "true");
+            env::set_var(VAR_KAFKA_AUTO_OFFSET_RESET, "latest");
+            env::set_var(VAR_KAFKA_CONSUMER_SESSION_TIMEOUT_MS, "1000");
+            env::set_var(
+                VAR_KAFKA_CONSUMER_QUEUED_BUFFERING_MAX_MESSAGES_KBYTES,
+                "1000",
+            );
+            let consumer_config = KafkaConfig::default();
+            assert_eq!(consumer_config.enable_auto_commit(), true);
+            assert_eq!(consumer_config.auto_offset_reset(), "latest");
+            assert_eq!(consumer_config.session_timeout(), Some(1000));
+            assert_eq!(
+                consumer_config.queued_buffering_max_messages_kbytes(),
+                Some(1000)
+            );
+            env::remove_var(VAR_KAFKA_ENABLE_AUTO_COMMIT);
+            env::remove_var(VAR_KAFKA_AUTO_OFFSET_RESET);
+            env::remove_var(VAR_KAFKA_CONSUMER_SESSION_TIMEOUT_MS);
+            env::remove_var(VAR_KAFKA_CONSUMER_QUEUED_BUFFERING_MAX_MESSAGES_KBYTES);
+        }
     }
 
     #[test]
     #[serial(env_dependency)]
     fn test_producer_kafka_config_env() {
-        env::set_var(VAR_KAFKA_PRODUCER_BATCH_NUM_MESSAGES, "1000");
-        env::set_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES, "1000");
-        env::set_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_KBYTES, "1000");
-        env::set_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS, "1000");
-        let producer_config = KafkaConfig::default();
-        assert_eq!(producer_config.batch_num_messages(), Some(1000));
-        assert_eq!(producer_config.queue_buffering_max_messages(), Some(1000));
-        assert_eq!(producer_config.queue_buffering_max_kbytes(), Some(1000));
-        assert_eq!(producer_config.queue_buffering_max_ms(), Some(1000));
-        env::remove_var(VAR_KAFKA_PRODUCER_BATCH_NUM_MESSAGES);
-        env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES);
-        env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_KBYTES);
-        env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS);
+        unsafe {
+            env::set_var(VAR_KAFKA_PRODUCER_BATCH_NUM_MESSAGES, "1000");
+            env::set_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES, "1000");
+            env::set_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_KBYTES, "1000");
+            env::set_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS, "1000");
+            let producer_config = KafkaConfig::default();
+            assert_eq!(producer_config.batch_num_messages(), Some(1000));
+            assert_eq!(producer_config.queue_buffering_max_messages(), Some(1000));
+            assert_eq!(producer_config.queue_buffering_max_kbytes(), Some(1000));
+            assert_eq!(producer_config.queue_buffering_max_ms(), Some(1000));
+            env::remove_var(VAR_KAFKA_PRODUCER_BATCH_NUM_MESSAGES);
+            env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES);
+            env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_KBYTES);
+            env::remove_var(VAR_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS);
+        }
     }
 
     #[test]
     #[serial(env_dependency)]
     fn test_kafka_group_id() {
-        let config = KafkaConfig::default();
-        let dsh = Dsh::default();
-        assert_eq!(
-            config.group_id(),
-            config
-                .datastream()
-                .get_group_id(crate::datastream::GroupType::Shared(0))
-                .unwrap()
-        );
-        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
-        assert_eq!(
-            config.group_id(),
-            config
-                .datastream()
-                .get_group_id(crate::datastream::GroupType::Private(0))
-                .unwrap()
-        );
-        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
-        assert_eq!(
-            config.group_id(),
-            config
-                .datastream()
-                .get_group_id(crate::datastream::GroupType::Shared(0))
-                .unwrap()
-        );
-        env::set_var(VAR_KAFKA_GROUP_ID, "test_group");
-        assert_eq!(
-            config.group_id(),
-            format!("{}_test_group", dsh.tenant_name())
-        );
-        env::set_var(
-            VAR_KAFKA_GROUP_ID,
-            format!("{}_test_group", dsh.tenant_name()),
-        );
-        assert_eq!(
-            config.group_id(),
-            format!("{}_test_group", dsh.tenant_name())
-        );
-        env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
-        assert_eq!(
-            config.group_id(),
-            format!("{}_test_group", dsh.tenant_name())
-        );
-        env::remove_var(VAR_KAFKA_GROUP_ID);
+        unsafe {
+            let config = KafkaConfig::default();
+            let dsh = Dsh::default();
+            assert_eq!(
+                config.group_id(),
+                config
+                    .datastream()
+                    .get_group_id(crate::datastream::GroupType::Shared(0))
+                    .unwrap()
+            );
+            env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
+            assert_eq!(
+                config.group_id(),
+                config
+                    .datastream()
+                    .get_group_id(crate::datastream::GroupType::Private(0))
+                    .unwrap()
+            );
+            env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
+            assert_eq!(
+                config.group_id(),
+                config
+                    .datastream()
+                    .get_group_id(crate::datastream::GroupType::Shared(0))
+                    .unwrap()
+            );
+            env::set_var(VAR_KAFKA_GROUP_ID, "test_group");
+            assert_eq!(
+                config.group_id(),
+                format!("{}_test_group", dsh.tenant_name())
+            );
+            env::set_var(
+                VAR_KAFKA_GROUP_ID,
+                format!("{}_test_group", dsh.tenant_name()),
+            );
+            assert_eq!(
+                config.group_id(),
+                format!("{}_test_group", dsh.tenant_name())
+            );
+            env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
+            assert_eq!(
+                config.group_id(),
+                format!("{}_test_group", dsh.tenant_name())
+            );
+            env::remove_var(VAR_KAFKA_GROUP_ID);
+        }
     }
 }
