@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 dsh_sdk = { path = "../dsh_sdk", version = "0.6", features = ["rdkafka-config", "metrics", "graceful-shutdown"] }
-rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"] }
+rdkafka = { version = "0.38", features = ["cmake-build", "ssl-vendored"] }
 log = "0.4"
 env_logger = "0.11"
 prometheus = "0.14"
