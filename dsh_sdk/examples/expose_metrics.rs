@@ -12,7 +12,7 @@
 //! ```
 
 use dsh_sdk::utils::metrics::start_http_server;
-use prometheus::{register_int_counter, IntCounter};
+use prometheus::{IntCounter, register_int_counter};
 use std::sync::OnceLock;
 
 // Create and register counter

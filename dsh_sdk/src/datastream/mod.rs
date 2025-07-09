@@ -41,8 +41,8 @@ use log::{debug, error, info};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    utils, VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_LOCAL_DATASTREAMS_JSON,
-    VAR_SCHEMA_REGISTRY_HOST,
+    VAR_KAFKA_BOOTSTRAP_SERVERS, VAR_KAFKA_CONSUMER_GROUP_TYPE, VAR_LOCAL_DATASTREAMS_JSON,
+    VAR_SCHEMA_REGISTRY_HOST, utils,
 };
 
 #[doc(inline)]
@@ -469,7 +469,9 @@ impl GroupType {
             Ok(s) if s.eq_ignore_ascii_case("private") => GroupType::Private(0),
             Ok(s) if s.eq_ignore_ascii_case("shared") => GroupType::Shared(0),
             Ok(_) => {
-                error!("KAFKA_CONSUMER_GROUP_TYPE is not set to \"shared\" or \"private\". Defaulting to shared group type.");
+                error!(
+                    "KAFKA_CONSUMER_GROUP_TYPE is not set to \"shared\" or \"private\". Defaulting to shared group type."
+                );
                 GroupType::Shared(0)
             }
             Err(_) => {
@@ -633,15 +635,17 @@ mod tests {
     #[test]
     #[serial(env_dependency)]
     fn test_datastream_get_group_type_from_env() {
-        // Set the KAFKA_CONSUMER_GROUP_TYPE environment variable to "private"
-        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
-        assert_eq!(GroupType::from_env(), GroupType::Private(0),);
-        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
-        assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
-        env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "invalid-type");
-        assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
-        env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
-        assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
+        unsafe {
+            // Set the KAFKA_CONSUMER_GROUP_TYPE environment variable to "private"
+            env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "private");
+            assert_eq!(GroupType::from_env(), GroupType::Private(0),);
+            env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "shared");
+            assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
+            env::set_var(VAR_KAFKA_CONSUMER_GROUP_TYPE, "invalid-type");
+            assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
+            env::remove_var(VAR_KAFKA_CONSUMER_GROUP_TYPE);
+            assert_eq!(GroupType::from_env(), GroupType::Shared(0),);
+        }
     }
 
     #[test]
@@ -752,74 +756,82 @@ mod tests {
     #[test]
     #[serial(env_dependency)]
     fn test_load_local_valid_datastreams() {
-        // load from root directory
-        let datastream = Datastream::load_local_datastreams().is_ok();
-        assert!(datastream);
-        // load from custom directory
-        let current_dir = env::current_dir().unwrap();
-        let file_location = format!(
-            "{}/test_resources/valid_datastreams.json",
-            current_dir.display()
-        );
-        println!("file_location: {}", file_location);
-        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
-        let datastream = Datastream::load_local_datastreams().is_ok();
-        assert!(datastream);
-        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+        unsafe {
+            // load from root directory
+            let datastream = Datastream::load_local_datastreams().is_ok();
+            assert!(datastream);
+            // load from custom directory
+            let current_dir = env::current_dir().unwrap();
+            let file_location = format!(
+                "{}/test_resources/valid_datastreams.json",
+                current_dir.display()
+            );
+            println!("file_location: {}", file_location);
+            env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+            let datastream = Datastream::load_local_datastreams().is_ok();
+            assert!(datastream);
+            env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+        }
     }
 
     #[test]
     #[serial(env_dependency)]
     fn test_load_local_nonexisting_datastreams() {
-        let current_dir = env::current_dir().unwrap();
-        let file_location = format!(
-            "{}/test_resoources/nonexisting_datastreams.json",
-            current_dir.display()
-        );
-        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
-        // let it panic in a thread
-        let join_handle = std::thread::spawn(move || {
-            let _ = Datastream::load_local_datastreams();
-        });
-        let result = join_handle.join();
-        assert!(result.is_err());
-        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+        unsafe {
+            let current_dir = env::current_dir().unwrap();
+            let file_location = format!(
+                "{}/test_resoources/nonexisting_datastreams.json",
+                current_dir.display()
+            );
+            env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+            // let it panic in a thread
+            let join_handle = std::thread::spawn(move || {
+                let _ = Datastream::load_local_datastreams();
+            });
+            let result = join_handle.join();
+            assert!(result.is_err());
+            env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+        }
     }
 
     #[test]
     #[serial(env_dependency)]
     fn test_load_local_invalid_datastreams() {
-        let current_dir = env::current_dir().unwrap();
-        let file_location = format!(
-            "{}/test_resources/invalid_datastreams.json",
-            current_dir.display()
-        );
-        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
-        // let it panic in a thread
-        let join_handle = std::thread::spawn(move || {
-            let _ = Datastream::load_local_datastreams();
-        });
-        let result = join_handle.join();
-        assert!(result.is_err());
-        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+        unsafe {
+            let current_dir = env::current_dir().unwrap();
+            let file_location = format!(
+                "{}/test_resources/invalid_datastreams.json",
+                current_dir.display()
+            );
+            env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+            // let it panic in a thread
+            let join_handle = std::thread::spawn(move || {
+                let _ = Datastream::load_local_datastreams();
+            });
+            let result = join_handle.join();
+            assert!(result.is_err());
+            env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+        }
     }
 
     #[test]
     #[serial(env_dependency)]
     fn test_load_local_invalid_json() {
-        let current_dir = env::current_dir().unwrap();
-        let file_location = format!(
-            "{}/test_resources/invalid_datastreams_missing_field.json",
-            current_dir.display()
-        );
-        env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
-        // let it panic in a thread
-        let join_handle = std::thread::spawn(move || {
-            let _ = Datastream::load_local_datastreams();
-        });
-        let result = join_handle.join();
-        assert!(result.is_err());
-        env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+        unsafe {
+            let current_dir = env::current_dir().unwrap();
+            let file_location = format!(
+                "{}/test_resources/invalid_datastreams_missing_field.json",
+                current_dir.display()
+            );
+            env::set_var(VAR_LOCAL_DATASTREAMS_JSON, file_location);
+            // let it panic in a thread
+            let join_handle = std::thread::spawn(move || {
+                let _ = Datastream::load_local_datastreams();
+            });
+            let result = join_handle.join();
+            assert!(result.is_err());
+            env::remove_var(VAR_LOCAL_DATASTREAMS_JSON);
+        }
     }
 
     #[test]

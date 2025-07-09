@@ -7,7 +7,7 @@
 //! or VPN outside of the DSH environment.
 use super::Cert;
 use super::CertificatesError;
-use crate::{utils, VAR_PKI_CONFIG_DIR};
+use crate::{VAR_PKI_CONFIG_DIR, utils};
 
 use log::{debug, info, warn};
 use pem::{self, Pem};
@@ -280,12 +280,14 @@ mod tests {
     #[test]
     #[serial(pki, env_dependency)]
     fn test_get_pki_cert() {
-        create_test_pki_config_dir();
-        let result = get_pki_certificates::<PathBuf>(None).unwrap_err();
-        assert!(matches!(result, CertificatesError::UtilsError(_)));
-        std::env::set_var(VAR_PKI_CONFIG_DIR, PKI_CONFIG_DIR);
-        let result = get_pki_certificates::<PathBuf>(None);
-        assert!(result.is_ok());
-        std::env::remove_var(VAR_PKI_CONFIG_DIR);
+        unsafe {
+            create_test_pki_config_dir();
+            let result = get_pki_certificates::<PathBuf>(None).unwrap_err();
+            assert!(matches!(result, CertificatesError::UtilsError(_)));
+            std::env::set_var(VAR_PKI_CONFIG_DIR, PKI_CONFIG_DIR);
+            let result = get_pki_certificates::<PathBuf>(None);
+            assert!(result.is_ok());
+            std::env::remove_var(VAR_PKI_CONFIG_DIR);
+        }
     }
 }

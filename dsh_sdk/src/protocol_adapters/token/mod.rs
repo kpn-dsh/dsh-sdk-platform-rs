@@ -45,8 +45,8 @@ impl JwtToken {
     }
 
     fn b64_decode_payload(&self) -> Result<Vec<u8>, ProtocolTokenError> {
-        use base64::engine::general_purpose::STANDARD_NO_PAD;
         use base64::Engine;
+        use base64::engine::general_purpose::STANDARD_NO_PAD;
         Ok(STANDARD_NO_PAD.decode(self.payload.as_bytes())?)
     }
 }

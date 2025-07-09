@@ -289,7 +289,7 @@ impl Cert {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rcgen::{generate_simple_self_signed, CertifiedKey};
+    use rcgen::{CertifiedKey, generate_simple_self_signed};
     use std::sync::OnceLock;
 
     use openssl::pkey::PKey;

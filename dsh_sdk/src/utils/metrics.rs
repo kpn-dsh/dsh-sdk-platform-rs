@@ -98,7 +98,7 @@ use http_body_util::{BodyExt, Full};
 use hyper::body::Incoming;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
-use hyper::{header, Method, Request, Response, StatusCode};
+use hyper::{Method, Request, Response, StatusCode, header};
 use hyper_util::rt::TokioIo;
 use log::{error, warn};
 use thiserror::Error;
@@ -228,11 +228,11 @@ fn full<T: Into<Bytes>>(chunk: T) -> BoxBody {
 mod tests {
     use super::*;
     use http_body_util::Empty;
+    use hyper::Uri;
     use hyper::body::Body;
     use hyper::client::conn;
     use hyper::client::conn::http1::{Connection, SendRequest};
-    use hyper::Uri;
-    use prometheus::{register_int_counter, IntCounter};
+    use prometheus::{IntCounter, register_int_counter};
     use serial_test::serial;
     use std::sync::OnceLock;
     use tokio::net::TcpStream;

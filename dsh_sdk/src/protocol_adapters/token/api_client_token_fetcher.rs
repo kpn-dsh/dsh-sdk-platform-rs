@@ -14,9 +14,9 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 
 use tokio::sync::RwLock;
 
+use super::ProtocolTokenError;
 use super::data_access_token::*;
 use super::rest_token::*;
-use super::ProtocolTokenError;
 use crate::Platform;
 
 /// Fetcher for Rest and Data Access tokens by an API Client authentication service.
@@ -486,7 +486,7 @@ mod tests {
         assert!(result.is_ok());
         let rest_token = result.unwrap();
         assert_eq!(rest_token.exp(), 1);
-        assert_eq!(rest_token.gen(), 1);
+        assert_eq!(rest_token.generated(), 1);
         assert_eq!(rest_token.endpoint(), "test_endpoint");
         assert_eq!(rest_token.iss(), "String");
         assert_eq!(rest_token.raw_token(), raw_rest_token);
@@ -498,7 +498,7 @@ mod tests {
         opt.port = 7999;
         let mut mockito_server = mockito::Server::new_with_opts_async(opt).await;
         let raw_rest_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJlbmRwb2ludCI6Imh0dHA6Ly8xMjcuMC4wLjE6Nzk5OSIsImNsYWltcyI6eyJkYXRhc3RyZWFtcy92MC9tcXR0L3Rva2VuIjp7fX19.j5ekqMiWyBhJyRQE_aARFS9mQJiN7S2rpKTsn3rZ5lQ";
-        let raw_access_token =  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MjE0NzQ4MzY0NywiaWF0IjoyMTQ3NDgzNjQ3LCJlbmRwb2ludCI6InRlc3RfZW5kcG9pbnQiLCJwb3J0cyI6eyJtcXR0cyI6Wzg4ODNdLCJtcXR0d3NzIjpbNDQzLDg0NDNdfSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJjbGllbnQtaWQiOiJ0ZXN0X2NsaWVudCIsImNsYWltcyI6W3siYWN0aW9uIjoic3Vic2NyaWJlIiwicmVzb3VyY2UiOnsidHlwZSI6InRvcGljIiwicHJlZml4IjoiL3R0Iiwic3RyZWFtIjoidGVzdCIsInRvcGljIjoiL3Rlc3QvIyJ9fV19.LwYIMIX39J502TDqpEqH5T2Rlj-HczeT3WLfs5Do3B0";
+        let raw_access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MjE0NzQ4MzY0NywiaWF0IjoyMTQ3NDgzNjQ3LCJlbmRwb2ludCI6InRlc3RfZW5kcG9pbnQiLCJwb3J0cyI6eyJtcXR0cyI6Wzg4ODNdLCJtcXR0d3NzIjpbNDQzLDg0NDNdfSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJjbGllbnQtaWQiOiJ0ZXN0X2NsaWVudCIsImNsYWltcyI6W3siYWN0aW9uIjoic3Vic2NyaWJlIiwicmVzb3VyY2UiOnsidHlwZSI6InRvcGljIiwicHJlZml4IjoiL3R0Iiwic3RyZWFtIjoidGVzdCIsInRvcGljIjoiL3Rlc3QvIyJ9fV19.LwYIMIX39J502TDqpEqH5T2Rlj-HczeT3WLfs5Do3B0";
         let _m = mockito_server
             .mock("POST", "/rest_auth_url")
             .with_status(200)
@@ -529,7 +529,7 @@ mod tests {
         assert!(result.is_ok());
         let acces_token = result.unwrap();
         assert_eq!(acces_token.exp(), 2147483647);
-        assert_eq!(acces_token.gen(), 1);
+        assert_eq!(acces_token.generated(), 1);
         assert_eq!(acces_token.endpoint(), "test_endpoint");
         assert_eq!(acces_token.iss(), "String");
         assert_eq!(acces_token.client_id(), "test_client");

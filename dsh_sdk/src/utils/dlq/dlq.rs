@@ -3,18 +3,18 @@
 use std::str::from_utf8;
 
 use log::{debug, error, info, warn};
+use rdkafka::ClientConfig;
 use rdkafka::client::DefaultClientContext;
 use rdkafka::error::KafkaError;
 use rdkafka::message::{Message, OwnedMessage};
 use rdkafka::producer::{FutureProducer, FutureRecord};
-use rdkafka::ClientConfig;
 use tokio::sync::mpsc;
 
 use super::headers::{DlqHeaders, HashMapToKafkaHeaders};
 use super::{DlqChannel, DlqErrror, Retryable, SendToDlq};
+use crate::DshKafkaConfig;
 use crate::utils::get_env_var;
 use crate::utils::graceful_shutdown::Shutdown;
-use crate::DshKafkaConfig;
 
 /// Dead Letter Queue (DLQ) struct that runs asynchronously and processes error messages.
 ///

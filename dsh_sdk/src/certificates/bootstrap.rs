@@ -248,7 +248,7 @@ mod tests {
     use std::env;
     use std::str::from_utf8;
 
-    use rcgen::{generate_simple_self_signed, CertifiedKey};
+    use rcgen::{CertifiedKey, generate_simple_self_signed};
     use std::sync::OnceLock;
 
     use openssl::pkey::PKey;
@@ -367,36 +367,38 @@ mod tests {
     #[test]
     #[serial(env_dependency)]
     fn test_dsh_config_new() {
-        // normal situation where DSH variables are set
-        env::set_var(VAR_DSH_SECRET_TOKEN, "test_token");
-        env::set_var(VAR_DSH_CA_CERTIFICATE, "test_ca_certificate");
-        let config_host = "https://test_host";
-        let tenant_name = "test_tenant";
-        let task_id = "test_task_id";
-        let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id).unwrap();
-        assert_eq!(dsh_config.config_host, "https://test_host");
-        assert_eq!(dsh_config.task_id, "test_task_id");
-        assert_eq!(dsh_config.tenant_name, "test_tenant");
-        assert_eq!(dsh_config.dsh_secret_token, "test_token");
-        assert_eq!(dsh_config.dsh_ca_certificate, "test_ca_certificate");
-        // DSH_SECRET_TOKEN is not set, but DSH_SECRET_TOKEN_PATH is set
-        env::remove_var(VAR_DSH_SECRET_TOKEN);
-        let test_token_dir = "test_files";
-        std::fs::create_dir_all(test_token_dir).unwrap();
-        let test_token_dir = format!("{}/test_token", test_token_dir);
-        let _ = std::fs::remove_file(&test_token_dir);
-        env::set_var(VAR_DSH_SECRET_TOKEN_PATH, &test_token_dir);
-        let result = DshBootstrapConfig::new(config_host, tenant_name, task_id);
-        assert!(result.is_err());
-        std::fs::write(test_token_dir.as_str(), "test_token_from_file").unwrap();
-        let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id).unwrap();
-        assert_eq!(dsh_config.dsh_secret_token, "test_token_from_file");
-        // fail if DSH_CA_CERTIFICATE is not set
-        env::remove_var(VAR_DSH_CA_CERTIFICATE);
-        let result = DshBootstrapConfig::new(config_host, tenant_name, task_id);
-        assert!(result.is_err());
-        env::remove_var(VAR_DSH_SECRET_TOKEN);
-        env::remove_var(VAR_DSH_CA_CERTIFICATE);
-        env::remove_var(VAR_DSH_SECRET_TOKEN_PATH);
+        unsafe {
+            // normal situation where DSH variables are set
+            env::set_var(VAR_DSH_SECRET_TOKEN, "test_token");
+            env::set_var(VAR_DSH_CA_CERTIFICATE, "test_ca_certificate");
+            let config_host = "https://test_host";
+            let tenant_name = "test_tenant";
+            let task_id = "test_task_id";
+            let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id).unwrap();
+            assert_eq!(dsh_config.config_host, "https://test_host");
+            assert_eq!(dsh_config.task_id, "test_task_id");
+            assert_eq!(dsh_config.tenant_name, "test_tenant");
+            assert_eq!(dsh_config.dsh_secret_token, "test_token");
+            assert_eq!(dsh_config.dsh_ca_certificate, "test_ca_certificate");
+            // DSH_SECRET_TOKEN is not set, but DSH_SECRET_TOKEN_PATH is set
+            env::remove_var(VAR_DSH_SECRET_TOKEN);
+            let test_token_dir = "test_files";
+            std::fs::create_dir_all(test_token_dir).unwrap();
+            let test_token_dir = format!("{}/test_token", test_token_dir);
+            let _ = std::fs::remove_file(&test_token_dir);
+            env::set_var(VAR_DSH_SECRET_TOKEN_PATH, &test_token_dir);
+            let result = DshBootstrapConfig::new(config_host, tenant_name, task_id);
+            assert!(result.is_err());
+            std::fs::write(test_token_dir.as_str(), "test_token_from_file").unwrap();
+            let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id).unwrap();
+            assert_eq!(dsh_config.dsh_secret_token, "test_token_from_file");
+            // fail if DSH_CA_CERTIFICATE is not set
+            env::remove_var(VAR_DSH_CA_CERTIFICATE);
+            let result = DshBootstrapConfig::new(config_host, tenant_name, task_id);
+            assert!(result.is_err());
+            env::remove_var(VAR_DSH_SECRET_TOKEN);
+            env::remove_var(VAR_DSH_CA_CERTIFICATE);
+            env::remove_var(VAR_DSH_SECRET_TOKEN_PATH);
+        }
     }
 }

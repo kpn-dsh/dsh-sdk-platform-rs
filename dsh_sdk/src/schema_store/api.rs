@@ -1,7 +1,7 @@
 use super::types::*;
 
-use super::request::Request;
 use super::SchemaStoreError;
+use super::request::Request;
 
 use super::SchemaStoreClient;
 

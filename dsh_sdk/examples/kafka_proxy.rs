@@ -18,9 +18,9 @@
 use std::env;
 
 use dsh_sdk::DshKafkaConfig;
-use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::ClientConfig;
 use rdkafka::Message;
+use rdkafka::consumer::{Consumer, StreamConsumer};
 
 // Enter your details here
 const KAFKA_BOOTSTRAP_SERVERS: &str = "kafkaproxy urls"; // example "broker-0.kafka.tenant.kpn-dsh.com:9091,broker-1.kafka.tenant.kpn-dsh.com:9091,broker-2.kafka.tenant.kpn-dsh.com:9091"
@@ -45,9 +45,11 @@ async fn consume(consumer: StreamConsumer) {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Set the environment variables (normally you would set them outside of the code)
-    env::set_var("KAFKA_BOOTSTRAP_SERVERS", KAFKA_BOOTSTRAP_SERVERS);
-    env::set_var("PKI_CONFIG_DIR", PKI_CONFIG_DIR);
-    env::set_var("DSH_TENANT_NAME", DSH_TENANT_NAME);
+    unsafe {
+        env::set_var("KAFKA_BOOTSTRAP_SERVERS", KAFKA_BOOTSTRAP_SERVERS);
+        env::set_var("PKI_CONFIG_DIR", PKI_CONFIG_DIR);
+        env::set_var("DSH_TENANT_NAME", DSH_TENANT_NAME);
+    }
 
     // Create a new consumer from the RDkafka Client Config together with dsh_consumer_config form DshKafkaConfig trait
     // The config will take over the info from the environment variables and load certificates from the PKI_CONFIG_DIR
