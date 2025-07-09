@@ -28,7 +28,7 @@ A Rust SDK to interact with the DSH Platform. This library provides convenient b
 
 ## Migration Guide
 
-If you are migrating from `v0.4.X` to `v0.5.X`(or higher), please see the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details on breaking changes and how to update your code accordingly.
+If you are migrating from `v0.4.X`, please see the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details on breaking changes and how to update your code accordingly.
 
 ---
 
@@ -61,8 +61,8 @@ To get started, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dsh_sdk = "0.6"
-rdkafka = { version = "0.37", features = ["cmake-build", "ssl-vendored"] }
+dsh_sdk = "0.7"
+rdkafka = { version = "0.38", features = ["cmake-build", "ssl-vendored"] }
 ```
 
 > **Note**  
@@ -127,7 +127,7 @@ To pick only the features you need, disable the default features and enable spec
 
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.6", default-features = false, features = ["management-api-token-fetcher"] }
+dsh_sdk = { version = "0.7", default-features = false, features = ["management-api-token-fetcher"] }
 ```
 
 ---
