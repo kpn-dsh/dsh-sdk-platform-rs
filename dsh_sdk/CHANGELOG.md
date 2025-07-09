@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Breaking change:** Updated DshKafkaConfig to use rdkafka 0.38
 - Internal change in DLQ to be compatible with rdkafka 0.38
+- Updated edition to 2024
+  - **Breaking change:** impacts the DataAccessToken and RestToken
+    - "gen" is renamed to "generated" 
 
 ### Removed
 - Removed deprecated `dsh_kafka_certificate_pem` function in `Cert` struct, use `dsh_signed_certificate_pem` instead (`dsh_kafka_certificate_pem` was deprecated since 0.6.3)
