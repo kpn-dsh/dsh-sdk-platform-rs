@@ -9,7 +9,7 @@ license.workspace = true
 name = "dsh_sdk"
 readme = 'README.md'
 repository.workspace = true
-version = "0.6.3"
+version = "0.6.4"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -48,8 +48,6 @@ protocol-token = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
 metrics = [ "hyper/server", "hyper/http1" , "hyper-util/tokio", "http-body-util", "tokio", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 
-# http-protocol-adapter = ["protocol-token"]
-# mqtt-protocol-adapter = ["protocol-token"]
 
 [dev-dependencies]
 # Dependencies for the test
