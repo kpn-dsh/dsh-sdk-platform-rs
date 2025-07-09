@@ -10,7 +10,8 @@ use crate::protocol_adapters::token::{JwtToken, ProtocolTokenError};
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct DataAccessToken {
-    gen: i32,
+    #[serde(rename = "gen")]
+    generated: i32,
     pub(crate) endpoint: String,
     ports: Ports,
     iss: String,
@@ -43,7 +44,7 @@ impl DataAccessToken {
 
     pub(crate) fn init() -> Self {
         Self {
-            gen: 0,
+            generated: 0,
             endpoint: "".to_string(),
             ports: Ports {
                 mqtts: vec![],
@@ -60,8 +61,10 @@ impl DataAccessToken {
     }
 
     /// Returns the generation of the token.
-    pub fn gen(&self) -> i32 {
-        self.gen
+    ///
+    /// An alias for `gen` to match the original token format.
+    pub fn generated(&self) -> i32 {
+        self.generated
     }
 
     /// Returns the endpoint which the MQTT client should connect to.
@@ -147,7 +150,7 @@ impl Ports {
 impl std::fmt::Debug for DataAccessToken {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.debug_struct("DataAccessToken")
-            .field("gen", &self.gen)
+            .field("gen", &self.generated)
             .field("endpoint", &self.endpoint)
             .field("iss", &self.iss)
             .field("claims", &self.claims)
@@ -176,7 +179,7 @@ mod test {
     fn test_parse_data_access_token() {
         let raw_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MjE0NzQ4MzY0NywiaWF0IjoyMTQ3NDgzNjQ3LCJlbmRwb2ludCI6InRlc3RfZW5kcG9pbnQiLCJwb3J0cyI6eyJtcXR0cyI6Wzg4ODNdLCJtcXR0d3NzIjpbNDQzLDg0NDNdfSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJjbGllbnQtaWQiOiJ0ZXN0X2NsaWVudCIsImNsYWltcyI6W3siYWN0aW9uIjoic3Vic2NyaWJlIiwicmVzb3VyY2UiOnsidHlwZSI6InRvcGljIiwicHJlZml4IjoiL3R0Iiwic3RyZWFtIjoidGVzdCIsInRvcGljIjoiL3Rlc3QvIyJ9fV19.LwYIMIX39J502TDqpEqH5T2Rlj-HczeT3WLfs5Do3B0";
         let token = DataAccessToken::parse(raw_token).unwrap();
-        assert_eq!(token.gen(), 1);
+        assert_eq!(token.generated(), 1);
         assert_eq!(token.endpoint(), "test_endpoint");
         assert_eq!(token.port_mqtt(), 8883);
         assert_eq!(token.port_wss(), 443);
@@ -192,7 +195,7 @@ mod test {
     #[test]
     fn test_init_data_access_token() {
         let token = DataAccessToken::init();
-        assert_eq!(token.gen(), 0);
+        assert_eq!(token.generated(), 0);
         assert_eq!(token.endpoint(), "");
         assert_eq!(token.port_mqtt(), 8883);
         assert_eq!(token.port_wss(), 443);
@@ -222,9 +225,15 @@ mod test {
         let raw_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MjE0NzQ4MzY0NywiaWF0IjoyMTQ3NDgzNjQ3LCJlbmRwb2ludCI6InRlc3RfZW5kcG9pbnQiLCJwb3J0cyI6eyJtcXR0cyI6Wzg4ODNdLCJtcXR0d3NzIjpbNDQzLDg0NDNdfSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJjbGllbnQtaWQiOiJ0ZXN0X2NsaWVudCIsImNsYWltcyI6W3siYWN0aW9uIjoic3Vic2NyaWJlIiwicmVzb3VyY2UiOnsidHlwZSI6InRvcGljIiwicHJlZml4IjoiL3R0Iiwic3RyZWFtIjoidGVzdCIsInRvcGljIjoiL3Rlc3QvIyJ9fV19.LwYIMIX39J502TDqpEqH5T2Rlj-HczeT3WLfs5Do3B0";
         let token = DataAccessToken::parse(raw_token).unwrap();
         let debug = format!("{:?}", token);
-        assert_eq!(debug,"DataAccessToken { gen: 1, endpoint: \"test_endpoint\", iss: \"String\", claims: [TopicPermission { action: Subscribe, resource: Resource { resource_type: \"topic\", stream: \"test\", prefix: \"/tt\", topic: \"/test/#\" } }], exp: 2147483647, client_id: \"test_client\", iat: 2147483647, tenant_id: \"test_tenant\", raw_token: \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MjE0NzQ4MzY0NywiaWF0IjoyMTQ3NDgzNjQ3LCJlbmRwb2ludCI6InRlc3RfZW5kcG9pbnQiLCJwb3J0cyI6eyJtcXR0cyI6Wzg4ODNdLCJtcXR0d3NzIjpbNDQzLDg0NDNdfSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJjbGllbnQtaWQiOiJ0ZXN0X2NsaWVudCIsImNsYWltcyI6W3siYWN0aW9uIjoic3Vic2NyaWJlIiwicmVzb3VyY2UiOnsidHlwZSI6InRvcGljIiwicHJlZml4IjoiL3R0Iiwic3RyZWFtIjoidGVzdCIsInRvcGljIjoiL3Rlc3QvIyJ9fV19\" }");
+        assert_eq!(
+            debug,
+            "DataAccessToken { gen: 1, endpoint: \"test_endpoint\", iss: \"String\", claims: [TopicPermission { action: Subscribe, resource: Resource { resource_type: \"topic\", stream: \"test\", prefix: \"/tt\", topic: \"/test/#\" } }], exp: 2147483647, client_id: \"test_client\", iat: 2147483647, tenant_id: \"test_tenant\", raw_token: \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MjE0NzQ4MzY0NywiaWF0IjoyMTQ3NDgzNjQ3LCJlbmRwb2ludCI6InRlc3RfZW5kcG9pbnQiLCJwb3J0cyI6eyJtcXR0cyI6Wzg4ODNdLCJtcXR0d3NzIjpbNDQzLDg0NDNdfSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJjbGllbnQtaWQiOiJ0ZXN0X2NsaWVudCIsImNsYWltcyI6W3siYWN0aW9uIjoic3Vic2NyaWJlIiwicmVzb3VyY2UiOnsidHlwZSI6InRvcGljIiwicHJlZml4IjoiL3R0Iiwic3RyZWFtIjoidGVzdCIsInRvcGljIjoiL3Rlc3QvIyJ9fV19\" }"
+        );
         let init_token = format!("{:?}", DataAccessToken::init());
         let debug = format!("{:?}", init_token);
-        assert_eq!(debug,  "\"DataAccessToken { gen: 0, endpoint: \\\"\\\", iss: \\\"\\\", claims: [], exp: 0, client_id: \\\"\\\", iat: 0, tenant_id: \\\"\\\", raw_token: \\\"\\\" }\"");
+        assert_eq!(
+            debug,
+            "\"DataAccessToken { gen: 0, endpoint: \\\"\\\", iss: \\\"\\\", claims: [], exp: 0, client_id: \\\"\\\", iat: 0, tenant_id: \\\"\\\", raw_token: \\\"\\\" }\""
+        );
     }
 }

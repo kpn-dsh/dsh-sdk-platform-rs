@@ -9,7 +9,8 @@ use crate::protocol_adapters::token::{JwtToken, ProtocolTokenError};
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct RestToken {
-    gen: i64,
+    #[serde(rename = "gen")]
+    generated: i64,
     endpoint: String,
     iss: String,
     claims: Claims,
@@ -33,7 +34,7 @@ impl RestToken {
 
     pub(crate) fn init() -> Self {
         Self {
-            gen: 0,
+            generated: 0,
             endpoint: "".to_string(),
             iss: "".to_string(),
             claims: Claims::default(),
@@ -43,8 +44,9 @@ impl RestToken {
         }
     }
 
-    pub fn gen(&self) -> i64 {
-        self.gen
+    /// An alias for `gen` to match the original token format.
+    pub fn generated(&self) -> i64 {
+        self.generated
     }
 
     /// Returns the endpoint which the MQTT client should connect to
@@ -97,7 +99,7 @@ impl RestToken {
 impl std::fmt::Debug for RestToken {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("RestToken")
-            .field("gen", &self.gen)
+            .field("gen", &self.generated)
             .field("endpoint", &self.endpoint)
             .field("iss", &self.iss)
             .field("claims", &self.claims)
@@ -124,7 +126,7 @@ mod tests {
     fn test_parse_rest_token() {
         let raw_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdHJpbmciLCJnZW4iOjEsImV4cCI6MTczOTU0Nzg3OCwidGVuYW50LWlkIjoiZm9vIiwiZW5kcG9pbnQiOiJ0ZXN0X2VuZHBvaW50IiwiY2xhaW1zIjp7ImRhdGFzdHJlYW1zL3YwL21xdHQvdG9rZW4iOnsiaWQiOiJqdXN0LXRoaXMtZGV2aWNlIiwiZXhwIjoxNzM5NTQ3ODc4LCJ0ZW5hbnQiOiJmb28iLCJjbGFpbXMiOltdfX19.signature";
         let token = RestToken::parse(raw_token.to_string()).unwrap();
-        assert_eq!(token.gen(), 1);
+        assert_eq!(token.generated(), 1);
         assert_eq!(token.endpoint(), "test_endpoint");
         assert_eq!(token.iss(), "string");
         assert_eq!(
@@ -141,7 +143,7 @@ mod tests {
     #[test]
     fn test_init_rest_token() {
         let token = RestToken::init();
-        assert_eq!(token.gen(), 0);
+        assert_eq!(token.generated(), 0);
         assert_eq!(token.endpoint(), "");
         assert_eq!(token.iss(), "");
         assert_eq!(token.claims().mqtt_token_claim().id(), None);
@@ -166,7 +168,7 @@ mod tests {
 
     #[test]
     fn test_debug_rest_token() {
-        let raw_token =  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJlbmRwb2ludCI6Imh0dHA6Ly8xMjcuMC4wLjE6Nzk5OSIsImNsYWltcyI6eyJkYXRhc3RyZWFtcy92MC9tcXR0L3Rva2VuIjp7fX19.j5ekqMiWyBhJyRQE_aARFS9mQJiN7S2rpKTsn3rZ5lQ";
+        let raw_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJpbmciLCJnZW4iOjEsImV4cCI6MSwidGVuYW50LWlkIjoidGVzdF90ZW5hbnQiLCJlbmRwb2ludCI6Imh0dHA6Ly8xMjcuMC4wLjE6Nzk5OSIsImNsYWltcyI6eyJkYXRhc3RyZWFtcy92MC9tcXR0L3Rva2VuIjp7fX19.j5ekqMiWyBhJyRQE_aARFS9mQJiN7S2rpKTsn3rZ5lQ";
         let token = RestToken::parse(raw_token).unwrap();
         assert_eq!(
             format!("{:?}", token),
