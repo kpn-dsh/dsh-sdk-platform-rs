@@ -37,17 +37,20 @@ If you are migrating from `v0.4.X`, please see the [migration guide](https://git
 The `dsh-sdk-platform-rs` library offers:
 
 - **DSH Kafka Connectivity**  
-  - Supports both direct DSH, Kafka Proxy, VPN, and local Kafka.  
+  - Trait for getting DSH Compatible Kafka Clients (DSH, Proxy, VPN and Local)
+    - **RDKafka** implementation included
   - Handles datastream information retrieval, certificate signing (bootstrap), and PKI configuration.
+
+- **Certificates**
+  - Sign certificates which can be used for secure communication with DSH Kafka and (m)TLS transport between containers.
 
 - **Token Fetchers**  
   - **Management API Token Fetcher**: For use with [`dsh_rest_api_client`](https://crates.io/crates/dsh_rest_api_client).  
   - **Protocol Token Fetcher**: Obtain tokens for MQTT and HTTP protocol adapters.
 
-- **DSH Kafka Configuration**  
-  - Trait for getting DSH Compatible Kafka Clients (DSH, Proxy, VPN and Local)
-  - **RDKafka** implementation
-
+- **Schema Store Interaction**  
+  - Fetch and manage schema from the DSH Schema Store.
+  
 - **Common Utilities**  
   - Lightweight HTTP server for exposing Metrics.  
   - Tokio-based graceful shutdown handling.  
