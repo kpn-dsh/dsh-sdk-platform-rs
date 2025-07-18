@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.1] - 2025-07-18
 ### Changed
 - Platform enum can handle custom defined platforms
-- Plarform enum can be instantiated from a environment variables
-- The `ConfigGet` and `ConfigPut` structs of `schema_store` are now public, they were returned by public functions (required for compatibility changed for future Rust versions)
+- Plarform enum can be instantiated from environment variables
+- The `ConfigGet` and `ConfigPut` structs of `schema_store` are now public, they were returned by public functions (required for compatibility reasons for future Rust versions)
 
 ## [0.7.0] - 2025-07-09
 ### Changed
