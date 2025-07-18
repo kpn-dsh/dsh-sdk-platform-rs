@@ -5,4 +5,6 @@ pub enum UtilsError {
     EnvVarError(&'static str, std::env::VarError),
     #[error("No tenant name found")]
     NoTenantName,
+    #[error("Invalid platform: {0}")]
+    InvalidPlatform(String),
 }

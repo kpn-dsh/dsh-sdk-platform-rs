@@ -11,11 +11,34 @@
 //! - `ProdLz` (dsh-prod.dsh.prod.aws.kpn.com)
 //! - `NpLz` (dsh-dev.dsh.np.aws.kpn.com)
 //! - `Poc` (poc.kpn-dsh.com)
+//! - `Custom` (for user-defined platforms)
 //!
 //! ## Usage
 //! Use a [`Platform`] variant to generate appropriate URLs and client IDs for your environment.
 //! For example, you might select `Platform::NpLz` when deploying a service to the development
 //! landing zone.
+//!
+//! You can also create a [`Platform::Custom`] by providing the necessary endpoints and realm.
+//!
+//! Use the [`from_env`](Platform::from_env) method to automatically determine the platform based on the `DSH_ENVIRONMENT`
+//! environment variable, which can be configured in a DSH Service Confifguration like this:
+//! ```json
+//! {
+//! ...
+//!  "env": {
+//!    "DSH_ENVIRONMENT": "{ variables('DSH_ENVIRONMENT')}"
+//!  },
+//! ...
+//!}
+//!```
+use crate::utils::{UtilsError, get_env_var};
+
+const VAR_DSH_ENVIRONMENT: &str = "DSH_ENVIRONMENT";
+const VAR_DSH_REALM: &str = "DSH_REALM";
+const VAR_DSH_ENDPOINT_MANAGEMENT_API: &str = "DSH_ENDPOINT_MANAGEMENT_API";
+const VAR_DSH_ENDPOINT_MANAGEMENT_API_TOKEN: &str = "DSH_ENDPOINT_MANAGEMENT_API_TOKEN";
+const VAR_DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN: &str = "DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN";
+const VAR_DSH_ENDPOINT_PROTOCOL_REST_TOKEN: &str = "DSH_ENDPOINT_PROTOCOL_REST_TOKEN";
 
 /// Represents an available DSH platform and its related metadata.
 ///
@@ -25,8 +48,28 @@
 /// - `ProdLz` (dsh-prod.dsh.prod.aws.kpn.com)
 /// - `NpLz` (dsh-dev.dsh.np.aws.kpn.com)
 /// - `Poc` (poc.kpn-dsh.com)
+/// - `Custom` (for user-defined platforms)
 ///
 /// Each platform has it's own realm, endpoint for the DSH Rest API and endpoint for the DSH Rest API access token.
+///
+/// ## Usage
+/// Use a [`Platform`] variant to generate appropriate URLs and client IDs for your environment.
+/// For example, you might select `Platform::NpLz` when deploying a service to the development
+/// landing zone.
+///
+/// You can also create a [`Platform::Custom`] by providing the necessary endpoints and realm.
+///
+/// Use the [`from_env`](Platform::from_env) method to automatically determine the platform based on the `DSH_PLATFORM`
+/// environment variable, which can be configured in a DSH Service Confifguration like this:
+/// ```json
+/// {
+/// ...
+///    "env": {
+///      "DSH_ENVIRONMENT": "{ variables('DSH_ENVIRONMENT')}"
+///    },
+/// ...
+///}
+///```
 #[derive(Clone, Debug, PartialEq)]
 #[non_exhaustive]
 pub enum Platform {
@@ -41,13 +84,22 @@ pub enum Platform {
     /// Proof of Concept platform (`poc.kpn-dsh.com`).
     Poc,
     /// Custom platform, not predefined.
-    Custom{
+    Custom {
+        /// Realm name for the platform (e.g."poc-dsh").
         realm: String,
+        /// Endpoint for the DSH Management API (e.g. "https://api.poc.kpn-dsh.com/resources/v0").
         endpoint_management_api: String,
+        /// Endpoint for fetching a DSH Management API authentication token.
+        /// (e.g. "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token").
         endpoint_management_api_token: String,
+        /// Endpoint for fetching DSH protocol [Access Tokens](crate::protocol_adapters::token::data_access_token::DataAccessToken)
+        /// (e.g. "https://api.poc.kpn-dsh.com/datastreams/v0/mqtt/token").
         endpoint_protocol_access_token: String,
+        /// Endpoint for retrieving Protocol [Rest Tokens](crate::protocol_adapters::token::rest_token::RestToken)
+        /// which is needed to request [Access Tokens](crate::protocol_adapters::token::data_access_token::DataAccessToken)
+        /// (e.g. "https://api.poc.kpn-dsh.com/auth/v0/token").
         endpoint_protocol_rest_token: String,
-    }
+    },
 }
 
 impl Platform {
@@ -87,7 +139,10 @@ impl Platform {
             Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/resources/v0",
             Self::ProdAz => "https://api.az.kpn-dsh.com/resources/v0",
             Self::Poc => "https://api.poc.kpn-dsh.com/resources/v0",
-            Self::Custom { endpoint_management_api, .. } => endpoint_management_api,
+            Self::Custom {
+                endpoint_management_api,
+                ..
+            } => endpoint_management_api,
         }
     }
     /// Returns the endpoint for fetching a DSH Management API authentication token.
@@ -119,11 +174,14 @@ impl Platform {
             Self::Poc => {
                 "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token"
             }
-            Self::Custom { endpoint_management_api_token, .. } => endpoint_management_api_token,
+            Self::Custom {
+                endpoint_management_api_token,
+                ..
+            } => endpoint_management_api_token,
         }
     }
 
-    /// Returns the endpoint for fetching DSH protocol tokens (e.g., for MQTT).
+    /// Returns the endpoint for fetching DSH protocol [Data Access Tokens](crate::protocol_adapters::token::data_access_token::DataAccessToken) (e.g., for MQTT).
     ///
     /// # Example
     /// ```
@@ -139,11 +197,14 @@ impl Platform {
             Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/datastreams/v0/mqtt/token",
             Self::ProdAz => "https://api.az.kpn-dsh.com/datastreams/v0/mqtt/token",
             Self::Poc => "https://api.poc.kpn-dsh.com/datastreams/v0/mqtt/token",
-            Self::Custom { endpoint_protocol_access_token, .. } => endpoint_protocol_access_token,
+            Self::Custom {
+                endpoint_protocol_access_token,
+                ..
+            } => endpoint_protocol_access_token,
         }
     }
 
-    /// Returns the URL endpoint for retrieving DSH REST API OAuth tokens.
+    /// Returns the URL endpoint for retrieving DSH REST API OAuth tokens to fetch [Data Access Tokens](crate::protocol_adapters::token::data_access_token::DataAccessToken).
     ///
     /// # Example
     /// ```
@@ -159,7 +220,10 @@ impl Platform {
             Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/auth/v0/token",
             Self::ProdAz => "https://api.az.kpn-dsh.com/auth/v0/token",
             Self::Poc => "https://api.poc.kpn-dsh.com/auth/v0/token",
-            Self::Custom { endpoint_protocol_rest_token, .. } => endpoint_protocol_rest_token,
+            Self::Custom {
+                endpoint_protocol_rest_token,
+                ..
+            } => endpoint_protocol_rest_token,
         }
     }
 
@@ -183,6 +247,62 @@ impl Platform {
             Self::Custom { realm, .. } => realm,
         }
     }
+
+    /// Creates a [`Platform`] instance based on the `DSH_ENVIRONMENT` environment variable.
+    ///
+    /// In you DSH Service Configuration, you can set the `DSH_ENVIRONMENT` variable like this
+    /// ```json
+    /// {
+    /// ...
+    ///   "env": {
+    ///     "DSH_ENVIRONMENT": "{ variables('DSH_ENVIRONMENT')}"
+    ///   },
+    /// ...
+    ///}
+    ///```
+    ///
+    /// # Custom Platform
+    /// If you want to use a custom platform, you can set the `DSH_ENVIRONMENT` to `custom` which
+    /// whill try to instantiate a [`Platform::Custom`]. Set the following environment variables to set the endpoints and realm:
+    ///
+    /// | Variable Name | Description | Required |
+    /// | ------------- | ----------- | :------: |
+    /// | `DSH_ENVIRONMENT` | Set to `custom` | `Yes` |
+    /// | `DSH_REALM` | The realm name for the to be used platform | `Yes` |
+    /// | `DSH_ENDPOINT_MANAGEMENT_API` | The endpoint for the DSH Management API | `No` |
+    /// | `DSH_ENDPOINT_MANAGEMENT_API_TOKEN` | The endpoint for fetching a DSH Management API authentication token | `No` |
+    /// | `DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN` | The endpoint for fetching DSH protocol [Access Tokens](crate::protocol_adapters::token::data_access_token::DataAccessToken) | `No` |
+    /// | `DSH_ENDPOINT_PROTOCOL_REST_TOKEN` | The endpoint for retrieving Protocol [Rest Tokens](crate::protocol_adapters::token::rest_token::RestToken) which is needed to request [Access Tokens](crate::protocol_adapters::token::data_access_token::DataAccessToken) | `No` |
+    ///
+    /// The endpoint variables are optional, if not set, the related token fetchers will not work.
+    pub fn from_env() -> Result<Self, UtilsError> {
+        let platform_env = get_env_var(VAR_DSH_ENVIRONMENT)?;
+        if platform_env.to_lowercase() == "custom" {
+            Self::custom_from_env()
+        } else {
+            Self::try_from(platform_env.as_str())
+                .map_err(|_| UtilsError::InvalidPlatform(platform_env))
+        }
+    }
+
+    fn custom_from_env() -> Result<Self, UtilsError> {
+        let realm = get_env_var(VAR_DSH_REALM)?;
+        let endpoint_management_api =
+            get_env_var(VAR_DSH_ENDPOINT_MANAGEMENT_API).unwrap_or_default();
+        let endpoint_management_api_token =
+            get_env_var(VAR_DSH_ENDPOINT_MANAGEMENT_API_TOKEN).unwrap_or_default();
+        let endpoint_protocol_access_token =
+            get_env_var(VAR_DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN).unwrap_or_default();
+        let endpoint_protocol_rest_token =
+            get_env_var(VAR_DSH_ENDPOINT_PROTOCOL_REST_TOKEN).unwrap_or_default();
+        Ok(Self::Custom {
+            realm,
+            endpoint_management_api,
+            endpoint_management_api_token,
+            endpoint_protocol_access_token,
+            endpoint_protocol_rest_token,
+        })
+    }
 }
 
 impl TryFrom<&str> for Platform {
@@ -190,10 +310,10 @@ impl TryFrom<&str> for Platform {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value.to_lowercase().as_str() {
-            "prod-dsh" | "prod" => Ok(Self::Prod),
-            "prod-azure-dsh" |"prodaz" | "prod-az" => Ok(Self::ProdAz),
-            "prod-lz-dsh" |"prodlz" | "prod-lz"  => Ok(Self::ProdLz),
-            "dev-lz-dsh" | "nplz"  => Ok(Self::NpLz),
+            "prod-dsh" | "tt-dsh" | "prod" => Ok(Self::Prod),
+            "prod-azure-dsh" | "prodaz" | "prod-az" => Ok(Self::ProdAz),
+            "prod-lz-dsh" | "prodlz" | "prod-lz" => Ok(Self::ProdLz),
+            "dev-lz-dsh" | "nplz" | "np-lz" => Ok(Self::NpLz),
             "poc-dsh" | "poc" => Ok(Self::Poc),
             _ => Err("Invalid platform"),
         }
@@ -211,6 +331,7 @@ impl TryFrom<String> for Platform {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     #[test]
     fn test_platform_realm() {
@@ -323,5 +444,74 @@ mod tests {
             Platform::Poc
         );
         assert!(Platform::try_from("invalid".to_string()).is_err());
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_platform_from_env() {
+        unsafe {
+            std::env::set_var(VAR_DSH_ENVIRONMENT, "prod");
+            let platform = Platform::from_env().unwrap();
+            assert_eq!(platform, Platform::Prod);
+            std::env::set_var(VAR_DSH_REALM, "this-should-not-be-used");
+            let platform = Platform::from_env().unwrap();
+            assert_eq!(platform.realm(), "prod-dsh");
+            std::env::remove_var(VAR_DSH_ENVIRONMENT);
+            std::env::remove_var(VAR_DSH_REALM);
+        }
+    }
+
+    #[test]
+    #[serial(env_dependency)]
+    fn test_platform_from_env_custom() {
+        unsafe {
+            std::env::set_var(VAR_DSH_ENVIRONMENT, "custom");
+            assert!(Platform::from_env().is_err());
+            std::env::set_var(VAR_DSH_REALM, "custom-realm");
+            assert!(Platform::from_env().is_ok());
+            std::env::set_var(
+                VAR_DSH_ENDPOINT_MANAGEMENT_API,
+                "https://custom.api.endpoint",
+            );
+            std::env::set_var(
+                VAR_DSH_ENDPOINT_MANAGEMENT_API_TOKEN,
+                "https://custom.token.endpoint",
+            );
+            std::env::set_var(
+                VAR_DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN,
+                "https://custom.access.token.endpoint",
+            );
+            std::env::set_var(
+                VAR_DSH_ENDPOINT_PROTOCOL_REST_TOKEN,
+                "https://custom.rest.token.endpoint",
+            );
+
+            let platform = Platform::from_env().unwrap();
+            assert_eq!(platform.realm(), "custom-realm");
+            assert_eq!(
+                platform.endpoint_management_api(),
+                "https://custom.api.endpoint"
+            );
+            assert_eq!(
+                platform.endpoint_management_api_token(),
+                "https://custom.token.endpoint"
+            );
+            assert_eq!(
+                platform.endpoint_protocol_access_token(),
+                "https://custom.access.token.endpoint"
+            );
+            assert_eq!(
+                platform.endpoint_protocol_rest_token(),
+                "https://custom.rest.token.endpoint"
+            );
+
+            // Clean up environment variables
+            std::env::remove_var(VAR_DSH_ENVIRONMENT);
+            std::env::remove_var(VAR_DSH_REALM);
+            std::env::remove_var(VAR_DSH_ENDPOINT_MANAGEMENT_API);
+            std::env::remove_var(VAR_DSH_ENDPOINT_MANAGEMENT_API_TOKEN);
+            std::env::remove_var(VAR_DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN);
+            std::env::remove_var(VAR_DSH_ENDPOINT_PROTOCOL_REST_TOKEN);
+        }
     }
 }
