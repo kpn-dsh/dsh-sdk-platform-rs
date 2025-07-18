@@ -16,7 +16,7 @@ pub enum Compatibility {
 /// Schema config containing compatibility level
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ConfigGet {
+pub struct ConfigGet {
     pub compatibility_level: Compatibility,
 }
 
@@ -25,7 +25,7 @@ pub(crate) struct ConfigGet {
 /// Schema config containing compatibility level
 ///
 /// For some reason the body is different compared from the get response
-pub(crate) struct ConfigPut {
+pub struct ConfigPut {
     pub compatibility: Compatibility,
 }
 
