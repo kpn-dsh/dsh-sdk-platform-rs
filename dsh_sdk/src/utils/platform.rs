@@ -40,6 +40,14 @@ pub enum Platform {
     NpLz,
     /// Proof of Concept platform (`poc.kpn-dsh.com`).
     Poc,
+    /// Custom platform, not predefined.
+    Custom{
+        realm: String,
+        endpoint_management_api: String,
+        endpoint_management_api_token: String,
+        endpoint_protocol_access_token: String,
+        endpoint_protocol_rest_token: String,
+    }
 }
 
 impl Platform {
@@ -79,6 +87,7 @@ impl Platform {
             Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/resources/v0",
             Self::ProdAz => "https://api.az.kpn-dsh.com/resources/v0",
             Self::Poc => "https://api.poc.kpn-dsh.com/resources/v0",
+            Self::Custom { endpoint_management_api, .. } => endpoint_management_api,
         }
     }
     /// Returns the endpoint for fetching a DSH Management API authentication token.
@@ -110,6 +119,7 @@ impl Platform {
             Self::Poc => {
                 "https://auth.prod.cp.kpn-dsh.com/auth/realms/poc-dsh/protocol/openid-connect/token"
             }
+            Self::Custom { endpoint_management_api_token, .. } => endpoint_management_api_token,
         }
     }
 
@@ -129,6 +139,7 @@ impl Platform {
             Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/datastreams/v0/mqtt/token",
             Self::ProdAz => "https://api.az.kpn-dsh.com/datastreams/v0/mqtt/token",
             Self::Poc => "https://api.poc.kpn-dsh.com/datastreams/v0/mqtt/token",
+            Self::Custom { endpoint_protocol_access_token, .. } => endpoint_protocol_access_token,
         }
     }
 
@@ -148,6 +159,7 @@ impl Platform {
             Self::ProdLz => "https://api.dsh-prod.dsh.prod.aws.kpn.com/auth/v0/token",
             Self::ProdAz => "https://api.az.kpn-dsh.com/auth/v0/token",
             Self::Poc => "https://api.poc.kpn-dsh.com/auth/v0/token",
+            Self::Custom { endpoint_protocol_rest_token, .. } => endpoint_protocol_rest_token,
         }
     }
 
@@ -168,6 +180,7 @@ impl Platform {
             Self::ProdLz => "prod-lz-dsh",
             Self::ProdAz => "prod-azure-dsh",
             Self::Poc => "poc-dsh",
+            Self::Custom { realm, .. } => realm,
         }
     }
 }
@@ -176,12 +189,12 @@ impl TryFrom<&str> for Platform {
     type Error = &'static str;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value.to_lowercase().replace("-", "").as_str() {
-            "prod" => Ok(Self::Prod),
-            "prodaz" => Ok(Self::ProdAz),
-            "prodlz" => Ok(Self::ProdLz),
-            "nplz" => Ok(Self::NpLz),
-            "poc" => Ok(Self::Poc),
+        match value.to_lowercase().as_str() {
+            "prod-dsh" | "prod" => Ok(Self::Prod),
+            "prod-azure-dsh" |"prodaz" | "prod-az" => Ok(Self::ProdAz),
+            "prod-lz-dsh" |"prodlz" | "prod-lz"  => Ok(Self::ProdLz),
+            "dev-lz-dsh" | "nplz"  => Ok(Self::NpLz),
+            "poc-dsh" | "poc" => Ok(Self::Poc),
             _ => Err("Invalid platform"),
         }
     }
