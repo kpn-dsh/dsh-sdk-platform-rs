@@ -7,6 +7,10 @@ This crate is part of the [DSH_SDK](https://crates.io/crates/dsh_sdk). It provid
 ### Versions
 The versions of this crate are tied to the versions of the OpenAPI spec and the Progenitor version used to generate the client.
 
+#### DSH Rest API Client: 0.5,0
+- OpenAPI spec: 1.10.0
+- Progenitor version: 0.10.0
+
 #### DSH Rest API Client: 0.4,0
 - OpenAPI spec: 1.9.2
 - Progenitor version: 0.10.0

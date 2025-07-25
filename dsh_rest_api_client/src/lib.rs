@@ -8704,7 +8704,7 @@ pub mod types {
 ///
 ///Resource management API for DSH
 ///
-///Version: 1.9.2
+///Version: 1.10.0
 pub struct Client {
     pub(crate) baseurl: String,
     pub(crate) client: reqwest::Client,
@@ -8757,7 +8757,7 @@ impl Client {
     /// This string is pulled directly from the source OpenAPI
     /// document and may be in any format the API selects.
     pub fn api_version(&self) -> &'static str {
-        "1.9.2"
+        "1.10.0"
     }
 }
 
@@ -12741,7 +12741,7 @@ impl Client {
         tenant: &'a str,
         id: &'a str,
         authorization: &'a str,
-    ) -> Result<ResponseValue<types::ThirdPartyBucketConcession>, Error<()>> {
+    ) -> Result<ResponseValue<types::ThirdPartyBucketConcessionConfiguration>, Error<()>> {
         let url = format!(
             "{}/allocation/{}/thirdpartybucketconcession/{}/configuration",
             self.baseurl,
