@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-07-25
+### Changed
+- updated crate to OpenAPI spec: 1.10.0
+- **breaking change:** `third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_configuration` returns now a `ThirdPartyBucketConcessionConfiguration`
+    - This was initially misconfigured in the OpenAPI spec
+- Progenitor version: 0.10.0
+
+
 ## [0.4.0] - 2025-05-28
 ### Changed
 - updated crate to OpenAPI spec: 1.9.2
@@ -28,8 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - updated crate to OpenAPI spec: 1.8.0
- - Breaking change: Enum KafkaProxyZone (Internal renamed to Private)
- - Breaking change: robot_get_robot_by_tenant_generate_secret -> robot_post_robot_by_tenant_generate_secret
+    - **Breaking change:** Enum KafkaProxyZone (Internal renamed to Private)
+    - **Breaking change:** robot_get_robot_by_tenant_generate_secret -> robot_post_robot_by_tenant_generate_secret
 
 
 ## [0.1.0] - 2024-07-01
