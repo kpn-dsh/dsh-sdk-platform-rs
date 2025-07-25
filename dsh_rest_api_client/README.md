@@ -7,11 +7,11 @@ This crate is part of the [DSH_SDK](https://crates.io/crates/dsh_sdk). It provid
 ### Versions
 The versions of this crate are tied to the versions of the OpenAPI spec and the Progenitor version used to generate the client.
 
-#### DSH Rest API Client: 0.5,0
+#### DSH Rest API Client: 0.5.0
 - OpenAPI spec: 1.10.0
 - Progenitor version: 0.10.0
 
-#### DSH Rest API Client: 0.4,0
+#### DSH Rest API Client: 0.4.0
 - OpenAPI spec: 1.9.2
 - Progenitor version: 0.10.0
 
@@ -45,7 +45,7 @@ It is recommended to use the Rest Token Fetcher from the `dsh_sdk` crate. To do 
 
 ```toml
 [dependencies]
-dsh_rest_api_client = "0.4"
+dsh_rest_api_client = "0.5"
 dsh_sdk = { version = "0.7", features = ["management-api-token-fetcher"], default-features = false }
 tokio = { version = "1", features = ["full"] }
 ```
