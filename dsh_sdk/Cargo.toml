@@ -45,7 +45,7 @@ schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"
 graceful-shutdown = ["tokio", "tokio-util"]
 management-api-token-fetcher = ["reqwest"]
 protocol-token = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
-metrics = [ "hyper/server", "hyper/http1" , "hyper-util/tokio", "http-body-util", "tokio", "bytes"]
+metrics = [ "hyper/server", "hyper/http1" , "hyper-util/tokio", "http-body-util", "tokio", "tokio/net", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 
 
