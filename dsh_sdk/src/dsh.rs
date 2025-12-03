@@ -109,7 +109,8 @@ impl Dsh {
         let tenant_name = utils::tenant_name().unwrap_or_else(|_| "local_tenant".to_string());
         let task_id =
             utils::get_env_var(VAR_TASK_ID).unwrap_or_else(|_| "local_task_id".to_string());
-        let config_host = utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(utils::ensure_https_prefix);
+        let config_host =
+            utils::get_env_var(VAR_DSH_KAFKA_CONFIG_ENDPOINT).map(utils::ensure_https_prefix);
 
         let certificates = if let Ok(cert) = Cert::from_pki_config_dir::<std::path::PathBuf>(None) {
             Some(cert)

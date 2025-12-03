@@ -38,8 +38,7 @@ use reqwest::blocking::{Client, ClientBuilder};
 #[doc(inline)]
 pub use error::CertificatesError;
 
-use crate::utils;
-use crate::{VAR_KAFKA_CONFIG_HOST, VAR_TASK_ID};
+use crate::{VAR_DSH_KAFKA_CONFIG_ENDPOINT, VAR_TASK_ID, utils};
 
 mod bootstrap;
 mod error;
@@ -77,7 +76,7 @@ impl Cert {
     /// This fetches the DSH CA certificate, creates/signs a Kafka certificate, and generates a private key.
     ///
     /// # Recommended Approach
-    /// Use [`Cert::from_env`] if you rely on environment variables injected by DSH (e.g., `KAFKA_CONFIG_HOST`,
+    /// Use [`Cert::from_env`] if you rely on environment variables injected by DSH (e.g., `DSH_KAFKA_CONFIG_ENDPOINT`,
     /// `MESOS_TASK_ID`). This allows an easier switch between Kafka Proxy, VPN connection, etc.
     ///
     /// # Arguments
@@ -99,7 +98,7 @@ impl Cert {
     ///
     /// This method checks if `PKI_CONFIG_DIR` is set:
     /// - If it is, certificates are loaded from that directory (e.g., when using Kafka Proxy or VPN).
-    /// - Otherwise, it uses `KAFKA_CONFIG_HOST`, `MESOS_TASK_ID`, and `MARATHON_APP_ID` to bootstrap
+    /// - Otherwise, it uses `DSH_KAFKA_CONFIG_ENDPOINT`, `MESOS_TASK_ID`, and `MARATHON_APP_ID` to bootstrap
     ///   and sign certificates.
     ///
     /// # Errors
@@ -110,7 +109,7 @@ impl Cert {
         if let Ok(cert) = Self::from_pki_config_dir::<std::path::PathBuf>(None) {
             Ok(cert)
         } else if let (Ok(config_host), Ok(task_id), Ok(tenant_name)) = (
-            utils::get_env_var(VAR_KAFKA_CONFIG_HOST).map(utils::ensure_https_prefix),
+            utils::get_env_var(VAR_DSH_KAFKA_CONFIG_ENDPOINT).map(utils::ensure_https_prefix),
             utils::get_env_var(VAR_TASK_ID),
             utils::tenant_name(),
         ) {

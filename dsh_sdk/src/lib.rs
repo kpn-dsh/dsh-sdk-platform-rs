@@ -64,7 +64,7 @@ const VAR_DSH_SECRET_TOKEN_PATH: &str = "DSH_SECRET_TOKEN_PATH";
 const VAR_DSH_TENANT_NAME: &str = "DSH_TENANT_NAME";
 
 /// DSH config host, typically pointing to an internal endpoint.
-const VAR_KAFKA_CONFIG_HOST: &str = "KAFKA_CONFIG_HOST";
+const VAR_DSH_KAFKA_CONFIG_ENDPOINT: &str = "DSH_KAFKA_CONFIG_ENDPOINT";
 
 /// PKI configuration directory.
 const VAR_PKI_CONFIG_DIR: &str = "PKI_CONFIG_DIR";
