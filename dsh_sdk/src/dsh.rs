@@ -24,7 +24,7 @@
 //! # Ok(())
 //! # }
 //! ```
-use log::warn;
+use log::{info, warn};
 use std::sync::{Arc, OnceLock};
 
 use crate::certificates::{Cert, CertificatesError};
@@ -117,6 +117,7 @@ impl Dsh {
         } else if let Ok(config_host) = &config_host {
             Cert::from_bootstrap(config_host, &tenant_name, &task_id)
                 .inspect_err(|e| warn!("Could not bootstrap to DSH, due to: {}", e))
+                .inspect(|_| info!("Successfully connected to DSH"))
                 .ok()
         } else {
             None

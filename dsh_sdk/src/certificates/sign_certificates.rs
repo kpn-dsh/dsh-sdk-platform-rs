@@ -6,7 +6,7 @@
 //!
 //! ## Note
 //! This module is NOT intended to be used directly, but through [Cert] or indirectly via [Properties](crate::Properties).
-use log::{debug, info};
+use log::debug;
 use reqwest::blocking::Client;
 
 use rcgen::string::Ia5String;
@@ -21,18 +21,18 @@ use crate::{
     VAR_DSH_SECRET_TOKEN_PATH,
 };
 
-/// Connect to DSH and retrieve the certificates and datastreams.json to create the properties struct
-pub(crate) fn bootstrap(
+/// Execute
+pub(crate) fn sign_certificates(
     config_host: &str,
     tenant_name: &str,
     task_id: &str,
+    add_san: bool,
 ) -> Result<Cert, CertificatesError> {
     let dsh_config = DshBootstrapConfig::new(config_host, tenant_name, task_id)?;
     let client = reqwest_ca_client(dsh_config.dsh_ca_certificate.as_bytes())?;
     let dn = DshBootstapCall::Dn(&dsh_config).retryable_call(&client)?;
     let dn = Dn::parse_string(&dn)?;
-    let certificates = get_signed_client_cert(dn, &dsh_config, &client)?;
-    info!("Successfully connected to DSH");
+    let certificates = get_signed_client_cert(dn, &dsh_config, &client, add_san)?;
     Ok(certificates)
 }
 
@@ -50,9 +50,10 @@ fn get_signed_client_cert(
     dn: Dn,
     dsh_config: &DshBootstrapConfig,
     client: &Client,
+    add_san: bool,
 ) -> Result<Cert, CertificatesError> {
     let key_pair = KeyPair::generate_for(&rcgen::PKCS_ECDSA_P384_SHA384)?;
-    let csr = generate_csr(&key_pair, dn)?;
+    let csr = generate_csr(&key_pair, dn, add_san)?;
     let client_certificate = DshBootstapCall::CertificateSignRequest {
         config: dsh_config,
         csr: &csr.pem()?,
@@ -71,6 +72,7 @@ fn get_signed_client_cert(
 fn generate_csr(
     key_pair: &KeyPair,
     dn: Dn,
+    add_san: bool,
 ) -> Result<CertificateSigningRequest, CertificatesError> {
     let mut params = CertificateParams::default();
     params.distinguished_name.push(DnType::CommonName, dn.cn);
@@ -80,11 +82,13 @@ fn generate_csr(
     params
         .distinguished_name
         .push(DnType::OrganizationName, dn.o);
-    if let Some(ia5_string) = utils::get_env_var(VAR_DSH_CONTAINER_DNS_NAME)
-        .ok()
-        .and_then(|dns_string| Ia5String::try_from(dns_string).ok())
-    {
-        params.subject_alt_names.push(SanType::DnsName(ia5_string));
+    if add_san {
+        if let Some(ia5_string) = utils::get_env_var(VAR_DSH_CONTAINER_DNS_NAME)
+            .ok()
+            .and_then(|dns_string| Ia5String::try_from(dns_string).ok())
+        {
+            params.subject_alt_names.push(SanType::DnsName(ia5_string));
+        }
     }
     Ok(params.serialize_request(key_pair)?)
 }
@@ -337,7 +341,7 @@ mod tests {
     fn test_dsh_certificate_sign_request() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
-        let csr = generate_csr(&cert.key_pair, dn).unwrap();
+        let csr = generate_csr(&cert.key_pair, dn, false).unwrap();
         let req = csr.pem().unwrap();
         assert!(req.starts_with("-----BEGIN CERTIFICATE REQUEST-----"));
         assert!(req.trim().ends_with("-----END CERTIFICATE REQUEST-----"));
@@ -347,7 +351,7 @@ mod tests {
     fn test_verify_csr() {
         let cert = TEST_CERTIFICATES.get_or_init(set_test_cert);
         let dn = Dn::parse_string("CN=Test CN,OU=Test OU,O=Test Org").unwrap();
-        let csr = generate_csr(&cert.key_pair, dn).unwrap();
+        let csr = generate_csr(&cert.key_pair, dn, false).unwrap();
         let csr_pem = csr.pem().unwrap();
         let key = cert.private_key_pkcs8();
         let pkey = PKey::private_key_from_der(&key).unwrap();

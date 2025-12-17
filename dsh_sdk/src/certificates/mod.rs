@@ -40,9 +40,9 @@ pub use error::CertificatesError;
 
 use crate::{VAR_DSH_KAFKA_CONFIG_ENDPOINT, VAR_TASK_ID, utils};
 
-mod bootstrap;
 mod error;
 mod pki_config_dir;
+mod sign_certificates;
 
 /// Holds all relevant certificates and private keys to connect to the DSH Kafka cluster and the Schema Store.
 ///
@@ -91,7 +91,7 @@ impl Cert {
         tenant_name: &str,
         task_id: &str,
     ) -> Result<Self, CertificatesError> {
-        bootstrap::bootstrap(config_host, tenant_name, task_id)
+        sign_certificates::sign_certificates(config_host, tenant_name, task_id, false)
     }
 
     /// Bootstraps to DSH and signs certificates based on environment variables injected by DSH.
@@ -108,12 +108,21 @@ impl Cert {
         // Attempt to load from PKI_CONFIG_DIR
         if let Ok(cert) = Self::from_pki_config_dir::<std::path::PathBuf>(None) {
             Ok(cert)
-        } else if let (Ok(config_host), Ok(task_id), Ok(tenant_name)) = (
+        } else {
+            Self::sign_new_certificates(false)
+        }
+    }
+
+    /// Request a new set of signed certificates
+    ///
+    ///
+    pub fn sign_new_certificates(add_san: bool) -> Result<Self, CertificatesError> {
+        if let (Ok(config_host), Ok(task_id), Ok(tenant_name)) = (
             utils::get_env_var(VAR_DSH_KAFKA_CONFIG_ENDPOINT).map(utils::ensure_https_prefix),
             utils::get_env_var(VAR_TASK_ID),
             utils::tenant_name(),
         ) {
-            Self::from_bootstrap(&config_host, &tenant_name, &task_id)
+            sign_certificates::sign_certificates(&config_host, &tenant_name, &task_id, add_san)
         } else {
             Err(CertificatesError::MisisngInjectedVariables)
         }

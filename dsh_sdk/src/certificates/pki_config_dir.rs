@@ -14,6 +14,13 @@ use pem::{self, Pem};
 use rcgen::KeyPair;
 use std::path::{Path, PathBuf};
 
+/// Get certificates from the PKI config directory
+///
+/// Looks for all files containing ca*.pem and ca.crt for the CA certificate,
+/// client*.pem and client.crt for the client certificate,
+/// and client*.key for the client private key in the PKI config directory.
+///
+/// If `pki_config_dir` is `None`, the directory is taken from the `PKI_CONFIG_DIR` environment variable.
 pub(crate) fn get_pki_certificates<P>(pki_config_dir: Option<P>) -> Result<Cert, CertificatesError>
 where
     P: AsRef<Path>,
@@ -144,7 +151,7 @@ mod tests {
     use openssl::pkey::PKey;
     use serial_test::serial;
 
-    const PKI_CONFIG_DIR: &str = "test_files/pki_config_dir";
+    const PKI_CONFIG_DIR: &str = "./test_files/pki_config_dir";
     const PKI_KEY_FILE_PEM_NAME: &str = "client.key";
     const PKI_KEY_FILE_DER_NAME: &str = "client-der.key";
     const PKI_CERT_FILE_NAME: &str = "client.pem";
@@ -160,7 +167,9 @@ mod tests {
         {
             return;
         }
-        let _ = std::fs::create_dir(path);
+        if !path.exists() {
+            std::fs::create_dir_all(&path).unwrap();
+        }
         let priv_key = openssl::rsa::Rsa::generate(2048).unwrap();
         let pkey = PKey::from_rsa(priv_key).unwrap();
         let key_pem = pkey.private_key_to_pem_pkcs8().unwrap();
