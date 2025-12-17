@@ -151,7 +151,7 @@ mod tests {
     use openssl::pkey::PKey;
     use serial_test::serial;
 
-    const PKI_CONFIG_DIR: &str = "test_files/pki_config_dir";
+    const PKI_CONFIG_DIR: &str = "./test_files/pki_config_dir";
     const PKI_KEY_FILE_PEM_NAME: &str = "client.key";
     const PKI_KEY_FILE_DER_NAME: &str = "client-der.key";
     const PKI_CERT_FILE_NAME: &str = "client.pem";
@@ -167,7 +167,9 @@ mod tests {
         {
             return;
         }
-        let _ = std::fs::create_dir(path);
+        if !path.exists() {
+            std::fs::create_dir_all(&path).unwrap();
+        }
         let priv_key = openssl::rsa::Rsa::generate(2048).unwrap();
         let pkey = PKey::from_rsa(priv_key).unwrap();
         let key_pem = pkey.private_key_to_pem_pkcs8().unwrap();
