@@ -62,5 +62,5 @@ dsh_sdk = { features = ["dlq"], path = "." }
 env_logger = "0.11"
 rdkafka = { version = "0.38", features = ["cmake-build", "ssl-vendored"], default-features = true }
 prometheus = { version = "0.14", features = ["process"] }
-rumqttc = { version = "0.24", features = ["websocket"] }
+rumqttc = { version = "0.25", features = ["websocket"] }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] } 
