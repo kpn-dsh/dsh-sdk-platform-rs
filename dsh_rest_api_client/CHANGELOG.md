@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [unreleased] 
+### Changed
+- **Breaking change:**: Bump Reqwest to 0.13
+
 ## [0.5.0] - 2025-07-25
 ### Changed
 - updated crate to OpenAPI spec: 1.10.0

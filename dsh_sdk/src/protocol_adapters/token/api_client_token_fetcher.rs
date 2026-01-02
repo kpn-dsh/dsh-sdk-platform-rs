@@ -60,7 +60,7 @@ impl ApiClientTokenFetcher {
     /// ```
     pub fn new(api_key: impl Into<String>, platform: Platform) -> Self {
         let reqwest_client = reqwest::Client::builder()
-            .use_rustls_tls()
+            .tls_backend_rustls()
             .build()
             .expect("Failed to create reqwest client with rustls as tls backend");
         Self {
@@ -447,7 +447,10 @@ mod tests {
         let rest_api_key = "test_api_key".to_string();
         let platform = Platform::NpLz;
 
-        let client = reqwest::Client::builder().use_rustls_tls().build().unwrap();
+        let client = reqwest::Client::builder()
+            .tls_backend_rustls()
+            .build()
+            .unwrap();
         let fetcher = ApiClientTokenFetcher::new_with_client(rest_api_key, platform, client);
 
         assert!(fetcher.cache_rest_tokens.read().await.is_empty());
