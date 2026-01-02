@@ -15,7 +15,7 @@ version = "0.7.2"
 all-features = true
 
 [dependencies]
-apache-avro = {version = "0.20", optional = true }
+apache-avro = {version = "0.21", optional = true }
 base64 = {version = "0.22", optional = true }
 bytes = { version = "1.6", optional = true }
 hyper = { version = "1.5", default-features = false, optional = true }
@@ -25,7 +25,7 @@ log = "0.4"
 pem = {version = "3", optional = true }
 protofish = { version = "0.5.2", optional = true }
 rcgen = { version = "0.14", optional = true }
-reqwest = { version = "0.12", default-features = false, features = ["rustls-tls-manual-roots", "json", "blocking"], optional = true }
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "json", "blocking"], optional = true }
 rdkafka = { version = "0.38", default-features = false, optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"], optional = true }
@@ -43,7 +43,7 @@ kafka = ["bootstrap"]
 rdkafka-config = ["rdkafka", "kafka"] # Impl of config trait only
 schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
 graceful-shutdown = ["tokio", "tokio-util"]
-management-api-token-fetcher = ["reqwest"]
+management-api-token-fetcher = ["reqwest/form"]
 protocol-token = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
 metrics = [ "hyper/server", "hyper/http1" , "hyper-util/tokio", "http-body-util", "tokio", "tokio/net", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
@@ -63,4 +63,4 @@ env_logger = "0.11"
 rdkafka = { version = "0.38", features = ["cmake-build", "ssl-vendored"], default-features = true }
 prometheus = { version = "0.14", features = ["process"] }
 rumqttc = { version = "0.24", features = ["websocket"] }
-reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] } 
+reqwest = { version = "0.13", default-features = false, features = ["rustls"] } 

@@ -668,7 +668,10 @@ mod test {
         let platform = Platform::NpLz;
         let client_id = "robot:dev-lz-dsh:my-tenant";
         let client_secret = "secret";
-        let custom_client = reqwest::Client::builder().use_rustls_tls().build().unwrap();
+        let custom_client = reqwest::Client::builder()
+            .tls_backend_rustls()
+            .build()
+            .unwrap();
         let tf = ManagementApiTokenFetcherBuilder::new(platform)
             .client_id(client_id.to_string())
             .client_secret(client_secret.to_string())

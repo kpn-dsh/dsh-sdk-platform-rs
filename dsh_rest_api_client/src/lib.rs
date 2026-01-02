@@ -8762,7 +8762,7 @@ impl Client {
 }
 
 #[allow(clippy::all)]
-#[allow(elided_named_lifetimes)]
+#[allow(mismatched_lifetime_syntaxes)]
 impl Client {
     ///Returns the configuration of every application created by a given tenant
     ///

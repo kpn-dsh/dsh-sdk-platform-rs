@@ -166,7 +166,7 @@ impl Cert {
         reqwest::Client::builder()
             .add_root_certificate(reqwest_cert)
             .identity(pem_identity)
-            .use_rustls_tls()
+            .tls_backend_rustls()
     }
 
     /// Builds a **blocking** Reqwest client with the DSH Kafka certificate included.
@@ -185,7 +185,7 @@ impl Cert {
         Client::builder()
             .add_root_certificate(reqwest_cert)
             .identity(pem_identity)
-            .use_rustls_tls()
+            .tls_backend_rustls()
     }
 
     /// Returns the root CA certificate as a PEM string (equivalent to `ca.crt`).
