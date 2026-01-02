@@ -1,5 +1,5 @@
 ### builder
-FROM rust:latest as builder
+FROM rust:latest AS builder
 
 #cache 
 VOLUME /home/dsh/target
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 RUN cargo install --path .
 
 ### runner
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 # args
 ARG UID
