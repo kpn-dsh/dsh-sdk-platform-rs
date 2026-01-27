@@ -5,13 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [unreleased] 
+## [0.8.0] - 2026-01-27
 ### Changed
-- **Breaking change:**: Bump Reqwest to 0.13
+- **Breaking change:**: Bump RDKafka to 0.39
+- **Breaking change:**: Bump Reqwest to 0.13 (used by certificates)
 - **Breaking change:**: Bump Apache-avro to 0.21
 
-
-## [0.7.2] - 2025-012-17
+## [0.7.2] - 2025-12-17
 ### Added
 - Method to sign a new set of certificates including option to have container dns as SAN
 
