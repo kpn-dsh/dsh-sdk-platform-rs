@@ -27,6 +27,8 @@ jobs:
           toolchain: ${{ matrix.version }}
           override: true
           components: rustfmt
+      - name: install system deps
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libsasl2-dev
       - name: clean
         run: cargo clean
       - name: build

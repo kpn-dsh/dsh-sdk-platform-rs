@@ -12,23 +12,17 @@ A Rust SDK to interact with the DSH Platform. This library provides convenient b
 
 ## Table of Contents
 
-1. [Migration Guide](#migration-guide)  
-2. [Description](#description)  
-3. [Usage](#usage)  
-4. [Connecting to DSH](#connect-to-dsh)  
-5. [Feature Flags](#feature-flags)  
-6. [Environment Variables](#environment-variables)  
-7. [Examples](#examples)  
-8. [Changelog](#changelog)  
-9. [Contributing](#contributing)  
-10. [License](#license)  
-11. [Security](#security)  
-
----
-
-## Migration Guide
-
-If you are migrating from `v0.4.X`, please see the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details on breaking changes and how to update your code accordingly.
+1. [Description](#description)  
+2. [Usage](#usage)  
+3. [Connecting to DSH](#connect-to-dsh)  
+4. [Feature Flags](#feature-flags)  
+5. [Environment Variables](#environment-variables)  
+6. [Examples](#examples)  
+7. [Changelog](#changelog)  
+8. [Contributing](#contributing)  
+9. [License](#license)  
+10. [Security](#security)  
+11. [Migration Guide](#migration-guide) 
 
 ---
 
@@ -64,7 +58,7 @@ To get started, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dsh_sdk = "0.7"
+dsh_sdk = "0.8"
 rdkafka = { version = "0.38", features = ["cmake-build", "ssl-vendored"] }
 ```
 
@@ -130,7 +124,7 @@ To pick only the features you need, disable the default features and enable spec
 
 ```toml
 [dependencies]
-dsh_sdk = { version = "0.7", default-features = false, features = ["management-api-token-fetcher"] }
+dsh_sdk = { version = , default-features = false, features = ["management-api-token-fetcher"] }
 ```
 
 ---
@@ -182,4 +176,10 @@ For information about the security policy of this project, including how to repo
 ---
 
 &copy; Koninklijke KPN N.V.
+
+---
+
+## Migration Guide
+
+If you are migrating from `v0.4.X`, please see the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details on breaking changes and how to update your code accordingly.
 
