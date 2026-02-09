@@ -12,7 +12,7 @@ rustup install nightly
 install progenitor using cargo
 
 ```shell
-cargo install cargo-progenitor --version 0.10.0
+cargo install cargo-progenitor --version 0.12.0
 ```
 
 ## Prepare the OpenAPI spec file
@@ -28,8 +28,10 @@ python3 update_openapi_spec.py path/to/openapi.json
 To generate the client run the following command:
 
 ```shell
-cargo +nightly  progenitor -i dsh_rest_api_client/openapi_spec/openapi_1_8_0.json -o tmp_dsh_rest_api_client -n dsh_rest_api_client --version 0.1.0 --include-client true
+cargo +nightly progenitor -i dsh_rest_api_client/openapi_spec/openapi_1_11_1.json -o dsh_rest_client -n dsh_rest_client -v 0.1.0
 ```
 
 ## Update the client
 Copy the generated `lib.rs` from `tmp_dsh_rest_api_client` to the src folder of `dsh_rest_api_client` in the `dsh_sdk` repository and update the `README.md` file and `cargo.toml` with the new version number. 
+
+in `lib.rs` add the feature flags to all parent items ("client", "types")
