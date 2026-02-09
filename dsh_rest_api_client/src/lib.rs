@@ -1,9 +1,14 @@
+#[cfg(feature = "client")]
+#[allow(unused_imports)]
+use progenitor_client::{encode_path, ClientHooks, OperationInfo, RequestBuilderExt};
+#[cfg(feature = "client")]
+#[allow(unused_imports)]
+pub use progenitor_client::{ByteStream, ClientInfo, Error, ResponseValue};
+
+#[cfg(feature = "client")]
 pub mod progenitor_client;
 
-#[allow(unused_imports)]
-use progenitor_client::{encode_path, RequestBuilderExt};
-#[allow(unused_imports)]
-pub use progenitor_client::{ByteStream, Error, ResponseValue};
+#[cfg(feature = "types")]
 /// Types used as operation parameters and responses.
 #[allow(clippy::all)]
 pub mod types {
@@ -81,12 +86,6 @@ pub mod types {
         pub serial_number: ::std::string::String,
     }
 
-    impl ::std::convert::From<&ActualCertificate> for ActualCertificate {
-        fn from(value: &ActualCertificate) -> Self {
-            value.clone()
-        }
-    }
-
     ///`ActualCertificateAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -138,12 +137,6 @@ pub mod types {
         pub not_before: ::chrono::DateTime<::chrono::offset::Utc>,
         #[serde(rename = "serialNumber")]
         pub serial_number: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&ActualCertificateAllOf> for ActualCertificateAllOf {
-        fn from(value: &ActualCertificateAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`AllocationStatus`
@@ -215,12 +208,6 @@ pub mod types {
         pub provisioned: bool,
     }
 
-    impl ::std::convert::From<&AllocationStatus> for AllocationStatus {
-        fn from(value: &AllocationStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///`AllocationStatus1`
     ///
     /// <details><summary>JSON schema</summary>
@@ -244,12 +231,6 @@ pub mod types {
     impl ::std::convert::From<AllocationStatus1> for AllocationStatus {
         fn from(value: AllocationStatus1) -> Self {
             value.0
-        }
-    }
-
-    impl ::std::convert::From<&AllocationStatus1> for AllocationStatus1 {
-        fn from(value: &AllocationStatus1) -> Self {
-            value.clone()
         }
     }
 
@@ -336,12 +317,6 @@ pub mod types {
             ::std::collections::HashMap<::std::string::String, AppCatalogAppResourcesValue>,
     }
 
-    impl ::std::convert::From<&AppCatalogApp> for AppCatalogApp {
-        fn from(value: &AppCatalogApp) -> Self {
-            value.clone()
-        }
-    }
-
     ///`AppCatalogAppConfiguration`
     ///
     /// <details><summary>JSON schema</summary>
@@ -398,12 +373,6 @@ pub mod types {
         pub stopped: bool,
     }
 
-    impl ::std::convert::From<&AppCatalogAppConfiguration> for AppCatalogAppConfiguration {
-        fn from(value: &AppCatalogAppConfiguration) -> Self {
-            value.clone()
-        }
-    }
-
     ///`AppCatalogAppResourcesValue`
     ///
     /// <details><summary>JSON schema</summary>
@@ -446,12 +415,6 @@ pub mod types {
         Topic(Topic),
         Vhost(Vhost),
         Volume(Volume),
-    }
-
-    impl ::std::convert::From<&Self> for AppCatalogAppResourcesValue {
-        fn from(value: &AppCatalogAppResourcesValue) -> Self {
-            value.clone()
-        }
     }
 
     impl ::std::convert::From<Application> for AppCatalogAppResourcesValue {
@@ -538,12 +501,6 @@ pub mod types {
         pub payload: ::std::string::String,
     }
 
-    impl ::std::convert::From<&AppCatalogManifest> for AppCatalogManifest {
-        fn from(value: &AppCatalogManifest) -> Self {
-            value.clone()
-        }
-    }
-
     ///`Application`
     ///
     /// <details><summary>JSON schema</summary>
@@ -587,6 +544,11 @@ pub mod types {
     ///        "port": 0
     ///      },
     ///      "needsToken": true,
+    ///      "nodeFeatures": {
+    ///        "gpuDriver": "NVIDIA",
+    ///        "gpus": 1,
+    ///        "nodepool": "nodepool"
+    ///      },
     ///      "readableStreams": [
     ///        "readableStreams",
     ///        "readableStreams"
@@ -692,6 +654,9 @@ pub mod types {
     ///      "default": true,
     ///      "type": "boolean"
     ///    },
+    ///    "nodeFeatures": {
+    ///      "$ref": "#/components/schemas/NodeFeatures"
+    ///    },
     ///    "readableStreams": {
     ///      "description": "names of streams to which the application needs
     /// read access.",
@@ -795,6 +760,12 @@ pub mod types {
         /// amongst others, the Kafka brokers.
         #[serde(rename = "needsToken", default = "defaults::default_bool::<true>")]
         pub needs_token: bool,
+        #[serde(
+            rename = "nodeFeatures",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub node_features: ::std::option::Option<NodeFeatures>,
         ///names of streams to which the application needs read access.
         #[serde(
             rename = "readableStreams",
@@ -842,12 +813,6 @@ pub mod types {
             skip_serializing_if = "::std::vec::Vec::is_empty"
         )]
         pub writable_streams: ::std::vec::Vec<::std::string::String>,
-    }
-
-    impl ::std::convert::From<&Application> for Application {
-        fn from(value: &Application) -> Self {
-            value.clone()
-        }
     }
 
     ///a secret to be injected as an environment variable in the application
@@ -911,12 +876,6 @@ pub mod types {
         pub name: ::std::string::String,
     }
 
-    impl ::std::convert::From<&ApplicationSecret> for ApplicationSecret {
-        fn from(value: &ApplicationSecret) -> Self {
-            value.clone()
-        }
-    }
-
     ///`ApplicationVolumes`
     ///
     /// <details><summary>JSON schema</summary>
@@ -947,12 +906,6 @@ pub mod types {
         ///the full name of the volume that needs to be mounted in the
         /// container.
         pub name: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&ApplicationVolumes> for ApplicationVolumes {
-        fn from(value: &ApplicationVolumes) -> Self {
-            value.clone()
-        }
     }
 
     ///`BaseLimitValue`
@@ -988,12 +941,6 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BaseLimitValue {
         pub name: BaseLimitValueName,
-    }
-
-    impl ::std::convert::From<&BaseLimitValue> for BaseLimitValue {
-        fn from(value: &BaseLimitValue) -> Self {
-            value.clone()
-        }
     }
 
     ///`BaseLimitValueName`
@@ -1053,25 +1000,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for BaseLimitValueName {
-        fn from(value: &BaseLimitValueName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for BaseLimitValueName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -1154,12 +1095,6 @@ pub mod types {
         pub versioned: bool,
     }
 
-    impl ::std::convert::From<&Bucket> for Bucket {
-        fn from(value: &Bucket) -> Self {
-            value.clone()
-        }
-    }
-
     ///`BucketAccess`
     ///
     /// <details><summary>JSON schema</summary>
@@ -1218,12 +1153,6 @@ pub mod types {
         pub writable: bool,
     }
 
-    impl ::std::convert::From<&BucketAccess> for BucketAccess {
-        fn from(value: &BucketAccess) -> Self {
-            value.clone()
-        }
-    }
-
     ///`BucketAccessConfiguration`
     ///
     /// <details><summary>JSON schema</summary>
@@ -1268,12 +1197,6 @@ pub mod types {
         pub name: ::std::string::String,
         pub readable: bool,
         pub writable: bool,
-    }
-
-    impl ::std::convert::From<&BucketAccessConfiguration> for BucketAccessConfiguration {
-        fn from(value: &BucketAccessConfiguration) -> Self {
-            value.clone()
-        }
     }
 
     ///`BucketAccessStatus`
@@ -1347,12 +1270,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&BucketAccessStatus> for BucketAccessStatus {
-        fn from(value: &BucketAccessStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///`BucketStatus`
     ///
     /// <details><summary>JSON schema</summary>
@@ -1418,12 +1335,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&BucketStatus> for BucketStatus {
-        fn from(value: &BucketStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///`BucketWatch`
     ///
     /// <details><summary>JSON schema</summary>
@@ -1450,12 +1361,6 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct BucketWatch {
         pub bucket: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&BucketWatch> for BucketWatch {
-        fn from(value: &BucketWatch) -> Self {
-            value.clone()
-        }
     }
 
     ///`BucketWatchStatus`
@@ -1521,12 +1426,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&BucketWatchStatus> for BucketWatchStatus {
-        fn from(value: &BucketWatchStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///information on a certificate which is wanted on the platform but may not
     /// yet be provisioned
     ///
@@ -1574,12 +1473,6 @@ pub mod types {
             skip_serializing_if = "::std::option::Option::is_none"
         )]
         pub passphrase_secret: ::std::option::Option<::std::string::String>,
-    }
-
-    impl ::std::convert::From<&Certificate> for Certificate {
-        fn from(value: &Certificate) -> Self {
-            value.clone()
-        }
     }
 
     ///`CertificateStatus`
@@ -1645,12 +1538,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&CertificateStatus> for CertificateStatus {
-        fn from(value: &CertificateStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///`ChildList`
     ///
     /// <details><summary>JSON schema</summary>
@@ -1677,12 +1564,6 @@ pub mod types {
     impl ::std::convert::From<ChildList> for ::std::vec::Vec<::std::string::String> {
         fn from(value: ChildList) -> Self {
             value.0
-        }
-    }
-
-    impl ::std::convert::From<&ChildList> for ChildList {
-        fn from(value: &ChildList) -> Self {
-            value.clone()
         }
     }
 
@@ -1733,12 +1614,6 @@ pub mod types {
         pub value: ::std::string::String,
     }
 
-    impl ::std::convert::From<&ClientSecret> for ClientSecret {
-        fn from(value: &ClientSecret) -> Self {
-            value.clone()
-        }
-    }
-
     ///`DataCatalogAsset`
     ///
     /// <details><summary>JSON schema</summary>
@@ -1771,12 +1646,6 @@ pub mod types {
     pub struct DataCatalogAsset {
         pub kind: ::std::string::String,
         pub name: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&DataCatalogAsset> for DataCatalogAsset {
-        fn from(value: &DataCatalogAsset) -> Self {
-            value.clone()
-        }
     }
 
     ///`DataCatalogAssetStatus`
@@ -1844,12 +1713,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&DataCatalogAssetStatus> for DataCatalogAssetStatus {
-        fn from(value: &DataCatalogAssetStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///`DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind`
     ///
     /// <details><summary>JSON schema</summary>
@@ -1883,23 +1746,13 @@ pub mod types {
         Writablestream,
     }
 
-    impl ::std::convert::From<&Self>
-        for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
-    {
-        fn from(
-            value: &DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind,
-        ) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display
         for DataCatalogDeleteByTenantDatacatalogAssetByKindByNameConfigurationKind
     {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => write!(f, "bucket"),
-                Self::Writablestream => write!(f, "writablestream"),
+                Self::Bucket => f.write_str("bucket"),
+                Self::Writablestream => f.write_str("writablestream"),
             }
         }
     }
@@ -1981,21 +1834,11 @@ pub mod types {
         Writablestream,
     }
 
-    impl ::std::convert::From<&Self>
-        for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind
-    {
-        fn from(
-            value: &DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind,
-        ) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for DataCatalogGetByTenantDatacatalogAssetByKindByNameConfigurationKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => write!(f, "bucket"),
-                Self::Writablestream => write!(f, "writablestream"),
+                Self::Bucket => f.write_str("bucket"),
+                Self::Writablestream => f.write_str("writablestream"),
             }
         }
     }
@@ -2075,17 +1918,11 @@ pub mod types {
         Writablestream,
     }
 
-    impl ::std::convert::From<&Self> for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
-        fn from(value: &DataCatalogGetByTenantDatacatalogAssetByKindByNameKind) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for DataCatalogGetByTenantDatacatalogAssetByKindByNameKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => write!(f, "bucket"),
-                Self::Writablestream => write!(f, "writablestream"),
+                Self::Bucket => f.write_str("bucket"),
+                Self::Writablestream => f.write_str("writablestream"),
             }
         }
     }
@@ -2163,17 +2000,11 @@ pub mod types {
         Writablestream,
     }
 
-    impl ::std::convert::From<&Self> for DataCatalogGetByTenantDatacatalogAssetByKindKind {
-        fn from(value: &DataCatalogGetByTenantDatacatalogAssetByKindKind) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for DataCatalogGetByTenantDatacatalogAssetByKindKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => write!(f, "bucket"),
-                Self::Writablestream => write!(f, "writablestream"),
+                Self::Bucket => f.write_str("bucket"),
+                Self::Writablestream => f.write_str("writablestream"),
             }
         }
     }
@@ -2251,21 +2082,11 @@ pub mod types {
         Writablestream,
     }
 
-    impl ::std::convert::From<&Self>
-        for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind
-    {
-        fn from(
-            value: &DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind,
-        ) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for DataCatalogPutByTenantDatacatalogAssetByKindByNameConfigurationKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Bucket => write!(f, "bucket"),
-                Self::Writablestream => write!(f, "writablestream"),
+                Self::Bucket => f.write_str("bucket"),
+                Self::Writablestream => f.write_str("writablestream"),
             }
         }
     }
@@ -2418,12 +2239,6 @@ pub mod types {
         pub volume_size: i64,
     }
 
-    impl ::std::convert::From<&Database> for Database {
-        fn from(value: &Database) -> Self {
-            value.clone()
-        }
-    }
-
     ///`DatabaseStatus`
     ///
     /// <details><summary>JSON schema</summary>
@@ -2507,12 +2322,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&DatabaseStatus> for DatabaseStatus {
-        fn from(value: &DatabaseStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///`Empty`
     ///
     /// <details><summary>JSON schema</summary>
@@ -2527,12 +2336,6 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     #[serde(deny_unknown_fields)]
     pub struct Empty {}
-    impl ::std::convert::From<&Empty> for Empty {
-        fn from(value: &Empty) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::default::Default for Empty {
         fn default() -> Self {
             Self {}
@@ -2605,12 +2408,6 @@ pub mod types {
         ///Network zone this cluster needs to run in. /components/schemas/Zone
         /// contains a list of available network zones in this platform.
         pub zone: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&FlinkCluster> for FlinkCluster {
-        fn from(value: &FlinkCluster) -> Self {
-            value.clone()
-        }
     }
 
     ///`FlinkClusterStatus`
@@ -2696,12 +2493,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&FlinkClusterStatus> for FlinkClusterStatus {
-        fn from(value: &FlinkClusterStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///`FlinkJobManager`
     ///
     /// <details><summary>JSON schema</summary>
@@ -2747,12 +2538,6 @@ pub mod types {
         pub cpus: f64,
         ///Memory (MB) for this Flink job manager (minimum 1024 = 1 GB)
         pub mem: i64,
-    }
-
-    impl ::std::convert::From<&FlinkJobManager> for FlinkJobManager {
-        fn from(value: &FlinkJobManager) -> Self {
-            value.clone()
-        }
     }
 
     ///`FlinkTaskManager`
@@ -2814,12 +2599,6 @@ pub mod types {
         pub mem: i64,
     }
 
-    impl ::std::convert::From<&FlinkTaskManager> for FlinkTaskManager {
-        fn from(value: &FlinkTaskManager) -> Self {
-            value.clone()
-        }
-    }
-
     ///`HealthCheck`
     ///
     /// <details><summary>JSON schema</summary>
@@ -2872,12 +2651,6 @@ pub mod types {
         pub protocol: ::std::option::Option<HealthCheckProtocol>,
     }
 
-    impl ::std::convert::From<&HealthCheck> for HealthCheck {
-        fn from(value: &HealthCheck) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::default::Default for HealthCheck {
         fn default() -> Self {
             Self {
@@ -2923,17 +2696,11 @@ pub mod types {
         Https,
     }
 
-    impl ::std::convert::From<&Self> for HealthCheckProtocol {
-        fn from(value: &HealthCheckProtocol) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for HealthCheckProtocol {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Http => write!(f, "http"),
-                Self::Https => write!(f, "https"),
+                Self::Http => f.write_str("http"),
+                Self::Https => f.write_str("https"),
             }
         }
     }
@@ -3039,12 +2806,6 @@ pub mod types {
         pub writable_streams: ::std::vec::Vec<KafkaAclGroupTopic>,
     }
 
-    impl ::std::convert::From<&KafkaAclGroup> for KafkaAclGroup {
-        fn from(value: &KafkaAclGroup) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::default::Default for KafkaAclGroup {
         fn default() -> Self {
             Self {
@@ -3083,14 +2844,6 @@ pub mod types {
         }
     }
 
-    impl ::std::convert::From<&KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId>
-        for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId
-    {
-        fn from(value: &KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::str::FromStr for KafkaAclGroupDeleteByTenantAclgroupByIdConfigurationId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
@@ -3098,7 +2851,7 @@ pub mod types {
                 ::std::sync::LazyLock::new(|| {
                     ::regress::Regex::new("[a-z][a-z0-9-]{1,15}").unwrap()
                 });
-            if (&*PATTERN).find(value).is_none() {
+            if PATTERN.find(value).is_none() {
                 return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
             }
             Ok(Self(value.to_string()))
@@ -3176,14 +2929,6 @@ pub mod types {
         }
     }
 
-    impl ::std::convert::From<&KafkaAclGroupGetByTenantAclgroupByIdConfigurationId>
-        for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId
-    {
-        fn from(value: &KafkaAclGroupGetByTenantAclgroupByIdConfigurationId) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::str::FromStr for KafkaAclGroupGetByTenantAclgroupByIdConfigurationId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
@@ -3191,7 +2936,7 @@ pub mod types {
                 ::std::sync::LazyLock::new(|| {
                     ::regress::Regex::new("[a-z][a-z0-9-]{1,15}").unwrap()
                 });
-            if (&*PATTERN).find(value).is_none() {
+            if PATTERN.find(value).is_none() {
                 return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
             }
             Ok(Self(value.to_string()))
@@ -3269,14 +3014,6 @@ pub mod types {
         }
     }
 
-    impl ::std::convert::From<&KafkaAclGroupPutByTenantAclgroupByIdConfigurationId>
-        for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId
-    {
-        fn from(value: &KafkaAclGroupPutByTenantAclgroupByIdConfigurationId) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::str::FromStr for KafkaAclGroupPutByTenantAclgroupByIdConfigurationId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
@@ -3284,7 +3021,7 @@ pub mod types {
                 ::std::sync::LazyLock::new(|| {
                     ::regress::Regex::new("[a-z][a-z0-9-]{1,15}").unwrap()
                 });
-            if (&*PATTERN).find(value).is_none() {
+            if PATTERN.find(value).is_none() {
                 return Err("doesn't match pattern \"[a-z][a-z0-9-]{1,15}\"".into());
             }
             Ok(Self(value.to_string()))
@@ -3369,12 +3106,6 @@ pub mod types {
         pub name: ::std::string::String,
     }
 
-    impl ::std::convert::From<&KafkaAclGroupTopic> for KafkaAclGroupTopic {
-        fn from(value: &KafkaAclGroupTopic) -> Self {
-            value.clone()
-        }
-    }
-
     ///`KafkaAclGroupTopicKind`
     ///
     /// <details><summary>JSON schema</summary>
@@ -3411,18 +3142,12 @@ pub mod types {
         Public,
     }
 
-    impl ::std::convert::From<&Self> for KafkaAclGroupTopicKind {
-        fn from(value: &KafkaAclGroupTopicKind) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for KafkaAclGroupTopicKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Topic => write!(f, "topic"),
-                Self::Internal => write!(f, "internal"),
-                Self::Public => write!(f, "public"),
+                Self::Topic => f.write_str("topic"),
+                Self::Internal => f.write_str("internal"),
+                Self::Public => f.write_str("public"),
             }
         }
     }
@@ -3516,12 +3241,6 @@ pub mod types {
     {
         fn from(value: KafkaProperties) -> Self {
             value.0
-        }
-    }
-
-    impl ::std::convert::From<&KafkaProperties> for KafkaProperties {
-        fn from(value: &KafkaProperties) -> Self {
-            value.clone()
         }
     }
 
@@ -3721,12 +3440,6 @@ pub mod types {
         pub zone: KafkaProxyZone,
     }
 
-    impl ::std::convert::From<&KafkaProxy> for KafkaProxy {
-        fn from(value: &KafkaProxy) -> Self {
-            value.clone()
-        }
-    }
-
     ///`KafkaProxyStatus`
     ///
     /// <details><summary>JSON schema</summary>
@@ -3753,12 +3466,6 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub configuration: ::std::option::Option<KafkaProxy>,
         pub status: AllocationStatus,
-    }
-
-    impl ::std::convert::From<&KafkaProxyStatus> for KafkaProxyStatus {
-        fn from(value: &KafkaProxyStatus) -> Self {
-            value.clone()
-        }
     }
 
     ///client certificate validations, only non empty values taken in account,
@@ -3832,12 +3539,6 @@ pub mod types {
         pub subject_type: KafkaProxyValidationSubjectType,
     }
 
-    impl ::std::convert::From<&KafkaProxyValidation> for KafkaProxyValidation {
-        fn from(value: &KafkaProxyValidation) -> Self {
-            value.clone()
-        }
-    }
-
     ///EXACT for exact match, PATTERN for pattern match
     ///
     /// <details><summary>JSON schema</summary>
@@ -3872,17 +3573,11 @@ pub mod types {
         Pattern,
     }
 
-    impl ::std::convert::From<&Self> for KafkaProxyValidationSubjectType {
-        fn from(value: &KafkaProxyValidationSubjectType) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for KafkaProxyValidationSubjectType {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Exact => write!(f, "EXACT"),
-                Self::Pattern => write!(f, "PATTERN"),
+                Self::Exact => f.write_str("EXACT"),
+                Self::Pattern => f.write_str("PATTERN"),
             }
         }
     }
@@ -3957,17 +3652,11 @@ pub mod types {
         Public,
     }
 
-    impl ::std::convert::From<&Self> for KafkaProxyZone {
-        fn from(value: &KafkaProxyZone) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for KafkaProxyZone {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Private => write!(f, "private"),
-                Self::Public => write!(f, "public"),
+                Self::Private => f.write_str("private"),
+                Self::Public => f.write_str("public"),
             }
         }
     }
@@ -4064,12 +3753,6 @@ pub mod types {
         KafkaAclGroupCount(LimitValueKafkaAclGroupCount),
     }
 
-    impl ::std::convert::From<&Self> for LimitValue {
-        fn from(value: &LimitValue) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::convert::From<LimitValueCpu> for LimitValue {
         fn from(value: LimitValueCpu) -> Self {
             Self::Cpu(value)
@@ -4154,12 +3837,6 @@ pub mod types {
         pub value: ::std::num::NonZeroU64,
     }
 
-    impl ::std::convert::From<&LimitValueCertificateCount> for LimitValueCertificateCount {
-        fn from(value: &LimitValueCertificateCount) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueCertificateCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -4186,12 +3863,6 @@ pub mod types {
     pub struct LimitValueCertificateCountAllOf {
         ///The number of certificates available for the managed tenant
         pub value: ::std::num::NonZeroU64,
-    }
-
-    impl ::std::convert::From<&LimitValueCertificateCountAllOf> for LimitValueCertificateCountAllOf {
-        fn from(value: &LimitValueCertificateCountAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueCertificateCountName`
@@ -4251,25 +3922,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueCertificateCountName {
-        fn from(value: &LimitValueCertificateCountName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueCertificateCountName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -4342,12 +4007,6 @@ pub mod types {
         pub value: i64,
     }
 
-    impl ::std::convert::From<&LimitValueConsumerRate> for LimitValueConsumerRate {
-        fn from(value: &LimitValueConsumerRate) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueConsumerRateAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -4373,12 +4032,6 @@ pub mod types {
     pub struct LimitValueConsumerRateAllOf {
         ///The maximum allowed consumer rate (bytes/sec)
         pub value: i64,
-    }
-
-    impl ::std::convert::From<&LimitValueConsumerRateAllOf> for LimitValueConsumerRateAllOf {
-        fn from(value: &LimitValueConsumerRateAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueConsumerRateName`
@@ -4438,25 +4091,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueConsumerRateName {
-        fn from(value: &LimitValueConsumerRateName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueConsumerRateName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -4528,12 +4175,6 @@ pub mod types {
         pub value: f64,
     }
 
-    impl ::std::convert::From<&LimitValueCpu> for LimitValueCpu {
-        fn from(value: &LimitValueCpu) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueCpuAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -4560,12 +4201,6 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct LimitValueCpuAllOf {
         pub value: f64,
-    }
-
-    impl ::std::convert::From<&LimitValueCpuAllOf> for LimitValueCpuAllOf {
-        fn from(value: &LimitValueCpuAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueCpuName`
@@ -4625,25 +4260,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueCpuName {
-        fn from(value: &LimitValueCpuName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueCpuName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -4716,12 +4345,6 @@ pub mod types {
         pub value: i64,
     }
 
-    impl ::std::convert::From<&LimitValueKafkaAclGroupCount> for LimitValueKafkaAclGroupCount {
-        fn from(value: &LimitValueKafkaAclGroupCount) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueKafkaAclGroupCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -4748,14 +4371,6 @@ pub mod types {
     pub struct LimitValueKafkaAclGroupCountAllOf {
         ///The number of Kafka ACL groups available for the managed tenant
         pub value: i64,
-    }
-
-    impl ::std::convert::From<&LimitValueKafkaAclGroupCountAllOf>
-        for LimitValueKafkaAclGroupCountAllOf
-    {
-        fn from(value: &LimitValueKafkaAclGroupCountAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueKafkaAclGroupCountName`
@@ -4815,25 +4430,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueKafkaAclGroupCountName {
-        fn from(value: &LimitValueKafkaAclGroupCountName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueKafkaAclGroupCountName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -4906,12 +4515,6 @@ pub mod types {
         pub value: ::std::num::NonZeroU64,
     }
 
-    impl ::std::convert::From<&LimitValueMem> for LimitValueMem {
-        fn from(value: &LimitValueMem) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueMemAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -4938,12 +4541,6 @@ pub mod types {
     pub struct LimitValueMemAllOf {
         ///The amount of memory available for the managed tenant (MiB)
         pub value: ::std::num::NonZeroU64,
-    }
-
-    impl ::std::convert::From<&LimitValueMemAllOf> for LimitValueMemAllOf {
-        fn from(value: &LimitValueMemAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueMemName`
@@ -5003,25 +4600,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueMemName {
-        fn from(value: &LimitValueMemName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueMemName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -5094,12 +4685,6 @@ pub mod types {
         pub value: ::std::num::NonZeroU64,
     }
 
-    impl ::std::convert::From<&LimitValuePartitionCount> for LimitValuePartitionCount {
-        fn from(value: &LimitValuePartitionCount) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValuePartitionCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -5126,12 +4711,6 @@ pub mod types {
     pub struct LimitValuePartitionCountAllOf {
         ///The number of partitions available for the managed tenant
         pub value: ::std::num::NonZeroU64,
-    }
-
-    impl ::std::convert::From<&LimitValuePartitionCountAllOf> for LimitValuePartitionCountAllOf {
-        fn from(value: &LimitValuePartitionCountAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValuePartitionCountName`
@@ -5191,25 +4770,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValuePartitionCountName {
-        fn from(value: &LimitValuePartitionCountName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValuePartitionCountName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -5282,12 +4855,6 @@ pub mod types {
         pub value: i64,
     }
 
-    impl ::std::convert::From<&LimitValueProducerRate> for LimitValueProducerRate {
-        fn from(value: &LimitValueProducerRate) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueProducerRateAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -5313,12 +4880,6 @@ pub mod types {
     pub struct LimitValueProducerRateAllOf {
         ///The maximum allowed producer rate (bytes/sec)
         pub value: i64,
-    }
-
-    impl ::std::convert::From<&LimitValueProducerRateAllOf> for LimitValueProducerRateAllOf {
-        fn from(value: &LimitValueProducerRateAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueProducerRateName`
@@ -5378,25 +4939,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueProducerRateName {
-        fn from(value: &LimitValueProducerRateName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueProducerRateName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -5469,12 +5024,6 @@ pub mod types {
         pub value: ::std::num::NonZeroU64,
     }
 
-    impl ::std::convert::From<&LimitValueRequestRate> for LimitValueRequestRate {
-        fn from(value: &LimitValueRequestRate) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueRequestRateAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -5500,12 +5049,6 @@ pub mod types {
     pub struct LimitValueRequestRateAllOf {
         ///The maximum allowed request rate (%)
         pub value: ::std::num::NonZeroU64,
-    }
-
-    impl ::std::convert::From<&LimitValueRequestRateAllOf> for LimitValueRequestRateAllOf {
-        fn from(value: &LimitValueRequestRateAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueRequestRateName`
@@ -5565,25 +5108,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueRequestRateName {
-        fn from(value: &LimitValueRequestRateName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueRequestRateName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -5656,12 +5193,6 @@ pub mod types {
         pub value: ::std::num::NonZeroU64,
     }
 
-    impl ::std::convert::From<&LimitValueSecretCount> for LimitValueSecretCount {
-        fn from(value: &LimitValueSecretCount) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueSecretCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -5688,12 +5219,6 @@ pub mod types {
     pub struct LimitValueSecretCountAllOf {
         ///The number of secrets available for the managed tenant
         pub value: ::std::num::NonZeroU64,
-    }
-
-    impl ::std::convert::From<&LimitValueSecretCountAllOf> for LimitValueSecretCountAllOf {
-        fn from(value: &LimitValueSecretCountAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueSecretCountName`
@@ -5753,25 +5278,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueSecretCountName {
-        fn from(value: &LimitValueSecretCountName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueSecretCountName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -5844,12 +5363,6 @@ pub mod types {
         pub value: ::std::num::NonZeroU64,
     }
 
-    impl ::std::convert::From<&LimitValueTopicCount> for LimitValueTopicCount {
-        fn from(value: &LimitValueTopicCount) -> Self {
-            value.clone()
-        }
-    }
-
     ///`LimitValueTopicCountAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -5876,12 +5389,6 @@ pub mod types {
     pub struct LimitValueTopicCountAllOf {
         ///The number of topics available for the managed tenant
         pub value: ::std::num::NonZeroU64,
-    }
-
-    impl ::std::convert::From<&LimitValueTopicCountAllOf> for LimitValueTopicCountAllOf {
-        fn from(value: &LimitValueTopicCountAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///`LimitValueTopicCountName`
@@ -5941,25 +5448,19 @@ pub mod types {
         KafkaAclGroupCount,
     }
 
-    impl ::std::convert::From<&Self> for LimitValueTopicCountName {
-        fn from(value: &LimitValueTopicCountName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for LimitValueTopicCountName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::CertificateCount => write!(f, "certificateCount"),
-                Self::SecretCount => write!(f, "secretCount"),
-                Self::TopicCount => write!(f, "topicCount"),
-                Self::PartitionCount => write!(f, "partitionCount"),
-                Self::ConsumerRate => write!(f, "consumerRate"),
-                Self::ProducerRate => write!(f, "producerRate"),
-                Self::RequestRate => write!(f, "requestRate"),
-                Self::KafkaAclGroupCount => write!(f, "kafkaAclGroupCount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::CertificateCount => f.write_str("certificateCount"),
+                Self::SecretCount => f.write_str("secretCount"),
+                Self::TopicCount => f.write_str("topicCount"),
+                Self::PartitionCount => f.write_str("partitionCount"),
+                Self::ConsumerRate => f.write_str("consumerRate"),
+                Self::ProducerRate => f.write_str("producerRate"),
+                Self::RequestRate => f.write_str("requestRate"),
+                Self::KafkaAclGroupCount => f.write_str("kafkaAclGroupCount"),
             }
         }
     }
@@ -6045,12 +5546,6 @@ pub mod types {
         }
     }
 
-    impl ::std::convert::From<&ManagedStream> for ManagedStream {
-        fn from(value: &ManagedStream) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::convert::From<Topic> for ManagedStream {
         fn from(value: Topic) -> Self {
             Self(value)
@@ -6099,12 +5594,6 @@ pub mod types {
         }
     }
 
-    impl ::std::convert::From<&ManagedStreamId> for ManagedStreamId {
-        fn from(value: &ManagedStreamId) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::str::FromStr for ManagedStreamId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
@@ -6115,7 +5604,7 @@ pub mod types {
                     )
                     .unwrap()
                 });
-            if (&*PATTERN).find(value).is_none() {
+            if PATTERN.find(value).is_none() {
                 return Err ("doesn't match pattern \"^[a-z][a-z0-9-]{0,38}[a-z]---[a-z][a-z0-9-]{1,98}[a-z0-9]$\"" . into ()) ;
             }
             Ok(Self(value.to_string()))
@@ -6247,12 +5736,6 @@ pub mod types {
         pub services: ::std::vec::Vec<ManagedTenantServices>,
     }
 
-    impl ::std::convert::From<&ManagedTenant> for ManagedTenant {
-        fn from(value: &ManagedTenant) -> Self {
-            value.clone()
-        }
-    }
-
     ///`ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind`
     ///
     /// <details><summary>JSON schema</summary>
@@ -6310,29 +5793,19 @@ pub mod types {
         Kafkaaclgroupcount,
     }
 
-    impl ::std::convert::From<&Self>
-        for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind
-    {
-        fn from(
-            value: &ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind,
-        ) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for ManagedTenantLimitsGetManageByManagerTenantByTenantLimitByKindKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::Certificatecount => write!(f, "certificatecount"),
-                Self::Secretcount => write!(f, "secretcount"),
-                Self::Topiccount => write!(f, "topiccount"),
-                Self::Partitioncount => write!(f, "partitioncount"),
-                Self::Consumerrate => write!(f, "consumerrate"),
-                Self::Producerrate => write!(f, "producerrate"),
-                Self::Requestrate => write!(f, "requestrate"),
-                Self::Kafkaaclgroupcount => write!(f, "kafkaaclgroupcount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::Certificatecount => f.write_str("certificatecount"),
+                Self::Secretcount => f.write_str("secretcount"),
+                Self::Topiccount => f.write_str("topiccount"),
+                Self::Partitioncount => f.write_str("partitioncount"),
+                Self::Consumerrate => f.write_str("consumerrate"),
+                Self::Producerrate => f.write_str("producerrate"),
+                Self::Requestrate => f.write_str("requestrate"),
+                Self::Kafkaaclgroupcount => f.write_str("kafkaaclgroupcount"),
             }
         }
     }
@@ -6444,29 +5917,19 @@ pub mod types {
         Kafkaaclgroupcount,
     }
 
-    impl ::std::convert::From<&Self>
-        for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind
-    {
-        fn from(
-            value: &ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind,
-        ) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for ManagedTenantLimitsPutManageByManagerTenantByTenantLimitByKindKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Cpu => write!(f, "cpu"),
-                Self::Mem => write!(f, "mem"),
-                Self::Certificatecount => write!(f, "certificatecount"),
-                Self::Secretcount => write!(f, "secretcount"),
-                Self::Topiccount => write!(f, "topiccount"),
-                Self::Partitioncount => write!(f, "partitioncount"),
-                Self::Consumerrate => write!(f, "consumerrate"),
-                Self::Producerrate => write!(f, "producerrate"),
-                Self::Requestrate => write!(f, "requestrate"),
-                Self::Kafkaaclgroupcount => write!(f, "kafkaaclgroupcount"),
+                Self::Cpu => f.write_str("cpu"),
+                Self::Mem => f.write_str("mem"),
+                Self::Certificatecount => f.write_str("certificatecount"),
+                Self::Secretcount => f.write_str("secretcount"),
+                Self::Topiccount => f.write_str("topiccount"),
+                Self::Partitioncount => f.write_str("partitioncount"),
+                Self::Consumerrate => f.write_str("consumerrate"),
+                Self::Producerrate => f.write_str("producerrate"),
+                Self::Requestrate => f.write_str("requestrate"),
+                Self::Kafkaaclgroupcount => f.write_str("kafkaaclgroupcount"),
             }
         }
     }
@@ -6560,12 +6023,6 @@ pub mod types {
         pub name: ManagedTenantServicesName,
     }
 
-    impl ::std::convert::From<&ManagedTenantServices> for ManagedTenantServices {
-        fn from(value: &ManagedTenantServices) -> Self {
-            value.clone()
-        }
-    }
-
     ///`ManagedTenantServicesName`
     ///
     /// <details><summary>JSON schema</summary>
@@ -6602,18 +6059,12 @@ pub mod types {
         Monitoring,
     }
 
-    impl ::std::convert::From<&Self> for ManagedTenantServicesName {
-        fn from(value: &ManagedTenantServicesName) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for ManagedTenantServicesName {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Vpn => write!(f, "vpn"),
-                Self::Tracing => write!(f, "tracing"),
-                Self::Monitoring => write!(f, "monitoring"),
+                Self::Vpn => f.write_str("vpn"),
+                Self::Tracing => f.write_str("tracing"),
+                Self::Monitoring => f.write_str("monitoring"),
             }
         }
     }
@@ -6696,18 +6147,273 @@ pub mod types {
         pub port: u64,
     }
 
-    impl ::std::convert::From<&Metrics> for Metrics {
-        fn from(value: &Metrics) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::default::Default for Metrics {
         fn default() -> Self {
             Self {
                 path: defaults::metrics_path(),
                 port: defaults::default_u64::<u64, 7070>(),
             }
+        }
+    }
+
+    ///The nodeFeatures field can be used to request a node with special
+    /// features to run the application. ALPHA"
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The nodeFeatures field can be used to request a node
+    /// with special features to run the application. ALPHA\"",
+    ///  "examples": [
+    ///    {
+    ///      "gpuDriver": "NVIDIA",
+    ///      "gpus": 1,
+    ///      "nodepool": "nodepool"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "nodepool"
+    ///  ],
+    ///  "properties": {
+    ///    "gpuDriver": {
+    ///      "description": "If a special gpu driver is required, e.g. NVIDIA
+    /// CUDA",
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "NVIDIA"
+    ///      ]
+    ///    },
+    ///    "gpus": {
+    ///      "description": "How many GPU units are necessary for the
+    /// application. ALPHA ->  limited to 1",
+    ///      "type": "integer",
+    ///      "maximum": 1.0,
+    ///      "minimum": 1.0
+    ///    },
+    ///    "nodepool": {
+    ///      "description": "The name of the nodepool on which to run\n",
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    pub struct NodeFeatures {
+        ///If a special gpu driver is required, e.g. NVIDIA CUDA
+        #[serde(
+            rename = "gpuDriver",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub gpu_driver: ::std::option::Option<NodeFeaturesGpuDriver>,
+        ///How many GPU units are necessary for the application. ALPHA ->
+        /// limited to 1
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub gpus: ::std::option::Option<::std::num::NonZeroU64>,
+        ///The name of the nodepool on which to run
+        pub nodepool: ::std::string::String,
+    }
+
+    ///If a special gpu driver is required, e.g. NVIDIA CUDA
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "If a special gpu driver is required, e.g. NVIDIA CUDA",
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "NVIDIA"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum NodeFeaturesGpuDriver {
+        #[serde(rename = "NVIDIA")]
+        Nvidia,
+    }
+
+    impl ::std::fmt::Display for NodeFeaturesGpuDriver {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Nvidia => f.write_str("NVIDIA"),
+            }
+        }
+    }
+
+    impl ::std::str::FromStr for NodeFeaturesGpuDriver {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "NVIDIA" => Ok(Self::Nvidia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl ::std::convert::TryFrom<&str> for NodeFeaturesGpuDriver {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<&::std::string::String> for NodeFeaturesGpuDriver {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<::std::string::String> for NodeFeaturesGpuDriver {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    ///`NodepoolActual`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    {
+    ///      "gpuDriver": "NONE",
+    ///      "maxInstances": 0
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "gpuDriver",
+    ///    "maxInstances"
+    ///  ],
+    ///  "properties": {
+    ///    "gpuDriver": {
+    ///      "description": "Which gpu driver is available on the nodes of this
+    /// nodepool, e.g. NVIDIA",
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "NONE",
+    ///        "NVIDIA"
+    ///      ]
+    ///    },
+    ///    "maxInstances": {
+    ///      "type": "integer",
+    ///      "maximum": 10.0,
+    ///      "minimum": 0.0
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+    pub struct NodepoolActual {
+        ///Which gpu driver is available on the nodes of this nodepool, e.g.
+        /// NVIDIA
+        #[serde(rename = "gpuDriver")]
+        pub gpu_driver: NodepoolActualGpuDriver,
+        #[serde(rename = "maxInstances")]
+        pub max_instances: i64,
+    }
+
+    ///Which gpu driver is available on the nodes of this nodepool, e.g. NVIDIA
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Which gpu driver is available on the nodes of this
+    /// nodepool, e.g. NVIDIA",
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "NONE",
+    ///    "NVIDIA"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        :: serde :: Deserialize,
+        :: serde :: Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum NodepoolActualGpuDriver {
+        #[serde(rename = "NONE")]
+        None,
+        #[serde(rename = "NVIDIA")]
+        Nvidia,
+    }
+
+    impl ::std::fmt::Display for NodepoolActualGpuDriver {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::None => f.write_str("NONE"),
+                Self::Nvidia => f.write_str("NVIDIA"),
+            }
+        }
+    }
+
+    impl ::std::str::FromStr for NodepoolActualGpuDriver {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "NONE" => Ok(Self::None),
+                "NVIDIA" => Ok(Self::Nvidia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+
+    impl ::std::convert::TryFrom<&str> for NodepoolActualGpuDriver {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<&::std::string::String> for NodepoolActualGpuDriver {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+
+    impl ::std::convert::TryFrom<::std::string::String> for NodepoolActualGpuDriver {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
 
@@ -6762,12 +6468,6 @@ pub mod types {
         pub remove: bool,
     }
 
-    impl ::std::convert::From<&Notification> for Notification {
-        fn from(value: &Notification) -> Self {
-            value.clone()
-        }
-    }
-
     ///`PathSpec`
     ///
     /// <details><summary>JSON schema</summary>
@@ -6798,12 +6498,6 @@ pub mod types {
         ///The path prefix (starting with `/`, ending without `/`) that will be
         /// matched for routing to this service.
         pub prefix: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&PathSpec> for PathSpec {
-        fn from(value: &PathSpec) -> Self {
-            value.clone()
-        }
     }
 
     ///`PortMapping`
@@ -6950,12 +6644,6 @@ pub mod types {
         pub whitelist: ::std::option::Option<::std::string::String>,
     }
 
-    impl ::std::convert::From<&PortMapping> for PortMapping {
-        fn from(value: &PortMapping) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::default::Default for PortMapping {
         fn default() -> Self {
             Self {
@@ -7008,17 +6696,11 @@ pub mod types {
         None,
     }
 
-    impl ::std::convert::From<&Self> for PortMappingTls {
-        fn from(value: &PortMappingTls) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for PortMappingTls {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Auto => write!(f, "auto"),
-                Self::None => write!(f, "none"),
+                Self::Auto => f.write_str("auto"),
+                Self::None => f.write_str("none"),
             }
         }
     }
@@ -7106,12 +6788,6 @@ pub mod types {
         pub replication_factor: i64,
     }
 
-    impl ::std::convert::From<&PublicManagedStream> for PublicManagedStream {
-        fn from(value: &PublicManagedStream) -> Self {
-            value.clone()
-        }
-    }
-
     ///`PublicManagedStreamAllOf`
     ///
     /// <details><summary>JSON schema</summary>
@@ -7133,12 +6809,6 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct PublicManagedStreamAllOf {
         pub contract: PublicManagedStreamContract,
-    }
-
-    impl ::std::convert::From<&PublicManagedStreamAllOf> for PublicManagedStreamAllOf {
-        fn from(value: &PublicManagedStreamAllOf) -> Self {
-            value.clone()
-        }
     }
 
     ///The stream contract for a public stream.
@@ -7187,12 +6857,6 @@ pub mod types {
         pub partitioner: PublicManagedStreamContractPartitioner,
     }
 
-    impl ::std::convert::From<&PublicManagedStreamContract> for PublicManagedStreamContract {
-        fn from(value: &PublicManagedStreamContract) -> Self {
-            value.clone()
-        }
-    }
-
     ///The partitioner used to partition messages across different kafka
     /// partitions.
     ///
@@ -7220,12 +6884,6 @@ pub mod types {
     pub enum PublicManagedStreamContractPartitioner {
         TopicLevelPartitioner(PublicManagedStreamTopicLevelPartitioner),
         KafkaDefaultPartitioner(PublicManagedStreamKafkaDefaultPartitioner),
-    }
-
-    impl ::std::convert::From<&Self> for PublicManagedStreamContractPartitioner {
-        fn from(value: &PublicManagedStreamContractPartitioner) -> Self {
-            value.clone()
-        }
     }
 
     impl ::std::convert::From<PublicManagedStreamTopicLevelPartitioner>
@@ -7273,14 +6931,6 @@ pub mod types {
         pub kind: PublicManagedStreamKafkaDefaultPartitionerKind,
     }
 
-    impl ::std::convert::From<&PublicManagedStreamKafkaDefaultPartitioner>
-        for PublicManagedStreamKafkaDefaultPartitioner
-    {
-        fn from(value: &PublicManagedStreamKafkaDefaultPartitioner) -> Self {
-            value.clone()
-        }
-    }
-
     ///`PublicManagedStreamKafkaDefaultPartitionerKind`
     ///
     /// <details><summary>JSON schema</summary>
@@ -7314,16 +6964,10 @@ pub mod types {
         KafkaDefault,
     }
 
-    impl ::std::convert::From<&Self> for PublicManagedStreamKafkaDefaultPartitionerKind {
-        fn from(value: &PublicManagedStreamKafkaDefaultPartitionerKind) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for PublicManagedStreamKafkaDefaultPartitionerKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::KafkaDefault => write!(f, "kafkaDefault"),
+                Self::KafkaDefault => f.write_str("kafkaDefault"),
             }
         }
     }
@@ -7405,14 +7049,6 @@ pub mod types {
         pub topic_level: i64,
     }
 
-    impl ::std::convert::From<&PublicManagedStreamTopicLevelPartitioner>
-        for PublicManagedStreamTopicLevelPartitioner
-    {
-        fn from(value: &PublicManagedStreamTopicLevelPartitioner) -> Self {
-            value.clone()
-        }
-    }
-
     ///`PublicManagedStreamTopicLevelPartitionerKind`
     ///
     /// <details><summary>JSON schema</summary>
@@ -7446,16 +7082,10 @@ pub mod types {
         TopicLevel,
     }
 
-    impl ::std::convert::From<&Self> for PublicManagedStreamTopicLevelPartitionerKind {
-        fn from(value: &PublicManagedStreamTopicLevelPartitionerKind) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for PublicManagedStreamTopicLevelPartitionerKind {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::TopicLevel => write!(f, "topicLevel"),
+                Self::TopicLevel => f.write_str("topicLevel"),
             }
         }
     }
@@ -7531,12 +7161,6 @@ pub mod types {
     pub struct Secret {
         pub name: ::std::string::String,
         pub value: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&Secret> for Secret {
-        fn from(value: &Secret) -> Self {
-            value.clone()
-        }
     }
 
     ///`Task`
@@ -7660,12 +7284,6 @@ pub mod types {
         pub stopped_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
     }
 
-    impl ::std::convert::From<&Task> for Task {
-        fn from(value: &Task) -> Self {
-            value.clone()
-        }
-    }
-
     ///The state the task is in
     ///
     /// <details><summary>JSON schema</summary>
@@ -7736,29 +7354,23 @@ pub mod types {
         Unreachable,
     }
 
-    impl ::std::convert::From<&Self> for TaskState {
-        fn from(value: &TaskState) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for TaskState {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Dropped => write!(f, "DROPPED"),
-                Self::Error => write!(f, "ERROR"),
-                Self::Failed => write!(f, "FAILED"),
-                Self::Finished => write!(f, "FINISHED"),
-                Self::Gone => write!(f, "GONE"),
-                Self::GoneByOperator => write!(f, "GONE_BY_OPERATOR"),
-                Self::Killed => write!(f, "KILLED"),
-                Self::Killing => write!(f, "KILLING"),
-                Self::Lost => write!(f, "LOST"),
-                Self::Running => write!(f, "RUNNING"),
-                Self::Staging => write!(f, "STAGING"),
-                Self::Starting => write!(f, "STARTING"),
-                Self::Unknown => write!(f, "UNKNOWN"),
-                Self::Unreachable => write!(f, "UNREACHABLE"),
+                Self::Dropped => f.write_str("DROPPED"),
+                Self::Error => f.write_str("ERROR"),
+                Self::Failed => f.write_str("FAILED"),
+                Self::Finished => f.write_str("FINISHED"),
+                Self::Gone => f.write_str("GONE"),
+                Self::GoneByOperator => f.write_str("GONE_BY_OPERATOR"),
+                Self::Killed => f.write_str("KILLED"),
+                Self::Killing => f.write_str("KILLING"),
+                Self::Lost => f.write_str("LOST"),
+                Self::Running => f.write_str("RUNNING"),
+                Self::Staging => f.write_str("STAGING"),
+                Self::Starting => f.write_str("STARTING"),
+                Self::Unknown => f.write_str("UNKNOWN"),
+                Self::Unreachable => f.write_str("UNREACHABLE"),
             }
         }
     }
@@ -7886,12 +7498,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&TaskStatus> for TaskStatus {
-        fn from(value: &TaskStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///`ThirdPartyBucketConcession`
     ///
     /// <details><summary>JSON schema</summary>
@@ -7952,12 +7558,6 @@ pub mod types {
         pub writable: bool,
     }
 
-    impl ::std::convert::From<&ThirdPartyBucketConcession> for ThirdPartyBucketConcession {
-        fn from(value: &ThirdPartyBucketConcession) -> Self {
-            value.clone()
-        }
-    }
-
     ///`ThirdPartyBucketConcessionConfiguration`
     ///
     /// <details><summary>JSON schema</summary>
@@ -7992,14 +7592,6 @@ pub mod types {
         ///your name for this bucket owned by a third party
         pub name: ::std::string::String,
         pub shareidentifier: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&ThirdPartyBucketConcessionConfiguration>
-        for ThirdPartyBucketConcessionConfiguration
-    {
-        fn from(value: &ThirdPartyBucketConcessionConfiguration) -> Self {
-            value.clone()
-        }
     }
 
     ///`ThirdPartyBucketConcessionRegistration`
@@ -8057,14 +7649,6 @@ pub mod types {
         pub name: ::std::string::String,
         ///provided to you by the third party
         pub shareidentifier: ::std::string::String,
-    }
-
-    impl ::std::convert::From<&ThirdPartyBucketConcessionRegistration>
-        for ThirdPartyBucketConcessionRegistration
-    {
-        fn from(value: &ThirdPartyBucketConcessionRegistration) -> Self {
-            value.clone()
-        }
     }
 
     ///`ThirdPartyBucketConcessionStatus`
@@ -8135,12 +7719,6 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub configuration: ::std::option::Option<ThirdPartyBucketConcessionConfiguration>,
         pub status: AllocationStatus,
-    }
-
-    impl ::std::convert::From<&ThirdPartyBucketConcessionStatus> for ThirdPartyBucketConcessionStatus {
-        fn from(value: &ThirdPartyBucketConcessionStatus) -> Self {
-            value.clone()
-        }
     }
 
     ///`Topic`
@@ -8216,12 +7794,6 @@ pub mod types {
         pub replication_factor: i64,
     }
 
-    impl ::std::convert::From<&Topic> for Topic {
-        fn from(value: &Topic) -> Self {
-            value.clone()
-        }
-    }
-
     ///`TopicStatus`
     ///
     /// <details><summary>JSON schema</summary>
@@ -8291,12 +7863,6 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub configuration: ::std::option::Option<Topic>,
         pub status: AllocationStatus,
-    }
-
-    impl ::std::convert::From<&TopicStatus> for TopicStatus {
-        fn from(value: &TopicStatus) -> Self {
-            value.clone()
-        }
     }
 
     ///`Validations`
@@ -8387,12 +7953,6 @@ pub mod types {
         pub subject_type: ::std::option::Option<::std::string::String>,
     }
 
-    impl ::std::convert::From<&Validations> for Validations {
-        fn from(value: &Validations) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::default::Default for Validations {
         fn default() -> Self {
             Self {
@@ -8430,12 +7990,6 @@ pub mod types {
         pub value: ::std::string::String,
     }
 
-    impl ::std::convert::From<&Vhost> for Vhost {
-        fn from(value: &Vhost) -> Self {
-            value.clone()
-        }
-    }
-
     ///`Volume`
     ///
     /// <details><summary>JSON schema</summary>
@@ -8463,12 +8017,6 @@ pub mod types {
     pub struct Volume {
         #[serde(rename = "sizeGiB")]
         pub size_gi_b: i64,
-    }
-
-    impl ::std::convert::From<&Volume> for Volume {
-        fn from(value: &Volume) -> Self {
-            value.clone()
-        }
     }
 
     ///`VolumeStatus`
@@ -8534,12 +8082,6 @@ pub mod types {
         pub status: AllocationStatus,
     }
 
-    impl ::std::convert::From<&VolumeStatus> for VolumeStatus {
-        fn from(value: &VolumeStatus) -> Self {
-            value.clone()
-        }
-    }
-
     ///available networks on this platform
     ///
     /// <details><summary>JSON schema</summary>
@@ -8566,12 +8108,6 @@ pub mod types {
     #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
     pub struct Zone {
         pub network: ZoneNetwork,
-    }
-
-    impl ::std::convert::From<&Zone> for Zone {
-        fn from(value: &Zone) -> Self {
-            value.clone()
-        }
     }
 
     ///`ZoneNetwork`
@@ -8607,17 +8143,11 @@ pub mod types {
         Public,
     }
 
-    impl ::std::convert::From<&Self> for ZoneNetwork {
-        fn from(value: &ZoneNetwork) -> Self {
-            value.clone()
-        }
-    }
-
     impl ::std::fmt::Display for ZoneNetwork {
         fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
             match *self {
-                Self::Internal => write!(f, "internal"),
-                Self::Public => write!(f, "public"),
+                Self::Internal => f.write_str("internal"),
+                Self::Public => f.write_str("public"),
             }
         }
     }
@@ -8699,17 +8229,19 @@ pub mod types {
     }
 }
 
+#[cfg(feature = "client")]
 #[derive(Clone, Debug)]
 ///Client for DSH Tenant Resource Management REST API
 ///
 ///Resource management API for DSH
 ///
-///Version: 1.10.0
+///Version: 1.11.1
 pub struct Client {
     pub(crate) baseurl: String,
     pub(crate) client: reqwest::Client,
 }
 
+#[cfg(feature = "client")]
 impl Client {
     /// Create a new client.
     ///
@@ -8719,7 +8251,7 @@ impl Client {
     pub fn new(baseurl: &str) -> Self {
         #[cfg(not(target_arch = "wasm32"))]
         let client = {
-            let dur = std::time::Duration::from_secs(15);
+            let dur = ::std::time::Duration::from_secs(15u64);
             reqwest::ClientBuilder::new()
                 .connect_timeout(dur)
                 .timeout(dur)
@@ -8741,28 +8273,32 @@ impl Client {
             client,
         }
     }
+}
 
-    /// Get the base URL to which requests are made.
-    pub fn baseurl(&self) -> &String {
-        &self.baseurl
+#[cfg(feature = "client")]
+impl ClientInfo<()> for Client {
+    fn api_version() -> &'static str {
+        "1.11.1"
     }
 
-    /// Get the internal `reqwest::Client` used to make requests.
-    pub fn client(&self) -> &reqwest::Client {
+    fn baseurl(&self) -> &str {
+        self.baseurl.as_str()
+    }
+
+    fn client(&self) -> &reqwest::Client {
         &self.client
     }
 
-    /// Get the version of this API.
-    ///
-    /// This string is pulled directly from the source OpenAPI
-    /// document and may be in any format the API selects.
-    pub fn api_version(&self) -> &'static str {
-        "1.10.0"
+    fn inner(&self) -> &() {
+        &()
     }
 }
 
+#[cfg(feature = "client")]
+impl ClientHooks<()> for &Client {}
+
+#[cfg(feature = "client")]
 #[allow(clippy::all)]
-#[allow(mismatched_lifetime_syntaxes)]
 impl Client {
     ///Returns the configuration of every application created by a given tenant
     ///
@@ -8788,7 +8324,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -8801,7 +8337,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_application_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -8834,7 +8375,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -8847,7 +8388,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_application_by_appid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -8882,7 +8428,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -8892,7 +8438,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_put_by_tenant_application_by_appid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -8925,12 +8476,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_delete_by_tenant_application_by_appid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -8962,7 +8518,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -8975,7 +8531,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_application_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9008,7 +8569,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9021,7 +8582,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_application_by_appid_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9053,7 +8619,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9066,7 +8632,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_application_by_appid_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9099,7 +8670,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9112,7 +8683,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "app_catalog_get_by_tenant_appcatalogapp_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9145,7 +8721,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9158,7 +8734,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "app_catalog_get_by_tenant_appcatalogapp_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9194,7 +8775,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9207,7 +8788,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9242,7 +8829,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9255,7 +8842,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9291,7 +8883,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9304,7 +8896,10 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "app_catalog_app_configuration_get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9342,7 +8937,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9352,7 +8947,10 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "app_catalog_app_configuration_put_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -9387,12 +8985,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "app_catalog_app_configuration_delete_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -9426,7 +9027,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9439,7 +9040,10 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "app_catalog_app_configuration_get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_status" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9467,7 +9071,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9480,7 +9084,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "app_catalog_manifest_get_appcatalog_by_tenant_manifest",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9508,7 +9117,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9521,7 +9130,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_watch_get_by_tenant_bucketwatch",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9552,7 +9166,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9565,7 +9179,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_watch_get_by_tenant_bucket_by_id_bucketwatch",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9597,7 +9216,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9610,7 +9229,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9642,12 +9266,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_watch_put_by_tenant_bucket_by_id_bucketwatch_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -9679,12 +9308,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_watch_delete_by_tenant_bucket_by_id_bucketwatch_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -9716,7 +9350,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9729,7 +9363,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9761,7 +9400,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9774,7 +9413,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_watch_get_by_tenant_bucket_by_id_bucketwatch_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9802,7 +9446,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9815,7 +9459,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_get_by_tenant_bucket",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9846,7 +9495,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9859,7 +9508,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_get_by_tenant_bucket_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9891,7 +9545,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9904,7 +9558,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_get_by_tenant_bucket_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -9940,7 +9599,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -9950,7 +9609,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_put_by_tenant_bucket_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -9982,12 +9646,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_delete_by_tenant_bucket_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -10018,7 +9687,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10031,7 +9700,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_get_by_tenant_bucket_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10062,7 +9736,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10075,7 +9749,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_get_by_tenant_bucket_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10103,7 +9782,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10116,7 +9795,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_access_get_by_tenant_bucketaccess",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10147,7 +9831,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10160,7 +9844,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_access_get_by_tenant_bucket_by_id_bucketaccess",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10195,7 +9884,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10208,7 +9897,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10243,7 +9937,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10256,7 +9950,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10293,7 +9993,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10303,7 +10003,13 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "bucket_access_put_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -10340,12 +10046,18 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "bucket_access_delete_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -10380,7 +10092,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10393,7 +10105,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10428,7 +10145,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10441,7 +10158,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10469,7 +10191,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10482,7 +10204,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "certificate_get_by_tenant_certificate",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10513,7 +10240,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10526,7 +10253,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "certificate_get_by_tenant_certificate_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10558,7 +10290,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10571,7 +10303,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "certificate_get_by_tenant_certificate_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10608,7 +10345,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10618,7 +10355,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "certificate_put_by_tenant_certificate_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -10650,12 +10392,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "certificate_delete_by_tenant_certificate_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -10687,7 +10434,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10700,7 +10447,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "certificate_get_by_tenant_certificate_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10731,7 +10483,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10744,7 +10496,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "certificate_get_by_tenant_certificate_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10772,7 +10529,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10785,7 +10542,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "database_get_by_tenant_database",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10816,7 +10578,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10829,7 +10591,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "database_get_by_tenant_database_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10861,7 +10628,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10874,7 +10641,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "database_get_by_tenant_database_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -10909,7 +10681,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -10919,7 +10691,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "database_put_by_tenant_database_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -10951,12 +10728,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "database_delete_by_tenant_database_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -10987,7 +10769,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11000,7 +10782,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "database_get_by_tenant_database_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11031,7 +10818,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11044,7 +10831,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "database_get_by_tenant_database_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11075,7 +10867,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11088,7 +10880,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "data_catalog_get_by_tenant_datacatalog_asset_by_kind",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11123,7 +10920,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11136,7 +10933,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "data_catalog_get_by_tenant_datacatalog_asset_by_kind_by_name",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11171,7 +10973,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11184,7 +10986,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "data_catalog_get_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11221,7 +11029,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11231,7 +11039,13 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "data_catalog_put_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -11268,12 +11082,18 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "data_catalog_delete_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -11301,7 +11121,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11314,7 +11134,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "flink_cluster_get_by_tenant_flinkcluster",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11343,7 +11168,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11356,7 +11181,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "flink_cluster_get_by_tenant_flinkcluster_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11390,7 +11220,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11400,7 +11230,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "flink_cluster_put_by_tenant_flinkcluster_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -11430,12 +11265,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "flink_cluster_delete_by_tenant_flinkcluster_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -11463,7 +11303,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11476,7 +11316,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "flink_cluster_get_by_tenant_flinkcluster_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11504,7 +11349,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11517,7 +11362,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "flink_cluster_get_by_tenant_flinkcluster_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11545,7 +11395,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11558,7 +11408,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_proxy_get_by_tenant_kafkaproxy",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11591,7 +11446,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11604,7 +11459,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_proxy_get_by_tenant_kafkaproxy_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11638,7 +11498,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11648,7 +11508,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_proxy_put_by_tenant_kafkaproxy_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => Ok(ResponseValue::empty(response)),
@@ -11680,12 +11545,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_proxy_delete_by_tenant_kafkaproxy_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -11717,7 +11587,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11730,7 +11600,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_proxy_get_by_tenant_kafkaproxy_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11761,7 +11636,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11774,7 +11649,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_proxy_get_by_tenant_kafkaproxy_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11802,7 +11682,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11815,7 +11695,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_acl_group_get_by_tenant_aclgroup",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11847,7 +11732,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11860,7 +11745,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_acl_group_get_by_tenant_aclgroup_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -11894,7 +11784,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11904,7 +11794,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_acl_group_put_by_tenant_aclgroup_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -11936,12 +11831,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "kafka_acl_group_delete_by_tenant_aclgroup_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -11969,7 +11869,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -11982,7 +11882,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "robot_post_robot_by_tenant_generate_secret",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12010,7 +11915,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12023,7 +11928,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "secret_get_by_tenant_secret",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12053,7 +11963,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12063,7 +11973,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "secret_post_by_tenant_secret",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             201u16 => Ok(ResponseValue::empty(response)),
@@ -12095,7 +12010,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12108,7 +12023,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "secret_get_by_tenant_secret_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12140,12 +12060,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "secret_delete_by_tenant_secret_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -12178,7 +12103,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12191,7 +12116,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "secret_get_by_tenant_secret_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12222,7 +12152,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12235,7 +12165,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "secret_get_by_tenant_secret_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12266,12 +12201,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.get(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "secret_get_by_tenant_secret_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => Ok(ResponseValue::stream(response)),
@@ -12304,7 +12244,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12318,7 +12258,12 @@ impl Client {
             .body(body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "secret_put_by_tenant_secret_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => Ok(ResponseValue::empty(response)),
@@ -12346,7 +12291,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12359,7 +12304,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_task",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12390,7 +12340,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12403,7 +12353,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_task_by_appid",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12437,7 +12392,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12450,7 +12405,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_task_by_appid_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12484,7 +12444,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12497,7 +12457,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_task_by_appid_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12531,7 +12496,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12544,7 +12509,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "application_get_by_tenant_task_by_appid_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12573,7 +12543,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12586,7 +12556,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "third_party_bucket_get_by_tenant_bucket_fromthirdparty",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12616,7 +12591,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12629,7 +12604,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "third_party_bucket_get_by_tenant_thirdpartybucketconcession",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12661,7 +12641,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12671,7 +12651,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "third_party_bucket_post_by_tenant_thirdpartybucketconcession",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             201u16 => Ok(ResponseValue::empty(response)),
@@ -12703,7 +12688,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12716,7 +12701,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12751,7 +12741,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12764,7 +12754,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12799,12 +12795,18 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "third_party_bucket_delete_by_tenant_thirdpartybucketconcession_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -12837,7 +12839,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12850,7 +12852,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12883,7 +12891,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12896,7 +12904,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12924,7 +12938,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12937,7 +12951,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "topic_get_by_tenant_topic",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -12968,7 +12987,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -12981,7 +13000,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "topic_get_by_tenant_topic_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13012,7 +13036,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13025,7 +13049,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "topic_get_by_tenant_topic_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13061,7 +13090,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13071,7 +13100,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "topic_put_by_tenant_topic_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -13103,12 +13137,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "topic_delete_by_tenant_topic_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -13139,7 +13178,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13152,7 +13191,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "topic_get_by_tenant_topic_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13183,7 +13227,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13196,7 +13240,156 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "topic_get_by_tenant_topic_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a list containing the ids of all nodepools of a given tenant
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/nodepool`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn nodepool_get_by_tenant_nodepool<'a>(
+        &'a self,
+        tenant: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::ChildList>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/nodepool",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+        );
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let info = OperationInfo {
+            operation_id: "nodepool_get_by_tenant_nodepool",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns the actual state for a nodepool allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/nodepool/{id}/actual`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: nodepool name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn nodepool_get_by_tenant_nodepool_by_id_actual<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::NodepoolActual>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/nodepool/{}/actual",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let info = OperationInfo {
+            operation_id: "nodepool_get_by_tenant_nodepool_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
+        let response = result?;
+        match response.status().as_u16() {
+            200u16 => ResponseValue::from_response(response).await,
+            _ => Err(Error::UnexpectedResponse(response)),
+        }
+    }
+
+    ///returns a brief status description of a nodepool allocation
+    ///
+    ///Sends a `GET` request to `/allocation/{tenant}/nodepool/{id}/status`
+    ///
+    ///Arguments:
+    /// - `tenant`: tenant name
+    /// - `id`: nodepool name
+    /// - `authorization`: Authorization header (bearer token)
+    pub async fn nodepool_get_by_tenant_nodepool_by_id_status<'a>(
+        &'a self,
+        tenant: &'a str,
+        id: &'a str,
+        authorization: &'a str,
+    ) -> Result<ResponseValue<types::AllocationStatus>, Error<()>> {
+        let url = format!(
+            "{}/allocation/{}/nodepool/{}/status",
+            self.baseurl,
+            encode_path(&tenant.to_string()),
+            encode_path(&id.to_string()),
+        );
+        let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+        header_map.append(
+            ::reqwest::header::HeaderName::from_static("api-version"),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
+        );
+        header_map.append("Authorization", authorization.to_string().try_into()?);
+        #[allow(unused_mut)]
+        let mut request = self
+            .client
+            .get(url)
+            .header(
+                ::reqwest::header::ACCEPT,
+                ::reqwest::header::HeaderValue::from_static("application/json"),
+            )
+            .headers(header_map)
+            .build()?;
+        let info = OperationInfo {
+            operation_id: "nodepool_get_by_tenant_nodepool_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13224,7 +13417,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13237,7 +13430,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "volume_get_by_tenant_volume",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13268,7 +13466,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13281,7 +13479,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "volume_get_by_tenant_volume_by_id",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13313,7 +13516,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13326,7 +13529,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "volume_get_by_tenant_volume_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13363,7 +13571,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13373,7 +13581,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "volume_put_by_tenant_volume_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -13405,12 +13618,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "volume_delete_by_tenant_volume_by_id_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -13441,7 +13659,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13454,7 +13672,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "volume_get_by_tenant_volume_by_id_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13485,7 +13708,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13498,7 +13721,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "volume_get_by_tenant_volume_by_id_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13527,7 +13755,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13540,7 +13768,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_tenant_get_manage_by_manager_tenant",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13573,7 +13806,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13586,7 +13819,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_tenant_get_manage_by_manager_tenant_by_tenant_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13623,7 +13861,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13633,7 +13871,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_tenant_put_manage_by_manager_tenant_by_tenant_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -13667,12 +13910,17 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_tenant_delete_manage_by_manager_tenant_by_tenant_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -13704,7 +13952,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13717,7 +13965,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_tenant_get_manage_by_manager_tenant_by_tenant_actual",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13749,7 +14002,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13762,7 +14015,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_tenant_get_manage_by_manager_tenant_by_tenant_status",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13794,7 +14052,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13807,7 +14065,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_tenant_limits_get_manage_by_manager_tenant_by_tenant_limit",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13841,7 +14104,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13851,7 +14114,12 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_tenant_limits_patch_manage_by_manager_tenant_by_tenant_limit",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -13888,7 +14156,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13901,7 +14169,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_tenant_limits_get_manage_by_manager_tenant_by_tenant_limit_by_kind",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -13940,7 +14214,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13950,7 +14224,13 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_tenant_limits_put_manage_by_manager_tenant_by_tenant_limit_by_kind",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -13980,7 +14260,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -13993,7 +14273,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_streams_get_manage_by_manager_stream_internal",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -14022,7 +14307,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14035,7 +14320,12 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id: "managed_streams_get_manage_by_manager_stream_public",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -14070,7 +14360,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14083,7 +14373,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_streams_get_manage_by_manager_stream_public_by_streamid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -14121,7 +14417,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14131,7 +14427,13 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_streams_post_manage_by_manager_stream_public_by_streamid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14167,12 +14469,18 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_streams_delete_manage_by_manager_stream_public_by_streamid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14207,7 +14515,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14220,7 +14528,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_streams_get_manage_by_manager_stream_internal_by_streamid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -14258,7 +14572,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14268,7 +14582,13 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_streams_post_manage_by_manager_stream_internal_by_streamid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14304,12 +14624,18 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_streams_delete_manage_by_manager_stream_internal_by_streamid_configuration",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14344,7 +14670,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14357,7 +14683,10 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_write" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -14395,12 +14724,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14438,12 +14770,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14481,12 +14816,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             204u16 => Ok(ResponseValue::empty(response)),
@@ -14522,7 +14860,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14535,7 +14873,10 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_read" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -14573,12 +14914,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14616,12 +14960,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14659,12 +15006,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             204u16 => Ok(ResponseValue::empty(response)),
@@ -14700,7 +15050,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14713,7 +15063,10 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_write" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -14751,12 +15104,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_write_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14794,12 +15150,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_write_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14837,12 +15196,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_write_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             204u16 => Ok(ResponseValue::empty(response)),
@@ -14878,7 +15240,7 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
@@ -14891,7 +15253,13 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo {
+            operation_id:
+                "managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_read",
+        };
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             200u16 => ResponseValue::from_response(response).await,
@@ -14929,12 +15297,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_read_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -14972,12 +15343,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_read_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             202u16 => Ok(ResponseValue::empty(response)),
@@ -15015,12 +15389,15 @@ impl Client {
         let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
         header_map.append(
             ::reqwest::header::HeaderName::from_static("api-version"),
-            ::reqwest::header::HeaderValue::from_static(self.api_version()),
+            ::reqwest::header::HeaderValue::from_static(Self::api_version()),
         );
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
-        let result = self.client.execute(request).await;
+        let info = OperationInfo { operation_id : "managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_read_by_tenant" , } ;
+        self.pre(&mut request, &info).await?;
+        let result = self.exec(request, &info).await;
+        self.post(&result, &info).await?;
         let response = result?;
         match response.status().as_u16() {
             204u16 => Ok(ResponseValue::empty(response)),
@@ -15030,6 +15407,7 @@ impl Client {
     }
 }
 
+#[cfg(feature = "client")]
 /// Items consumers will typically use such as the Client.
 pub mod prelude {
     #[allow(unused_imports)]
