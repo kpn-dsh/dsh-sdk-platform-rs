@@ -33,20 +33,22 @@ sha2 = { version = "0.10", optional = true}
 thiserror = "2.0"
 tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], optional = true }
 tokio-util = { version = "0.7", default-features = false, optional = true }
+# dsh_sdk = "0.8"
+# rdkafka = { version = "0.38", features = ["cmake-build", "ssl-vendored"] }
 
 [features]
 default = ["bootstrap", "kafka", "rdkafka-config"]
 
 bootstrap = ["rcgen", "reqwest", "pem", "serde_json", "tokio/rt-multi-thread"] 
 kafka = ["bootstrap"]
-rdkafka-config = ["rdkafka", "kafka"] # Impl of config trait only
+rdkafka-config = ["dep:rdkafka", "kafka"] # Impl of config trait only
 schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
 graceful-shutdown = ["tokio", "tokio-util"]
 management-api-token-fetcher = ["reqwest/form"]
 protocol-token = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
 metrics = [ "hyper/server", "hyper/http1" , "hyper-util/tokio", "http-body-util", "tokio", "tokio/net", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
-
+http-protocol-adapter = ["dep:reqwest"]
 
 [dev-dependencies]
 # Dependencies for the test
