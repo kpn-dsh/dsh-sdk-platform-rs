@@ -1,15 +1,14 @@
 //! Reqwest-backed HTTP client (only this file depends on `reqwest`).
 //!
 //! What we implement (v0):
-//! - `GET` a retained message for a tenant/topic, with `Accept: text/plain`.
-//! - Require an MQTT token in `Authorization: Bearer <token>`.
-//! - TLS enabled by default; optional custom CA. Minimal and well-commented.
+//! * `GET` a retained message for a stream/topic, using the documented HTTP endpoint:
+//!   `{base_url}/data/v0/single/tt/{stream}/{topic}`
+//! * Require an MQTT token in `Authorization: Bearer <token>`
+//! * TLS enabled by default; optional custom CA. Minimal and well-commented.
 
-use super::config::HttpConfig;
-use std::fs;
-use std::time::Duration;
-
+use super::config::{Accept, HttpConfig};
 use reqwest::{header, Client, ClientBuilder, StatusCode};
+use std::{fs, time::Duration};
 
 /// Minimal error type for the HTTP adapter.
 #[derive(Debug)]
@@ -34,7 +33,6 @@ impl std::fmt::Display for HttpError {
         }
     }
 }
-
 impl std::error::Error for HttpError {}
 
 /// Minimal reqwest-based client.
@@ -48,16 +46,39 @@ pub struct HttpClient {
 }
 
 impl HttpClient {
+    /// HEAD {base}/data/v0/single — proves TLS, hostname, token route work.
+    pub async fn check_connectivity(&self, cfg: &HttpConfig) -> Result<(), HttpError> {
+        let token = cfg.mqtt_token.as_ref().ok_or_else(|| {
+            HttpError::InvalidConfig("Missing MQTT token".into())
+        })?;
+        let url = format!("{}/data/v0/single", cfg.base_url.trim_end_matches('/'));
+        let resp = self
+            .client
+            .head(&url)
+            .header(header::ACCEPT, cfg.accept.as_str())
+            .header(header::AUTHORIZATION, format!("Bearer {}", token))
+            .send()
+            .await
+
+            .map_err(|e| HttpError::Network(e.to_string()))?;
+
+        // Any HTTP status proves reachability; only network/TLS errors should fail.
+        if resp.status().is_server_error() {
+            return Err(HttpError::Status(resp.status()));
+        }
+        Ok(())
+    }
+
     /// Build a `reqwest::Client` with HTTPS-only, timeout, and optional custom CA.
     pub fn new(cfg: &HttpConfig) -> Result<Self, HttpError> {
         if cfg.base_url.trim().is_empty() {
             return Err(HttpError::InvalidConfig(
-                "base_url must be set (e.g., https://host/v1)".into(),
+                "base_url must be set (e.g., https://api.<platform-url>)".into(),
             ));
         }
-        if cfg.tenant.trim().is_empty() {
+        if cfg.stream.trim().is_empty() {
             return Err(HttpError::InvalidConfig(
-                "tenant must be set (e.g., GREENBOX-DEV)".into(),
+                "stream must be set (e.g., weather)".into(),
             ));
         }
 
@@ -79,25 +100,33 @@ impl HttpClient {
         let client = builder
             .build()
             .map_err(|e| HttpError::InvalidConfig(format!("failed to build client: {e}")))?;
-
         Ok(Self { client })
     }
 
-    /// GET a retained message (as `text/plain`) from:
-    /// `{base_url}/tenants/{tenant}/topics/{topic}/messages`
+    /// Convenience: GET retained message as `text/plain`.
     ///
-    /// Requirements:
-    /// - `cfg.mqtt_token` must be set (MQTT token-only auth).
-    /// - TLS is enforced by the client builder.
+    /// Uses the documented endpoint and sets `Accept: text/plain`.
     pub async fn get_text_plain(
         &self,
         cfg: &HttpConfig,
         topic: &str,
     ) -> Result<String, HttpError> {
+        self.get_with_accept(cfg, topic, Accept::TextPlain).await
+    }
+
+    /// GET retained message with the provided `Accept` value.
+    ///
+    /// Endpoint:
+    /// `{base_url}/data/v0/single/tt/{stream}/{topic}`
+    pub async fn get_with_accept(
+        &self,
+        cfg: &HttpConfig,
+        topic: &str,
+        accept: Accept,
+    ) -> Result<String, HttpError> {
         if topic.trim().is_empty() {
             return Err(HttpError::InvalidConfig("topic must be non-empty".into()));
         }
-
         // Require an MQTT token provided by the SDK/trusted service.
         let token = cfg.mqtt_token.as_ref().ok_or_else(|| {
             HttpError::InvalidConfig(
@@ -106,20 +135,18 @@ impl HttpClient {
             )
         })?;
 
-        let url = build_url(&cfg.base_url, &cfg.tenant, topic)?;
+        let url = build_url(&cfg.base_url, &cfg.stream, topic)?;
 
-        // Prepare GET with Accept: text/plain and Authorization: Bearer <token>.
         let resp = self
             .client
             .get(&url)
-            .header(header::ACCEPT, "text/plain")
+            .header(header::ACCEPT, accept.as_str())
             .header(header::AUTHORIZATION, format!("Bearer {}", token))
             .send()
             .await
             .map_err(|e| HttpError::Network(e.to_string()))?;
 
         let status = resp.status();
-
         if status.is_success() {
             resp.text()
                 .await
@@ -130,21 +157,23 @@ impl HttpClient {
     }
 }
 
-/// Build the request URL by combining the base URL, tenant and topic.
+/// Build the request URL by combining the base URL, stream and topic.
 /// Keeps string handling in one place and easy to test.
-fn build_url(base_url: &str, tenant: &str, topic: &str) -> Result<String, HttpError> {
+///
+/// Expected result:
+/// `{base_url}/data/v0/single/tt/{stream}/{topic}`
+fn build_url(base_url: &str, stream: &str, topic: &str) -> Result<String, HttpError> {
     if base_url.trim().is_empty() {
         return Err(HttpError::InvalidConfig("base_url must be set".into()));
     }
-    if tenant.trim().is_empty() {
-        return Err(HttpError::InvalidConfig("tenant must be set".into()));
+    if stream.trim().is_empty() {
+        return Err(HttpError::InvalidConfig("stream must be set".into()));
     }
     if topic.trim().is_empty() {
         return Err(HttpError::InvalidConfig("topic must be set".into()));
     }
-
     let base = base_url.trim_end_matches('/');
-    Ok(format!("{}/tenants/{}/topics/{}/messages", base, tenant, topic))
+    Ok(format!("{}/data/v0/single/tt/{}/{}", base, stream, topic))
 }
 
 #[cfg(test)]
@@ -152,11 +181,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn url_building_is_stable() {
-        let url = build_url("https://host/v1/", "T1", "a/b").unwrap();
-        assert_eq!(url, "https://host/v1/tenants/T1/topics/a/b/messages");
+    fn url_building_matches_spec() {
+        let url = build_url(
+            "https://api.example.com/",
+            "weather",
+            "house/kitchen/sensor",
+        )
+        .unwrap();
+        assert_eq!(
+            url,
+            "https://api.example.com/data/v0/single/tt/weather/house/kitchen/sensor"
+        );
 
-        let url2 = build_url("https://host/v1", "T1", "a").unwrap();
-        assert_eq!(url2, "https://host/v1/tenants/T1/topics/a/messages");
+        let url2 = build_url("https://api.example.com", "weather", "a").unwrap();
+        assert_eq!(
+            url2,
+            "https://api.example.com/data/v0/single/tt/weather/a"
+        );
     }
 }
