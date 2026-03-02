@@ -50,6 +50,7 @@ protocol-token = ["base64", "dep:reqwest", "serde_json", "sha2", "tokio/sync"]
 metrics = [ "hyper/server", "hyper/http1" , "hyper-util/tokio", "http-body-util", "tokio", "tokio/net", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
 http-protocol-adapter = ["dep:reqwest"]
+dev-token = []
 
 [dev-dependencies]
 # Dependencies for the test
@@ -66,3 +67,4 @@ rdkafka = { version = "0.39", features = ["cmake-build", "ssl-vendored"], defaul
 prometheus = { version = "0.14", features = ["process"] }
 rumqttc = { version = "0.24", features = ["websocket"] }
 reqwest = { version = "0.13", default-features = false, features = ["rustls"] } 
+anyhow = "1"

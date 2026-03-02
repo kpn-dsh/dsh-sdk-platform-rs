@@ -9,11 +9,10 @@
 //! dependency to a single file for maintainability and clarity.
 
 pub mod config;
-pub mod reqwest;
+pub mod client;
 
-pub use config::HttpConfig;
-pub use config::Accept;
-pub use reqwest::{HttpClient, HttpError};
+pub use config::{Accept, HttpConfig};
+pub use client::{HttpClient, HttpError};
 
 // # Quick start (pseudo; requires a valid MQTT token from the SDK)
 //
