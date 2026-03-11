@@ -32,11 +32,28 @@ impl AsRef<str> for Stream {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Topic(String);
 
-impl TryFrom<&str> for Topic {
-    type Error = HttpError;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        let v = if s.trim().is_empty() { "#" } else { s };
-        Ok(Self(v.to_owned()))
+impl Topic {
+    pub fn new(string: impl Into<String>) -> Self {
+        let s = string.into();
+        if s.trim().is_empty() {
+            Self("#".to_string()) // default to wildcard if empty
+        } else {
+            Self(s)
+        }
+    }
+}
+
+impl From<&str> for Topic {
+    fn from(s: &str) -> Self {
+        let s = s.to_string();
+        Topic::from(s)
+    }
+}
+
+impl From<String> for Topic {
+    fn from(s: String) -> Self {
+        let v = if s.trim().is_empty() { "#".to_string() } else { s };
+        Self(v)
     }
 }
 
