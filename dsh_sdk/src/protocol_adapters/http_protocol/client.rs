@@ -262,6 +262,7 @@ pub struct HttpClient {
 ///
 /// Call [`build`](HttpClientBuilder::build) to produce a ready-to-use
 /// [`HttpClient`] with an HTTPS-only `reqwest::Client`.
+#[derive(Debug)]
 pub struct HttpClientBuilder {
     base_url: Url,
     timeout: Duration,
@@ -640,5 +641,18 @@ mod tests {
         assert_eq!(items[0].payload, "21.5");
         assert_eq!(items[1].topic, "/tt/greenbox-test/sensors/temp/room2");
         assert_eq!(items[1].payload, "22.1");
+    }
+
+    /// Verifies that `HttpClientBuilder::new` returns `HttpError::InvalidInput`
+    /// when given an unparseable URL.
+    #[test]
+    fn builder_rejects_invalid_base_url() {
+        let result = HttpClientBuilder::new("not-a-valid-url");
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(
+            matches!(err, HttpError::InvalidInput(_)),
+            "expected InvalidInput, got: {err:?}"
+        );
     }
 }
