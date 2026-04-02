@@ -59,13 +59,6 @@
 pub mod client;
 
 pub use client::{
-    HttpClient,
-    HttpClientBuilder,
-    Stream,
-    Topic,
-    Accept,
-    ContentType,
-    ResponseBody,
-    MultiGetItem,
-    HttpError,
+    Accept, ContentType, HttpClient, HttpClientBuilder, HttpError, MultiGetItem, ResponseBody,
+    Stream, Topic,
 };

@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use reqwest::{header, Client, ClientBuilder, StatusCode, Url};
+use reqwest::{Client, ClientBuilder, StatusCode, Url, header};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use thiserror::Error;
@@ -21,9 +21,7 @@ impl Stream {
     pub fn new<S: Into<String>>(s: S) -> Result<Self, HttpError> {
         let s: String = s.into();
         if s.trim().is_empty() {
-            return Err(HttpError::InvalidInput(
-                "stream must not be empty".into(),
-            ));
+            return Err(HttpError::InvalidInput("stream must not be empty".into()));
         }
         Ok(Self(s))
     }
@@ -77,7 +75,11 @@ impl From<&str> for Topic {
 
 impl From<String> for Topic {
     fn from(s: String) -> Self {
-        let v = if s.trim().is_empty() { "#".to_string() } else { s };
+        let v = if s.trim().is_empty() {
+            "#".to_string()
+        } else {
+            s
+        };
         Self(v)
     }
 }
@@ -125,7 +127,7 @@ impl Accept {
             Accept::TextPlain => "text/plain",
             Accept::ApplicationJson => "application/json",
             Accept::ApplicationOctetStream => "application/octet-stream",
-            Accept::Base64 => "base64", 
+            Accept::Base64 => "base64",
         }
     }
 }
@@ -157,7 +159,7 @@ impl ContentType {
         match self {
             ContentType::TextPlain => "text/plain",
             ContentType::ApplicationOctetStream => "application/octet-stream",
-            ContentType::Base64 => "base64", 
+            ContentType::Base64 => "base64",
         }
     }
 }
@@ -317,7 +319,7 @@ impl HttpClient {
     pub fn with_client(base_url: &str, client: reqwest::Client) -> Result<Self, HttpError> {
         let mut parsed = Url::parse(base_url)
             .map_err(|e| HttpError::InvalidInput(format!("invalid base_url: {e}")))?;
-        parsed.set_path(""); 
+        parsed.set_path("");
         Ok(Self {
             client,
             base_url: parsed,
@@ -544,7 +546,7 @@ impl HttpClient {
             _ => {
                 return Err(HttpError::InvalidInput(
                     "multi-get only supports Accept::TextPlain or Accept::Base64".into(),
-                ))
+                ));
             }
         };
 
@@ -580,19 +582,17 @@ impl HttpClient {
         Ok(items)
     }
 }
-        
 
 #[cfg(all(test, feature = "http-protocol-adapter"))]
 mod tests {
     use super::*;
-    use mockito::{Server, Matcher}; 
+    use mockito::{Matcher, Server};
 
-    /// Verifies: 
+    /// Verifies:
     /// - Correct POST /data/v0/multi with JSON body having /tt/<stream>/<topic-filter>
     /// - Wildcard '+' returns multiple items and is parsed by the client
     #[tokio::test]
     async fn multi_get_plus_returns_multiple_items() {
-
         let mut server = Server::new_async().await;
 
         let expected_subset = serde_json::json!({
@@ -606,16 +606,19 @@ mod tests {
             .match_body(Matcher::PartialJson(expected_subset))
             .with_status(200)
             .with_header("content-type", "application/json")
-            .with_body(r#"
+            .with_body(
+                r#"
                 [
                   {"topic": "/tt/greenbox-test/sensors/temp/room1", "payload": "21.5"},
                   {"topic": "/tt/greenbox-test/sensors/temp/room2", "payload": "22.1"}
                 ]
-            "#)
+            "#,
+            )
             .create_async()
             .await;
 
-        let client = HttpClient::with_client(server.url().as_str(), reqwest::Client::new()).unwrap();
+        let client =
+            HttpClient::with_client(server.url().as_str(), reqwest::Client::new()).unwrap();
 
         let stream = Stream::try_from("greenbox-test").unwrap();
         let filter = Topic::try_from("sensors/temp/+").unwrap();
@@ -630,7 +633,6 @@ mod tests {
             println!("[{}] {} => {}", idx, it.topic, it.payload);
         }
         println!("----------------------------------");
-
 
         mock.assert_async().await;
         assert_eq!(items.len(), 2);

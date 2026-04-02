@@ -31,8 +31,7 @@ use std::env;
 use std::time::Duration;
 
 use dsh_sdk::protocol_adapters::http_protocol::{
-    HttpClient, Stream, Topic,
-    Accept, ContentType, ResponseBody,
+    Accept, ContentType, HttpClient, ResponseBody, Stream, Topic,
 };
 
 use dsh_sdk::protocol_adapters::token::api_client_token_fetcher::ApiClientTokenFetcher;
@@ -45,15 +44,13 @@ use dsh_sdk::Platform;
 // The platform to fetch the token for.
 const PLATFORM: Platform = Platform::NpLz;
 
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Start logger to stdout to show what is happening
     env_logger::init();
 
     // Read stream and topic from environment variables
-    let stream_str = env::var("STREAM")
-        .expect("STREAM environment variable is required");
+    let stream_str = env::var("STREAM").expect("STREAM environment variable is required");
     let topic_str = env::var("TOPIC").unwrap_or_else(|_| "".into());
 
     let stream = Stream::try_from(stream_str)?;
@@ -72,7 +69,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let request = RequestDataAccessToken::new(tenant_name, client_id);
 
         // Fetch the token from your API Client Authentication service
-        let data_access_token = ApiClientAuthenticationService::get_data_access_token(request).await;
+        let data_access_token =
+            ApiClientAuthenticationService::get_data_access_token(request).await;
         data_access_token.raw_token().to_string()
     };
 
@@ -81,16 +79,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .timeout(Duration::from_secs(10))
         .build()?;
 
-    println!("\n--- STEP 1: Initial GET ---
+    println!(
+        "\n--- STEP 1: Initial GET ---
             [CALL] .get_retained() with
                     input:   stream='{}', topic='{}', accept=TextPlain\n",
-                    stream.as_ref(),
-                    topic.as_ref()
-                );
-
+        stream.as_ref(),
+        topic.as_ref()
+    );
 
     // Try to fetch any existing retained message; it may not exist yet, so errors are non-fatal
-    match client.get_retained(&stream, &topic, Accept::TextPlain, &mqtt_token_str).await {
+    match client
+        .get_retained(&stream, &topic, Accept::TextPlain, &mqtt_token_str)
+        .await
+    {
         Ok(body) => {
             print!("Existing retained message: ");
             match body {
@@ -114,84 +115,125 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let json_payload = r#"{"test": true, "value": 123}"#;
 
     // Post a retained message with default QoS (1) and retained=true
-    client.post_retained_body(
-        &stream,
-        &topic,
-        ContentType::TextPlain,
-        &mqtt_token_str,
-        json_payload.as_bytes().to_vec(),
-        None,
-        None,
-    ).await?;
+    client
+        .post_retained_body(
+            &stream,
+            &topic,
+            ContentType::TextPlain,
+            &mqtt_token_str,
+            json_payload.as_bytes().to_vec(),
+            None,
+            None,
+        )
+        .await?;
 
     println!("POST retained: OK");
-    println!("\n--- STEP 3: GET retained after using POST
+    println!(
+        "\n--- STEP 3: GET retained after using POST
             [CALL] .get_retained() with
                     input:   stream='{}', topic='{}', accept=TextPlain\n",
-                    stream.as_ref(),
-                    topic.as_ref()
-                );
+        stream.as_ref(),
+        topic.as_ref()
+    );
 
     // Fetch the retained message back to confirm the POST succeeded
-    let fetched = client.get_retained(&stream, &topic, Accept::TextPlain, &mqtt_token_str).await?;
+    let fetched = client
+        .get_retained(&stream, &topic, Accept::TextPlain, &mqtt_token_str)
+        .await?;
     match fetched {
         ResponseBody::Text(t) => println!("Fetched retained: {t}"),
         ResponseBody::Bytes(b) => println!("Fetched retained (bytes): {:?}", b),
     }
 
-    println!("\n--- STEP 4: DELETE retained message ---
+    println!(
+        "\n--- STEP 4: DELETE retained message ---
              [CALL] .delete_retained() with
                      input:   stream='{}', topic='{}'\n",
-                     stream.as_ref(),
-                     topic.as_ref()
-                 );
+        stream.as_ref(),
+        topic.as_ref()
+    );
 
     // Delete the retained message from the topic
-    client.delete_retained(&stream, &topic, &mqtt_token_str).await?;
+    client
+        .delete_retained(&stream, &topic, &mqtt_token_str)
+        .await?;
     println!("DELETE retained: OK");
 
     println!("\n--- STEP 5: Posting multiple sensor values for multi-get test ---");
 
     // Seed several topics with sensor data to use in the multi-get wildcard tests below
-    client.post_retained_body(
-        &stream, &Topic::try_from("sensors/temp/room1")?, 
-        ContentType::TextPlain, &mqtt_token_str, b"21.5".to_vec(), None, None
-    ).await?;
-    client.post_retained_body(
-        &stream, &Topic::try_from("sensors/temp/room2")?, 
-        ContentType::TextPlain, &mqtt_token_str, b"22.1".to_vec(), None, None
-    ).await?;
-    client.post_retained_body(
-        &stream, &Topic::try_from("sensors/humidity/room1")?, 
-        ContentType::TextPlain, &mqtt_token_str, b"46".to_vec(), None, None
-    ).await?;
-    client.post_retained_body(
-        &stream, &Topic::try_from("sensors/meta/info")?, 
-        ContentType::TextPlain, &mqtt_token_str, b"metadata".to_vec(), None, None
-    ).await?;
+    client
+        .post_retained_body(
+            &stream,
+            &Topic::try_from("sensors/temp/room1")?,
+            ContentType::TextPlain,
+            &mqtt_token_str,
+            b"21.5".to_vec(),
+            None,
+            None,
+        )
+        .await?;
+    client
+        .post_retained_body(
+            &stream,
+            &Topic::try_from("sensors/temp/room2")?,
+            ContentType::TextPlain,
+            &mqtt_token_str,
+            b"22.1".to_vec(),
+            None,
+            None,
+        )
+        .await?;
+    client
+        .post_retained_body(
+            &stream,
+            &Topic::try_from("sensors/humidity/room1")?,
+            ContentType::TextPlain,
+            &mqtt_token_str,
+            b"46".to_vec(),
+            None,
+            None,
+        )
+        .await?;
+    client
+        .post_retained_body(
+            &stream,
+            &Topic::try_from("sensors/meta/info")?,
+            ContentType::TextPlain,
+            &mqtt_token_str,
+            b"metadata".to_vec(),
+            None,
+            None,
+        )
+        .await?;
 
-    println!("✔ Seeded all test topics:
+    println!(
+        "✔ Seeded all test topics:
   sensors/temp/room1
   sensors/temp/room2
   sensors/humidity/room1
-  sensors/meta/info");
+  sensors/meta/info"
+    );
     println!("\n=== STEP 6: MULTI-GET WILDCARD TESTS ===\n");
 
     // All multi-get calls in this example request text/plain payloads
     let accept = Accept::TextPlain;
 
     // Exact topic match — returns a single retained message
-    println!("-- Exact match:
+    println!(
+        "-- Exact match:
              [CALL] .multi_get() with
                      input:   stream='{}', topics=['sensors/temp/room1'], accept=TextPlain\n",
-                     stream.as_ref()
-                 );
-    let exact = client.multi_get(
-        &stream,
-        &[Topic::try_from("sensors/temp/room1")?],
-        accept,
-        &mqtt_token_str,
-    ).await?;
+        stream.as_ref()
+    );
+    let exact = client
+        .multi_get(
+            &stream,
+            &[Topic::try_from("sensors/temp/room1")?],
+            accept,
+            &mqtt_token_str,
+        )
+        .await?;
     for item in exact {
         println!("EXACT: {} => {}", item.topic, item.payload);
     }
@@ -202,47 +244,55 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                      input:   stream='{}', topics=['sensors/temp/room1', 'sensors/temp/room2'], accept=TextPlain\n",
                      stream.as_ref()
                  );
-    let multi_filters = client.multi_get(
-        &stream,
-        &[
-            Topic::try_from("sensors/temp/room1")?,
-            Topic::try_from("sensors/temp/room2")?,
-        ],
-        accept,
-        &mqtt_token_str,
-    ).await?;
+    let multi_filters = client
+        .multi_get(
+            &stream,
+            &[
+                Topic::try_from("sensors/temp/room1")?,
+                Topic::try_from("sensors/temp/room2")?,
+            ],
+            accept,
+            &mqtt_token_str,
+        )
+        .await?;
     for item in multi_filters {
         println!(" MULTI: {} => {}", item.topic, item.payload);
     }
 
     // Single-level wildcard (+) — matches exactly one topic level
-    println!("\n-- + (single-level wildcard):
+    println!(
+        "\n-- + (single-level wildcard):
              [CALL] .multi_get() with
                      input:   stream='{}', topics=['sensors/temp/+'], accept=TextPlain\n",
-                     stream.as_ref()
-                 );
-    let plus = client.multi_get(
-        &stream,
-        &[Topic::try_from("sensors/temp/+")?],
-        accept,
-        &mqtt_token_str,
-    ).await?;
+        stream.as_ref()
+    );
+    let plus = client
+        .multi_get(
+            &stream,
+            &[Topic::try_from("sensors/temp/+")?],
+            accept,
+            &mqtt_token_str,
+        )
+        .await?;
     for item in plus {
         println!(" PLUS: {} => {}", item.topic, item.payload);
     }
 
     // Multi-level wildcard (#) — matches all topics under the given prefix
-    println!("\n-- # (multi-level wildcard):
+    println!(
+        "\n-- # (multi-level wildcard):
              [CALL] .multi_get() with
                      input:   stream='{}', topics=['sensors/#'], accept=TextPlain\n",
-                     stream.as_ref()
-                 );
-    let hash = client.multi_get(
-        &stream,
-        &[Topic::try_from("sensors/#")?],
-        accept,
-        &mqtt_token_str,
-    ).await?;
+        stream.as_ref()
+    );
+    let hash = client
+        .multi_get(
+            &stream,
+            &[Topic::try_from("sensors/#")?],
+            accept,
+            &mqtt_token_str,
+        )
+        .await?;
     for item in hash {
         println!(" HASH: {} => {}", item.topic, item.payload);
     }
@@ -253,31 +303,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                      input:   stream='{}', topics=['sensors/temp/+', 'sensors/humidity/#'], accept=TextPlain\n",
                      stream.as_ref()
                  );
-    let multi_filters = client.multi_get(
-        &stream,
-        &[
-            Topic::try_from("sensors/temp/+")?,
-            Topic::try_from("sensors/humidity/#")?,
-        ],
-        accept,
-        &mqtt_token_str,
-    ).await?;
+    let multi_filters = client
+        .multi_get(
+            &stream,
+            &[
+                Topic::try_from("sensors/temp/+")?,
+                Topic::try_from("sensors/humidity/#")?,
+            ],
+            accept,
+            &mqtt_token_str,
+        )
+        .await?;
     for item in multi_filters {
         println!(" MULTI: {} => {}", item.topic, item.payload);
     }
 
     // A filter that matches no retained messages should return an empty list, not an error
-    println!("\n-- Empty result test:
+    println!(
+        "\n-- Empty result test:
              [CALL] .multi_get() with
                      input:   stream='{}', topics=['sensors/unknown/#'], accept=TextPlain\n",
-                     stream.as_ref()
-                 );
-    let empty = client.multi_get(
-        &stream,
-        &[Topic::try_from("sensors/unknown/#")?],
-        accept,
-        &mqtt_token_str,
-    ).await?;
+        stream.as_ref()
+    );
+    let empty = client
+        .multi_get(
+            &stream,
+            &[Topic::try_from("sensors/unknown/#")?],
+            accept,
+            &mqtt_token_str,
+        )
+        .await?;
     println!(" EMPTY RESULT OK — {} items returned", empty.len());
 
     println!("\n=== END OF TESTS ===\n");
