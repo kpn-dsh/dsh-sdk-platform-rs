@@ -68,19 +68,13 @@ impl Topic {
 
 impl From<&str> for Topic {
     fn from(s: &str) -> Self {
-        let s = s.to_string();
-        Topic::from(s)
+        Self::new(s)
     }
 }
 
 impl From<String> for Topic {
     fn from(s: String) -> Self {
-        let v = if s.trim().is_empty() {
-            "#".to_string()
-        } else {
-            s
-        };
-        Self(v)
+        Self::new(s)
     }
 }
 impl AsRef<str> for Topic {
@@ -229,7 +223,7 @@ pub struct MultiGetItem {
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// // Via builder (creates an HTTPS-only reqwest client internally)
-/// let client = HttpClient::builder("https://protocol-adapter.example.com")?
+/// let client = HttpClient::builder("https://protocol-adapter.example.com")
 ///     .timeout(Duration::from_secs(15))
 ///     .build()?;
 ///
@@ -248,7 +242,7 @@ pub struct MultiGetItem {
 #[derive(Clone)]
 pub struct HttpClient {
     client: Client,
-    base_url: Url,
+    base_url: String,
 }
 
 /// Builder for constructing an [`HttpClient`].
@@ -264,25 +258,20 @@ pub struct HttpClient {
 /// [`HttpClient`] with an HTTPS-only `reqwest::Client`.
 #[derive(Debug)]
 pub struct HttpClientBuilder {
-    base_url: Url,
+    base_url: String,
     timeout: Duration,
 }
 
 impl HttpClientBuilder {
-    /// Create a new builder by parsing and normalizing `base_url`.
+    /// Create a new builder with the given `base_url`.
     ///
-    /// The path component is stripped so that API routes are always appended
-    /// to the scheme + host. The default request timeout is 10 seconds.
-    ///
-    /// Returns [`HttpError::InvalidInput`] if `base_url` cannot be parsed.
-    pub fn new(base_url: &str) -> Result<Self, HttpError> {
-        let mut parsed = Url::parse(base_url)
-            .map_err(|e| HttpError::InvalidInput(format!("invalid base_url: {e}")))?;
-        parsed.set_path(""); // always normalize
-        Ok(Self {
-            base_url: parsed,
+    /// The URL is stored as-is and validated only when [`build`](HttpClientBuilder::build)
+    /// is called. The default request timeout is 10 seconds.
+    pub fn new(base_url: &str) -> Self {
+        Self {
+            base_url: base_url.to_string(),
             timeout: Duration::from_secs(10),
-        })
+        }
     }
     /// Override the request timeout (default: 10 seconds).
     pub fn timeout(mut self, duration: Duration) -> Self {
@@ -291,16 +280,21 @@ impl HttpClientBuilder {
     }
     /// Consume the builder and create an [`HttpClient`].
     ///
-    /// The resulting client enforces HTTPS-only connections.
+    /// Parses and normalizes the base URL (strips the path component so that
+    /// API routes are always appended to the scheme + host) and builds an
+    /// HTTPS-only `reqwest::Client`.
+    ///
+    /// Returns [`HttpError::InvalidInput`] if the base URL cannot be parsed.
     pub fn build(self) -> Result<HttpClient, HttpError> {
+        let mut parsed = Url::parse(&self.base_url)
+            .map_err(|e| HttpError::InvalidInput(format!("invalid base_url: {e}")))?;
+        parsed.set_path(""); // always normalize
+        let base_url = parsed.as_str().trim_end_matches('/').to_string();
         let client = ClientBuilder::new()
             .https_only(true)
             .timeout(self.timeout)
             .build()?;
-        Ok(HttpClient {
-            client,
-            base_url: self.base_url,
-        })
+        Ok(HttpClient { client, base_url })
     }
 }
 
@@ -308,7 +302,7 @@ impl HttpClient {
     /// Start building an [`HttpClient`] from a base URL.
     ///
     /// Shorthand for [`HttpClientBuilder::new`].
-    pub fn builder(base_url: &str) -> Result<HttpClientBuilder, HttpError> {
+    pub fn builder(base_url: &str) -> HttpClientBuilder {
         HttpClientBuilder::new(base_url)
     }
 
@@ -321,10 +315,8 @@ impl HttpClient {
         let mut parsed = Url::parse(base_url)
             .map_err(|e| HttpError::InvalidInput(format!("invalid base_url: {e}")))?;
         parsed.set_path("");
-        Ok(Self {
-            client,
-            base_url: parsed,
-        })
+        let base_url = parsed.as_str().trim_end_matches('/').to_string();
+        Ok(Self { client, base_url })
     }
 
     /// Fetch a single retained message for the given stream and topic.
@@ -346,12 +338,12 @@ impl HttpClient {
         accept: Accept,
         token: &str,
     ) -> Result<ResponseBody, HttpError> {
-        let mut url = self.base_url.clone();
-        url.set_path(&format!(
-            "data/v0/single/tt/{}/{}",
+        let url = format!(
+            "{}/data/v0/single/tt/{}/{}",
+            self.base_url,
             stream.as_ref(),
             topic.as_ref()
-        ));
+        );
         let resp = self
             .client
             .get(url)
@@ -399,6 +391,7 @@ impl HttpClient {
     ///
     /// # Errors
     /// - [`HttpError::InvalidInput`] if `qos` is not `"0"` or `"1"`.
+    /// - [`HttpError::InvalidInput`] if the payload exceeds 128 KB.
     /// - [`HttpError::Request`] on network / TLS failure.
     /// - [`HttpError::Status`] when the server returns a non-success status code.
     pub async fn post_retained_body(
@@ -411,12 +404,13 @@ impl HttpClient {
         qos: Option<&str>,
         retained: Option<&str>,
     ) -> Result<(), HttpError> {
-        let mut url = self.base_url.clone();
-        url.set_path(&format!(
-            "data/v0/single/tt/{}/{}",
-            stream.as_ref(),
-            topic.as_ref()
-        ));
+        let payload: Bytes = payload.into();
+        if payload.len() > 128 * 1024 {
+            return Err(HttpError::InvalidInput(format!(
+                "payload is {} bytes, exceeding the 128 KB limit",
+                payload.len()
+            )));
+        }
         let qos_value = qos.unwrap_or("1");
         let retained_value = retained.unwrap_or("true");
         if qos_value != "1" && qos_value != "0" {
@@ -425,15 +419,20 @@ impl HttpClient {
                 qos_value
             )));
         }
-        url.query_pairs_mut()
-            .append_pair("qos", qos_value)
-            .append_pair("retained", retained_value);
+        let url = format!(
+            "{}/data/v0/single/tt/{}/{}?qos={}&retained={}",
+            self.base_url,
+            stream.as_ref(),
+            topic.as_ref(),
+            qos_value,
+            retained_value
+        );
         let resp = self
             .client
             .post(url)
             .header(header::CONTENT_TYPE, content_type.header_value())
             .bearer_auth(token)
-            .body(payload.into())
+            .body(payload)
             .send()
             .await?;
         if !resp.status().is_success() {
@@ -452,7 +451,8 @@ impl HttpClient {
     /// QoS (`1`) and retained (`true`) settings.
     ///
     /// # Note
-    /// Intended for text files or images smaller than 50 KB.
+    /// Intended for text files or images. The payload must not exceed 128 KB
+    /// (enforced by [`post_retained_body`](HttpClient::post_retained_body)).
     ///
     /// # Errors
     /// - [`HttpError::InvalidInput`] if the file cannot be read.
@@ -488,12 +488,12 @@ impl HttpClient {
         topic: &Topic,
         token: &str,
     ) -> Result<(), HttpError> {
-        let mut url = self.base_url.clone();
-        url.set_path(&format!(
-            "data/v0/single/tt/{}/{}",
+        let url = format!(
+            "{}/data/v0/single/tt/{}/{}",
+            self.base_url,
             stream.as_ref(),
             topic.as_ref()
-        ));
+        );
         let resp = self.client.delete(url).bearer_auth(token).send().await?;
         if !resp.status().is_success() {
             return Err(HttpError::Status {
@@ -561,8 +561,10 @@ impl HttpClient {
             topic_filters: filters,
         };
 
-        let mut url = self.base_url.clone();
-        url.set_path("data/v0/multi");
+        let url = format!(
+            "{}/data/v0/multi",
+            self.base_url
+        );
         let resp = self
             .client
             .post(url)
@@ -643,16 +645,186 @@ mod tests {
         assert_eq!(items[1].payload, "22.1");
     }
 
-    /// Verifies that `HttpClientBuilder::new` returns `HttpError::InvalidInput`
+    /// Verifies that `HttpClientBuilder::build` returns `HttpError::InvalidInput`
     /// when given an unparseable URL.
     #[test]
     fn builder_rejects_invalid_base_url() {
-        let result = HttpClientBuilder::new("not-a-valid-url");
-        assert!(result.is_err());
-        let err = result.unwrap_err();
-        assert!(
-            matches!(err, HttpError::InvalidInput(_)),
-            "expected InvalidInput, got: {err:?}"
+        assert!(matches!(
+            HttpClientBuilder::new("not-a-valid-url").build(),
+            Err(HttpError::InvalidInput(_))
+        ));
+    }
+
+    /// Verifies that `HttpClientBuilder::build` succeeds with a valid URL.
+    #[test]
+    fn builder_accepts_valid_base_url() {
+        assert!(matches!(
+            HttpClientBuilder::new("https://protocol-adapter.example.com").build(),
+            Ok(_)
+        ));
+    }
+
+    #[test]
+    fn with_client_rejects_invalid_url() {
+        assert!(matches!(
+            HttpClient::with_client("not-a-url", reqwest::Client::new()),
+            Err(HttpError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn with_client_accepts_valid_url() {
+        assert!(matches!(
+            HttpClient::with_client("https://example.com", reqwest::Client::new()),
+            Ok(_)
+        ));
+    }
+
+    #[test]
+    fn stream_rejects_empty() {
+        assert!(matches!(
+            Stream::new(""),
+            Err(HttpError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn stream_rejects_whitespace_only() {
+        assert!(matches!(
+            Stream::new("   "),
+            Err(HttpError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn stream_accepts_valid_name() {
+        let s = Stream::new("my-stream").unwrap();
+        assert_eq!(s.as_ref(), "my-stream");
+    }
+
+    #[test]
+    fn stream_try_from_str() {
+        assert!(Stream::try_from("ok").is_ok());
+        assert!(Stream::try_from("").is_err());
+    }
+
+    #[test]
+    fn stream_try_from_string() {
+        assert!(Stream::try_from("ok".to_string()).is_ok());
+        assert!(Stream::try_from(String::new()).is_err());
+    }
+
+    #[test]
+    fn topic_defaults_to_wildcard_when_empty() {
+        assert_eq!(Topic::new("").as_ref(), "#");
+    }
+
+    #[test]
+    fn topic_defaults_to_wildcard_when_whitespace() {
+        assert_eq!(Topic::new("   ").as_ref(), "#");
+    }
+
+    #[test]
+    fn topic_preserves_value() {
+        assert_eq!(Topic::new("sensors/temp").as_ref(), "sensors/temp");
+    }
+
+    #[test]
+    fn topic_from_str() {
+        let t: Topic = "foo".into();
+        assert_eq!(t.as_ref(), "foo");
+    }
+
+    #[test]
+    fn topic_from_string() {
+        let t: Topic = String::from("bar").into();
+        assert_eq!(t.as_ref(), "bar");
+    }
+
+    #[test]
+    fn accept_header_values() {
+        assert_eq!(Accept::TextPlain.header_value(), "text/plain");
+        assert_eq!(Accept::ApplicationJson.header_value(), "application/json");
+        assert_eq!(
+            Accept::ApplicationOctetStream.header_value(),
+            "application/octet-stream"
         );
+        assert_eq!(Accept::Base64.header_value(), "base64");
+    }
+
+    #[test]
+    fn content_type_header_values() {
+        assert_eq!(ContentType::TextPlain.header_value(), "text/plain");
+        assert_eq!(
+            ContentType::ApplicationOctetStream.header_value(),
+            "application/octet-stream"
+        );
+        assert_eq!(ContentType::Base64.header_value(), "base64");
+    }
+
+    // ── QoS validation ───────────────────────────────────────────────
+
+    /// Invalid QoS values are rejected before any network I/O.
+    #[tokio::test]
+    async fn post_retained_body_rejects_invalid_qos() {
+        let client =
+            HttpClient::with_client("http://localhost", reqwest::Client::new()).unwrap();
+        let stream = Stream::new("s").unwrap();
+        let topic = Topic::new("t");
+
+        for bad in &["2", "1 ", "01", "abc", ""] {
+            let result = client
+                .post_retained_body(
+                    &stream,
+                    &topic,
+                    ContentType::TextPlain,
+                    "tok",
+                    b"hello".as_ref(),
+                    Some(bad),
+                    None,
+                )
+                .await;
+            assert!(
+                matches!(result, Err(HttpError::InvalidInput(_))),
+                "expected InvalidInput for qos={bad:?}, got {result:?}"
+            );
+        }
+    }
+
+    /// QoS values "0" and "1" pass validation and reach the HTTP layer.
+    #[tokio::test]
+    async fn post_retained_body_accepts_valid_qos() {
+        let mut server = Server::new_async().await;
+        let stream = Stream::new("s").unwrap();
+        let topic = Topic::new("t");
+
+        for qos in &["0", "1"] {
+            let mock = server
+                .mock("POST", "/data/v0/single/tt/s/t")
+                .match_query(Matcher::AllOf(vec![
+                    Matcher::UrlEncoded("qos".into(), qos.to_string()),
+                    Matcher::UrlEncoded("retained".into(), "true".into()),
+                ]))
+                .with_status(200)
+                .create_async()
+                .await;
+
+            let client =
+                HttpClient::with_client(server.url().as_str(), reqwest::Client::new()).unwrap();
+            client
+                .post_retained_body(
+                    &stream,
+                    &topic,
+                    ContentType::TextPlain,
+                    "tok",
+                    b"hello".as_ref(),
+                    Some(qos),
+                    None,
+                )
+                .await
+                .unwrap_or_else(|e| panic!("qos={qos} should be accepted, got {e:?}"));
+
+            mock.assert_async().await;
+        }
     }
 }
