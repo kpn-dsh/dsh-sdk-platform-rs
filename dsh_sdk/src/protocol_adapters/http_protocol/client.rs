@@ -561,10 +561,7 @@ impl HttpClient {
             topic_filters: filters,
         };
 
-        let url = format!(
-            "{}/data/v0/multi",
-            self.base_url
-        );
+        let url = format!("{}/data/v0/multi", self.base_url);
         let resp = self
             .client
             .post(url)
@@ -682,10 +679,7 @@ mod tests {
 
     #[test]
     fn stream_rejects_empty() {
-        assert!(matches!(
-            Stream::new(""),
-            Err(HttpError::InvalidInput(_))
-        ));
+        assert!(matches!(Stream::new(""), Err(HttpError::InvalidInput(_))));
     }
 
     #[test]
@@ -767,8 +761,7 @@ mod tests {
     /// Invalid QoS values are rejected before any network I/O.
     #[tokio::test]
     async fn post_retained_body_rejects_invalid_qos() {
-        let client =
-            HttpClient::with_client("http://localhost", reqwest::Client::new()).unwrap();
+        let client = HttpClient::with_client("http://localhost", reqwest::Client::new()).unwrap();
         let stream = Stream::new("s").unwrap();
         let topic = Topic::new("t");
 
