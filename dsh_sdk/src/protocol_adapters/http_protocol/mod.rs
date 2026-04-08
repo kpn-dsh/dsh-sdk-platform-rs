@@ -18,7 +18,7 @@
 //! let token = "my-data-access-token";
 //!
 //! // Build an HTTP client targeting the platform base URL.
-//! let client = HttpClient::builder(base_url)?
+//! let client = HttpClient::builder(base_url)
 //!     .timeout(Duration::from_secs(10))
 //!     .build()?;
 //!
