@@ -88,8 +88,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ---
 
 ## Connect to DSH
+This SDK supports kafka, MQTT and HTTP connectivity to DSH. Depending on your environment and use case, you can choose the appropriate connection method. 
 
-This SDK accommodates multiple deployment environments:
+### DSH Kafka Connectivity
+This SDK accommodates multiple environments to connect to DSH Kafka, including:
 - Running in a container on a DSH tenant
 - Running in DSH System Space
 - Running on a machine with Kafka Proxy/VPN
@@ -97,12 +99,30 @@ This SDK accommodates multiple deployment environments:
 
 For more information, see the [CONNECT_PROXY_VPN_LOCAL.md](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/CONNECT_PROXY_VPN_LOCAL.md) document.
 
+### MQTT Protocol Adapter
+To connect to DSH using MQTT, you can use the Protocol Token Fetcher to obtain the necessary authentication tokens. 
+This allows you to interact with DSH's MQTT protocol adapters securely. 
+
+We recommend using the [`rumqttc`](https://crates.io/crates/rumqttc) crate for MQTT connectivity in Rust, which can be configured with the tokens obtained from the SDK.
+
+For more details, see the [Mqtt client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs) / [Mqtt websocket client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs) examples.
+
+> **Note**
+> Always make sure to handle your API KEY correctly and NEVER use it directly in client-side applications. Use the token fetcher to obtain short-lived tokens for authentication instead and delegate the responsibility of token management to your backend services.
+
+### HTTP Protocol Adapter
+
+Similar to MQTT, you can use the Protocol Token Fetcher to obtain tokens for authenticating with DSH's HTTP protocol adapters. This allows you to send HTTP requests to DSH services securely. This SDK provides a client in the `http_protocol_adapter` module to facilitate interactions with the HTTP Protocol Adapter.
+
+An example of how to use the HTTP Protocol Adapter client can be found in the [HTTP Protocol Adapter example](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/http_protocol_example.rs).
+
+> **Note**
+> Always make sure to handle your API KEY correctly and NEVER use it directly in client-side applications. Use the token fetcher to obtain short-lived tokens for authentication instead and delegate the responsibility of token management to your backend services.
+
+
 ---
 
 ## Feature Flags
-
-> **Important**  
-> The feature flags have changed since the `v0.5.X` update. Check the [migration guide](https://github.com/kpn-dsh/dsh-sdk-platform-rs/wiki/Migration-guide-(v0.4.X-%E2%80%90--v0.5.X)) for details.
 
 Below is an overview of the available features:
 
@@ -113,6 +133,7 @@ Below is an overview of the available features:
 | `rdkafka-config`               | ✓           | Enable `DshKafkaConfig` implementation for RDKafka                | [Kafka](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_example.rs) / [Kafka Proxy](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/kafka_proxy.rs) |
 | `schema-store`                 | ✗           | Interact with DSH Schema Store                                    | [Schema Store API](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/schema_store_api.rs)                                                                                   |
 | `protocol-token`       | ✗           | Fetch tokens to use DSH Protocol adapters (MQTT and HTTP)         | [Mqtt client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs) / [Mqtt websocket client](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/mqtt_example.rs) /<br>[Token fetcher (full mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_full_mediation.rs) / [Token fetcher (partial mediation)](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/protocol_authentication_partial_mediation.rs) |
+| `http-protocol-adapter`        | ✗           | HTTP client to interact with DSH HTTP Protocol Adapter            | [HTTP Protocol Adapter example](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/http_protocol_example.rs) |
 | `management-api-token-fetcher` | ✗           | Fetch tokens to use DSH Management API                            | [Token fetcher](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/management_api_token_fetcher.rs)     |
 | `metrics`                      | ✗           | Enable prometheus metrics including http server                   | [Expose metrics](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/expose_metrics.rs)                  |
 | `graceful-shutdown`            | ✗           | Tokio based graceful shutdown handler                             | [Graceful shutdown](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/dsh_sdk/examples/graceful_shutdown.rs)            |
@@ -145,7 +166,8 @@ A more complete example is provided in the [`example_dsh_service/`](https://gith
 
 - How to build the Rust project
 - How to package and push it to Harbor
-- An end-to-end setup of a DSH service uising Kafka
+- An end-to-end setup of a DSH service using Kafka
+
 
 See the [README](https://github.com/kpn-dsh/dsh-sdk-platform-rs/blob/main/example_dsh_service/README.md) in that directory for more information.
 
