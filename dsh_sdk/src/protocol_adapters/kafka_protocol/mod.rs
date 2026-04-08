@@ -25,7 +25,7 @@
 
 pub mod config;
 
-#[cfg(feature = "rdkafka")]
+#[cfg(feature = "rdkafka-config")]
 mod rdkafka;
 
 /// Trait defining core DSH configurations for Kafka consumers and producers.

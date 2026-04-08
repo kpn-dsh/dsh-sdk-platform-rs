@@ -25,7 +25,7 @@ use dsh_sdk::protocol_adapters::token::data_access_token::{
     DataAccessToken, RequestDataAccessToken,
 };
 
-use rumqttc::{AsyncClient, MqttOptions, Transport};
+use rumqttc::{AsyncClient, MqttOptions, TlsConfiguration, Transport};
 
 /// The platform to fetch the token for.
 const PLATFORM: dsh_sdk::Platform = dsh_sdk::Platform::Poc;
@@ -51,7 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut mqttoptions =
         MqttOptions::new(token.client_id(), token.endpoint_wss(), token.port_wss());
     mqttoptions.set_credentials("", token.raw_token());
-    mqttoptions.set_transport(Transport::wss_with_default_config());
+    mqttoptions.set_transport(Transport::tls_with_config(TlsConfiguration::Native));
 
     // Create a new async client
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);

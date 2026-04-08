@@ -34,19 +34,20 @@ thiserror = "2.0"
 tokio = { version = "^1.35", features = ["signal", "sync", "time", "macros"], optional = true }
 tokio-util = { version = "0.7", default-features = false, optional = true }
 
+
 [features]
 default = ["bootstrap", "kafka", "rdkafka-config"]
 
-bootstrap = ["rcgen", "reqwest", "pem", "serde_json", "tokio/rt-multi-thread"] 
+bootstrap = ["rcgen", "dep:reqwest", "pem", "serde_json", "tokio/rt-multi-thread"] 
 kafka = ["bootstrap"]
 rdkafka-config = ["rdkafka", "kafka"] # Impl of config trait only
-schema-store = ["bootstrap", "reqwest", "serde_json", "apache-avro", "protofish"]
+schema-store = ["bootstrap", "dep:reqwest", "serde_json", "apache-avro", "protofish"]
 graceful-shutdown = ["tokio", "tokio-util"]
 management-api-token-fetcher = ["reqwest/form"]
-protocol-token = ["base64", "reqwest", "serde_json", "sha2", "tokio/sync"]
+protocol-token = ["base64", "dep:reqwest", "serde_json", "sha2", "tokio/sync"]
 metrics = [ "hyper/server", "hyper/http1" , "hyper-util/tokio", "http-body-util", "tokio", "tokio/net", "bytes"]
 dlq = ["tokio", "bootstrap", "rdkafka-config", "rdkafka/cmake-build", "rdkafka/ssl-vendored", "rdkafka/libz", "rdkafka/tokio", "graceful-shutdown"]
-
+http-protocol-adapter = ["serde_json", "dep:reqwest", "bytes"]
 
 [dev-dependencies]
 # Dependencies for the test
@@ -61,5 +62,5 @@ dsh_sdk = { features = ["dlq"], path = "." }
 env_logger = "0.11"
 rdkafka = { version = "0.39", features = ["cmake-build", "ssl-vendored"], default-features = true }
 prometheus = { version = "0.14", features = ["process"] }
-rumqttc = { version = "0.24", features = ["websocket"] }
+rumqttc = { version = "0.25", features = ["websocket", "use-native-tls"], default-features=false }
 reqwest = { version = "0.13", default-features = false, features = ["rustls"] } 

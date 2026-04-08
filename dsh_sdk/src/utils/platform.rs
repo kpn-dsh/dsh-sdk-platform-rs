@@ -145,6 +145,14 @@ impl Platform {
             } => endpoint_management_api,
         }
     }
+
+    /// Returns the base URL for the platform, stripping `/resources/v0` if present.
+    pub fn http_protocol_base_url(&self) -> String {
+        self.endpoint_management_api()
+            .strip_suffix("/resources/v0")
+            .unwrap_or(self.endpoint_management_api())
+            .to_string()
+    }
     /// Returns the endpoint for fetching a DSH Management API authentication token.
     ///
     /// This endpoint is typically used to authenticate requests to certain management or admin-level
