@@ -1,9 +1,9 @@
 #[cfg(feature = "client")]
 #[allow(unused_imports)]
-use progenitor_client::{encode_path, ClientHooks, OperationInfo, RequestBuilderExt};
+pub use progenitor_client::{ByteStream, ClientInfo, Error, ResponseValue};
 #[cfg(feature = "client")]
 #[allow(unused_imports)]
-pub use progenitor_client::{ByteStream, ClientInfo, Error, ResponseValue};
+use progenitor_client::{ClientHooks, OperationInfo, RequestBuilderExt, encode_path};
 
 #[cfg(feature = "client")]
 pub mod progenitor_client;
@@ -8807,8 +8807,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_configuration",
+            operation_id: "app_catalog_get_by_tenant_appcatalogapp_by_appcatalogappid_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -8914,7 +8913,9 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let info = OperationInfo { operation_id : "app_catalog_app_configuration_get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration" , } ;
+        let info = OperationInfo {
+            operation_id: "app_catalog_app_configuration_get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -8965,7 +8966,9 @@ impl Client {
             .json(&body)
             .headers(header_map)
             .build()?;
-        let info = OperationInfo { operation_id : "app_catalog_app_configuration_put_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration" , } ;
+        let info = OperationInfo {
+            operation_id: "app_catalog_app_configuration_put_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -9008,7 +9011,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "app_catalog_app_configuration_delete_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration" , } ;
+        let info = OperationInfo {
+            operation_id: "app_catalog_app_configuration_delete_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_configuration",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -9058,7 +9063,9 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let info = OperationInfo { operation_id : "app_catalog_app_configuration_get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_status" , } ;
+        let info = OperationInfo {
+            operation_id: "app_catalog_app_configuration_get_appcatalog_by_tenant_appcatalogapp_by_appcatalogappid_status",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -9969,8 +9976,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
+            operation_id: "bucket_access_get_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -10022,8 +10028,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "bucket_access_put_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
+            operation_id: "bucket_access_put_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -10070,8 +10075,7 @@ impl Client {
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let info = OperationInfo {
-            operation_id:
-                "bucket_access_delete_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
+            operation_id: "bucket_access_delete_by_tenant_bucket_by_id_bucketaccess_by_name_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -11005,8 +11009,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "data_catalog_get_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
+            operation_id: "data_catalog_get_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -11058,8 +11061,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "data_catalog_put_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
+            operation_id: "data_catalog_put_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -11106,8 +11108,7 @@ impl Client {
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let info = OperationInfo {
-            operation_id:
-                "data_catalog_delete_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
+            operation_id: "data_catalog_delete_by_tenant_datacatalog_asset_by_kind_by_name_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -12773,8 +12774,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_configuration",
+            operation_id: "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -12819,8 +12819,7 @@ impl Client {
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let info = OperationInfo {
-            operation_id:
-                "third_party_bucket_delete_by_tenant_thirdpartybucketconcession_by_id_configuration",
+            operation_id: "third_party_bucket_delete_by_tenant_thirdpartybucketconcession_by_id_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -12871,8 +12870,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_actual",
+            operation_id: "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_actual",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -12923,8 +12921,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_status",
+            operation_id: "third_party_bucket_get_by_tenant_thirdpartybucketconcession_by_id_status",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14188,8 +14185,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_tenant_limits_get_manage_by_manager_tenant_by_tenant_limit_by_kind",
+            operation_id: "managed_tenant_limits_get_manage_by_manager_tenant_by_tenant_limit_by_kind",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14243,8 +14239,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_tenant_limits_put_manage_by_manager_tenant_by_tenant_limit_by_kind",
+            operation_id: "managed_tenant_limits_put_manage_by_manager_tenant_by_tenant_limit_by_kind",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14392,8 +14387,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_streams_get_manage_by_manager_stream_public_by_streamid_configuration",
+            operation_id: "managed_streams_get_manage_by_manager_stream_public_by_streamid_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14446,8 +14440,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_streams_post_manage_by_manager_stream_public_by_streamid_configuration",
+            operation_id: "managed_streams_post_manage_by_manager_stream_public_by_streamid_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14493,8 +14486,7 @@ impl Client {
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_streams_delete_manage_by_manager_stream_public_by_streamid_configuration",
+            operation_id: "managed_streams_delete_manage_by_manager_stream_public_by_streamid_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14547,8 +14539,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_streams_get_manage_by_manager_stream_internal_by_streamid_configuration",
+            operation_id: "managed_streams_get_manage_by_manager_stream_internal_by_streamid_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14601,8 +14592,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_streams_post_manage_by_manager_stream_internal_by_streamid_configuration",
+            operation_id: "managed_streams_post_manage_by_manager_stream_internal_by_streamid_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14648,8 +14638,7 @@ impl Client {
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_streams_delete_manage_by_manager_stream_internal_by_streamid_configuration",
+            operation_id: "managed_streams_delete_manage_by_manager_stream_internal_by_streamid_configuration",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -14701,7 +14690,9 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_write" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_write",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -14747,7 +14738,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -14793,7 +14786,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -14839,7 +14834,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_write_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -14891,7 +14888,9 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_read" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_get_manage_by_manager_stream_internal_by_streamid_access_read",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -14937,7 +14936,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_put_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -14983,7 +14984,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_delete_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -15029,7 +15032,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_head_manage_by_manager_stream_internal_by_streamid_access_read_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -15081,7 +15086,9 @@ impl Client {
             )
             .headers(header_map)
             .build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_write" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_write",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -15127,7 +15134,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_write_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_write_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -15173,7 +15182,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_write_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_write_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -15219,7 +15230,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_write_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_write_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -15272,8 +15285,7 @@ impl Client {
             .headers(header_map)
             .build()?;
         let info = OperationInfo {
-            operation_id:
-                "managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_read",
+            operation_id: "managed_streams_access_get_manage_by_manager_stream_public_by_streamid_access_read",
         };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
@@ -15320,7 +15332,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.put(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_read_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_put_manage_by_manager_stream_public_by_streamid_access_read_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -15366,7 +15380,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.delete(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_read_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_delete_manage_by_manager_stream_public_by_streamid_access_read_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
@@ -15412,7 +15428,9 @@ impl Client {
         header_map.append("Authorization", authorization.to_string().try_into()?);
         #[allow(unused_mut)]
         let mut request = self.client.head(url).headers(header_map).build()?;
-        let info = OperationInfo { operation_id : "managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_read_by_tenant" , } ;
+        let info = OperationInfo {
+            operation_id: "managed_streams_access_head_manage_by_manager_stream_public_by_streamid_access_read_by_tenant",
+        };
         self.pre(&mut request, &info).await?;
         let result = self.exec(request, &info).await;
         self.post(&result, &info).await?;
