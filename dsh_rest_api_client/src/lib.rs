@@ -7237,7 +7237,10 @@ pub mod types {
     ///        "STAGING",
     ///        "STARTING",
     ///        "UNKNOWN",
-    ///        "UNREACHABLE"
+    ///        "UNREACHABLE",
+    ///        "CRASHLOOPBACKOFF",
+    ///        "IMAGE_ERROR",
+    ///        "OOM_KILLED"
     ///      ]
     ///    },
     ///    "stoppedAt": {
@@ -7306,7 +7309,10 @@ pub mod types {
     ///    "STAGING",
     ///    "STARTING",
     ///    "UNKNOWN",
-    ///    "UNREACHABLE"
+    ///    "UNREACHABLE",
+    ///    "CRASHLOOPBACKOFF",
+    ///    "IMAGE_ERROR",
+    ///    "OOM_KILLED"
     ///  ]
     ///}
     /// ```
@@ -7352,6 +7358,12 @@ pub mod types {
         Unknown,
         #[serde(rename = "UNREACHABLE")]
         Unreachable,
+        #[serde(rename = "CRASHLOOPBACKOFF")]
+        Crashloopbackoff,
+        #[serde(rename = "IMAGE_ERROR")]
+        ImageError,
+        #[serde(rename = "OOM_KILLED")]
+        OomKilled,
     }
 
     impl ::std::fmt::Display for TaskState {
@@ -7371,6 +7383,9 @@ pub mod types {
                 Self::Starting => f.write_str("STARTING"),
                 Self::Unknown => f.write_str("UNKNOWN"),
                 Self::Unreachable => f.write_str("UNREACHABLE"),
+                Self::Crashloopbackoff => f.write_str("CRASHLOOPBACKOFF"),
+                Self::ImageError => f.write_str("IMAGE_ERROR"),
+                Self::OomKilled => f.write_str("OOM_KILLED"),
             }
         }
     }
@@ -7393,6 +7408,9 @@ pub mod types {
                 "STARTING" => Ok(Self::Starting),
                 "UNKNOWN" => Ok(Self::Unknown),
                 "UNREACHABLE" => Ok(Self::Unreachable),
+                "CRASHLOOPBACKOFF" => Ok(Self::Crashloopbackoff),
+                "IMAGE_ERROR" => Ok(Self::ImageError),
+                "OOM_KILLED" => Ok(Self::OomKilled),
                 _ => Err("invalid value".into()),
             }
         }
@@ -8278,7 +8296,7 @@ impl Client {
 #[cfg(feature = "client")]
 impl ClientInfo<()> for Client {
     fn api_version() -> &'static str {
-        "1.11.1"
+        "1.12.0"
     }
 
     fn baseurl(&self) -> &str {
