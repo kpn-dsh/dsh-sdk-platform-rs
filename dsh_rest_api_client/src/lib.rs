@@ -7184,7 +7184,6 @@ pub mod types {
     ///  "required": [
     ///    "host",
     ///    "stagedAt",
-    ///    "startedAt",
     ///    "state"
     ///  ],
     ///  "properties": {
@@ -7216,7 +7215,8 @@ pub mod types {
     ///      "format": "date-time"
     ///    },
     ///    "startedAt": {
-    ///      "description": "Start time of the task",
+    ///      "description": "Start time of the task. Absent while the task has
+    /// not started yet (e.g. STAGING, STARTING).",
     ///      "type": "string",
     ///      "format": "date-time"
     ///    },
@@ -7273,9 +7273,14 @@ pub mod types {
         ///Staging time of the task
         #[serde(rename = "stagedAt")]
         pub staged_at: ::chrono::DateTime<::chrono::offset::Utc>,
-        ///Start time of the task
-        #[serde(rename = "startedAt")]
-        pub started_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///Start time of the task. Absent while the task has not started yet
+        /// (e.g. STAGING, STARTING).
+        #[serde(
+            rename = "startedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub started_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
         ///The state the task is in
         pub state: TaskState,
         ///Stopped time of the task
@@ -8253,7 +8258,7 @@ pub mod types {
 ///
 ///Resource management API for DSH
 ///
-///Version: 1.11.1
+///Version: 1.13.0
 pub struct Client {
     pub(crate) baseurl: String,
     pub(crate) client: reqwest::Client,
@@ -8296,7 +8301,7 @@ impl Client {
 #[cfg(feature = "client")]
 impl ClientInfo<()> for Client {
     fn api_version() -> &'static str {
-        "1.12.0"
+        "1.13.0"
     }
 
     fn baseurl(&self) -> &str {
