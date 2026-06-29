@@ -362,7 +362,7 @@ mod tests {
             .subject_name()
             .entries()
             .into_iter()
-            .map(|e| e.data().as_utf8().unwrap().to_string())
+            .map(|e| e.data().to_string().unwrap())
             .collect::<Vec<String>>()
             .join(",");
         assert_eq!(subject, "Test CN,Test OU,Test Org");
