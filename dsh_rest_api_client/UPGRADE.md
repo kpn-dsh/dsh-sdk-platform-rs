@@ -15,23 +15,11 @@ install progenitor using cargo
 cargo install cargo-progenitor --version 0.12.0
 ```
 
-## Prepare the OpenAPI spec file
-Download the OpenAPI spec file from the DSH API documentation.
+## Build lib
+Put the new openapi spec json in `dsh_rest_api_client/openapi_spec` directory.
 
-The spec of DSH is missing the required `OperationId` field and authentication. To add this, run the following python script:
-
-```shell
-python3 update_openapi_spec.py path/to/openapi.json
-```
-
-## Generate the client
-To generate the client run the following command:
+Then execute the following Make command with the correct filename. This will clean the openapi spec and generate the lib.rs with correct feature flags
 
 ```shell
-cargo +nightly progenitor -i dsh_rest_api_client/openapi_spec/openapi_1_11_1.json -o dsh_rest_client -n dsh_rest_client -v 0.1.0
+make build SPEC=openapi_1_13_0.json
 ```
-
-## Update the client
-Copy the generated `lib.rs` from `tmp_dsh_rest_api_client` to the src folder of `dsh_rest_api_client` in the `dsh_sdk` repository and update the `README.md` file and `cargo.toml` with the new version number. 
-
-in `lib.rs` add the feature flags to all parent items ("client", "types")
