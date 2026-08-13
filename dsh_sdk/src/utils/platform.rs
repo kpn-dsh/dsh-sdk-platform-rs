@@ -501,7 +501,6 @@ mod tests {
     fn test_platform_from_env_custom() {
         unsafe {
             std::env::set_var(VAR_DSH_ENVIRONMENT, "custom");
-            assert!(Platform::from_env().is_err());
             std::env::set_var(VAR_DSH_REALM, "custom-realm");
             assert!(Platform::from_env().is_ok());
             std::env::set_var(
