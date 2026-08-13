@@ -269,32 +269,59 @@ impl Platform {
     ///}
     ///```
     ///
-    /// # Custom Platform
-    /// If you want to use a custom platform, you can set the `DSH_ENVIRONMENT` to `custom` which
-    /// whill try to instantiate a [`Platform::Custom`]. Set the following environment variables to set the endpoints and realm:
+    /// # Custom/unknown Platform
+    /// If you want to use a custom platform or define an unknown platform, this method
+    /// whill try to instantiate a [`Platform::Custom`] when an unknown platform is given.
+    /// Set the following environment variables to configure the endpoints:
     ///
-    /// | Variable Name | Description | Required |
-    /// | ------------- | ----------- | :------: |
-    /// | `DSH_ENVIRONMENT` | Set to `custom` | `Yes` |
-    /// | `DSH_REALM` | The realm name for the to be used platform | `Yes` |
-    /// | `DSH_ENDPOINT_MANAGEMENT_API` | The endpoint for the DSH Management API | `No` |
-    /// | `DSH_ENDPOINT_MANAGEMENT_API_TOKEN` | The endpoint for fetching a DSH Management API authentication token | `No` |
-    /// | `DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN` | The endpoint for fetching DSH protocol [Access Tokens](crate::protocol_adapters::token::data_access_token::DataAccessToken) | `No` |
-    /// | `DSH_ENDPOINT_PROTOCOL_REST_TOKEN` | The endpoint for retrieving Protocol [Rest Tokens](crate::protocol_adapters::token::rest_token::RestToken) which is needed to request [Access Tokens](crate::protocol_adapters::token::data_access_token::DataAccessToken) | `No` |
+    /// <table>
+    ///   <thead>
+    ///     <tr>
+    ///       <th>Variable Name</th>
+    ///       <th>Description</th>
+    ///       <th>Required</th>
+    ///     </tr>
+    ///   </thead>
+    ///   <tbody>
+    ///     <tr>
+    ///       <td><code>DSH_ENVIRONMENT</code></td>
+    ///       <td>Set to correct realm name for the platform</td>
+    ///       <td><code>Yes</code></td>
+    ///     </tr>
+    ///     <tr>
+    ///       <td><code>DSH_ENDPOINT_MANAGEMENT_API</code></td>
+    ///       <td>The endpoint for the DSH Management API</td>
+    ///       <td><code>No</code></td>
+    ///     </tr>
+    ///     <tr>
+    ///       <td><code>DSH_ENDPOINT_MANAGEMENT_API_TOKEN</code></td>
+    ///       <td>The endpoint for fetching a DSH Management API authentication token</td>
+    ///       <td><code>No</code></td>
+    ///     </tr>
+    ///     <tr>
+    ///       <td><code>DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN</code></td>
+    ///       <td>The endpoint for fetching DSH protocol <a href="crate::protocol_adapters::token::data_access_token::DataAccessToken">Access Tokens</a></td>
+    ///       <td><code>No</code></td>
+    ///     </tr>
+    ///     <tr>
+    ///       <td><code>DSH_ENDPOINT_PROTOCOL_REST_TOKEN</code></td>
+    ///       <td>The endpoint for retrieving Protocol <a href="crate::protocol_adapters::token::rest_token::RestToken">Rest Tokens</a>, needed to request <a href="crate::protocol_adapters::token::data_access_token::DataAccessToken">Access Tokens</a></td>
+    ///       <td><code>No</code></td>
+    ///     </tr>
+    ///   </tbody>
+    /// </table>
     ///
     /// The endpoint variables are optional, if not set, the related token fetchers will not work.
     pub fn from_env() -> Result<Self, UtilsError> {
         let platform_env = get_env_var(VAR_DSH_ENVIRONMENT)?;
-        if platform_env.to_lowercase() == "custom" {
-            Self::custom_from_env()
-        } else {
-            Self::try_from(platform_env.as_str())
-                .map_err(|_| UtilsError::InvalidPlatform(platform_env))
-        }
+        Ok(match Self::try_from(platform_env.as_str()) {
+            Ok(platform) => platform,
+            Err(_) => Self::custom_from_env(platform_env),
+        })
     }
 
-    fn custom_from_env() -> Result<Self, UtilsError> {
-        let realm = get_env_var(VAR_DSH_REALM)?;
+    fn custom_from_env(environment: String) -> Self {
+        let realm = get_env_var(VAR_DSH_REALM).unwrap_or(environment);
         let endpoint_management_api =
             get_env_var(VAR_DSH_ENDPOINT_MANAGEMENT_API).unwrap_or_default();
         let endpoint_management_api_token =
@@ -303,13 +330,13 @@ impl Platform {
             get_env_var(VAR_DSH_ENDPOINT_PROTOCOL_ACCESS_TOKEN).unwrap_or_default();
         let endpoint_protocol_rest_token =
             get_env_var(VAR_DSH_ENDPOINT_PROTOCOL_REST_TOKEN).unwrap_or_default();
-        Ok(Self::Custom {
+        Self::Custom {
             realm,
             endpoint_management_api,
             endpoint_management_api_token,
             endpoint_protocol_access_token,
             endpoint_protocol_rest_token,
-        })
+        }
     }
 }
 
@@ -474,7 +501,6 @@ mod tests {
     fn test_platform_from_env_custom() {
         unsafe {
             std::env::set_var(VAR_DSH_ENVIRONMENT, "custom");
-            assert!(Platform::from_env().is_err());
             std::env::set_var(VAR_DSH_REALM, "custom-realm");
             assert!(Platform::from_env().is_ok());
             std::env::set_var(
