@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.3] - 2026-08-13
+### Fixed
+- Custom platforms realm name can be set via DSH_ENVIRONMENT instead of DSH_REALM (DSH_REALM is still leading if set)
+
+
 ## [0.8.2] - 2026-06-09
 ### Added
 - Add `DshPartitioner` enum incl. a topiclevel partitioner based on the murmur2 algorithm
