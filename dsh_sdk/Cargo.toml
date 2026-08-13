@@ -15,7 +15,7 @@ version = "0.8.2"
 all-features = true
 
 [dependencies]
-apache-avro = { version = "0.21", optional = true }
+apache-avro = { version = "0.22", optional = true }
 base64 = { version = "0.23", optional = true }
 bytes = { version = "1.6", optional = true }
 http-body-util = { version = "0.1", optional = true }
