@@ -9,13 +9,13 @@ The versions of this crate are tied to the versions of the OpenAPI spec and the 
 
 #### DSH Rest API Client: 0.8.0
 - OpenAPI spec: 1.13.0
-- Progenitor version: 0.10.0
+- Progenitor version: 0.12.0
 - Reqwest client 0.13
 - Feature flags "types" and "client"
 
 #### DSH Rest API Client: 0.7.0
 - OpenAPI spec: 1.12.0
-- Progenitor version: 0.10.0
+- Progenitor version: 0.12.0
 - Reqwest client 0.13
 - Feature flags "types" and "client"
 

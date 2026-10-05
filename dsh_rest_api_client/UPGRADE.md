@@ -23,3 +23,6 @@ Then execute the following Make command with the correct filename. This will cle
 ```shell
 make build SPEC=openapi_1_13_0.json
 ```
+
+## Dependency upgrades
+The dependencies are managed bumped manually. If a breaking change occurs, validate if the generated client is compatible with the new versions of the dependencies. If not, consider updating Progenitor and regenerating the client.
