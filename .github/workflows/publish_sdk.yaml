@@ -10,11 +10,13 @@ jobs:
       id-token: write     # Required for OIDC token exchange
     steps:
     - uses: actions/checkout@v6
-    - uses: rust-lang/crates-io-auth-action@v1
-      id: auth
+    - name: install system deps
+      run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libsasl2-dev protobuf-compiler
     - run: cargo check -p dsh_sdk
     - run: cargo build -p dsh_sdk
     - run: cargo test -p dsh_sdk --all-features --  --test-threads=1
+    - uses: rust-lang/crates-io-auth-action@v1
+      id: auth
     - run: cargo publish -p dsh_sdk
       env:
         CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
