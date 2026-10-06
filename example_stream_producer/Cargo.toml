@@ -5,7 +5,7 @@ description = "An example of a DSH service producing to a public stream, using t
 edition = "2021"
 
 [dependencies]
-dsh_sdk = { path = "../dsh_sdk", version = "0.8", features = [
+dsh_sdk = { path = "../dsh_sdk", features = [
   "rdkafka-config",
   "dsh-envelope",
   "metrics",

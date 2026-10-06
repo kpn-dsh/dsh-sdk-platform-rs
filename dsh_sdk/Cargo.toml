@@ -9,13 +9,23 @@ license.workspace = true
 name = "dsh_sdk"
 readme = 'README.md'
 repository.workspace = true
-version = "0.8.3"
+version = "0.9.0"
 
 [package.metadata.docs.rs]
 all-features = true
 
 [dependencies]
-apache-avro = { version = "0.21", optional = true }
+# Publically exposed dependencies (always a major version bump for the SDK if one of these have a major version change)
+apache-avro = { version = "0.22", optional = true }
+protofish = { version = "0.5.2", optional = true }
+reqwest = { version = "0.13", default-features = false, features = [
+  "rustls",
+  "json",
+  "blocking",
+], optional = true }
+rdkafka = { version = "0.39", default-features = false, optional = true }
+
+# Internal dependencies (do not trigger a major version bump for the SDK if one of these have a major version change)
 base64 = { version = "0.23", optional = true }
 bytes = { version = "1.6", optional = true }
 http-body-util = { version = "0.1", optional = true }
@@ -24,14 +34,7 @@ hyper-util = { version = "0.1", default-features = false, optional = true }
 log = "0.4"
 pem = { version = "4", optional = true }
 prost = { version = "0.14.3", optional = true }
-protofish = { version = "0.5.2", optional = true }
 rcgen = { version = "0.14", optional = true }
-rdkafka = { version = "0.39", default-features = false, optional = true }
-reqwest = { version = "0.13", default-features = false, features = [
-  "rustls",
-  "json",
-  "blocking",
-], optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"], optional = true }
 sha2 = { version = "0.11", optional = true }
