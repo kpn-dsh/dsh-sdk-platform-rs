@@ -24,5 +24,8 @@ Then execute the following Make command with the correct filename. This will cle
 make build SPEC=openapi_1_13_0.json
 ```
 
+## Update cargo.toml and readme 
+After regenerating the clien, update the cargo.toml with new version and `README.md` file to reflect any changes in usage, features, or dependencies.
+
 ## Dependency upgrades
 The dependencies are managed bumped manually. If a breaking change occurs, validate if the generated client is compatible with the new versions of the dependencies. If not, consider updating Progenitor and regenerating the client.
