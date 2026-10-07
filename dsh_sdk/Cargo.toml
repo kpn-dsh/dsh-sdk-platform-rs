@@ -16,7 +16,7 @@ all-features = true
 
 [dependencies]
 # Publically exposed dependencies (always a major version bump for the SDK if one of these have a major version change)
-apache-avro = { version = "0.22", optional = true }
+apache-avro = { version = "0.21", optional = true }
 protofish = { version = "0.5.2", optional = true }
 reqwest = { version = "0.13", default-features = false, features = [
   "rustls",
